@@ -13,7 +13,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 
 object RobotCommonHandler {
   @SubscribeEvent
-  def onRobotApplyDamageRate(e: RobotUsedToolEvent.ApplyDamageRate) {
+  def onRobotApplyDamageRate(e: RobotUsedToolEvent.ApplyDamageRate): Unit = {
     e.agent match {
       case robot: internal.Robot =>
         if (e.toolAfterUse.isDamageableItem) {

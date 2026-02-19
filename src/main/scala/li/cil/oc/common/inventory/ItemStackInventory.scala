@@ -1,7 +1,7 @@
 package li.cil.oc.common.inventory
 
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 
 trait ItemStackInventory extends Inventory {
   // The item stack that provides the inventory.
@@ -20,7 +20,7 @@ trait ItemStackInventory extends Inventory {
   }
 
   // Load items from tag.
-  def reinitialize() {
+  def reinitialize(): Unit = {
     for (i <- items.indices) {
       updateItems(i, ItemStack.EMPTY)
     }
@@ -28,7 +28,7 @@ trait ItemStackInventory extends Inventory {
   }
 
   // Write items back to tag.
-  override def setChanged() {
+  override def setChanged(): Unit = {
     saveData(container.getOrCreateTag)
   }
 }

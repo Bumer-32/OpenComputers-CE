@@ -31,7 +31,7 @@ object BlockChangeHandler {
   private val changeListeners = mutable.WeakHashMap.empty[ChangeListener, BlockPosition]
 
   trait ChangeListener {
-    def onBlockChanged()
+    def onBlockChanged(): Unit
   }
 
 }

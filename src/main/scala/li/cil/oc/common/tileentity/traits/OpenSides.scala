@@ -27,24 +27,24 @@ trait OpenSides extends TileEntity {
     openSides(side.ordinal()) = value
   }
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     super.loadForServer(nbt)
     if (nbt.contains(Settings.namespace + "openSides"))
       openSides = uncompressSides(nbt.getByte(Settings.namespace + "openSides"))
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
     nbt.putByte(Settings.namespace + "openSides", compressSides)
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundNBT): Unit = {
     super.loadForClient(nbt)
     openSides = uncompressSides(nbt.getByte(Settings.namespace + "openSides"))
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundNBT): Unit = {
     super.saveForClient(nbt)
     nbt.putByte(Settings.namespace + "openSides", compressSides)
   }

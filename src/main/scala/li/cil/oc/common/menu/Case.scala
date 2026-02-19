@@ -1,17 +1,16 @@
-package li.cil.oc.common.container
+package li.cil.oc.common.menu
 
 import li.cil.oc.common.InventorySlots
 import li.cil.oc.common.Tier
 import li.cil.oc.common.tileentity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.util.IntReferenceHolder
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.Container
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.DataSlot
+import net.minecraft.world.inventory.MenuType
 
-class Case(selfType: ContainerType[_ <: Case], id: Int, playerInventory: PlayerInventory, computer: IInventory, tier: Int)
-  extends Player(selfType, id, playerInventory, computer) {
+class Case(selfType: MenuType[_ <: Case], id: Int, playerInventory: Inventory, computer: Container, tier: Int)
+  extends AbstractMenu(selfType, id, playerInventory, computer) {
 
   override protected def getHostClass = classOf[tileentity.Case]
 
@@ -55,17 +54,17 @@ class Case(selfType: ContainerType[_ <: Case], id: Int, playerInventory: PlayerI
 
   private val runningData = computer match {
     case te: tileentity.Case => {
-      addDataSlot(new IntReferenceHolder {
+      addDataSlot(new DataSlot {
         override def get(): Int = if (te.isRunning) 1 else 0
 
         override def set(value: Int): Unit = te.setRunning(value != 0)
       })
     }
-    case _ => addDataSlot(IntReferenceHolder.standalone)
+    case _ => addDataSlot(DataSlot.standalone)
   }
   def isRunning = runningData.get != 0
 
-  override def stillValid(player: PlayerEntity) =
+  override def stillValid(player: Player) =
     super.stillValid(player) && (computer match {
       case te: tileentity.Case => te.canInteract(player.getName.getString)
       case _ => true

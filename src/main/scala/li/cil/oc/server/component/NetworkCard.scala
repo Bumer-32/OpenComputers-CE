@@ -127,7 +127,7 @@ class NetworkCard(val host: EnvironmentHost) extends AbstractManagedEnvironment 
 
   // ----------------------------------------------------------------------- //
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node): Unit = {
     super.onDisconnect(node)
     if (node == this.node) {
       openPorts.clear()
@@ -160,14 +160,14 @@ class NetworkCard(val host: EnvironmentHost) extends AbstractManagedEnvironment 
 
   private final val OpenPortsTag = "openPorts"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
     assert(openPorts.isEmpty)
     openPorts ++= nbt.getIntArray(OpenPortsTag)
     loadWakeMessage(nbt)
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
 
     nbt.putIntArray(OpenPortsTag, openPorts.toArray)
@@ -180,7 +180,7 @@ class NetworkCard(val host: EnvironmentHost) extends AbstractManagedEnvironment 
     if (port < 1 || port > 0xFFFF) throw new IllegalArgumentException("invalid port number")
     else port
 
-  private def networkActivity() {
+  private def networkActivity(): Unit = {
     host match {
       case h: EnvironmentHost => ServerPacketSender.sendNetworkActivity(node, h)
       case _ =>

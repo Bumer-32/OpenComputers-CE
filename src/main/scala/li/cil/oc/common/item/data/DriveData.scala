@@ -22,14 +22,14 @@ class DriveData extends ItemData(null) {
   private final val UnmanagedTag = Settings.namespace + "unmanaged"
   private val LockTag = Settings.namespace + "lock"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     isUnmanaged = nbt.getBoolean(UnmanagedTag)
     lockInfo = if (nbt.contains(LockTag)) {
       nbt.getString(LockTag)
     } else ""
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     nbt.putBoolean(UnmanagedTag, isUnmanaged)
     nbt.putString(LockTag, lockInfo)
   }

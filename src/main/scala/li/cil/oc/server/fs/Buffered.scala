@@ -61,7 +61,7 @@ trait Buffered extends OutputStreamFileSystem {
   }
 
   private def loadFiles(nbt: CompoundNBT): Unit = this.synchronized {
-    def recurse(path: String, directory: io.File) {
+    def recurse(path: String, directory: io.File): Unit = {
       makeDirectory(path)
       for (child <- directory.listFiles() if FileSystem.isValidFilename(child.getName)) {
         val childPath = path + child.getName

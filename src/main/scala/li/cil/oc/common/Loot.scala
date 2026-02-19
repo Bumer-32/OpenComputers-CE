@@ -87,7 +87,7 @@ object Loot {
     stack.copy()
   }
 
-  def init() {
+  def init(): Unit = {
 //    for (container <- containers) {
 //      ChestGenHooks.addItem(container, new Loot())
 //    }
@@ -132,7 +132,7 @@ object Loot {
     case _ =>
   }
 
-  private def parseLootDisks(list: java.util.Properties, acc: mutable.ArrayBuffer[(ItemStack, Int)], external: Boolean) {
+  private def parseLootDisks(list: java.util.Properties, acc: mutable.ArrayBuffer[(ItemStack, Int)], external: Boolean): Unit = {
     for (key <- list.stringPropertyNames) {
       val value = list.getProperty(key)
       try value.split(":") match {

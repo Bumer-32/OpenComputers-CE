@@ -53,7 +53,7 @@ class Microcontroller(props: Properties)
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
+  override protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag): Unit = {
     super.tooltipTail(stack, world, tooltip, advanced)
     if (KeyBindings.showExtendedTooltips) {
       val info = new MicrocontrollerData(stack)
@@ -127,7 +127,7 @@ class Microcontroller(props: Properties)
     super.getDrops(state, newCtx)
   }
 
-  override def playerWillDestroy(world: World, pos: BlockPos, state: BlockState, player: PlayerEntity) {
+  override def playerWillDestroy(world: World, pos: BlockPos, state: BlockState, player: PlayerEntity): Unit = {
     if (!world.isClientSide && player.isCreative) {
       world.getBlockEntity(pos) match {
         case tileEntity: tileentity.Microcontroller =>

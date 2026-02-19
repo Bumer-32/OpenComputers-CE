@@ -13,8 +13,8 @@ import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
 import li.cil.oc.api.network._
 import li.cil.oc.api.util.StateAware
-import li.cil.oc.common.container
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
@@ -322,7 +322,7 @@ class Printer(selfType: TileEntityType[_ <: Printer]) extends TileEntity(selfTyp
   private final val TotalTag = Settings.namespace + "total"
   private final val RemainingTag = Settings.namespace + "remaining"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     super.loadForServer(nbt)
     amountMaterial = nbt.getInt(AmountMaterialTag)
     amountInk = nbt.getInt(AmountInkTag)
@@ -339,7 +339,7 @@ class Printer(selfType: TileEntityType[_ <: Printer]) extends TileEntity(selfTyp
     requiredEnergy = nbt.getDouble(RemainingTag)
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
     nbt.putInt(AmountMaterialTag, amountMaterial)
     nbt.putInt(AmountInkTag, amountInk)
@@ -352,13 +352,13 @@ class Printer(selfType: TileEntityType[_ <: Printer]) extends TileEntity(selfTyp
   }
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT) {
+  def loadForClient(nbt: CompoundNBT): Unit = {
     super.loadForClient(nbt)
     data.loadData(nbt.getCompound(DataTag))
     requiredEnergy = nbt.getDouble(RemainingTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundNBT): Unit = {
     super.saveForClient(nbt)
     nbt.setNewCompoundTag(DataTag, data.saveData)
     nbt.putDouble(RemainingTag, requiredEnergy)
@@ -378,7 +378,7 @@ class Printer(selfType: TileEntityType[_ <: Printer]) extends TileEntity(selfTyp
   // ----------------------------------------------------------------------- //
 
   override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new container.Printer(ContainerTypes.PRINTER, id, playerInventory, this)
+    new menu.Printer(ContainerTypes.PRINTER, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
 

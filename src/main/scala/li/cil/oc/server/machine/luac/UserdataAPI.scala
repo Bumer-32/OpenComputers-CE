@@ -17,7 +17,7 @@ import net.minecraft.nbt.CompoundNBT
 import scala.collection.convert.ImplicitConversionsToScala._
 
 class UserdataAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
-  def initialize() {
+  def initialize(): Unit = {
     lua.newTable()
 
     lua.pushScalaFunction(lua => {

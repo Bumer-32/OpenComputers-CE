@@ -48,7 +48,7 @@ class UpgradeExperience(val host: EnvironmentHost with internal.Agent) extends A
 
   def xpForNextLevel: Double = ExperienceUtil.xpForLevel(level + 1)
 
-  def addExperience(value: Double) {
+  def addExperience(value: Double): Unit = {
     if (level < MaxLevel) {
       experience = experience + value
       if (experience >= xpForNextLevel) {
@@ -62,7 +62,7 @@ class UpgradeExperience(val host: EnvironmentHost with internal.Agent) extends A
     }
   }
 
-  def updateXpInfo() {
+  def updateXpInfo(): Unit = {
     // xp(level) = base + (level * const) ^ exp
     // pow(xp(level) - base, 1/exp) / const = level
     val oldLevel = level
@@ -115,12 +115,12 @@ class UpgradeExperience(val host: EnvironmentHost with internal.Agent) extends A
     case _ =>
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
     ExperienceUtil.setExperience(nbt, experience)
   }
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
     experience = ExperienceUtil.getExperience(nbt)
     updateXpInfo()

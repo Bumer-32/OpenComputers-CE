@@ -18,8 +18,8 @@ import li.cil.oc.api.network.Node
 import li.cil.oc.api.network.Visibility
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Sound
-import li.cil.oc.common.container
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.InventoryUtils
@@ -112,12 +112,12 @@ class DiskDrive(selfType: TileEntityType[_ <: DiskDrive]) extends TileEntity(sel
   // INamedContainerProvider
 
   override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new container.DiskDrive(ContainerTypes.DISK_DRIVE, id, playerInventory, this)
+    new menu.DiskDrive(ContainerTypes.DISK_DRIVE, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
   // ComponentInventory
 
-  override protected def onItemAdded(slot: Int, stack: ItemStack) {
+  override protected def onItemAdded(slot: Int, stack: ItemStack): Unit = {
     super.onItemAdded(slot, stack)
     components(slot) match {
       case Some(environment) => environment.node match {
@@ -131,7 +131,7 @@ class DiskDrive(selfType: TileEntityType[_ <: DiskDrive]) extends TileEntity(sel
     }
   }
 
-  override protected def onItemRemoved(slot: Int, stack: ItemStack) {
+  override protected def onItemRemoved(slot: Int, stack: ItemStack): Unit = {
     super.onItemRemoved(slot, stack)
     if (isServer) {
       ServerPacketSender.sendFloppyChange(this)
@@ -145,14 +145,14 @@ class DiskDrive(selfType: TileEntityType[_ <: DiskDrive]) extends TileEntity(sel
   private final val DiskTag = Settings.namespace + "disk"
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT) {
+  def loadForClient(nbt: CompoundNBT): Unit = {
     super.loadForClient(nbt)
     if (nbt.contains(DiskTag)) {
       setItem(0, ItemStack.of(nbt.getCompound(DiskTag)))
     }
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundNBT): Unit = {
     super.saveForClient(nbt)
     if (!items(0).isEmpty) nbt.setNewCompoundTag(DiskTag, items(0).save)
   }

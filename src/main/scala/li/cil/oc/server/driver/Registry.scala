@@ -59,7 +59,7 @@ private[oc] object Registry extends api.detail.DriverAPI {
   /** Used to keep track of whether we're past the init phase. */
   var locked = false
 
-  override def add(driver: DriverBlock) {
+  override def add(driver: DriverBlock): Unit = {
     if (locked) throw new IllegalStateException("Please register all drivers in the init phase.")
     if (!sidedBlocks.contains(driver)) {
       OpenComputers.log.debug(s"Registering block driver ${driver.getClass.getName}.")
@@ -67,7 +67,7 @@ private[oc] object Registry extends api.detail.DriverAPI {
     }
   }
 
-  override def add(driver: DriverItem) {
+  override def add(driver: DriverItem): Unit = {
     if (locked) throw new IllegalStateException("Please register all drivers in the init phase.")
     if (!items.contains(driver)) {
       OpenComputers.log.debug(s"Registering item driver ${driver.getClass.getName}.")
@@ -75,7 +75,7 @@ private[oc] object Registry extends api.detail.DriverAPI {
     }
   }
 
-  override def add(converter: Converter) {
+  override def add(converter: Converter): Unit = {
     if (locked) throw new IllegalStateException("Please register all converters in the init phase.")
     if (!converters.contains(converter)) {
       OpenComputers.log.debug(s"Registering converter ${converter.getClass.getName}.")
@@ -140,7 +140,7 @@ private[oc] object Registry extends api.detail.DriverAPI {
 
   override def itemDrivers: util.List[DriverItem] = items.toSeq
 
-  def blacklistHost(stack: ItemStack, host: Class[_]) {
+  def blacklistHost(stack: ItemStack, host: Class[_]): Unit = {
     blacklist.find(_._1.sameItem(stack)) match {
       case Some((_, hosts)) => hosts += host
       case _ => blacklist.append((stack, mutable.Set(host)))

@@ -31,7 +31,7 @@ class UpgradeMF(props: Properties) extends Item(props) with IForgeItem with trai
     super.onItemUseFirst(stack, player, world, pos, side, hitX, hitY, hitZ, hand)
   }
 
-  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[ITextComponent]) {
+  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[ITextComponent]): Unit = {
     tooltip.add(new StringTextComponent(Localization.Tooltip.MFULinked(stack.getTag match {
       case data: CompoundNBT => data.contains(Settings.namespace + "coord")
       case _ => false

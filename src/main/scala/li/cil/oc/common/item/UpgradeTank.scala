@@ -18,7 +18,7 @@ import net.minecraftforge.common.extensions.IForgeItem
 
 class UpgradeTank(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with traits.ItemTier {
   @OnlyIn(Dist.CLIENT)
-  override def appendHoverText(stack: ItemStack, world: World, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  override def appendHoverText(stack: ItemStack, world: World, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
     super.appendHoverText(stack, world, tooltip, flag)
     if (stack.hasTag) {
       FluidStack.loadFluidStackFromNBT(stack.getTag.getCompound(Settings.namespace + "data")) match {

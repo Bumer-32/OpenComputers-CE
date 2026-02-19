@@ -24,7 +24,7 @@ class RackRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRen
   private final val vOffset = 2 / 16f
   private final val vSize = 3 / 16f
 
-  override def render(rack: Rack, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(rack: Rack, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderSystem.color4f(1, 1, 1, 1)

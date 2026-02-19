@@ -147,9 +147,9 @@ object FileSystem extends api.detail.FileSystemAPI {
 
     private final val LabelTag = Settings.namespace + "fs.label"
 
-    override def loadData(nbt: CompoundNBT) {}
+    override def loadData(nbt: CompoundNBT): Unit = {}
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundNBT): Unit = {
       if (label != null) {
         nbt.putString(LabelTag, label)
       }

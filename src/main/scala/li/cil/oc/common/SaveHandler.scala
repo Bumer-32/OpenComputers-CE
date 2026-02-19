@@ -81,27 +81,27 @@ object SaveHandler {
 
   def statePath = new io.File(savePath, "state")
 
-  def scheduleSave(host: MachineHost, nbt: CompoundNBT, name: String, data: Array[Byte]) {
+  def scheduleSave(host: MachineHost, nbt: CompoundNBT, name: String, data: Array[Byte]): Unit = {
     scheduleSave(BlockPosition(host), nbt, name, data)
   }
 
-  def scheduleSave(host: MachineHost, nbt: CompoundNBT, name: String, save: CompoundNBT => Unit) {
+  def scheduleSave(host: MachineHost, nbt: CompoundNBT, name: String, save: CompoundNBT => Unit): Unit = {
     scheduleSave(host, nbt, name, writeNBT(save))
   }
 
-  def scheduleSave(host: EnvironmentHost, nbt: CompoundNBT, name: String, save: CompoundNBT => Unit) {
+  def scheduleSave(host: EnvironmentHost, nbt: CompoundNBT, name: String, save: CompoundNBT => Unit): Unit = {
     scheduleSave(BlockPosition(host), nbt, name, writeNBT(save))
   }
 
-  def scheduleSave(world: World, x: Double, z: Double, nbt: CompoundNBT, name: String, data: Array[Byte]) {
+  def scheduleSave(world: World, x: Double, z: Double, nbt: CompoundNBT, name: String, data: Array[Byte]): Unit = {
     scheduleSave(BlockPosition(x, 0, z, world), nbt, name, data)
   }
 
-  def scheduleSave(world: World, x: Double, z: Double, nbt: CompoundNBT, name: String, save: CompoundNBT => Unit) {
+  def scheduleSave(world: World, x: Double, z: Double, nbt: CompoundNBT, name: String, save: CompoundNBT => Unit): Unit = {
     scheduleSave(world, x, z, nbt, name, writeNBT(save))
   }
 
-  def scheduleSave(position: BlockPosition, nbt: CompoundNBT, name: String, data: Array[Byte]) {
+  def scheduleSave(position: BlockPosition, nbt: CompoundNBT, name: String, data: Array[Byte]): Unit = {
     val world = position.world.get
     // Try to exclude wrapped/client-side worlds.
     if (world.isInstanceOf[ServerWorld]) {
@@ -223,7 +223,7 @@ object SaveHandler {
   }
 
   @SubscribeEvent(priority = EventPriority.HIGHEST)
-  def onWorldLoad(e: WorldEvent.Load) {
+  def onWorldLoad(e: WorldEvent.Load): Unit = {
     if (!e.getWorld.isClientSide) {
       // Touch all externally saved data when loading, to avoid it getting
       // deleted in the next save (because the now - save time will usually
@@ -233,7 +233,7 @@ object SaveHandler {
   }
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
-  def onWorldSave(e: WorldEvent.Save) {
+  def onWorldSave(e: WorldEvent.Save): Unit = {
     stateSaveHandler.withPool(_.submit(new Runnable {
       override def run(): Unit = cleanSaveData()
     }))
@@ -241,7 +241,7 @@ object SaveHandler {
 }
 
 object SaveHandlerJava17Functionality {
-  def visitJava17(statePath: File) {
+  def visitJava17(statePath: File): Unit = {
     Files.walkFileTree(statePath.toPath, new FileVisitor[Path] {
       override def visitFile(file: Path, attrs: BasicFileAttributes) = {
         file.toFile.setLastModified(System.currentTimeMillis())

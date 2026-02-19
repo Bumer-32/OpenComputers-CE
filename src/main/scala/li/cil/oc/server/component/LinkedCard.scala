@@ -70,14 +70,14 @@ class LinkedCard extends AbstractManagedEnvironment with QuantumNetwork.QuantumN
 
   // ----------------------------------------------------------------------- //
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node): Unit = {
     super.onConnect(node)
     if (node == this.node) {
       QuantumNetwork.add(this)
     }
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node): Unit = {
     super.onDisconnect(node)
     if (node == this.node) {
       QuantumNetwork.remove(this)
@@ -88,7 +88,7 @@ class LinkedCard extends AbstractManagedEnvironment with QuantumNetwork.QuantumN
 
   private final val TunnelTag = Settings.namespace + "tunnel"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
     if (nbt.contains(TunnelTag)) {
       tunnel = nbt.getString(TunnelTag)
@@ -96,7 +96,7 @@ class LinkedCard extends AbstractManagedEnvironment with QuantumNetwork.QuantumN
     loadWakeMessage(nbt)
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
     nbt.putString(TunnelTag, tunnel)
     saveWakeMessage(nbt)

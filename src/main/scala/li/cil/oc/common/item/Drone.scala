@@ -51,7 +51,7 @@ class Drone(props: Properties) extends Item(props) with IForgeItem with traits.S
   }
 
   // Must be assembled to be usable so we hide it in the item list.
-  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]) {}
+  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]): Unit = {}
 
   override def onItemUse(stack: ItemStack, player: PlayerEntity, position: BlockPosition, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
     val world = position.world.get

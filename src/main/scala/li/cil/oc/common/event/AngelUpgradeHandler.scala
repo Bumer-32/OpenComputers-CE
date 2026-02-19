@@ -9,7 +9,7 @@ import scala.collection.convert.ImplicitConversionsToScala._
 
 object AngelUpgradeHandler {
   @SubscribeEvent
-  def onPlaceInAir(e: RobotPlaceInAirEvent) {
+  def onPlaceInAir(e: RobotPlaceInAirEvent): Unit = {
     val machineNode = e.agent.machine.node
     e.setAllowed(machineNode.reachableNodes.exists {
       case node: Node if node.canBeReachedFrom(machineNode) =>

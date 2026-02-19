@@ -17,7 +17,7 @@ object PowerDistributorRenderer extends Function[TileEntityRendererDispatcher, P
 }
 
 class PowerDistributorRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[tileentity.PowerDistributor](dispatch) {
-  override def render(distributor: tileentity.PowerDistributor, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(distributor: tileentity.PowerDistributor, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderSystem.color4f(1, 1, 1, 1)

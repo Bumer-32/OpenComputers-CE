@@ -58,14 +58,14 @@ trait Capacity extends OutputStreamFileSystem {
 
   // ----------------------------------------------------------------------- //
 
-  override def close() {
+  override def close(): Unit = {
     super.close()
     used = computeSize("/")
   }
 
   // ----------------------------------------------------------------------- //
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     try {
       ignoreCapacity = true
       super.loadData(nbt)
@@ -76,7 +76,7 @@ trait Capacity extends OutputStreamFileSystem {
     used = computeSize("/")
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
 
     // For the tooltip.
@@ -128,7 +128,7 @@ trait Capacity extends OutputStreamFileSystem {
 
     override def seek(to: Long) = inner.seek(to)
 
-    override def write(b: Array[Byte]) {
+    override def write(b: Array[Byte]): Unit = {
       if (owner.capacity - owner.used < b.length && !ignoreCapacity)
         throw new io.IOException("not enough space")
       inner.write(b)

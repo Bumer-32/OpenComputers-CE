@@ -22,7 +22,7 @@ object RaidRenderer extends Function[TileEntityRendererDispatcher, RaidRenderer]
 }
 
 class RaidRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Raid](dispatch) {
-  override def render(raid: Raid, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(raid: Raid, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderSystem.color4f(1, 1, 1, 1)
@@ -69,7 +69,7 @@ class RaidRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRen
   private val u1 = 2 / 16f
   private val fs = 4 / 16f
 
-  private def renderSlot(stack: MatrixStack, r: IVertexBuilder, slot: Int, icon: TextureAtlasSprite) {
+  private def renderSlot(stack: MatrixStack, r: IVertexBuilder, slot: Int, icon: TextureAtlasSprite) = {
     val l = u1 + slot * fs
     val h = u1 + (slot + 1) * fs
     r.vertex(stack.last.pose, l, 1, 0).uv(icon.getU(l * 16), icon.getV1).endVertex()

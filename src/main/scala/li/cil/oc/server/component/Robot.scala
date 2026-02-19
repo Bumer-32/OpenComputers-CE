@@ -136,7 +136,7 @@ class Robot(val agent: tileentity.Robot) extends AbstractManagedEnvironment with
 
   // ----------------------------------------------------------------------- //
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node): Unit = {
     super.onConnect(node)
     if (node == this.node) {
       romRobot.foreach(fs => {
@@ -146,7 +146,7 @@ class Robot(val agent: tileentity.Robot) extends AbstractManagedEnvironment with
     }
   }
 
-  override def onMessage(message: Message) {
+  override def onMessage(message: Message): Unit = {
     super.onMessage(message)
     if (message.name == "network.message" && message.source != agent.node) message.data match {
       case Array(packet: Packet) => agent.proxy.node.sendToReachable(message.name, packet)
@@ -158,12 +158,12 @@ class Robot(val agent: tileentity.Robot) extends AbstractManagedEnvironment with
 
   private final val RomRobotTag = "romRobot"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
     romRobot.foreach(_.loadData(nbt.getCompound(RomRobotTag)))
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
     romRobot.foreach(fs => nbt.setNewCompoundTag(RomRobotTag, fs.saveData))
   }

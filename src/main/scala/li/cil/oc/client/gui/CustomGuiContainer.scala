@@ -1,31 +1,34 @@
 package li.cil.oc.client.gui
 
 import java.util
-
 import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.gui.widget.WidgetContainer
 import li.cil.oc.util.RenderState
 import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.gui.screen.inventory.ContainerScreen
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.client.renderer.IRenderTypeBuffer
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.Container
+import net.minecraft.network.chat.Component
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.ITextProperties
 import net.minecraft.util.text.LanguageMap
 import net.minecraft.util.text.StringTextComponent
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.AbstractContainerMenu
 
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.collection.convert.ImplicitConversionsToScala.*
 
 // Workaround because certain other mods *cough*TMI*cough* do base class
 // transformations that break things! Such fun. Many annoyed. And yes, this
 // is a common issue, have a look at EnderIO and Enchanting Plus. They have
 // to work around this, too.
-abstract class CustomGuiContainer[C <: Container](val inventoryContainer: C, inv: PlayerInventory, title: ITextComponent)
-  extends ContainerScreen(inventoryContainer, inv, title) with WidgetContainer {
+abstract class CustomGuiContainer[C <: AbstractContainerMenu](val inventoryContainer: C, inv: Inventory, title: Component)
+  extends AbstractContainerScreen[C](inventoryContainer, inv, title) with WidgetContainer {
 
   override def windowX = leftPos
 

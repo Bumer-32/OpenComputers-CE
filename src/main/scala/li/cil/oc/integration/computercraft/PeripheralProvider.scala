@@ -11,7 +11,7 @@ import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.common.util.NonNullSupplier
 
 object PeripheralProvider extends IPeripheralProvider {
-  def init() {
+  def init(): Unit = {
     ComputerCraftAPI.registerPeripheralProvider(this)
   }
 

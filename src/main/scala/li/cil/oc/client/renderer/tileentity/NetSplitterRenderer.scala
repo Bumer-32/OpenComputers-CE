@@ -20,7 +20,7 @@ object NetSplitterRenderer extends Function[TileEntityRendererDispatcher, NetSpl
 }
 
 class NetSplitterRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[tileentity.NetSplitter](dispatch) {
-  override def render(splitter: tileentity.NetSplitter, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(splitter: tileentity.NetSplitter, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderSystem.color4f(1, 1, 1, 1)

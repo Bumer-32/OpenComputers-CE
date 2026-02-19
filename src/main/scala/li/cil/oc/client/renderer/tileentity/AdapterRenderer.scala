@@ -20,7 +20,7 @@ object AdapterRenderer extends Function[TileEntityRendererDispatcher, AdapterRen
 }
 
 class AdapterRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[tileentity.Adapter](dispatch) {
-  override def render(adapter: tileentity.Adapter, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(adapter: tileentity.Adapter, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderSystem.color4f(1, 1, 1, 1)

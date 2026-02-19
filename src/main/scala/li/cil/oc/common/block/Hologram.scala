@@ -31,7 +31,7 @@ class Hologram(props: Properties, val tier: Int) extends SimpleBlock(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
+  override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag): Unit = {
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase() + tier)) {
       tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
     }

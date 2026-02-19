@@ -32,7 +32,7 @@ class PowerDistributor(selfType: TileEntityType[_ <: PowerDistributor]) extends 
 
   private final val ConnectorTag = Settings.namespace + "connector"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     super.loadForServer(nbt)
     nbt.getList(ConnectorTag, NBT.TAG_COMPOUND).toTagArray[CompoundNBT].
       zipWithIndex.foreach {
@@ -40,7 +40,7 @@ class PowerDistributor(selfType: TileEntityType[_ <: PowerDistributor]) extends 
     }
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
     // Side check for Waila (and other mods that may call this client side).
     if (isServer) {

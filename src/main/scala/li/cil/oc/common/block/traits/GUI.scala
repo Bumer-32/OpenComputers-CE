@@ -13,7 +13,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
 trait GUI extends SimpleBlock {
-  def openGui(player: ServerPlayerEntity, world: World, pos: BlockPos)
+  def openGui(player: ServerPlayerEntity, world: World, pos: BlockPos): Unit
 
   // This gets forwarded to the vanilla PlayerEntity.openMenu call which doesn't support extra data.
   override def getMenuProvider(state: BlockState, world: World, pos: BlockPos): INamedContainerProvider = null

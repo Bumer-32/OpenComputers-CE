@@ -14,8 +14,8 @@ import li.cil.oc.api.internal
 import li.cil.oc.api.network.Analyzable
 import li.cil.oc.api.network._
 import li.cil.oc.common.Slot
-import li.cil.oc.common.container
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
@@ -57,7 +57,7 @@ class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfTyp
 
   override protected def defaultState = true
 
-  override def setSideOpen(side: Direction, value: Boolean) {
+  override def setSideOpen(side: Direction, value: Boolean): Unit = {
     super.setSideOpen(side, value)
     if (isServer) {
       ServerPacketSender.sendAdapterState(this)
@@ -82,7 +82,7 @@ class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfTyp
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity(): Unit = {
     super.updateEntity()
     if (isServer && updatingBlocks.nonEmpty) {
       for (block <- updatingBlocks) {
@@ -91,7 +91,7 @@ class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfTyp
     }
   }
 
-  def neighborChanged(d: Direction) {
+  def neighborChanged(d: Direction): Unit = {
     if (node != null && node.network != null) {
       val blockPos = getBlockPos.relative(d)
       getLevel.getBlockEntity(blockPos) match {
@@ -158,7 +158,7 @@ class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfTyp
     }
   }
 
-  def neighborChanged() {
+  def neighborChanged(): Unit = {
     if (node != null && node.network != null) {
       for (d <- Direction.values) {
         neighborChanged(d)
@@ -168,14 +168,14 @@ class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfTyp
 
   // ----------------------------------------------------------------------- //
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node): Unit = {
     super.onConnect(node)
     if (node == this.node) {
       neighborChanged()
     }
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node): Unit = {
     super.onDisconnect(node)
     if (node == this.node) {
       updatingBlocks.clear()
@@ -194,7 +194,7 @@ class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfTyp
   // ----------------------------------------------------------------------- //
 
   override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new container.Adapter(ContainerTypes.ADAPTER, id, playerInventory, this)
+    new menu.Adapter(ContainerTypes.ADAPTER, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
 
@@ -202,7 +202,7 @@ class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfTyp
   private final val BlockNameTag = "name"
   private final val BlockDataTag = "data"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     super.loadForServer(nbt)
 
     val blocksNbt = nbt.getList(BlocksTag, NBT.TAG_COMPOUND)
@@ -217,7 +217,7 @@ class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfTyp
       }
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
 
     val blocksNbt = new ListNBT()

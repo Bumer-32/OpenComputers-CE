@@ -536,7 +536,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
 
   // ----------------------------------------------------------------------- //
 
-  override def onMessage(message: Message) {
+  override def onMessage(message: Message): Unit = {
     super.onMessage(message)
     if (node.isNeighborOf(message.source)) {
       if (message.name == "computer.stopped" || message.name == "computer.started") {
@@ -598,7 +598,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
     }
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node): Unit = {
     super.onDisconnect(node)
     if (node == this.node || screenAddress.contains(node.address)) {
       screenAddress = None
@@ -616,7 +616,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
   private final val NBT_PAGE_DATA: String = "page_data"
   private val COMPOUND_ID = (new CompoundNBT).getId
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
 
     if (nbt.contains(SCREEN_KEY)) {
@@ -644,7 +644,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
 
     if (screenAddress.isDefined) {

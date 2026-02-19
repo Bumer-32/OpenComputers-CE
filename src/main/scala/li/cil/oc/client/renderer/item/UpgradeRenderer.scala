@@ -65,7 +65,7 @@ object UpgradeRenderer {
   private val (minX, minY, minZ) = (-0.1f, -0.1f, -0.1f)
   private val (maxX, maxY, maxZ) = (0.1f, 0.1f, 0.1f)
 
-  private def drawSimpleBlock(stack: MatrixStack, r: IVertexBuilder, light: Int, mountPoint: MountPoint, frontOffset: Float = 0) {
+  private def drawSimpleBlock(stack: MatrixStack, r: IVertexBuilder, light: Int, mountPoint: MountPoint, frontOffset: Float = 0) = {
     stack.mulPose(new Vector3f(mountPoint.rotation.x, mountPoint.rotation.y, mountPoint.rotation.z).rotationDegrees(mountPoint.rotation.w))
     stack.translate(mountPoint.offset.x, mountPoint.offset.y, mountPoint.offset.z)
 

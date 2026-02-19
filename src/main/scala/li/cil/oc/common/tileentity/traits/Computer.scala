@@ -66,7 +66,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
   }
 
   @OnlyIn(Dist.CLIENT)
-  def setUsers(list: Iterable[String]) {
+  def setUsers(list: Iterable[String]): Unit = {
     _users.clear()
     _users ++= list
   }
@@ -140,7 +140,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
   private final val IsRunningTag = Settings.namespace + "isRunning"
   private final val UsersTag = Settings.namespace + "users"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     super.loadForServer(nbt)
     // God, this is so ugly... will need to rework the robot architecture.
     // This is required for loading auxiliary data (kernel state), because the
@@ -158,7 +158,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
     _isOutputEnabled = hasRedstoneCard
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
     if (machine != null) {
       nbt.setNewCompoundTag(ComputerTag, machine.saveData)
@@ -166,7 +166,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundNBT): Unit = {
     super.loadForClient(nbt)
     hasErrored = nbt.getBoolean(HasErroredTag)
     setRunning(nbt.getBoolean(IsRunningTag))
@@ -175,7 +175,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
     if (_isRunning) runSound.foreach(sound => Sound.startLoop(this, sound, 0.5f, 1000 + getLevel.random.nextInt(2000)))
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundNBT): Unit = {
     super.saveForClient(nbt)
     nbt.putBoolean(HasErroredTag, machine != null && machine.lastError != null)
     nbt.putBoolean(IsRunningTag, isRunning)
@@ -184,7 +184,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
 
   // ----------------------------------------------------------------------- //
 
-  override def setChanged() {
+  override def setChanged(): Unit = {
     super.setChanged()
     if (isServer) {
       machine.onHostChanged()
@@ -198,12 +198,12 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
       case _ => canInteract(player.getName.getString)
     })
 
-  override protected def onRotationChanged() {
+  override protected def onRotationChanged(): Unit = {
     super.onRotationChanged()
     checkRedstoneInputChanged()
   }
 
-  override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs) {
+  override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs): Unit = {
     super.onRedstoneInputChanged(args)
     val toLocalArgs = RedstoneChangedEventArgs(toLocal(args.side), args.oldValue, args.newValue, args.color)
     machine.node.sendToNeighbors("redstone.changed", toLocalArgs)

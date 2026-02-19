@@ -1,20 +1,20 @@
-package li.cil.oc.common.container
+package li.cil.oc.common.menu
 
 import li.cil.oc.api.component.RackMountable
 import li.cil.oc.common.Slot
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.RotationHelper
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.IntArrayNBT
-import net.minecraft.util.Direction
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.core.Direction
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.Container
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.IntArrayTag
+import net.minecraft.nbt.Tag
 
-class Rack(selfType: ContainerType[_ <: Rack], id: Int, playerInventory: PlayerInventory, val rack: IInventory)
-  extends Player(selfType, id, playerInventory, rack) {
+class Rack(selfType: MenuType[_ <: Rack], id: Int, playerInventory: Inventory, val rack: Container)
+  extends AbstractMenu(selfType, id, playerInventory, rack) {
 
   override protected def getHostClass = classOf[tileentity.Rack]
 
@@ -29,16 +29,16 @@ class Rack(selfType: ContainerType[_ <: Rack], id: Int, playerInventory: PlayerI
   val nodeMapping: Array[Array[Option[Direction]]] = Array.fill(rack.getContainerSize)(Array.fill[Option[Direction]](4)(None))
   var isRelayEnabled = false
 
-  override def updateCustomData(nbt: CompoundNBT): Unit = {
+  override def updateCustomData(nbt: CompoundTag): Unit = {
     super.updateCustomData(nbt)
-    nbt.getList("nodeMapping", NBT.TAG_INT_ARRAY).map((sides: IntArrayNBT) => {
+    nbt.getList("nodeMapping", Tag.TAG_INT_ARRAY).map((sides: IntArrayTag) => {
       sides.getAsIntArray.map(side => if (side >= 0) Option(Direction.from3DDataValue(side)) else None)
     }).copyToArray(nodeMapping)
     nbt.getBooleanArray("nodePresence").grouped(MaxConnections).copyToArray(nodePresence)
     isRelayEnabled = nbt.getBoolean("isRelayEnabled")
   }
 
-  override protected def detectCustomDataChanges(nbt: CompoundNBT): Unit = {
+  override protected def detectCustomDataChanges(nbt: CompoundTag): Unit = {
     super.detectCustomDataChanges(nbt)
     rack match {
       case te: tileentity.Rack => {
@@ -47,9 +47,12 @@ class Rack(selfType: ContainerType[_ <: Rack], id: Int, playerInventory: PlayerI
           case _ => -1
         })))
         nbt.setBooleanArray("nodePresence", (0 until te.getContainerSize).flatMap(slot => te.getMountable(slot) match {
-          case mountable: RackMountable => (Seq(true) ++ (0 until math.min(MaxConnections - 1, mountable.getConnectableCount)).map(index => mountable.getConnectableAt(index) != null)).padTo(MaxConnections, false)
-          case _ => Array.fill(MaxConnections)(false)
-        }).toArray)
+      case mountable: RackMountable => 
+        (Seq(true) ++ (0 until math.min(MaxConnections - 1, mountable.getConnectableCount))
+          .map(index => mountable.getConnectableAt(index) != null))
+          .padTo(MaxConnections, false)
+      case _ => Seq.fill(MaxConnections)(false)
+      }).toArray)
         nbt.putBoolean("isRelayEnabled", te.isRelayEnabled)
       }
       case _ =>

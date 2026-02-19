@@ -95,7 +95,7 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
 
   private def createCommandSourceStack(): CommandSource = {
     val sender = new ICommandSource {
-      override def sendMessage(message: ITextComponent, sender: UUID) {
+      override def sendMessage(message: ITextComponent, sender: UUID): Unit = {
         CommandMessages = Option(CommandMessages.fold("")(_ + "\n") + message.getString)
       }
 
@@ -325,7 +325,7 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
     result()
   }
 
-  override def receivePacket(packet: Packet) {
+  override def receivePacket(packet: Packet): Unit = {
     val distance = 0
     node.sendToReachable("computer.signal", Seq("debug_message", packet.source, Int.box(packet.port), Double.box(distance)) ++ packet.data: _*)
   }
@@ -521,13 +521,13 @@ object DebugCard {
 
     private final val NameTag = "name"
 
-    override def loadData(nbt: CompoundNBT) {
+    override def loadData(nbt: CompoundNBT): Unit = {
       super.loadData(nbt)
       ctx = AccessContext.loadData(nbt)
       name = nbt.getString(NameTag)
     }
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundNBT): Unit = {
       super.saveData(nbt)
       ctx.foreach(_.saveData(nbt))
       nbt.putString(NameTag, name)
@@ -652,7 +652,7 @@ object DebugCard {
 
     private final val DimensionTag = "dimension"
 
-    override def loadData(nbt: CompoundNBT) {
+    override def loadData(nbt: CompoundNBT): Unit = {
       super.loadData(nbt)
       ctx = AccessContext.loadData(nbt)
       dimension = new ResourceLocation(nbt.getString(DimensionTag))
@@ -974,7 +974,7 @@ object DebugCard {
 
     private final val DimensionTag = "dimension"
 
-    override def loadData(nbt: CompoundNBT) {
+    override def loadData(nbt: CompoundNBT): Unit = {
       super.loadData(nbt)
       ctx = AccessContext.loadData(nbt)
       val dimension = new ResourceLocation(nbt.getString(DimensionTag))
@@ -982,7 +982,7 @@ object DebugCard {
       world = ServerLifecycleHooks.getCurrentServer.getLevel(dimKey)
     }
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundNBT): Unit = {
       super.saveData(nbt)
       ctx.foreach(_.saveData(nbt))
       nbt.putString(DimensionTag, world.dimension.location.toString)

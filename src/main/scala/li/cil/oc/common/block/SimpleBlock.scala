@@ -65,22 +65,22 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
   // ----------------------------------------------------------------------- //
 
   @OnlyIn(Dist.CLIENT)
-  override def appendHoverText(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  override def appendHoverText(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
     tooltipHead(stack, world, tooltip, flag)
     tooltipBody(stack, world, tooltip, flag)
     tooltipTail(stack, world, tooltip, flag)
   }
 
-  protected def tooltipHead(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  protected def tooltipHead(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
   }
 
-  protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase)) {
       tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 
-  protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
   }
 
   // ----------------------------------------------------------------------- //
@@ -136,7 +136,7 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
     super.getDrops(state, newCtx)
   }
 
-  override def playerWillDestroy(world: World, pos: BlockPos, state: BlockState, player: PlayerEntity) {
+  override def playerWillDestroy(world: World, pos: BlockPos, state: BlockState, player: PlayerEntity): Unit = {
     if (!world.isClientSide && player.isCreative) world.getBlockEntity(pos) match {
       case inventory: Inventory => inventory.dropAllSlots()
       case _ => // Ignore.

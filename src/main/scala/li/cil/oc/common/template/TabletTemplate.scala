@@ -61,7 +61,7 @@ object TabletTemplate extends Template {
     (Array(api.Items.get(itemName).createItemStack(1), info.container) ++ info.items.filter(!_.isEmpty).drop(1) /* Screen */).filter(!_.isEmpty)
   }
 
-  def register() {
+  def register(): Unit = {
     // Tier 1
     api.IMC.registerAssemblerTemplate(
       "Tablet (Tier 1)",

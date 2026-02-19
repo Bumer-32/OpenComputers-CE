@@ -103,7 +103,7 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
     lbit | (hbit << 1)
   }
 
-  def setColor(x: Int, y: Int, z: Int, value: Int) {
+  def setColor(x: Int, y: Int, z: Int, value: Int): Unit = {
     if ((value & 3) != getColor(x, y, z)) {
       val lbit = value & 1
       val hbit = (value >>> 1) & 1
@@ -113,7 +113,7 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
     }
   }
 
-  private def setDirty(x: Int, z: Int) {
+  private def setDirty(x: Int, z: Int): Unit = {
     dirty += ((x.toByte << 8) | z.toByte).toShort
     dirtyFromX = math.min(dirtyFromX, x)
     dirtyUntilX = math.max(dirtyUntilX, x + 1)
@@ -122,7 +122,7 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
     litRatio = -1
   }
 
-  private def resetDirtyFlag() {
+  private def resetDirtyFlag(): Unit = {
     dirty.clear()
     dirtyFromX = Int.MaxValue
     dirtyUntilX = -1
@@ -390,7 +390,7 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity(): Unit = {
     super.updateEntity()
     if (isServer) {
       if (dirty.nonEmpty) this.synchronized {
@@ -476,7 +476,7 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
   private final val RotationSpeedZTag = Settings.namespace + "rotationSpeedZ"
   private final val HasPowerTag = Settings.namespace + "hasPower"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     tier = nbt.getByte(TierTag) max 0 min 1
     super.loadForServer(nbt)
     val tag = SaveHandler.loadNBT(nbt, dataPath)
@@ -519,7 +519,7 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundNBT): Unit = {
     super.loadForClient(nbt)
     nbt.getIntArray(VolumeTag).copyToArray(volume)
     nbt.getIntArray(ColorsTag).copyToArray(colors)
@@ -539,7 +539,7 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
     rotationSpeedZ = nbt.getFloat(RotationSpeedZTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundNBT): Unit = {
     super.saveForClient(nbt)
     nbt.putIntArray(VolumeTag, volume)
     nbt.putIntArray(ColorsTag, colors)

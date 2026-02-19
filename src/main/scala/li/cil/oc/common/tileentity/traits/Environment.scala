@@ -28,14 +28,14 @@ trait Environment extends TileEntity with network.Environment with network.Envir
 
   // ----------------------------------------------------------------------- //
 
-  override protected def initialize() {
+  override protected def initialize(): Unit = {
     super.initialize()
     if (isServer) {
       EventHandler.scheduleServer(this)
     }
   }
 
-  override def updateEntity() {
+  override def updateEntity(): Unit = {
     super.updateEntity()
     if (isChangeScheduled) {
       getLevel.blockEntityChanged(getBlockPos, this)
@@ -43,7 +43,7 @@ trait Environment extends TileEntity with network.Environment with network.Envir
     }
   }
 
-  override def dispose() {
+  override def dispose(): Unit = {
     super.dispose()
     if (isServer) {
       Option(node).foreach(_.remove)
@@ -60,14 +60,14 @@ trait Environment extends TileEntity with network.Environment with network.Envir
 
   private final val NodeTag = Settings.namespace + "node"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     super.loadForServer(nbt)
     if (node != null && node.host == this) {
       node.loadData(nbt.getCompound(NodeTag))
     }
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
     if (node != null && node.host == this) {
       nbt.setNewCompoundTag(NodeTag, node.saveData)
@@ -76,11 +76,11 @@ trait Environment extends TileEntity with network.Environment with network.Envir
 
   // ----------------------------------------------------------------------- //
 
-  override def onMessage(message: network.Message) {}
+  override def onMessage(message: network.Message): Unit = {}
 
-  override def onConnect(node: network.Node) {}
+  override def onConnect(node: network.Node): Unit = {}
 
-  override def onDisconnect(node: network.Node) {
+  override def onDisconnect(node: network.Node): Unit = {
     if (node == this.node) node match {
       case connector: Connector =>
         // Set it to zero to push all energy into other nodes, to

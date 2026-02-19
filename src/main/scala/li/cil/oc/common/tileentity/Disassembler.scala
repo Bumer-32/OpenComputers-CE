@@ -11,8 +11,8 @@ import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.network.Connector
 import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.util.StateAware
-import li.cil.oc.common.container
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.template.DisassemblerTemplates
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.BlockPosition
@@ -88,7 +88,7 @@ class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEnti
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity(): Unit = {
     super.updateEntity()
     if (isServer && getLevel.getGameTime % Settings.get.tickFrequency == 0) {
       if (queue.isEmpty) {
@@ -117,7 +117,7 @@ class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEnti
     }
   }
 
-  def disassemble(stack: ItemStack, instant: Boolean = false) {
+  def disassemble(stack: ItemStack, instant: Boolean = false): Unit = {
     // Validate the item, never trust Minecraft / other Mods on anything!
     if (canPlaceItem(0, stack)) {
       val ingredients = ItemUtils.getIngredients(getLevel.getRecipeManager, stack)
@@ -138,7 +138,7 @@ class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEnti
     }
   }
 
-  private def drop(stack: ItemStack) {
+  private def drop(stack: ItemStack): Unit = {
     if (!stack.isEmpty) {
       for (side <- Direction.values if stack.getCount > 0) {
         InventoryUtils.insertIntoInventoryAt(stack, BlockPosition(this).offset(side), Some(side.getOpposite))
@@ -156,7 +156,7 @@ class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEnti
   private final val TotalTag = Settings.namespace + "total"
   private final val IsActiveTag = Settings.namespace + "isActive"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     super.loadForServer(nbt)
     queue.clear()
     queue ++= nbt.getList(QueueTag, NBT.TAG_COMPOUND).
@@ -166,7 +166,7 @@ class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEnti
     isActive = queue.nonEmpty
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
     nbt.setNewTagList(QueueTag, queue)
     nbt.putDouble(BufferTag, buffer)
@@ -174,12 +174,12 @@ class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEnti
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundNBT): Unit = {
     super.loadForClient(nbt)
     isActive = nbt.getBoolean(IsActiveTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundNBT): Unit = {
     super.saveForClient(nbt)
     nbt.putBoolean(IsActiveTag, isActive)
   }
@@ -211,5 +211,5 @@ class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEnti
   // ----------------------------------------------------------------------- //
 
   override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new container.Disassembler(ContainerTypes.DISASSEMBLER, id, playerInventory, this)
+    new menu.Disassembler(ContainerTypes.DISASSEMBLER, id, playerInventory, this)
 }

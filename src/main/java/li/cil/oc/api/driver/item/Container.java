@@ -1,7 +1,7 @@
 package li.cil.oc.api.driver.item;
 
 import li.cil.oc.api.driver.DriverItem;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * May be implemented by drivers for robot upgrades that act as hotswap bays,
@@ -22,7 +22,7 @@ public interface Container extends DriverItem {
      *
      * @param stack the item stack to get the provided slot type for.
      * @return the slot type provided by that dynamic slot upgrade.
-     * @see li.cil.oc.api.driver.item.Slot
+     * @see Slot
      */
     String providedSlot(ItemStack stack);
 

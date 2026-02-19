@@ -91,7 +91,7 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
       case _ => false
     })
 
-  def checkMultiBlock() {
+  def checkMultiBlock(): Unit = {
     shouldCheckForMultiBlock = true
     width = 1
     height = 1
@@ -167,7 +167,7 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
     }
   }
 
-  def walk(entity: Entity) {
+  def walk(entity: Entity): Unit = {
     val (x, y) = localPosition
     origin.lastWalked.put(entity, localPosition) match {
       case Some((oldX, oldY)) if oldX == x && oldY == y => // Ignore
@@ -180,13 +180,13 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
     }
   }
 
-  def shot(arrow: ArrowEntity) {
+  def shot(arrow: ArrowEntity): Unit = {
     arrows.add(arrow)
   }
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity(): Unit = {
     super.updateEntity()
     if (shouldCheckForMultiBlock && ((isClient && isClientReadyForMultiBlockCheck) || (isServer && isConnected))) {
       // Make sure we merge in a deterministic order, to avoid getting
@@ -198,7 +198,7 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
       while (queue.nonEmpty) {
         val current = queue.dequeue()
         val lpos = project(current)
-        def tryQueue(dx: Int, dy: Int) {
+        def tryQueue(dx: Int, dy: Int): Unit = {
           val npos = unproject(lpos.x + dx, lpos.y + dy, lpos.z)
           if (getLevel.blockExists(npos)) getLevel.getBlockEntity(npos) match {
             case s: Screen if s.pitch == pitch && s.yaw == yaw && pending.add(s) => queue += s
@@ -260,7 +260,7 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
     }
   }
 
-  private def updateMergedModels() {
+  private def updateMergedModels(): Unit = {
     if (getLevel == Minecraft.getInstance.level) {
       val renderer = Minecraft.getInstance.levelRenderer
       screens.foreach(screen => {
@@ -275,7 +275,7 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
     false
   } else true
 
-  override def dispose() {
+  override def dispose(): Unit = {
     super.dispose()
     screens.clone().foreach(_.checkMultiBlock())
     if (isClient) {
@@ -286,7 +286,7 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
     }
   }
 
-  override protected def onColorChanged() {
+  override protected def onColorChanged(): Unit = {
     super.onColorChanged()
     screens.clone().foreach(_.checkMultiBlock())
   }
@@ -297,7 +297,7 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
   private final val HadRedstoneInputTag = Settings.namespace + "hadRedstoneInput"
   private final val InvertTouchModeTag = Settings.namespace + "invertTouchMode"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     tier = nbt.getByte(TierTag) max 0 min 2
     setColor(Color.rgbValues(Color.byTier(tier)))
     super.loadForServer(nbt)
@@ -305,7 +305,7 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
     invertTouchMode = nbt.getBoolean(InvertTouchModeTag)
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     nbt.putByte(TierTag, tier.toByte)
     super.saveForServer(nbt)
     nbt.putBoolean(HadRedstoneInputTag, hadRedstoneInput)
@@ -313,13 +313,13 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
   }
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT) {
+  def loadForClient(nbt: CompoundNBT): Unit = {
     tier = nbt.getByte(TierTag) max 0 min 2
     super.loadForClient(nbt)
     invertTouchMode = nbt.getBoolean(InvertTouchModeTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundNBT): Unit = {
     nbt.putByte(TierTag, tier.toByte)
     super.saveForClient(nbt)
     nbt.putBoolean(InvertTouchModeTag, invertTouchMode)
@@ -352,7 +352,7 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
 
   override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = Array(origin.node)
 
-  override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs) {
+  override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs): Unit = {
     super.onRedstoneInputChanged(args)
     val hasRedstoneInput = screens.map(_.maxInput).max > 0
     if (hasRedstoneInput != hadRedstoneInput) {
@@ -363,7 +363,7 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
     }
   }
 
-  override def onRotationChanged() {
+  override def onRotationChanged(): Unit = {
     super.onRotationChanged()
     screens.clone().foreach(_.checkMultiBlock())
   }

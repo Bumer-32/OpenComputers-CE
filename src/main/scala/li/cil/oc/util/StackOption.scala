@@ -74,7 +74,7 @@ sealed abstract class StackOption(stack: ItemStack) extends Product with Seriali
 
   def forall(p: ItemStack => Boolean): Boolean = isEmpty || p(this.get)
 
-  def foreach[U](f: ItemStack => U) {
+  def foreach[U](f: ItemStack => U): Unit = {
     if (!isEmpty) f(this.get)
   }
 

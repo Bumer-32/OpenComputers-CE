@@ -135,7 +135,7 @@ class RobotRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRe
     r.vertex(stack.last.pose, h, gb, l).color(red, green, blue, 0xFF).uv(0.5f, 0.5f).uv2(light).normal(stack.last.normal, 0, 1, 0).endVertex()
   }
 
-  def resetMountPoints(running: Boolean) {
+  def resetMountPoints(running: Boolean) = {
     val offset = if (running) 0 else -0.06f
 
     // Left top.
@@ -202,7 +202,7 @@ class RobotRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRe
     mountPoints(6).rotation.setW(0)
   }
 
-  def renderChassis(stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, robot: tileentity.Robot = null, offset: Double = 0, isRunningOverride: Boolean = false) {
+  def renderChassis(stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, robot: tileentity.Robot = null, offset: Double = 0, isRunningOverride: Boolean = false) = {
     val isRunning = if (robot == null) isRunningOverride else robot.isRunning
 
     val size = 0.3f
@@ -266,7 +266,7 @@ class RobotRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRe
     }
   }
 
-  override def render(proxy: tileentity.RobotProxy, f: Float, matrix: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(proxy: tileentity.RobotProxy, f: Float, matrix: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     val robot = proxy.robot

@@ -113,7 +113,7 @@ class InternetCard extends AbstractManagedEnvironment with DeviceInfo {
     result(socket)
   }
 
-  private def checkOwner(context: Context) {
+  private def checkOwner(context: Context): Unit = {
     if (owner.isEmpty || context.node != owner.get.node) {
       throw new IllegalArgumentException("can only be used by the owning computer")
     }
@@ -121,7 +121,7 @@ class InternetCard extends AbstractManagedEnvironment with DeviceInfo {
 
   // ----------------------------------------------------------------------- //
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node): Unit = {
     super.onConnect(node)
     if (owner.isEmpty && node.host.isInstanceOf[Context] && node.isNeighborOf(this.node)) {
       owner = Some(node.host.asInstanceOf[Context])
@@ -235,7 +235,7 @@ object InternetCard {
       }
     }
 
-    def add(e: (SocketChannel, () => Unit)) {
+    def add(e: (SocketChannel, () => Unit)): Unit = {
       toAccept.offer(e)
       selector.wakeup()
     }
@@ -258,7 +258,7 @@ object InternetCard {
     private var isAddressResolved = false
     private val id = UUID.randomUUID()
 
-    private def setupSelector() {
+    private def setupSelector(): Unit = {
       if (channel == null) return
       TCPNotifier.add((channel, () => {
         owner match {

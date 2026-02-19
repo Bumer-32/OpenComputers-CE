@@ -17,7 +17,7 @@ class RedstoneCard(props: Properties, val tier: Int) extends Item(props) with IF
 
   override protected def tooltipName = Option(unlocalizedName)
 
-  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]) {
+  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]): Unit = {
     if (tier == Tier.One || ModOpenComputers.hasRedstoneCardT2) super.fillItemCategory(tab, list)
   }
 }

@@ -31,7 +31,7 @@ object RenderState {
     case _ => f"Unknown [0x$errorCode%X]"
   }
 
-  def checkError(where: String) {
+  def checkError(where: String): Unit = {
     val error = GL11.glGetError
     if (error != 0 && Settings.get.logOpenGLErrors) {
       OpenComputers.log.warn("GL ERROR @ " + where + ": " + getErrorString(error))
@@ -57,23 +57,23 @@ object RenderState {
 //    RenderSystem.popAttrib()
   }
 
-  def disableEntityLighting() {
+  def disableEntityLighting(): Unit = {
     RenderSystem.disableLighting()
     RenderSystem.disableColorMaterial()
   }
 
-  def enableEntityLighting() {
+  def enableEntityLighting(): Unit = {
     RenderSystem.enableLighting()
     RenderSystem.enableColorMaterial()
   }
 
-  def makeItBlend() {
+  def makeItBlend(): Unit = {
     RenderSystem.enableBlend()
     GL11.glEnable(GL11.GL_BLEND)
     RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
   }
 
-  def disableBlend() {
+  def disableBlend(): Unit = {
     RenderSystem.blendFunc(GL11.GL_ONE, GL11.GL_ZERO)
     RenderSystem.disableBlend()
     GL11.glDisable(GL11.GL_BLEND)

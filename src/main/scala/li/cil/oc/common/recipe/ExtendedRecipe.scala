@@ -208,7 +208,7 @@ object ExtendedRecipe {
 
   private def getItems(inventory: CraftingInventory) = (0 until inventory.getContainerSize).map(inventory.getItem).filter(!_.isEmpty)
 
-  private def recraft(craftedStack: ItemStack, inventory: CraftingInventory, descriptor: ItemInfo, dataFactory: (ItemStack) => ItemDataWrapper) {
+  private def recraft(craftedStack: ItemStack, inventory: CraftingInventory, descriptor: ItemInfo, dataFactory: (ItemStack) => ItemDataWrapper): Unit = {
     if (api.Items.get(craftedStack) == descriptor) {
       // Find old Microcontroller.
       getItems(inventory).find(api.Items.get(_) == descriptor) match {

@@ -6,7 +6,6 @@ import java.util.ArrayDeque
 import java.util.function.Function
 import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
-
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.RemovalListener
 import com.google.common.cache.RemovalNotification
@@ -17,7 +16,7 @@ import li.cil.oc.client.Textures
 import li.cil.oc.common.tileentity.Hologram
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.IRenderTypeBuffer
+import net.minecraft.client.renderer.{IRenderTypeBuffer, MultiBufferSource}
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
 import net.minecraft.tileentity.TileEntity
@@ -100,7 +99,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
     RenderState.checkError(getClass.getName + ".onRenderWorldLastEvent: leaving")
   }
 
-  private def doRender(hologram: Hologram, f: Float, stack: MatrixStack) {
+  private def doRender(hologram: Hologram, f: Float, stack: MatrixStack) = {
     HologramRenderer.hologram = hologram
     GL11.glPushClientAttrib(GL11.GL_CLIENT_ALL_ATTRIB_BITS)
     RenderState.makeItBlend()
@@ -183,7 +182,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
     GL11.glPopClientAttrib()
   }
 
-  def draw(glBuffer: Int) {
+  def draw(glBuffer: Int) = {
     if (initialize()) {
       validate(glBuffer)
       publish(glBuffer)
@@ -198,7 +197,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
       commonBuffer = GL15.glGenBuffers()
 
       val data = BufferUtils.createFloatBuffer(hologram.width * hologram.width * hologram.height * 24 * (2 + 3 + 3))
-      def addVertex(x: Int, y: Int, z: Int, u: Int, v: Int, nx: Int, ny: Int, nz: Int) {
+      def addVertex(x: Int, y: Int, z: Int, u: Int, v: Int, nx: Int, ny: Int, nz: Int) = {
         data.put(u)
         data.put(v)
         data.put(nx)
@@ -274,14 +273,14 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
       false
   })
 
-  private def validate(glBuffer: Int) {
+  private def validate(glBuffer: Int) = {
     // Refresh indexes when the hologram's data changed.
     if (hologram.needsRendering) {
       def value(hx: Int, hy: Int, hz: Int) = if (hx >= 0 && hy >= 0 && hz >= 0 && hx < hologram.width && hy < hologram.height && hz < hologram.width) hologram.getColor(hx, hy, hz) else 0
 
       def isSolid(hx: Int, hy: Int, hz: Int) = value(hx, hy, hz) != 0
 
-      def addFace(index: Int, color: Int) {
+      def addFace(index: Int, color: Int) = {
         dataBuffer.put(index)
         dataBuffer.put(index + 1)
         dataBuffer.put(index + 2)
@@ -368,7 +367,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
     }
   }
 
-  private def publish(glBuffer: Int) {
+  private def publish(glBuffer: Int) = {
     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, commonBuffer)
     GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY)
     GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY)
@@ -396,7 +395,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
     glBuffer
   }
 
-  def onRemoval(e: RemovalNotification[TileEntity, Int]) {
+  def onRemoval(e: RemovalNotification[TileEntity, Int]) = {
     val glBuffer = e.getValue
     GL15.glDeleteBuffers(glBuffer)
     dataBuffer.asInstanceOf[Buffer].clear()
@@ -407,7 +406,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
 }
 
 class HologramRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Hologram](dispatch) {
-  override def render(hologram: Hologram, f: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(hologram: Hologram, f: Float, stack: MatrixStack, buffer: MultiBufferSource, light: Int, overlay: Int) = {
     if (HologramRenderer.failed) {
       HologramRendererFallback.render(hologram, f, stack, buffer, light, overlay)
       return

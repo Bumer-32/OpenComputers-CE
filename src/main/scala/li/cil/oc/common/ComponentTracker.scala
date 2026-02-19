@@ -29,13 +29,13 @@ abstract class ComponentTracker {
         build[String, ManagedEnvironment]())
   }
 
-  def add(world: World, address: String, component: ManagedEnvironment) {
+  def add(world: World, address: String, component: ManagedEnvironment): Unit = {
     this.synchronized {
       components(world).put(address, component)
     }
   }
 
-  def remove(world: World, component: ManagedEnvironment) {
+  def remove(world: World, component: ManagedEnvironment): Unit = {
     this.synchronized {
       components(world).invalidateAll(asJavaIterable(components(world).asMap().filter(_._2 == component).keys))
       components(world).cleanUp()

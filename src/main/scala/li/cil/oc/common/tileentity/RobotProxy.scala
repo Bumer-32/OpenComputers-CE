@@ -48,7 +48,7 @@ class RobotProxy(selfType: TileEntityType[_ <: RobotProxy], val robot: Robot) ex
     override def get = RobotProxy.this
   })
 
-  override def invalidateCaps() {
+  override def invalidateCaps(): Unit = {
     super.invalidateCaps()
     wrapper.invalidate()
   }
@@ -107,9 +107,9 @@ class RobotProxy(selfType: TileEntityType[_ <: RobotProxy], val robot: Robot) ex
 
   // ----------------------------------------------------------------------- //
 
-  override def connectComponents() {}
+  override def connectComponents(): Unit = {}
 
-  override def disconnectComponents() {}
+  override def disconnectComponents(): Unit = {}
 
   override def isRunning: Boolean = robot.isRunning
 
@@ -152,7 +152,7 @@ class RobotProxy(selfType: TileEntityType[_ <: RobotProxy], val robot: Robot) ex
   @Callback(doc = "function():string -- Returns the robot name.")
   def getName(context: Context, args: Arguments): Array[AnyRef] = result(robot.name)
 
-  override def onMessage(message: Message) {
+  override def onMessage(message: Message): Unit = {
     super.onMessage(message)
     if (message.name == "network.message" && message.source != this.node) message.data match {
       case Array(packet: Packet) => robot.node.sendToReachable(message.name, packet)
@@ -162,11 +162,11 @@ class RobotProxy(selfType: TileEntityType[_ <: RobotProxy], val robot: Robot) ex
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity(): Unit = {
     robot.updateEntity()
   }
 
-  override def clearRemoved() {
+  override def clearRemoved(): Unit = {
     super.clearRemoved()
     val firstProxy = robot.proxy == null
     robot.proxy = this
@@ -182,20 +182,20 @@ class RobotProxy(selfType: TileEntityType[_ <: RobotProxy], val robot: Robot) ex
     }
   }
 
-  override def dispose() {
+  override def dispose(): Unit = {
     super.dispose()
     if (robot.proxy == this) {
       robot.dispose()
     }
   }
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     robot.info.loadData(nbt)
     super.loadForServer(nbt)
     robot.loadForServer(nbt)
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
     robot.saveForServer(nbt)
   }

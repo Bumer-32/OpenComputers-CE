@@ -133,7 +133,7 @@ class Microcontroller(selfType: TileEntityType[_ <: Microcontroller]) extends Ti
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity(): Unit = {
     super.updateEntity()
 
     // Pump energy into the internal network.
@@ -152,7 +152,7 @@ class Microcontroller(selfType: TileEntityType[_ <: Microcontroller]) extends Ti
 
   // ----------------------------------------------------------------------- //
 
-  override protected def connectItemNode(node: Node) {
+  override protected def connectItemNode(node: Node): Unit = {
     if (machine != null && machine.node != null && node != null) {
       api.Network.joinNewNetwork(machine.node)
       machine.node.connect(node)
@@ -178,7 +178,7 @@ class Microcontroller(selfType: TileEntityType[_ <: Microcontroller]) extends Ti
       componentNodes(plug.side.ordinal).remove()
   }
 
-  override protected def onPlugDisconnect(plug: Plug, node: Node) {
+  override protected def onPlugDisconnect(plug: Plug, node: Node): Unit = {
     super.onPlugDisconnect(plug, node)
     if (plug.isPrimary && node != plug.node)
       plug.node.connect(componentNodes(plug.side.ordinal()))
@@ -209,7 +209,7 @@ class Microcontroller(selfType: TileEntityType[_ <: Microcontroller]) extends Ti
   private final val ComponentNodesTag = Settings.namespace + "componentNodes"
   private final val SnooperTag = Settings.namespace + "snooper"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     // Load info before inventory and such, to avoid initializing components
     // to empty inventory.
     info.loadData(nbt.getCompound(InfoTag))
@@ -224,7 +224,7 @@ class Microcontroller(selfType: TileEntityType[_ <: Microcontroller]) extends Ti
     machine.node.connect(snooperNode)
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
     nbt.setNewCompoundTag(InfoTag, info.saveData)
     nbt.setBooleanArray(OutputsTag, outputSides)
@@ -239,12 +239,12 @@ class Microcontroller(selfType: TileEntityType[_ <: Microcontroller]) extends Ti
   }
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT) {
+  def loadForClient(nbt: CompoundNBT): Unit = {
     info.loadData(nbt.getCompound(InfoTag))
     super.loadForClient(nbt)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundNBT): Unit = {
     super.saveForClient(nbt)
     nbt.setNewCompoundTag(InfoTag, info.saveData)
   }
@@ -260,7 +260,7 @@ class Microcontroller(selfType: TileEntityType[_ <: Microcontroller]) extends Ti
   override def canPlaceItem(slot: Int, stack: ItemStack) = false
 
   // Nope.
-  override def setItem(slot: Int, stack: ItemStack) {}
+  override def setItem(slot: Int, stack: ItemStack): Unit = {}
 
   // Nope.
   override def removeItem(slot: Int, amount: Int) = ItemStack.EMPTY

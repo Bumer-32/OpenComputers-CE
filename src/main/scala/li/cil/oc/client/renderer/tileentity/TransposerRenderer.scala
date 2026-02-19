@@ -17,7 +17,7 @@ object TransposerRenderer extends Function[TileEntityRendererDispatcher, Transpo
 }
 
 class TransposerRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[tileentity.Transposer](dispatch) {
-  override def render(transposer: tileentity.Transposer, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(transposer: tileentity.Transposer, dt: Float, stack: MatrixStack, buffer: MultiBufferSource, light: Int, overlay: Int) = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderSystem.color4f(1, 1, 1, 1)

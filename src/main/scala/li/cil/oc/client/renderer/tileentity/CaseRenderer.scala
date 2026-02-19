@@ -20,7 +20,7 @@ object CaseRenderer extends Function[TileEntityRendererDispatcher, CaseRenderer]
 }
 
 class CaseRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Case](dispatch) {
-  override def render(computer: Case, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(computer: Case, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     stack.pushPose()

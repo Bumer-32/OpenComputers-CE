@@ -1,20 +1,20 @@
-package li.cil.oc.common.container
+package li.cil.oc.common.menu
 
 import li.cil.oc.client.Textures
 import li.cil.oc.common
 import li.cil.oc.common.InventorySlots.InventorySlot
 import li.cil.oc.common.template.AssemblerTemplates
 import li.cil.oc.common.tileentity
-import net.minecraft.item.ItemStack
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.IInventory
-import net.minecraft.nbt.CompoundNBT
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.Container
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 
-class Assembler(selfType: ContainerType[_ <: Assembler], id: Int, playerInventory: PlayerInventory, val assembler: IInventory)
-  extends Player(selfType, id, playerInventory, assembler) {
+class Assembler(selfType: MenuType[_ <: Assembler], id: Int, playerInventory: Inventory, val assembler: Container)
+  extends AbstractMenu(selfType, id, playerInventory, assembler) {
 
   override protected def getHostClass = classOf[tileentity.Assembler]
 
@@ -50,7 +50,7 @@ class Assembler(selfType: ContainerType[_ <: Assembler], id: Int, playerInventor
     }
   }
 
-  override def addSlotToContainer(x: Int, y: Int, info: DynamicComponentSlot => InventorySlot) {
+  override def addSlotToContainer(x: Int, y: Int, info: DynamicComponentSlot => InventorySlot): Unit = {
     val index = slots.size
     addSlot(new DynamicComponentSlot(this, otherInventory, index, x, y, getHostClass, info, () => common.Tier.One) {
       override def mayPlace(stack: ItemStack): Boolean = {
@@ -107,7 +107,7 @@ class Assembler(selfType: ContainerType[_ <: Assembler], id: Int, playerInventor
 
   def assemblyRemainingTime = synchronizedData.getInt("assemblyRemainingTime")
 
-  override protected def detectCustomDataChanges(nbt: CompoundNBT): Unit = {
+  override protected def detectCustomDataChanges(nbt: CompoundTag): Unit = {
     assembler match {
       case te: tileentity.Assembler => {
         synchronizedData.putBoolean("isAssembling", te.isAssembling)

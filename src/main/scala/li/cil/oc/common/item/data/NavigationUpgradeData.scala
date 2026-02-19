@@ -28,23 +28,23 @@ class NavigationUpgradeData extends ItemData(Constants.ItemName.NavigationUpgrad
   private final val DataTag = Settings.namespace + "data"
   private final val MapTag = Settings.namespace + "map"
 
-  override def loadData(stack: ItemStack) {
+  override def loadData(stack: ItemStack): Unit = {
     if (stack.hasTag) {
       loadData(stack.getTag.getCompound(DataTag))
     }
   }
 
-  override def saveData(stack: ItemStack) {
+  override def saveData(stack: ItemStack): Unit = {
     saveData(stack.getOrCreateTagElement(DataTag))
   }
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     if (nbt.contains(MapTag)) {
       map = ItemStack.of(nbt.getCompound(MapTag))
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     if (map != null) {
       nbt.setNewCompoundTag(MapTag, map.save)
     }

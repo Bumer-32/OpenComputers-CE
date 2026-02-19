@@ -46,7 +46,7 @@ abstract class WirelessNetworkCard(host: EnvironmentHost) extends NetworkCard(ho
 
   override def world = host.world
 
-  def receivePacket(packet: Packet, source: WirelessEndpoint) {
+  def receivePacket(packet: Packet, source: WirelessEndpoint): Unit = {
     val (dx, dy, dz) = ((source.x + 0.5) - host.xPosition, (source.y + 0.5) - host.yPosition, (source.z + 0.5) - host.zPosition)
     val distance = Math.sqrt(dx * dx + dy * dy + dz * dz)
     receivePacket(packet, distance, host)
@@ -67,7 +67,7 @@ abstract class WirelessNetworkCard(host: EnvironmentHost) extends NetworkCard(ho
   
   override def isWired(context: Context, args: Arguments): Array[AnyRef] = result(shouldSendWiredTraffic)
   
-  override protected def doSend(packet: Packet) {
+  override protected def doSend(packet: Packet): Unit = {
     if (strength > 0) {
       checkPower()
       api.Network.sendWirelessPacket(this, strength, packet)
@@ -76,7 +76,7 @@ abstract class WirelessNetworkCard(host: EnvironmentHost) extends NetworkCard(ho
       super.doSend(packet)
   }
 
-  override protected def doBroadcast(packet: Packet) {
+  override protected def doBroadcast(packet: Packet): Unit = {
     if (strength > 0) {
       checkPower()
       api.Network.sendWirelessPacket(this, strength, packet)
@@ -85,7 +85,7 @@ abstract class WirelessNetworkCard(host: EnvironmentHost) extends NetworkCard(ho
       super.doBroadcast(packet)
   }
   
-  private def checkPower() {
+  private def checkPower(): Unit = {
     val cost = wirelessCostPerRange
     if (cost > 0 && !Settings.get.ignorePower) {
       if (!node.tryChangeBuffer(-strength * cost)) {
@@ -98,21 +98,21 @@ abstract class WirelessNetworkCard(host: EnvironmentHost) extends NetworkCard(ho
 
   override val canUpdate = true
 
-  override def update() {
+  override def update(): Unit = {
     super.update()
     if (world.getGameTime % 20 == 0) {
       api.Network.updateWirelessNetwork(this)
     }
   }
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node): Unit = {
     super.onConnect(node)
     if (node == this.node) {
       api.Network.joinWirelessNetwork(this)
     }
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node): Unit = {
     super.onDisconnect(node)
     if (node == this.node || !world.isLoaded(position)) {
       api.Network.leaveWirelessNetwork(this)
@@ -123,14 +123,14 @@ abstract class WirelessNetworkCard(host: EnvironmentHost) extends NetworkCard(ho
 
   private final val StrengthTag = "strength"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
     if (nbt.contains(StrengthTag)) {
       strength = nbt.getDouble(StrengthTag) max 0 min maxWirelessRange
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
     nbt.putDouble(StrengthTag, strength)
   }

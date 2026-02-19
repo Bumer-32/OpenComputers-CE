@@ -47,7 +47,7 @@ class Keyboard(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
 
   // ----------------------------------------------------------------------- //
 
-  def releasePressedKeys(player: PlayerEntity) {
+  def releasePressedKeys(player: PlayerEntity): Unit = {
     pressedKeys.get(player) match {
       case Some(keys) => for ((code, char) <- keys) {
         if (Settings.get.inputUsername) {

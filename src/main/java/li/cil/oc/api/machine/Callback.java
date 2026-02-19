@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
  * of said information failing should not.
  *
  * @see Context
- * @see li.cil.oc.api.machine.Arguments
+ * @see Arguments
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

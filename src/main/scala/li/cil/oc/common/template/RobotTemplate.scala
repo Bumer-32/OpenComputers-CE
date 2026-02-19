@@ -51,7 +51,7 @@ object RobotTemplate extends Template {
     Array(api.Items.get(itemName).createItemStack(1)) ++ info.containers ++ info.components
   }
 
-  def register() {
+  def register(): Unit = {
     // Tier 1
     api.IMC.registerAssemblerTemplate(
       "Robot (Tier 1)",

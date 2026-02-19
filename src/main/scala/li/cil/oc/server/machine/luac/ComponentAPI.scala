@@ -6,7 +6,7 @@ import li.cil.oc.util.ExtendedLuaState.extendLuaState
 import scala.collection.convert.ImplicitConversionsToScala._
 
 class ComponentAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
-  def initialize() {
+  def initialize(): Unit = {
     lua.newTable()
 
     lua.pushScalaFunction(lua => components.synchronized {

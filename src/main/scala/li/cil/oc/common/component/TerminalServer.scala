@@ -98,7 +98,7 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
   // ----------------------------------------------------------------------- //
   // Environment
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node): Unit = {
     if (node == this.node) {
       node.connect(buffer.node)
       node.connect(keyboard.node)
@@ -106,14 +106,14 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
     }
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node): Unit = {
     if (node == this.node) {
       buffer.node.remove()
       keyboard.node.remove()
     }
   }
 
-  override def onMessage(message: Message) {
+  override def onMessage(message: Message): Unit = {
   }
 
   // ----------------------------------------------------------------------- //

@@ -51,7 +51,7 @@ class CarpetedCapacitor(selfType: TileEntityType[_ <: CarpetedCapacitor]) extend
     power
   }
 
-  override def updateEntity() {
+  override def updateEntity(): Unit = {
     if (node != null && (_world.getGameTime + hashCode) % 20 == 0) {
       val entities = _world.getEntitiesOfClass(classOf[LivingEntity], capacitorPowerBounds)
         .filter(entity => entity.isAlive)

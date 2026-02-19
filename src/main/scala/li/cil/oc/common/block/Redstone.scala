@@ -17,7 +17,7 @@ import net.minecraft.world.World
 import scala.collection.convert.ImplicitConversionsToScala._
 
 class Redstone(props: Properties) extends RedstoneAware(props) {
-  override protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
+  override protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag): Unit = {
     super.tooltipTail(stack, world, tooltip, advanced)
     // todo more generic way for redstone mods to provide lines
     if (Mods.ProjectRedTransmission.isModAvailable) {

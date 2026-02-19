@@ -12,7 +12,7 @@ import scala.collection.mutable
 class PersistenceAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
   private var persistKey = "__persist" + UUID.randomUUID().toString.replaceAll("-", "")
 
-  override def initialize() {
+  override def initialize(): Unit = {
     // Will be replaced by old value in load.
     lua.pushScalaFunction(lua => {
       lua.pushString(persistKey)
@@ -32,7 +32,7 @@ class PersistenceAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
       val perms = lua.getTop - 1
       val uperms = lua.getTop
 
-      def flattenAndStore() {
+      def flattenAndStore(): Unit = {
         /* ... k v */
         // We only care for tables and functions, any value types are safe.
         if (lua.isFunction(-1) || lua.isTable(-1)) {
@@ -90,19 +90,19 @@ class PersistenceAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
     }
   }
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
     if (nbt.contains("persistKey")) {
       persistKey = nbt.getString("persistKey")
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
     nbt.putString("persistKey", persistKey)
   }
 
-  def configure() {
+  def configure(): Unit = {
     lua.getGlobal("eris")
 
     lua.getField(-1, "settings")

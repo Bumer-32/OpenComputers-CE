@@ -31,14 +31,14 @@ abstract class PacketBuilder(stream: OutputStream) extends DataOutputStream(stre
   def writeRegistryEntry[T <: IForgeRegistryEntry[T]](registry: IForgeRegistry[T], value: T): Unit =
     writeInt(registry.asInstanceOf[ForgeRegistry[T]].getID(value))
 
-  def writeTileEntity(t: TileEntity) {
+  def writeTileEntity(t: TileEntity): Unit = {
     writeUTF(t.getLevel.dimension.location.toString)
     writeInt(t.getBlockPos.getX)
     writeInt(t.getBlockPos.getY)
     writeInt(t.getBlockPos.getZ)
   }
 
-  def writeEntity(e: Entity) {
+  def writeEntity(e: Entity): Unit = {
     writeUTF(e.level.dimension.location.toString)
     writeInt(e.getId)
   }
@@ -83,7 +83,7 @@ abstract class PacketBuilder(stream: OutputStream) extends DataOutputStream(stre
     }
   }
 
-  def sendToPlayersNearTileEntity(t: TileEntity, range: Option[Double] = None) {
+  def sendToPlayersNearTileEntity(t: TileEntity, range: Option[Double] = None): Unit = {
     t.getLevel match {
       case w: ServerWorld =>
         val chunk = new ChunkPos(t.getBlockPos)
@@ -105,7 +105,7 @@ abstract class PacketBuilder(stream: OutputStream) extends DataOutputStream(stre
     }
   }
 
-  def sendToNearbyPlayers(world: World, x: Double, y: Double, z: Double, range: Option[Double]) {
+  def sendToNearbyPlayers(world: World, x: Double, y: Double, z: Double, range: Option[Double]): Unit = {
     val server = ServerLifecycleHooks.getCurrentServer
     val manager = server.getPlayerList
 

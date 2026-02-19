@@ -206,7 +206,7 @@ class Manual extends screen.Screen(StringTextComponent.EMPTY) with traits.Window
     super.mouseReleased(mouseX, mouseY, button)
   }
 
-  private def scrollMouse(mouseY: Double) {
+  private def scrollMouse(mouseY: Double): Unit = {
     scrollTo(math.round((mouseY - topPos - scrollPosY - 6.5) * maxOffset / (scrollHeight - 13.0)).toInt)
   }
 

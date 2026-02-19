@@ -249,13 +249,13 @@ object ExtendedNBT {
   }
 
   class ExtendedListNBT(val nbt: ListNBT) {
-    def appendNewCompoundTag(f: (CompoundNBT) => Unit) {
+    def appendNewCompoundTag(f: (CompoundNBT) => Unit): Unit = {
       val t = new CompoundNBT()
       f(t)
       nbt.add(t)
     }
 
-    def append(values: Iterable[INBT]) {
+    def append(values: Iterable[INBT]): Unit = {
       for (value <- values) {
         nbt.add(value)
       }
@@ -263,7 +263,7 @@ object ExtendedNBT {
 
     def append(values: INBT*): Unit = append(values)
 
-    def foreach[Tag <: INBT](f: Tag => Unit) {
+    def foreach[Tag <: INBT](f: Tag => Unit): Unit = {
       val iterable = nbt.copy(): ListNBT
       while (iterable.size > 0) {
         f((iterable.remove(0): INBT).asInstanceOf[Tag])

@@ -10,7 +10,7 @@ object CreativeTab extends ItemGroup(OpenComputers.Name) {
 
   override def makeIcon = stack
 
-  override def fillItemList(list: NonNullList[ItemStack]) {
+  override def fillItemList(list: NonNullList[ItemStack]): Unit = {
     super.fillItemList(list)
     Items.decorateCreativeTab(list)
   }

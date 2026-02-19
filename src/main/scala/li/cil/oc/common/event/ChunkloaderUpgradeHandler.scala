@@ -33,7 +33,7 @@ object ChunkloaderUpgradeHandler extends LoadingValidationCallback {
 
   def claimTicket(addr: String) = parseAddress(addr).flatMap(restoredTickets.remove)
 
-  override def validateTickets(world: ServerWorld, helper: TicketHelper) {
+  override def validateTickets(world: ServerWorld, helper: TicketHelper): Unit = {
     for ((owner, ticketsPair) <- helper.getEntityTickets) {
       // This ensures that malformed tickets are also cleared on world save.
       restoredTickets += owner -> null
@@ -99,7 +99,7 @@ object ChunkloaderUpgradeHandler extends LoadingValidationCallback {
   // the chunk it might move into to get loaded.
 
   @SubscribeEvent
-  def onMove(e: RobotMoveEvent.Post) {
+  def onMove(e: RobotMoveEvent.Post): Unit = {
     val machineNode = e.agent.machine.node
     machineNode.reachableNodes.foreach(_.host match {
       case loader: UpgradeChunkloader => updateLoadedChunk(loader)
@@ -116,7 +116,7 @@ object ChunkloaderUpgradeHandler extends LoadingValidationCallback {
     case _ => OpenComputers.log.warn("Address '$addr' could not be parsed")
   }
 
-  def updateLoadedChunk(loader: UpgradeChunkloader) {
+  def updateLoadedChunk(loader: UpgradeChunkloader): Unit = {
     (loader.host.world, parseAddress(loader.node.address)) match {
       // If loader.ticket is None that means we shouldn't load anything (as did the old ticketing system).
       case (world: ServerWorld, Some(owner)) if loader.ticket.isDefined => {

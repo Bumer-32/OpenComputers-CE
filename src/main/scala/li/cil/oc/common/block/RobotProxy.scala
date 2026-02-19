@@ -6,7 +6,7 @@ import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.client.KeyBindings
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.item.data.RobotData
 import li.cil.oc.common.tileentity
 import li.cil.oc.server.PacketSender
@@ -74,18 +74,18 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipHead(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
+  override protected def tooltipHead(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag): Unit = {
     super.tooltipHead(stack, world, tooltip, advanced)
     addLines(stack, tooltip)
   }
 
-  override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
+  override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag): Unit = {
     for (curr <- Tooltip.get("robot")) {
       tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 
-  override protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  override protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
     super.tooltipTail(stack, world, tooltip, flag)
     if (KeyBindings.showExtendedTooltips) {
       val info = new RobotData(stack)
@@ -101,7 +101,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
     }
   }
 
-  private def addLines(stack: ItemStack, tooltip: util.List[ITextComponent]) {
+  private def addLines(stack: ItemStack, tooltip: util.List[ITextComponent]): Unit = {
     if (stack.hasTag) {
       if (stack.getTag.contains(Settings.namespace + "xp")) {
         val xp = stack.getTag.getDouble(Settings.namespace + "xp")
@@ -205,7 +205,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
     else false
   }
 
-  override def setPlacedBy(world: World, pos: BlockPos, state: BlockState, entity: LivingEntity, stack: ItemStack) {
+  override def setPlacedBy(world: World, pos: BlockPos, state: BlockState, entity: LivingEntity, stack: ItemStack): Unit = {
     super.setPlacedBy(world, pos, state, entity, stack)
     if (!world.isClientSide) ((entity, world.getBlockEntity(pos)) match {
       case (player: agent.Player, proxy: tileentity.RobotProxy) =>

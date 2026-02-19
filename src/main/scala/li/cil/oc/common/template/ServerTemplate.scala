@@ -23,7 +23,7 @@ object ServerTemplate {
     Array(ingredients, (0 until info.getContainerSize).map(info.getItem).filter(null !=).toArray)
   }
 
-  def register() {
+  def register(): Unit = {
     // Disassembler
     api.IMC.registerDisassemblerTemplate("Server",
       "li.cil.oc.common.template.ServerTemplate.selectDisassembler",

@@ -121,7 +121,7 @@ class EEPROM extends AbstractManagedEnvironment with DeviceInfo {
   private final val ReadonlyTag = Settings.namespace + "readonly"
   private final val UserdataTag = Settings.namespace + "userdata"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
     codeData = nbt.getByteArray(EEPROMTag)
     if (nbt.contains(LabelTag)) {
@@ -131,7 +131,7 @@ class EEPROM extends AbstractManagedEnvironment with DeviceInfo {
     volatileData = nbt.getByteArray(UserdataTag)
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
     nbt.putByteArray(EEPROMTag, codeData)
     nbt.putString(LabelTag, label)

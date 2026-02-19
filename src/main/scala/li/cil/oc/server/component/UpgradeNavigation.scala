@@ -107,12 +107,12 @@ class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends Abstra
 
   // ----------------------------------------------------------------------- //
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
     data.loadData(nbt)
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
     data.saveData(nbt)
   }

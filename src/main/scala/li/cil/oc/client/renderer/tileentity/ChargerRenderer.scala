@@ -19,7 +19,7 @@ object ChargerRenderer extends Function[TileEntityRendererDispatcher, ChargerRen
 }
 
 class ChargerRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Charger](dispatch) {
-  override def render(charger: Charger, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(charger: Charger, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderSystem.color4f(1, 1, 1, 1)

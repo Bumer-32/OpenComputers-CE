@@ -4,13 +4,13 @@ import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
 import li.cil.oc.client.gui.widget.ProgressBar
-import li.cil.oc.common.container
-import li.cil.oc.common.container.ComponentSlot
+import li.cil.oc.common.menu
+import li.cil.oc.common.menu.ComponentSlot
 import li.cil.oc.util.RenderState
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.util.text.ITextComponent
 
-class Printer(state: container.Printer, playerInventory: PlayerInventory, name: ITextComponent)
+class Printer(state: menu.Printer, playerInventory: PlayerInventory, name: ITextComponent)
   extends DynamicGuiContainer(state, playerInventory, name) {
 
   imageWidth = 176
@@ -54,7 +54,7 @@ class Printer(state: container.Printer, playerInventory: PlayerInventory, name: 
     RenderState.popAttrib()
   }
 
-  override def renderBg(stack: MatrixStack, dt: Float, mouseX: Int, mouseY: Int) {
+  override def renderBg(stack: MatrixStack, dt: Float, mouseX: Int, mouseY: Int): Unit = {
     RenderSystem.color3f(1, 1, 1)
     Textures.bind(Textures.GUI.Printer)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
@@ -65,5 +65,5 @@ class Printer(state: container.Printer, playerInventory: PlayerInventory, name: 
     drawInventorySlots(stack)
   }
 
-  override protected def drawDisabledSlot(stack: MatrixStack, slot: ComponentSlot) {}
+  override protected def drawDisabledSlot(stack: MatrixStack, slot: ComponentSlot): Unit = {}
 }

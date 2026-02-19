@@ -13,12 +13,12 @@ class Transposer(selfType: TileEntityType[_ <: Transposer]) extends TileEntity(s
   // Used on client side to check whether to render activity indicators.
   var lastOperation = 0L
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     super.loadForServer(nbt)
     transposer.loadData(nbt)
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
     transposer.saveData(nbt)
   }

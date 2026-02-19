@@ -10,8 +10,8 @@ import li.cil.oc.api.fs.Label
 import li.cil.oc.api.network.Analyzable
 import li.cil.oc.api.network.Visibility
 import li.cil.oc.common.Slot
-import li.cil.oc.common.container
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.item.data.DriveData
 import li.cil.oc.common.item.data.NodeData
 import li.cil.oc.server.component.FileSystem
@@ -56,7 +56,7 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
     case _ => false
   }
 
-  override protected def onItemAdded(slot: Int, stack: ItemStack) {
+  override protected def onItemAdded(slot: Int, stack: ItemStack): Unit = {
     super.onItemAdded(slot, stack)
     if (isServer) this.synchronized {
       ServerPacketSender.sendRaidChange(this)
@@ -64,13 +64,13 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
     }
   }
 
-  override def setChanged() {
+  override def setChanged(): Unit = {
     super.setChanged()
     // Makes the implementation of the comparator output easier.
     items.map(!_.isEmpty).copyToArray(presence)
   }
 
-  override protected def onItemRemoved(slot: Int, stack: ItemStack) {
+  override protected def onItemRemoved(slot: Int, stack: ItemStack): Unit = {
     super.onItemRemoved(slot, stack)
     if (isServer) this.synchronized {
       ServerPacketSender.sendRaidChange(this)
@@ -91,7 +91,7 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
 
   override def dropAllSlots() = ()
 
-  def tryCreateRaid(id: String) {
+  def tryCreateRaid(id: String): Unit = {
     if (items.count(!_.isEmpty) == items.length && filesystem.fold(true)(fs => fs.node == null || fs.node.address != id)) {
       filesystem.foreach(fs => if (fs.node != null) fs.node.remove())
       items.foreach(fsStack => {
@@ -135,7 +135,7 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
   // ----------------------------------------------------------------------- //
 
   override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new container.Raid(ContainerTypes.RAID, id, playerInventory, this)
+    new menu.Raid(ContainerTypes.RAID, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
 
@@ -143,7 +143,7 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
   private final val PresenceTag = Settings.namespace + "presence"
   private final val LabelTag = Settings.namespace + "label"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     super.loadForServer(nbt)
     if (nbt.contains(FileSystemTag)) {
       val tag = nbt.getCompound(FileSystemTag)
@@ -153,14 +153,14 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
     label.loadData(nbt)
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
     filesystem.foreach(fs => nbt.setNewCompoundTag(FileSystemTag, fs.saveData))
     label.saveData(nbt)
   }
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT) {
+  def loadForClient(nbt: CompoundNBT): Unit = {
     super.loadForClient(nbt)
     nbt.getByteArray(PresenceTag).
       map(_ != 0).
@@ -168,7 +168,7 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
     label.setLabel(nbt.getString(LabelTag))
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundNBT): Unit = {
     super.saveForClient(nbt)
     nbt.put(PresenceTag, items.map(!_.isEmpty))
     if (label.getLabel != null)
@@ -184,13 +184,13 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
 
     override def setLabel(value: String) = label = Option(value).map(_.take(16)).orNull
 
-    override def loadData(nbt: CompoundNBT) {
+    override def loadData(nbt: CompoundNBT): Unit = {
       if (nbt.contains(Settings.namespace + "label")) {
         label = nbt.getString(Settings.namespace + "label")
       }
     }
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundNBT): Unit = {
       nbt.putString(Settings.namespace + "label", label)
     }
   }

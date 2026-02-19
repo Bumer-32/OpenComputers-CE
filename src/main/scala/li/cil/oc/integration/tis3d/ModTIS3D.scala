@@ -11,7 +11,7 @@ object ModTIS3D extends ModProxy {
   override def getMod = Mods.TIS3D
 
   @SubscribeEvent
-  def registerSerialInterfaceProviders(e: RegistryEvent.Register[SerialInterfaceProvider]) {
+  def registerSerialInterfaceProviders(e: RegistryEvent.Register[SerialInterfaceProvider]): Unit = {
     e.getRegistry.register(SerialInterfaceProviderAdapter)
   }
 

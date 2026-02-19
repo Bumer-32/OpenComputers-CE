@@ -15,8 +15,8 @@ import li.cil.oc.client.gui
 import li.cil.oc.common.EventHandler
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
-import li.cil.oc.common.container
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.inventory.InventoryProxy
 import li.cil.oc.common.inventory.InventorySelection
 import li.cil.oc.common.inventory.TankSelection
@@ -308,25 +308,25 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
     ServerPacketSender.sendRobotAnimateTurn(this)
   }
 
-  def setAnimateMove(fromPosition: BlockPos, ticks: Int) {
+  def setAnimateMove(fromPosition: BlockPos, ticks: Int): Unit = {
     animationTicksTotal = ticks + 2
     prepareForAnimation()
     moveFrom = Some(fromPosition)
   }
 
-  def setAnimateSwing(ticks: Int) {
+  def setAnimateSwing(ticks: Int): Unit = {
     animationTicksTotal = math.max(ticks, 5)
     prepareForAnimation()
     swingingTool = true
   }
 
-  def setAnimateTurn(axis: Int, ticks: Int) {
+  def setAnimateTurn(axis: Int, ticks: Int): Unit = {
     animationTicksTotal = ticks
     prepareForAnimation()
     turnAxis = axis
   }
 
-  private def prepareForAnimation() {
+  private def prepareForAnimation(): Unit = {
     animationTicksLeft = animationTicksTotal
     moveFrom = None
     swingingTool = false
@@ -335,7 +335,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity(): Unit = {
     if (animationTicksLeft > 0) {
       animationTicksLeft -= 1
       if (animationTicksLeft == 0) {
@@ -388,7 +388,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
     else EventHandler.onRobotStopped(this)
   }
 
-  override protected def initialize() {
+  override protected def initialize(): Unit = {
     if (isServer) {
       // Ensure we have a node address, because the proxy needs this to initialize
       // its own node to the same address ours has.
@@ -396,7 +396,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
     }
   }
 
-  override def dispose() {
+  override def dispose(): Unit = {
     super.dispose()
     if (isClient) {
       Minecraft.getInstance.screen match {
@@ -423,7 +423,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
   private final val SwingingToolTag = Settings.namespace + "swingingTool"
   private final val TurnAxisTag = Settings.namespace + "turnAxis"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     updateInventorySize()
     machine.onHostChanged()
 
@@ -484,7 +484,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundNBT): Unit = {
     super.loadForClient(nbt)
     loadData(nbt)
     info.loadData(nbt)
@@ -530,7 +530,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
 
   // ----------------------------------------------------------------------- //
 
-  override def onMachineConnect(node: Node) {
+  override def onMachineConnect(node: Node): Unit = {
     super.onConnect(node)
     if (node == this.node) {
       node.connect(bot.node)
@@ -538,7 +538,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
     }
   }
 
-  override def onMachineDisconnect(node: Node) {
+  override def onMachineDisconnect(node: Node): Unit = {
     super.onDisconnect(node)
     if (node == this.node) {
       node.remove()
@@ -551,7 +551,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
 
   // ----------------------------------------------------------------------- //
 
-  override protected def onItemAdded(slot: Int, stack: ItemStack) {
+  override protected def onItemAdded(slot: Int, stack: ItemStack): Unit = {
     if (isServer) {
       if (isToolSlot(slot)) {
         player_.getAttributes.addTransientAttributeModifiers(stack.getAttributeModifiers(EquipmentSlotType.MAINHAND))
@@ -574,7 +574,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
     else super.onItemAdded(slot, stack)
   }
 
-  override protected def onItemRemoved(slot: Int, stack: ItemStack) {
+  override protected def onItemRemoved(slot: Int, stack: ItemStack): Unit = {
     super.onItemRemoved(slot, stack)
     if (isServer) {
       if (isToolSlot(slot)) {
@@ -596,7 +596,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
     }
   }
 
-  override def setChanged() {
+  override def setChanged(): Unit = {
     super.setChanged()
     // Avoid getting into a bad state on the client when updating before we
     // got the descriptor packet from the server. If we manage to open the
@@ -615,7 +615,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
     renderingErrored = false
   }
 
-  override protected def connectItemNode(node: Node) {
+  override protected def connectItemNode(node: Node): Unit = {
     super.connectItemNode(node)
     if (node != null) node.host match {
       case buffer: api.internal.TextBuffer =>
@@ -735,7 +735,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
     else super.getItem(slot)
   }
 
-  override def setItem(slot: Int, stack: ItemStack) {
+  override def setItem(slot: Int, stack: ItemStack): Unit = {
     if (slot < getContainerSize - componentCount && (canPlaceItem(slot, stack) || stack.isEmpty)) {
       if (!stack.isEmpty && stack.getCount > 1 && isComponentSlot(slot, stack)) {
         super.setItem(slot, stack.split(1))
@@ -775,11 +775,11 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
   override def getDisplayName = StringTextComponent.EMPTY
 
   override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new container.Robot(ContainerTypes.ROBOT, id, playerInventory, this, new container.RobotInfo(this))
+    new menu.Robot(ContainerTypes.ROBOT, id, playerInventory, this, new menu.RobotInfo(this))
 
   // ----------------------------------------------------------------------- //
 
-  override def forAllLoot(dst: Consumer[ItemStack]) {
+  override def forAllLoot(dst: Consumer[ItemStack]): Unit = {
     Option(getItem(0)) match {
       case Some(stack) if stack.getCount > 0 => dst.accept(stack)
       case _ =>

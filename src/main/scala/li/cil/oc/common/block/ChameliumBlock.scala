@@ -34,7 +34,7 @@ class ChameliumBlock(props: Properties) extends SimpleBlock(props) {
   override def getStateForPlacement(ctx: BlockItemUseContext): BlockState =
     defaultBlockState.setValue(ChameliumBlock.Color, DyeColor.byId(ctx.getItemInHand.getDamageValue))
 
-  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]) {
+  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]): Unit = {
     val stack = new ItemStack(this, 1)
     stack.setDamageValue(defaultBlockState.getValue(ChameliumBlock.Color).getId)
     list.add(stack)

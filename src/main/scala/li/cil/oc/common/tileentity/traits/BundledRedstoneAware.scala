@@ -5,12 +5,12 @@ import li.cil.oc.integration.util.BundledRedstone
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.RotationHelper
 import li.cil.oc.integration.Mods
-import mrtjp.projectred.api.IBundledTile
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.IntArrayNBT
-import net.minecraft.util.Direction
-import net.minecraftforge.common.util.Constants.NBT
+//import mrtjp.projectred.api.IBundledTile
+import net.minecraft.core.Direction
 import java.util
+import net.minecraft.nbt.Tag
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.IntArrayTag
 
 trait BundledRedstoneAware extends RedstoneAware {
 
@@ -137,7 +137,7 @@ trait BundledRedstoneAware extends RedstoneAware {
 
   // ----------------------------------------------------------------------- //
 
-  override def updateRedstoneInput(side: Direction) {
+  override def updateRedstoneInput(side: Direction): Unit = {
     super.updateRedstoneInput(side)
     setBundledInput(side, BundledRedstone.computeBundledInput(position, side))
   }
@@ -148,17 +148,17 @@ trait BundledRedstoneAware extends RedstoneAware {
   private final val BundledOutputTag = Settings.namespace + "rs.bundledOutput"
   private final val RednetInputTag = Settings.namespace + "rs.rednetInput"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
 
-    nbt.getList(BundledInputTag, NBT.TAG_INT_ARRAY).toTagArray[IntArrayNBT].
+    nbt.getList(BundledInputTag, Tag.TAG_INT_ARRAY).toArray[IntArrayTag].
       map(_.getAsIntArray).zipWithIndex.foreach {
       case (input, index) if index < _bundledInput.length =>
         val safeLength = input.length min _bundledInput(index).length
         input.copyToArray(_bundledInput(index), 0, safeLength)
       case _ =>
     }
-    nbt.getList(BundledOutputTag, NBT.TAG_INT_ARRAY).toTagArray[IntArrayNBT].
+    nbt.getList(BundledOutputTag, Tag.TAG_INT_ARRAY).toArray[IntArrayTag].
       map(_.getAsIntArray).zipWithIndex.foreach {
       case (input, index) if index < _bundledOutput.length =>
         val safeLength = input.length min _bundledOutput(index).length
@@ -166,7 +166,7 @@ trait BundledRedstoneAware extends RedstoneAware {
       case _ =>
     }
 
-    nbt.getList(RednetInputTag, NBT.TAG_INT_ARRAY).toTagArray[IntArrayNBT].
+    nbt.getList(RednetInputTag, Tag.TAG_INT_ARRAY).toArray[IntArrayTag].
       map(_.getAsIntArray).zipWithIndex.foreach {
       case (input, index) if index < _rednetInput.length =>
         val safeLength = input.length min _rednetInput(index).length
@@ -175,7 +175,7 @@ trait BundledRedstoneAware extends RedstoneAware {
     }
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
 
     nbt.setNewTagList(BundledInputTag, _bundledInput.view)

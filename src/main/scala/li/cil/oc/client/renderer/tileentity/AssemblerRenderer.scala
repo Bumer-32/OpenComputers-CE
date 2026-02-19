@@ -18,7 +18,7 @@ object AssemblerRenderer extends Function[TileEntityRendererDispatcher, Assemble
 }
 
 class AssemblerRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Assembler](dispatch) {
-  override def render(assembler: Assembler, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(assembler: Assembler, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderSystem.color4f(1, 1, 1, 1)

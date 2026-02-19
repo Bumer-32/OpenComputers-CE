@@ -53,7 +53,7 @@ class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
     }
   }
 
-  override def tick(state: BlockState, world: ServerWorld, pos: BlockPos, rand: Random) {
+  override def tick(state: BlockState, world: ServerWorld, pos: BlockPos, rand: Random): Unit = {
     world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState)
   }
 

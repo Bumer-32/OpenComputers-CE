@@ -27,7 +27,7 @@ trait FileSystemLike extends SimpleItem {
   def kiloBytes: Int
 
   @OnlyIn(Dist.CLIENT)
-  override def appendHoverText(stack: ItemStack, world: World, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  override def appendHoverText(stack: ItemStack, world: World, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
     super.appendHoverText(stack, world, tooltip, flag)
     if (stack.hasTag) {
       val nbt = stack.getTag
@@ -59,7 +59,7 @@ trait FileSystemLike extends SimpleItem {
   }
 
   @OnlyIn(Dist.CLIENT)
-  private def showGui(stack: ItemStack, player: PlayerEntity) {
+  private def showGui(stack: ItemStack, player: PlayerEntity): Unit = {
     Minecraft.getInstance.pushGuiLayer(new gui.Drive(player.inventory, () => stack))
   }
 }

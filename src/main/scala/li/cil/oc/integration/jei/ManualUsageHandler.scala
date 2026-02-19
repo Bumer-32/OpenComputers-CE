@@ -43,7 +43,7 @@ object ManualUsageHandler {
       override def onPress(b: Button) = ()
     })
 
-    def initialize(guiHelper: IGuiHelper) {
+    def initialize(guiHelper: IGuiHelper): Unit = {
       background = guiHelper.createBlankDrawable(recipeWidth, recipeHeight)
       icon = guiHelper.drawableBuilder(new ResourceLocation(Settings.resourceDomain, "textures/items/manual.png"), 0, 0, 16, 16).setTextureSize(16, 16).build()
     }
@@ -54,14 +54,14 @@ object ManualUsageHandler {
 
     override def getIcon: IDrawable = icon
 
-    override def setIngredients(recipeWrapper: ManualUsageRecipe, ingredients: IIngredients) {
+    override def setIngredients(recipeWrapper: ManualUsageRecipe, ingredients: IIngredients): Unit = {
       ingredients.setInput(VanillaTypes.ITEM, recipeWrapper.stack)
     }
 
-    override def setRecipe(recipeLayout: IRecipeLayout, recipeWrapper: ManualUsageRecipe, ingredients: IIngredients) {
+    override def setRecipe(recipeLayout: IRecipeLayout, recipeWrapper: ManualUsageRecipe, ingredients: IIngredients): Unit = {
     }
 
-    override def draw(recipeWrapper: ManualUsageRecipe, stack: MatrixStack, mouseX: Double, mouseY: Double) {
+    override def draw(recipeWrapper: ManualUsageRecipe, stack: MatrixStack, mouseX: Double, mouseY: Double): Unit = {
       button.render(stack, mouseX.toInt, mouseY.toInt, 0)
     }
 

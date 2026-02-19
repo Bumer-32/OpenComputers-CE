@@ -17,7 +17,7 @@ object GeolyzerRenderer extends Function[TileEntityRendererDispatcher, GeolyzerR
 }
 
 class GeolyzerRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Geolyzer](dispatch) {
-  override def render(geolyzer: Geolyzer, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(geolyzer: Geolyzer, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderSystem.color4f(1, 1, 1, 1)

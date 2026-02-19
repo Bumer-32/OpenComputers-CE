@@ -32,7 +32,7 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
 
   var hoverOverride = false
 
-  override def renderButton(stack: MatrixStack, mouseX: Int, mouseY: Int, partialTicks: Float) {
+  override def renderButton(stack: MatrixStack, mouseX: Int, mouseY: Int, partialTicks: Float) = {
     if (visible) {
       Textures.bind(image)
       RenderSystem.color4f(1, 1, 1, 1)

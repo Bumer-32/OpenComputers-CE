@@ -36,7 +36,7 @@ class Capacitor(selfType: TileEntityType[_ <: Capacitor]) extends TileEntity(sel
 
   // ----------------------------------------------------------------------- //
 
-  override def dispose() {
+  override def dispose(): Unit = {
     super.dispose()
     if (isServer) {
       indirectNeighbors.map(coordinate => {
@@ -48,7 +48,7 @@ class Capacitor(selfType: TileEntityType[_ <: Capacitor]) extends TileEntity(sel
     }
   }
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node): Unit = {
     super.onConnect(node)
     if (node == this.node) {
       recomputeCapacity(updateSecondGradeNeighbors = true)
@@ -57,7 +57,7 @@ class Capacitor(selfType: TileEntityType[_ <: Capacitor]) extends TileEntity(sel
 
   // ----------------------------------------------------------------------- //
 
-  def recomputeCapacity(updateSecondGradeNeighbors: Boolean = false) {
+  def recomputeCapacity(updateSecondGradeNeighbors: Boolean = false): Unit = {
     node.setLocalBufferSize(
       Settings.get.bufferCapacitor +
         Settings.get.bufferCapacitorAdjacencyBonus * Direction.values.count(side => {

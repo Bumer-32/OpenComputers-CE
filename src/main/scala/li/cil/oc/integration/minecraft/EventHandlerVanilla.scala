@@ -18,7 +18,7 @@ import scala.collection.convert.ImplicitConversionsToScala._
 
 object EventHandlerVanilla {
   @SubscribeEvent
-  def onGeolyzerScan(e: GeolyzerEvent.Scan) {
+  def onGeolyzerScan(e: GeolyzerEvent.Scan): Unit = {
     val world = e.host.world
     val blockPos = BlockPosition(e.host)
     val includeReplaceable = e.options.get("includeReplaceable") match {
@@ -61,7 +61,7 @@ object EventHandlerVanilla {
   }
 
   @SubscribeEvent
-  def onGeolyzerAnalyze(e: GeolyzerEvent.Analyze) {
+  def onGeolyzerAnalyze(e: GeolyzerEvent.Analyze): Unit = {
     val world = e.host.world
     val blockState = world.getBlockState(e.pos)
     val block = blockState.getBlock

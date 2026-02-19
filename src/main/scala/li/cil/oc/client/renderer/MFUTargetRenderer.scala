@@ -24,7 +24,7 @@ object MFUTargetRenderer {
   private lazy val mfu = api.Items.get(Constants.ItemName.MFU)
 
   @SubscribeEvent
-  def onRenderWorldLastEvent(e: RenderWorldLastEvent) {
+  def onRenderWorldLastEvent(e: RenderWorldLastEvent) = {
     val mc = Minecraft.getInstance
     val player = mc.player
     if (player == null) return
@@ -62,7 +62,7 @@ object MFUTargetRenderer {
     }
   }
 
-  def drawBox(matrix: Matrix4f, builder: IVertexBuilder, minX: Float, minY: Float, minZ: Float, maxX: Float, maxY: Float, maxZ: Float, r: Float, g: Float, b: Float) {
+  def drawBox(matrix: Matrix4f, builder: IVertexBuilder, minX: Float, minY: Float, minZ: Float, maxX: Float, maxY: Float, maxZ: Float, r: Float, g: Float, b: Float) = {
     // Bottom square.
     builder.vertex(matrix, minX, minY, minZ).color(r, g, b, 0.5f).endVertex()
     builder.vertex(matrix, minX, minY, maxZ).color(r, g, b, 0.5f).endVertex()

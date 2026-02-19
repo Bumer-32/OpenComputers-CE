@@ -1,4 +1,4 @@
-package li.cil.oc.common.container
+package li.cil.oc.common.menu
 
 import li.cil.oc.Constants
 import li.cil.oc.api
@@ -6,14 +6,14 @@ import li.cil.oc.api.detail.ItemInfo
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.common.tileentity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.Container
 
-class Relay(selfType: ContainerType[_ <: Relay], id: Int, playerInventory: PlayerInventory, relay: IInventory)
-  extends Player(selfType, id, playerInventory, relay) {
+class Relay(selfType: MenuType[_ <: Relay], id: Int, playerInventory: Inventory, relay: Container)
+  extends AbstractMenu(selfType, id, playerInventory, relay) {
 
   lazy final val WirelessNetworkCardTier1: ItemInfo = api.Items.get(Constants.ItemName.WirelessNetworkCardTier1)
   lazy final val WirelessNetworkCardTier2: ItemInfo = api.Items.get(Constants.ItemName.WirelessNetworkCardTier2)
@@ -43,7 +43,7 @@ class Relay(selfType: ContainerType[_ <: Relay], id: Int, playerInventory: Playe
 
   def queueSize = synchronizedData.getInt("queueSize")
 
-  override protected def detectCustomDataChanges(nbt: CompoundNBT): Unit = {
+  override protected def detectCustomDataChanges(nbt: CompoundTag): Unit = {
     relay match {
       case te: tileentity.Relay => {
         synchronizedData.putInt("relayDelay", te.relayDelay)

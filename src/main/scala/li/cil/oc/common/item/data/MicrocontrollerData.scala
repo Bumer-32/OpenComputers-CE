@@ -25,7 +25,7 @@ class MicrocontrollerData(itemName: String = Constants.BlockName.Microcontroller
   private final val ComponentsTag = Settings.namespace + "components"
   private final val StoredEnergyTag = Settings.namespace + "storedEnergy"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     tier = nbt.getByte(TierTag)
     components = nbt.getList(ComponentsTag, NBT.TAG_COMPOUND).
       toTagArray[CompoundNBT].map(ItemStack.of(_)).filter(!_.isEmpty)
@@ -38,7 +38,7 @@ class MicrocontrollerData(itemName: String = Constants.BlockName.Microcontroller
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     nbt.putByte(TierTag, tier.toByte)
     nbt.setNewTagList(ComponentsTag, components.filter(!_.isEmpty).toIterable)
     nbt.putInt(StoredEnergyTag, storedEnergy)

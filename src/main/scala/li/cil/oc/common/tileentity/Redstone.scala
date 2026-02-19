@@ -34,19 +34,19 @@ class Redstone(selfType: TileEntityType[_ <: Redstone]) extends TileEntity(selfT
 
   private final val RedstoneTag = Settings.namespace + "redstone"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     super.loadForServer(nbt)
     instance.loadData(nbt.getCompound(RedstoneTag))
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
     nbt.setNewCompoundTag(RedstoneTag, instance.saveData)
   }
 
   // ----------------------------------------------------------------------- //
 
-  override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs) {
+  override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs): Unit = {
     super.onRedstoneInputChanged(args)
     if (node != null && node.network != null) {
       node.connect(dummyNode)

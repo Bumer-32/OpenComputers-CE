@@ -78,7 +78,7 @@ class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val has
     super.mouseReleased(mouseX, mouseY, button)
   }
 
-  private def clickOrDrag(mouseX: Double, mouseY: Double, button: Int) {
+  private def clickOrDrag(mouseX: Double, mouseY: Double, button: Int) = {
     toBufferCoordinates(mouseX, mouseY) match {
       case Some((bx, by)) if bx.toInt != mx || (by*2).toInt != my =>
         if (mx >= 0 && my >= 0) buffer.mouseDrag(bx, by, button, null)
@@ -110,7 +110,7 @@ class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val has
     drawBufferLayer(stack)
   }
 
-  override def drawBuffer(stack: MatrixStack) {
+  override def drawBuffer(stack: MatrixStack) = {
     stack.translate(x, y, 0)
     BufferRenderer.drawBackground(stack, innerWidth, innerHeight)
     if (hasPower()) {

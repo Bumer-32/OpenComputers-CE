@@ -104,7 +104,7 @@ trait RedstoneAware extends RotationAware {
     changed
   }
 
-  def checkRedstoneInputChanged() {
+  def checkRedstoneInputChanged(): Unit = {
     if (this.isInstanceOf[Tickable]) {
       shouldUpdateInput = isServer
     } else {
@@ -114,7 +114,7 @@ trait RedstoneAware extends RotationAware {
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity(): Unit = {
     super.updateEntity()
     if (isServer) {
       if (shouldUpdateInput) {
@@ -152,13 +152,13 @@ trait RedstoneAware extends RotationAware {
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundNBT): Unit = {
     super.loadForClient(nbt)
     _isOutputEnabled = nbt.getBoolean("isOutputEnabled")
     nbt.getIntArray("output").copyToArray(_output)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundNBT): Unit = {
     super.saveForClient(nbt)
     nbt.putBoolean("isOutputEnabled", _isOutputEnabled)
     nbt.putIntArray("output", _output)
@@ -166,9 +166,9 @@ trait RedstoneAware extends RotationAware {
 
   // ----------------------------------------------------------------------- //
 
-  protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs) {}
+  protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs): Unit = {}
 
-  protected def onRedstoneOutputEnabledChanged() {
+  protected def onRedstoneOutputEnabledChanged(): Unit = {
     if (getLevel != null) {
       getLevel.updateNeighborsAt(getBlockPos, getBlockState.getBlock)
       if (isServer) ServerPacketSender.sendRedstoneState(this)
@@ -176,7 +176,7 @@ trait RedstoneAware extends RotationAware {
     }
   }
 
-  protected def onRedstoneOutputChanged(side: Direction) {
+  protected def onRedstoneOutputChanged(side: Direction): Unit = {
     val blockPos = getBlockPos.relative(side)
     getLevel.neighborChanged(blockPos, getBlockState.getBlock, blockPos)
     getLevel.updateNeighborsAtExceptFromFacing(blockPos, getLevel.getBlockState(blockPos).getBlock, side.getOpposite)

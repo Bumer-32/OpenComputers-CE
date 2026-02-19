@@ -74,14 +74,14 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
     null
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node): Unit = {
     super.onDisconnect(node)
     if (node == this.node) {
       unleashAll()
     }
   }
 
-  private def unleashAll() {
+  private def unleashAll(): Unit = {
     entitiesInBounds(classOf[MobEntity], position.bounds.inflate(5, 5, 5)).foreach(entity => {
       if (leashedEntities.contains(entity.getUUID) && entity.getLeashHolder == host) {
         entity.dropLeash(true, false)
@@ -92,7 +92,7 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
 
   private final val LeashedEntitiesTag = "leashedEntities"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
     leashedEntities ++= nbt.getList(LeashedEntitiesTag, NBT.TAG_STRING).
       map((s: StringNBT) => UUID.fromString(s.getAsString))
@@ -114,7 +114,7 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
     })
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
     nbt.setNewTagList(LeashedEntitiesTag, leashedEntities.map(_.toString))
   }

@@ -23,7 +23,7 @@ import net.minecraftforge.common.extensions.IForgeItem
 
 class Manual(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem {
   @OnlyIn(Dist.CLIENT)
-  override def appendHoverText(stack: ItemStack, world: World, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  override def appendHoverText(stack: ItemStack, world: World, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
     super.appendHoverText(stack, world, tooltip, flag)
     tooltip.add(new StringTextComponent(TextFormatting.DARK_GRAY.toString + "v" + OpenComputers.Version))
   }

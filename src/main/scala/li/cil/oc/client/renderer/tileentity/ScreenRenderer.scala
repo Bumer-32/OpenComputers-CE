@@ -40,7 +40,7 @@ class ScreenRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityR
   // Rendering
   // ----------------------------------------------------------------------- //
 
-  override def render(screen: Screen, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(screen: Screen, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int): Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     this.screen = screen
@@ -93,7 +93,7 @@ class ScreenRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityR
     RenderState.checkError(getClass.getName + ".render: leaving")
   }
 
-  private def transform(stack: MatrixStack) {
+  private def transform(stack: MatrixStack) = {
     screen.yaw match {
       case Direction.WEST => stack.mulPose(Vector3f.YP.rotationDegrees(-90))
       case Direction.NORTH => stack.mulPose(Vector3f.YP.rotationDegrees(180))
@@ -142,7 +142,7 @@ class ScreenRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityR
     }
   }
 
-  private def draw(stack: MatrixStack, alpha: Float, buffer: IRenderTypeBuffer) {
+  private def draw(stack: MatrixStack, alpha: Float, buffer: IRenderTypeBuffer) = {
     RenderState.checkError(getClass.getName + ".draw: entering (aka: wasntme)")
 
     val sx = screen.width

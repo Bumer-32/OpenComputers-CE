@@ -5,21 +5,22 @@ import li.cil.oc.api.network.Environment;
 import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * TileEntities can implement the {@link li.cil.oc.api.network.Environment}
+ * TileEntities can implement the {@link Environment}
  * interface to allow them to interact with the component network, by providing
- * a {@link li.cil.oc.api.network.Node} and connecting it to said network.
+ * a {@link Node} and connecting it to said network.
  * <br>
  * Nodes in such a network can communicate with each other, or just use the
  * network as an index structure to find other nodes connected to them.
  */
 @SuppressWarnings("UnusedDeclaration")
-public abstract class TileEntityEnvironment extends TileEntity implements Environment {
+public abstract class TileEntityEnvironment extends BlockEntity implements Environment {
     private static final String TAG_NODE = "oc:node";
 
     /**
@@ -27,14 +28,14 @@ public abstract class TileEntityEnvironment extends TileEntity implements Enviro
      * this tile entity.
      * <br>
      * You must only create new nodes using the factory method in the network
-     * API, {@link li.cil.oc.api.Network#newNode(Environment, Visibility)}.
+     * API, {@link Network#newNode(Environment, Visibility)}.
      * <br>
      * For example:
      * <pre>
      * // The first parameters to newNode is the host() of the node, which will
      * // usually be this tile entity. The second one is it's reachability,
      * // which determines how other nodes in the same network can query this
-     * // node. See {@link li.cil.oc.api.network.Network#nodes(li.cil.oc.api.network.Node)}.
+     * // node. See {@link li.cil.oc.api.network.Network#nodes(Node)}.
      * node = Network.newNode(this, Visibility.Network)
      *       // This call allows the node to consume energy from the
      *       // component network it is in and act as a consumer, or to
@@ -61,8 +62,8 @@ public abstract class TileEntityEnvironment extends TileEntity implements Enviro
 
     // ----------------------------------------------------------------------- //
     
-    public TileEntityEnvironment(TileEntityType<?> type) {
-        super(type);
+    public TileEntityEnvironment(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
     @Override
@@ -124,8 +125,8 @@ public abstract class TileEntityEnvironment extends TileEntity implements Enviro
     // ----------------------------------------------------------------------- //
 
     @Override
-    public void load(final BlockState state, final CompoundNBT nbt) {
-        super.load(state, nbt);
+    public void load(final CompoundTag nbt) {
+        super.load(nbt);
         // The host check may be superfluous for you. It's just there to allow
         // some special cases, where getNode() returns some node managed by
         // some other instance (for example when you have multiple internal
@@ -140,14 +141,13 @@ public abstract class TileEntityEnvironment extends TileEntity implements Enviro
     }
 
     @Override
-    public CompoundNBT save(final CompoundNBT nbt) {
-        super.save(nbt);
+    public void saveAdditional(final CompoundTag nbt) {
+        super.saveAdditional(nbt);
         // See load() regarding host check.
         if (node != null && node.host() == this) {
-            final CompoundNBT nodeNbt = new CompoundNBT();
+            final CompoundTag nodeNbt = new CompoundTag();
             node.saveData(nodeNbt);
             nbt.put(TAG_NODE, nodeNbt);
         }
-        return nbt;
     }
 }

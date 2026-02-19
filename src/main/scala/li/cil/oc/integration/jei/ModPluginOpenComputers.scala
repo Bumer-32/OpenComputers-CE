@@ -38,7 +38,7 @@ class ModPluginOpenComputers extends IModPlugin {
     registry.addRecipeCategories(CallbackDocHandler.CallbackDocRecipeCategory)
   }
 
-  override def registerRecipes(registration: IRecipeRegistration) {
+  override def registerRecipes(registration: IRecipeRegistration): Unit = {
     registration.addRecipes(ManualUsageHandler.getRecipes(registration), ManualUsageHandler.ManualUsageRecipeCategory.getUid)
     registration.addRecipes(CallbackDocHandler.getRecipes(registration), CallbackDocHandler.CallbackDocRecipeCategory.getUid)
   }
@@ -55,7 +55,7 @@ class ModPluginOpenComputers extends IModPlugin {
 
   private var stackUnderMouse: (ContainerScreen[_], Int, Int) => StackOption = _
 
-  override def onRuntimeAvailable(jeiRuntime: IJeiRuntime) {
+  override def onRuntimeAvailable(jeiRuntime: IJeiRuntime): Unit = {
     if (stackUnderMouse == null) {
       ItemSearch.stackFocusing += ((container, mouseX, mouseY) => stackUnderMouse(container, mouseX, mouseY))
     }
@@ -65,7 +65,7 @@ class ModPluginOpenComputers extends IModPlugin {
     ModJEI.ingredientRegistry = Option(jeiRuntime.getIngredientManager)
   }
 
-  override def registerItemSubtypes(subtypeRegistry: ISubtypeRegistration) {
+  override def registerItemSubtypes(subtypeRegistry: ISubtypeRegistration): Unit = {
     def useNBT(names: String*) = names.map(name => {
       val info = Items.get(name)
       Option(info.item).getOrElse(info.block.asItem())

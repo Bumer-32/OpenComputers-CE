@@ -2,7 +2,7 @@ package li.cil.oc.common.block
 
 import java.util
 
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
 import li.cil.oc.integration.Mods
@@ -31,7 +31,7 @@ class DiskDrive(props: Properties) extends SimpleBlock(props) with traits.GUI {
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  override protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
     super.tooltipTail(stack, world, tooltip, flag)
     if (Mods.ComputerCraft.isModAvailable) {
       for (curr <- Tooltip.get(getClass.getSimpleName + ".CC")) tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))

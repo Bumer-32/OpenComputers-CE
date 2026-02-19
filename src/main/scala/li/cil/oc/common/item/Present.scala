@@ -24,7 +24,7 @@ import net.minecraftforge.common.extensions.IForgeItem
 import scala.collection.mutable
 
 class Present(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem {
-  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]) {}
+  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]): Unit = {}
 
   override def use(stack: ItemStack, world: World, player: PlayerEntity): ActionResult[ItemStack] = {
     if (stack.getCount > 0) {

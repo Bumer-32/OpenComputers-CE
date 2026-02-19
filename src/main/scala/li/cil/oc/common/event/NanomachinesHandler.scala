@@ -66,7 +66,7 @@ object NanomachinesHandler {
       }
     }
 
-    private def drawRect(stack: MatrixStack, r: IVertexBuilder, x: Int, y: Int, w: Int, h: Int, tw: Int, th: Int, fill: Float = 1) {
+    private def drawRect(stack: MatrixStack, r: IVertexBuilder, x: Int, y: Int, w: Int, h: Int, tw: Int, th: Int, fill: Float = 1): Unit = {
       val sx = 1f / tw
       val sy = 1f / th
       r.vertex(stack.last.pose, x, y + h, 0).uv(0, h * sy).endVertex()

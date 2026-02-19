@@ -1,7 +1,7 @@
 package li.cil.oc.common.block
 
 import li.cil.oc.Settings
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
 import li.cil.oc.integration.util.Wrench

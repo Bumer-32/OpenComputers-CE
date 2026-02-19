@@ -1,6 +1,6 @@
 package li.cil.oc.api.util;
 
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.EnumSet;
 
@@ -15,7 +15,7 @@ import java.util.EnumSet;
  */
 public interface StateAware {
     /**
-     * Get the current work state (usually a {@link TileEntity}.
+     * Get the current work state (usually a {@link BlockEntity}.
      * <br>
      * An empty set indicates that no work can be performed.
      *

@@ -10,7 +10,7 @@ abstract class ArchitectureAPI(val machine: api.machine.Machine) {
 
   def initialize(): Unit
 
-  def loadData(nbt: CompoundNBT) {}
+  def loadData(nbt: CompoundNBT): Unit = {}
 
-  def saveData(nbt: CompoundNBT) {}
+  def saveData(nbt: CompoundNBT): Unit = {}
 }

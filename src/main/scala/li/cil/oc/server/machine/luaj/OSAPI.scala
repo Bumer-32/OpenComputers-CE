@@ -6,7 +6,7 @@ import li.cil.repack.org.luaj.vm2.LuaValue
 import li.cil.repack.org.luaj.vm2.Varargs
 
 class OSAPI(owner: LuaJLuaArchitecture) extends LuaJAPI(owner) {
-  override def initialize() {
+  override def initialize(): Unit = {
     val os = LuaValue.tableOf()
 
     os.set("clock", (_: Varargs) => LuaValue.valueOf(machine.cpuTime()))

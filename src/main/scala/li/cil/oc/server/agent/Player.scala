@@ -91,7 +91,7 @@ object Player {
     }
   }
 
-  def updatePositionAndRotation(player: Player, facing: Direction, side: Direction) {
+  def updatePositionAndRotation(player: Player, facing: Direction, side: Direction): Unit = {
     player.facing = facing
     player.side = side
     val direction = new Vector3d(
@@ -211,7 +211,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
     level.getEntitiesOfClass(classOf[ItemEntity], BlockPosition(agent).bounds.inflate(2, 2, 2), null)
   }
 
-  private def collectDroppedItems(itemsBefore: Iterable[ItemEntity]) {
+  private def collectDroppedItems(itemsBefore: Iterable[ItemEntity]): Unit = {
     val itemsDropped = adjacentItems.asScala --= itemsBefore
     if (itemsDropped.nonEmpty) {
       for (drop <- itemsDropped) {
@@ -223,7 +223,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
 
   // ----------------------------------------------------------------------- //
 
-  override def attack(entity: Entity) {
+  override def attack(entity: Entity): Unit = {
     callUsingItemInSlot(agent.equipmentInventory, 0, stack => entity match {
       case player: PlayerEntity if !canHarmPlayer(player) => // Avoid player damage.
       case _ =>
@@ -522,7 +522,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
     }
   }
 
-  private def tryRepair(stack: ItemStack, oldStack: ItemStack) {
+  private def tryRepair(stack: ItemStack, oldStack: ItemStack): Unit = {
     // Only if the underlying type didn't change.
     if (!stack.isEmpty && !oldStack.isEmpty && stack.getItem == oldStack.getItem) {
       val damageRate = new RobotUsedToolEvent.ComputeDamageRate(agent, oldStack, stack, Settings.get.itemDamageRate)
@@ -566,7 +566,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
 
   // ----------------------------------------------------------------------- //
 
-  override def causeFoodExhaustion(amount: Float) {
+  override def causeFoodExhaustion(amount: Float): Unit = {
     if (Settings.get.robotExhaustionCost > 0) {
       agent.machine.node match {
         case connector: Connector => connector.changeBuffer(-Settings.get.robotExhaustionCost * amount)
@@ -576,7 +576,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
     MinecraftForge.EVENT_BUS.post(new RobotExhaustionEvent(agent, amount))
   }
 
-  override def closeContainer() {}
+  override def closeContainer(): Unit = {}
 
   override def swing(hand: Hand): Unit = {}
 
@@ -601,25 +601,25 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
 
   override def hurt(source: DamageSource, damage: Float) = false
 
-  override def heal(amount: Float) {}
+  override def heal(amount: Float): Unit = {}
 
-  override def setHealth(value: Float) {}
+  override def setHealth(value: Float): Unit = {}
 
   override def remove(invalidate: Boolean): Unit = super.remove(false)
 
-  override def aiStep() {}
+  override def aiStep(): Unit = {}
 
-  override def take(entity: Entity, count: Int) {}
+  override def take(entity: Entity, count: Int): Unit = {}
 
-  override def setLastHurtByMob(entity: LivingEntity) {}
+  override def setLastHurtByMob(entity: LivingEntity): Unit = {}
 
-  override def setLastHurtMob(entity: Entity) {}
+  override def setLastHurtMob(entity: Entity): Unit = {}
 
   override def startRiding(entityIn: Entity, force: Boolean): Boolean = false
 
   override def startSleepInBed(bedLocation: BlockPos) = Either.left[SleepResult, net.minecraft.util.Unit](SleepResult.OTHER_PROBLEM)
 
-  override def sendMessage(message: ITextComponent, sender: UUID) {}
+  override def sendMessage(message: ITextComponent, sender: UUID): Unit = {}
 
   override def openCommandBlock(commandBlock: CommandBlockTileEntity): Unit = {}
 
@@ -629,7 +629,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
 
   override def openMinecartCommandBlock(thing: CommandBlockLogic): Unit = {}
 
-  override def openTextEdit(signTile: SignTileEntity) {}
+  override def openTextEdit(signTile: SignTileEntity): Unit = {}
 
   // ----------------------------------------------------------------------- //
 

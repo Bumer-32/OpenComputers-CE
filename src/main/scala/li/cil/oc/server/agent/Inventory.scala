@@ -33,11 +33,11 @@ class Inventory(playerEntity: PlayerEntity, val agent: internal.Agent) extends P
     else inventorySlots.find(getItem(_).isEmpty).getOrElse(-1)
   }
 
-  override def pickSlot(direction: Int) {}
+  override def pickSlot(direction: Int): Unit = {}
 
   override def clearOrCountMatchingItems(f: Predicate[ItemStack], count: Int, inv: IInventory): Int = 0
 
-  override def tick() {
+  override def tick(): Unit = {
     for (slot <- 0 until getContainerSize) {
       StackOption(getItem(slot)) match {
         case SomeStack(stack) => try stack.inventoryTick(agent.world, if (!agent.world.isClientSide) agent.player else null, slot, slot == 0) catch {
@@ -57,17 +57,17 @@ class Inventory(playerEntity: PlayerEntity, val agent: internal.Agent) extends P
 
   override def save(nbt: ListNBT): ListNBT = nbt
 
-  override def load(nbt: ListNBT) {}
+  override def load(nbt: ListNBT): Unit = {}
 
   override def getArmor(slot: Int): ItemStack = ItemStack.EMPTY
 
-  override def hurtArmor(source: DamageSource, damage: Float) {}
+  override def hurtArmor(source: DamageSource, damage: Float): Unit = {}
 
   override def dropAll(): Unit = {}
 
   override def contains(stack: ItemStack): Boolean = (0 until getContainerSize).map(getItem).filter(!_.isEmpty).exists(_.sameItem(stack))
 
-  override def replaceWith(from: PlayerInventory) {}
+  override def replaceWith(from: PlayerInventory): Unit = {}
 
   // IInventory
 

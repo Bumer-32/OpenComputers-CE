@@ -3,7 +3,7 @@ package li.cil.oc.common.tileentity.traits.power
 import li.cil.oc.Settings
 import li.cil.oc.api.network.Connector
 import li.cil.oc.common.tileentity.traits.TileEntity
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -17,7 +17,7 @@ trait Common extends TileEntity {
 
   def energyThroughput: Double
 
-  protected def tryAllSides(provider: (Double, Direction) => Double, fromOther: Double => Double, toOther: Double => Double) {
+  protected def tryAllSides(provider: (Double, Direction) => Double, fromOther: Double => Double, toOther: Double => Double): Unit = {
     // We make sure to only call this every `Settings.get.tickFrequency` ticks,
     // but our throughput is per tick, so multiply this up for actual budget.
     var budget = energyThroughput * Settings.get.tickFrequency

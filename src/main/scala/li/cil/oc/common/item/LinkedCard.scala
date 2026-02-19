@@ -20,7 +20,7 @@ import scala.collection.convert.ImplicitConversionsToScala._
 
 class LinkedCard(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with traits.ItemTier {
   @OnlyIn(Dist.CLIENT)
-  override def appendHoverText(stack: ItemStack, world: World, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  override def appendHoverText(stack: ItemStack, world: World, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
     super.appendHoverText(stack, world, tooltip, flag)
     if (stack.hasTag && stack.getTag.contains(Settings.namespace + "data")) {
       val data = stack.getTag.getCompound(Settings.namespace + "data")

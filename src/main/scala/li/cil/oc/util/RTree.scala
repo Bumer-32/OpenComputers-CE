@@ -93,7 +93,7 @@ class RTree[Data](private val M: Int)(implicit val coordinate: Data => (Double, 
       }
     }
 
-    private def uncheckedAdd(value: Node) {
+    private def uncheckedAdd(value: Node): Unit = {
       var bestChild: Option[Node] = null
       var bestGrowth = Double.PositiveInfinity
       var bestVolume = Double.PositiveInfinity
@@ -308,7 +308,7 @@ class RTree[Data](private val M: Int)(implicit val coordinate: Data => (Double, 
   }
 
   private class SplitResult(val set: mutable.Set[Node], var bounds: Rectangle) {
-    def add(value: Node) {
+    def add(value: Node): Unit = {
       set += value
       bounds = bounds.including(value.bounds)
     }

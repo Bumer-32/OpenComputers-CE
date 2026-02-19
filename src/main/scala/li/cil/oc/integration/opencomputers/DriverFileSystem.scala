@@ -109,19 +109,19 @@ object DriverFileSystem extends Item {
 
     override def getLabel = label.orNull
 
-    override def setLabel(value: String) {
+    override def setLabel(value: String): Unit = {
       label = Option(value).map(_.take(16))
     }
 
     private final val LabelTag = Settings.namespace + "fs.label"
 
-    override def loadData(nbt: CompoundNBT) {
+    override def loadData(nbt: CompoundNBT): Unit = {
       if (nbt.contains(LabelTag)) {
         label = Option(nbt.getString(LabelTag))
       }
     }
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundNBT): Unit = {
       label match {
         case Some(value) => nbt.putString(LabelTag, value)
         case _ =>

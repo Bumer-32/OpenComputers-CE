@@ -40,13 +40,13 @@ private[oc] class Proxy extends CommonProxy {
   modBus.register(NetSplitterModel)
   modBus.register(Textures)
 
-  override def preInit() {
+  override def preInit(): Unit = {
     super.preInit()
 
     api.API.manual = client.Manual
   }
 
-  override def init(e: FMLCommonSetupEvent) {
+  override def init(e: FMLCommonSetupEvent): Unit = {
     super.init(e)
 
     CommonPacketHandler.clientHandler = PacketHandler

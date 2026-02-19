@@ -43,7 +43,7 @@ final class ModelQuadcopter extends EntityModel[Drone] {
 
   private val up = new Vector3d(0, 1, 0)
 
-  private def doRender(drone: Drone, dt: Float, stack: MatrixStack, builder: IVertexBuilder, light: Int, overlay: Int, r: Float, g: Float, b: Float, a: Float) {
+  private def doRender(drone: Drone, dt: Float, stack: MatrixStack, builder: IVertexBuilder, light: Int, overlay: Int, r: Float, g: Float, b: Float, a: Float) = {
     stack.pushPose()
     if (drone.isRunning) {
       val timeJitter = drone.hashCode() ^ 0xFF

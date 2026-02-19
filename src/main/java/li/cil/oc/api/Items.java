@@ -1,9 +1,9 @@
 package li.cil.oc.api;
 
 import li.cil.oc.api.detail.ItemInfo;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.concurrent.Callable;
 
@@ -21,7 +21,7 @@ public final class Items {
      * the item.
      * <br>
      * Note that these methods should <em>not</em> be called in the pre-init phase,
-     * since the {@link li.cil.oc.api.API#items} may not have been initialized
+     * since the {@link API#items} may not have been initialized
      * at that time. Only start calling these methods in the init phase or later.
      *
      * @param name the name of the item to get the descriptor for.
@@ -75,7 +75,7 @@ public final class Items {
      * adding a recipe for your loot disk, for example.
      */
     public static ItemStack registerFloppy(String name, ResourceLocation loc, DyeColor color,
-        Callable<li.cil.oc.api.fs.FileSystem> factory, boolean doRecipeCycling) {
+                                           Callable<li.cil.oc.api.fs.FileSystem> factory, boolean doRecipeCycling) {
 
         if (API.items != null)
             return API.items.registerFloppy(name, loc, color, factory, doRecipeCycling);

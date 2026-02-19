@@ -9,7 +9,7 @@ import scala.collection.convert.ImplicitConversionsToScala._
 
 object WirelessNetworkCardHandler {
   @SubscribeEvent
-  def onMove(e: RobotMoveEvent.Post) {
+  def onMove(e: RobotMoveEvent.Post): Unit = {
     val machineNode = e.agent.machine.node
     machineNode.reachableNodes.foreach(_.host match {
       case card: WirelessNetworkCard => api.Network.updateWirelessNetwork(card)

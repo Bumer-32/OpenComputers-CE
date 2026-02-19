@@ -30,7 +30,7 @@ class TabletData extends ItemData(Constants.ItemName.Tablet) {
   private final val TierTag = Settings.namespace + "tier"
   private final val ContainerTag = Settings.namespace + "container"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     nbt.getList(ItemsTag, NBT.TAG_COMPOUND).foreach((slotNbt: CompoundNBT) => {
       val slot = slotNbt.getByte(SlotTag)
       if (slot >= 0 && slot < items.length) {
@@ -46,7 +46,7 @@ class TabletData extends ItemData(Constants.ItemName.Tablet) {
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     nbt.setNewTagList(ItemsTag,
       items.zipWithIndex collect {
         case (stack, slot) if !stack.isEmpty => (stack, slot)

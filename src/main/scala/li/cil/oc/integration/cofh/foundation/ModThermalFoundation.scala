@@ -8,7 +8,7 @@ import li.cil.oc.integration.Mods
 object ModThermalFoundation extends ModProxy {
   override def getMod = Mods.ThermalFoundation
 
-  override def initialize() {
+  override def initialize(): Unit = {
     Driver.add(new DriverEnergyInfo)
     api.IMC.registerWrenchTool("li.cil.oc.integration.cofh.foundation.EventHandlerFoundation.useWrench")
     api.IMC.registerWrenchToolCheck("li.cil.oc.integration.cofh.foundation.EventHandlerFoundation.isWrench")

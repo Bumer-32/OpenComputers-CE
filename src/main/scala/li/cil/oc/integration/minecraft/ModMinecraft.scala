@@ -16,7 +16,7 @@ import net.minecraftforge.common.MinecraftForge
 object ModMinecraft extends ModProxy with RedstoneProvider {
   def getMod = Mods.Minecraft
 
-  override def initialize() {
+  override def initialize(): Unit = {
     Driver.add(DriverBeacon)
     Driver.add(DriverBrewingStand)
     Driver.add(DriverComparator)

@@ -16,8 +16,8 @@ import li.cil.oc.api.network.Packet
 import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.util.StateAware
 import li.cil.oc.common.Slot
-import li.cil.oc.common.container
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.integration.opencomputers.DriverRedstoneCard
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
@@ -303,7 +303,7 @@ class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) wit
   // ----------------------------------------------------------------------- //
   // Rotatable
 
-  override protected def onRotationChanged() {
+  override protected def onRotationChanged(): Unit = {
     super.onRotationChanged()
     checkRedstoneInputChanged()
   }
@@ -311,7 +311,7 @@ class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) wit
   // ----------------------------------------------------------------------- //
   // RedstoneAware
 
-  override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs) {
+  override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs): Unit = {
     super.onRedstoneInputChanged(args)
     components.collect {
       case Some(mountable: RackMountable) if mountable.node != null =>
@@ -332,7 +332,7 @@ class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) wit
     case _ => false
   }
 
-  override def setChanged() {
+  override def setChanged(): Unit = {
     super.setChanged()
     if (isServer) {
       setOutputEnabled(hasRedstoneCard)
@@ -347,7 +347,7 @@ class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) wit
   // INamedContainerProvider
 
   override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new container.Rack(ContainerTypes.RACK, id, playerInventory, this)
+    new menu.Rack(ContainerTypes.RACK, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
   // ComponentInventory
@@ -382,7 +382,7 @@ class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) wit
   // ----------------------------------------------------------------------- //
   // TileEntity
 
-  override def updateEntity() {
+  override def updateEntity(): Unit = {
     super.updateEntity()
     if (isServer && isConnected) {
       lazy val connectors = Direction.values.map(sidedNode).collect {

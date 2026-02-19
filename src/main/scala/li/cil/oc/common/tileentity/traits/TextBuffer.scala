@@ -23,7 +23,7 @@ trait TextBuffer extends Environment with Tickable {
 
   def tier: Int
 
-  override def updateEntity() {
+  override def updateEntity(): Unit = {
     super.updateEntity()
     if (isClient || isConnected) {
       buffer.update()
@@ -43,12 +43,12 @@ trait TextBuffer extends Environment with Tickable {
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundNBT): Unit = {
     super.loadForClient(nbt)
     buffer.loadData(nbt)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundNBT): Unit = {
     super.saveForClient(nbt)
     buffer.saveData(nbt)
   }

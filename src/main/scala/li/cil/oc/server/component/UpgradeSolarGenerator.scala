@@ -41,7 +41,7 @@ class UpgradeSolarGenerator(val host: EnvironmentHost) extends AbstractManagedEn
 
   override val canUpdate = true
 
-  override def update() {
+  override def update(): Unit = {
     super.update()
 
     ticksUntilCheck -= 1

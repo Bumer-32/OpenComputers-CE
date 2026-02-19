@@ -20,11 +20,11 @@ object Sound {
     }
   }
 
-  def playDiskInsert(host: EnvironmentHost) {
+  def playDiskInsert(host: EnvironmentHost): Unit = {
     play(host, "floppy_insert")
   }
 
-  def playDiskEject(host: EnvironmentHost) {
+  def playDiskEject(host: EnvironmentHost): Unit = {
     play(host, "floppy_eject")
   }
 }

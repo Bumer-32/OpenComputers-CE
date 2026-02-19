@@ -5,7 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.client.Textures
 import li.cil.oc.client.{PacketSender => ClientPacketSender}
-import li.cil.oc.common.container
+import li.cil.oc.common.menu
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.entity.player.PlayerInventory
@@ -13,21 +13,21 @@ import net.minecraft.util.text.ITextComponent
 
 import scala.collection.JavaConverters.asJavaCollection
 
-class Server(state: container.Server, playerInventory: PlayerInventory, name: ITextComponent)
+class Server(state: menu.Server, playerInventory: PlayerInventory, name: ITextComponent)
   extends DynamicGuiContainer(state, playerInventory, name)
-  with traits.LockedHotbar[container.Server] {
+  with traits.LockedHotbar[menu.Server] {
 
   protected var powerButton: ImageButton = _
 
   override def lockedStack = inventoryContainer.stack
 
-  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, dt: Float) {
+  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, dt: Float) = {
     powerButton.visible = !inventoryContainer.isItem
     powerButton.toggled = inventoryContainer.isRunning
     super.render(stack, mouseX, mouseY, dt)
   }
 
-  override protected def init() {
+  override protected def init() = {
     super.init()
     powerButton = new ImageButton(leftPos + 48, topPos + 33, 18, 18, new Button.IPressable {
       override def onPress(b: Button) = if (inventoryContainer.rackSlot >= 0) {
@@ -37,7 +37,7 @@ class Server(state: container.Server, playerInventory: PlayerInventory, name: IT
     addButton(powerButton)
   }
 
-  override def drawSecondaryForegroundLayer(stack: MatrixStack, mouseX: Int, mouseY: Int) {
+  override def drawSecondaryForegroundLayer(stack: MatrixStack, mouseX: Int, mouseY: Int) = {
     super.drawSecondaryForegroundLayer(stack, mouseX, mouseY)
     if (powerButton.isMouseOver(mouseX, mouseY)) {
       val tooltip = new java.util.ArrayList[String]
@@ -46,7 +46,7 @@ class Server(state: container.Server, playerInventory: PlayerInventory, name: IT
     }
   }
 
-  override def drawSecondaryBackgroundLayer(stack: MatrixStack) {
+  override def drawSecondaryBackgroundLayer(stack: MatrixStack) = {
     RenderSystem.color3f(1, 1, 1)
     Textures.bind(Textures.GUI.Server)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)

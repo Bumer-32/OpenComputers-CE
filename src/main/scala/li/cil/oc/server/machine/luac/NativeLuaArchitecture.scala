@@ -169,7 +169,7 @@ abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends A
 
   // ----------------------------------------------------------------------- //
 
-  override def runSynchronized() {
+  override def runSynchronized(): Unit = {
     // These three asserts are all guaranteed by run().
     assert(lua.getTop == 2)
     assert(lua.isThread(1))
@@ -324,10 +324,10 @@ abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends A
     true
   }
 
-  override def onConnect() {
+  override def onConnect(): Unit = {
   }
 
-  override def close() {
+  override def close(): Unit = {
     if (lua != null) {
       if (Settings.get.limitMemory) {
         lua.setTotalMemory(Integer.MAX_VALUE)
@@ -346,7 +346,7 @@ abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends A
   @Deprecated
   private def state = machine.asInstanceOf[Machine].state
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     if (!machine.isRunning) return
 
     // Unlimit memory use while unpersisting.
@@ -393,7 +393,7 @@ abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends A
     recomputeMemory(machine.host.internalComponents)
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     // Unlimit memory while persisting.
     if (Settings.get.limitMemory) {
       lua.setTotalMemory(Integer.MAX_VALUE)

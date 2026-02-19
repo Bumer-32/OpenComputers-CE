@@ -82,13 +82,13 @@ class CompositeReadOnlyFileSystem(factories: mutable.LinkedHashMap[String, Calla
 
   // ----------------------------------------------------------------------- //
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     for ((name, fs) <- parts) {
       fs.loadData(nbt.getCompound(name))
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     for ((name, fs) <- parts) {
       nbt.setNewCompoundTag(name, fs.saveData)
     }

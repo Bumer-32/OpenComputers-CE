@@ -3,7 +3,7 @@ package li.cil.oc.common.block
 import java.util
 
 import li.cil.oc.Settings
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.Tooltip
@@ -32,7 +32,7 @@ class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with t
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
+  override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag): Unit = {
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase, slots)) {
       tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
     }

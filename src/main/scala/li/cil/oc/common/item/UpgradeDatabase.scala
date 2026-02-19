@@ -2,7 +2,7 @@ package li.cil.oc.common.item
 
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.inventory.DatabaseInventory
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.ServerPlayerEntity

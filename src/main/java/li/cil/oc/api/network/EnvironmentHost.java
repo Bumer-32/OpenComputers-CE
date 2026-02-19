@@ -1,7 +1,7 @@
 package li.cil.oc.api.network;
 
-import net.minecraft.world.World;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * To be implemented by 'hosts' of components.
@@ -12,14 +12,14 @@ import net.minecraft.tileentity.TileEntity;
  * You will only need to implement this if you intend to host components, e.g.
  * by providing a custom computer case or such. In OpenComputers this interface
  * is usually implemented directly by the tile entities acting as the host, so
- * in most cases you should be able to cast this to {@link TileEntity} for
+ * in most cases you should be able to cast this to {@link BlockEntity} for
  * more options, if necessary.
  */
 public interface EnvironmentHost {
     /**
      * The world the container lives in.
      */
-    World world();
+    Level world();
 
     /**
      * The container's X position in the world.

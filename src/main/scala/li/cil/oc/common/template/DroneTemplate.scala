@@ -53,7 +53,7 @@ object DroneTemplate extends Template {
     Array(api.Items.get(itemName).createItemStack(1)) ++ info.components
   }
 
-  def register() {
+  def register(): Unit = {
     // Tier 1
     api.IMC.registerAssemblerTemplate(
       "Drone (Tier 1)",

@@ -50,7 +50,7 @@ object MicrocontrollerTemplate extends Template {
     Array(api.Items.get(itemName).createItemStack(1)) ++ info.components
   }
 
-  def register() {
+  def register(): Unit = {
     // Tier 1
     api.IMC.registerAssemblerTemplate(
       "Microcontroller (Tier 1)",

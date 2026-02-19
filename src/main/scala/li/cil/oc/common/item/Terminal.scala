@@ -35,7 +35,7 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
   def hasServer(stack: ItemStack) = stack.hasTag && stack.getTag.contains(Settings.namespace + "server")
 
   @OnlyIn(Dist.CLIENT)
-  override def appendHoverText(stack: ItemStack, world: World, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  override def appendHoverText(stack: ItemStack, world: World, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
     super.appendHoverText(stack, world, tooltip, flag)
     if (hasServer(stack)) {
       val server = stack.getTag.getString(Settings.namespace + "server")
@@ -94,7 +94,7 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
   }
 
   @OnlyIn(Dist.CLIENT)
-  private def showGui(stack: ItemStack, key: String, term: component.TerminalServer, inRange: () => Boolean) {
+  private def showGui(stack: ItemStack, key: String, term: component.TerminalServer, inRange: () => Boolean): Unit = {
     Minecraft.getInstance.pushGuiLayer(new gui.Screen(term.buffer, true, () => true, () => {
       // Check if someone else bound a term to our server.
       if (stack.getTag.getString(Settings.namespace + "key") != key) Minecraft.getInstance.popGuiLayer

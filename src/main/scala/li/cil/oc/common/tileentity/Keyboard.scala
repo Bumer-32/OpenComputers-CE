@@ -43,14 +43,14 @@ class Keyboard(selfType: TileEntityType[_ <: Keyboard]) extends TileEntity(selfT
 
   private final val KeyboardTag = Settings.namespace + "keyboard"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     super.loadForServer(nbt)
     if (isServer) {
       keyboard.loadData(nbt.getCompound(KeyboardTag))
     }
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
     if (isServer) {
       nbt.setNewCompoundTag(KeyboardTag, keyboard.saveData)

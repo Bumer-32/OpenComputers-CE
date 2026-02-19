@@ -445,7 +445,7 @@ object NetworkControl {
       }
     }
 
-    override def loadData(nbt: CompoundNBT) {
+    override def loadData(nbt: CompoundNBT): Unit = {
       super.loadData(nbt)
       stack = AEUtil.itemStorageChannel.createStack(ItemStack.of(nbt))
       links ++= nbt.getList(LINKS_KEY, NBT.TAG_COMPOUND).map(
@@ -463,7 +463,7 @@ object NetworkControl {
       }
     }
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundNBT): Unit = {
       super.saveData(nbt)
       stack.createItemStack().save(nbt)
       nbt.setNewTagList(LINKS_KEY, links.map((link) => {
@@ -488,12 +488,12 @@ object NetworkControl {
     private var failed = false
     private var reason = "no link"
 
-    def setLink(value: ICraftingLink) {
+    def setLink(value: ICraftingLink): Unit = {
       isComputing = false
       link = Option(value)
     }
 
-    def fail(reason: String) {
+    def fail(reason: String): Unit = {
       isComputing = false
       failed = true
       this.reason = s"request failed ($reason)"
@@ -533,7 +533,7 @@ object NetworkControl {
     private val FAILED_KEY: String = "failed"
     private val REASON_KEY: String = "reason"
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundNBT): Unit = {
       super.saveData(nbt)
       nbt.putBoolean(COMPUTING_KEY, isComputing)
       if (link.nonEmpty)
@@ -542,7 +542,7 @@ object NetworkControl {
       nbt.putString(REASON_KEY, reason)
     }
 
-    override def loadData(nbt: CompoundNBT) {
+    override def loadData(nbt: CompoundNBT): Unit = {
       super.loadData(nbt)
 
       isComputing = NbtDataStream.getOptBoolean(nbt, COMPUTING_KEY, isComputing)

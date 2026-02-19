@@ -53,7 +53,7 @@ import net.minecraftforge.fml.DistExecutor
 object ModOpenComputers extends ModProxy {
   override def getMod = Mods.OpenComputers
 
-  override def initialize() {
+  override def initialize(): Unit = {
     DroneTemplate.register()
     MicrocontrollerTemplate.register()
     NavigationUpgradeTemplate.register()
@@ -320,7 +320,7 @@ object ModOpenComputers extends ModProxy {
   }
 
   @OnlyIn(Dist.CLIENT)
-  private def initializeClient() {
+  private def initializeClient(): Unit = {
     api.Manual.addProvider(DefinitionPathProvider)
     api.Manual.addProvider(new ResourceContentProvider(Settings.resourceDomain, "doc/"))
     api.Manual.addProvider("", TextureImageProvider)
@@ -370,7 +370,7 @@ object ModOpenComputers extends ModProxy {
       0
   }
 
-  private def blacklistHost(host: Class[_], itemNames: String*) {
+  private def blacklistHost(host: Class[_], itemNames: String*): Unit = {
     for (itemName <- itemNames) try {
       api.IMC.blacklistHost(itemName, host, api.Items.get(itemName).createItemStack(1))
     } catch {

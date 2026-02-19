@@ -14,8 +14,8 @@ import li.cil.oc.api.nanomachines.Controller
 import li.cil.oc.api.network._
 import li.cil.oc.api.util.StateAware
 import li.cil.oc.common.Slot
-import li.cil.oc.common.container
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.entity.Drone
 import li.cil.oc.integration.util.ItemCharge
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
@@ -97,7 +97,7 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
     }
   }
 
-  override def updateEntity() {
+  override def updateEntity(): Unit = {
     super.updateEntity()
 
     // Offset by hashcode to avoid all chargers ticking at the same time.
@@ -162,7 +162,7 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
     }
   }
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node): Unit = {
     super.onConnect(node)
     if (node == this.node) {
       onNeighborChanged()
@@ -178,7 +178,7 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
   private final val InvertSignalTag = Settings.namespace + "invertSignal"
   private final val InvertSignalTagCompat = "invertSignal"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     super.loadForServer(nbt)
     if (nbt.contains(ChargeSpeedTagCompat))
       chargeSpeed = nbt.getDouble(ChargeSpeedTagCompat) max 0 min 1
@@ -194,7 +194,7 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
       invertSignal = nbt.getBoolean(InvertSignalTag)
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
     nbt.putDouble(ChargeSpeedTag, chargeSpeed)
     nbt.putBoolean(HasPowerTag, hasPower)
@@ -202,13 +202,13 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundNBT): Unit = {
     super.loadForClient(nbt)
     chargeSpeed = nbt.getDouble(ChargeSpeedTag)
     hasPower = nbt.getBoolean(HasPowerTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundNBT): Unit = {
     super.saveForClient(nbt)
     nbt.putDouble(ChargeSpeedTag, chargeSpeed)
     nbt.putBoolean(HasPowerTag, hasPower)
@@ -232,11 +232,11 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
   // ----------------------------------------------------------------------- //
 
   override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new container.Charger(ContainerTypes.CHARGER, id, playerInventory, this)
+    new menu.Charger(ContainerTypes.CHARGER, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
 
-  override def updateRedstoneInput(side: Direction) {
+  override def updateRedstoneInput(side: Direction): Unit = {
     super.updateRedstoneInput(side)
     val signal = getInput.max min 15
 
@@ -247,12 +247,12 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
     }
   }
 
-  def onNeighborChanged() {
+  def onNeighborChanged(): Unit = {
     checkRedstoneInputChanged()
     updateConnectors()
   }
 
-  def updateConnectors() {
+  def updateConnectors(): Unit = {
     val robots = Direction.values.map(side => {
       val blockPos = BlockPosition(this).offset(side)
       if (getLevel.blockExists(blockPos)) Option(getLevel.getBlockEntity(blockPos))

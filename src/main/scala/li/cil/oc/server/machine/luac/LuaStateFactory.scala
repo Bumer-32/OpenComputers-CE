@@ -180,7 +180,7 @@ abstract class LuaStateFactory {
   // shared libraries somewhere so that we can load them, because we cannot
   // load them directly from a JAR. Lastly, we need to handle library overrides in
   // case the user wants to use custom libraries, or are not on a supported platform.
-  def init() {
+  def init(): Unit = {
     if (libraryName == null) {
       return
     }

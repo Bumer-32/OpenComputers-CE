@@ -1,15 +1,15 @@
-package li.cil.oc.common.container
+package li.cil.oc.common.menu
 
 import li.cil.oc.common.Tier
 import li.cil.oc.common.tileentity
 import li.cil.oc.integration.util.ItemCharge
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.container.ContainerType
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
 
-class Charger(selfType: ContainerType[_ <: Charger], id: Int, playerInventory: PlayerInventory, charger: IInventory)
-  extends Player(selfType, id, playerInventory, charger) {
+class Charger(selfType: MenuType[_ <: Charger], id: Int, playerInventory: Inventory, charger: Container)
+  extends AbstractMenu(selfType, id, playerInventory, charger) {
 
   override protected def getHostClass = classOf[tileentity.Charger]
 

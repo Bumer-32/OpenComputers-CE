@@ -63,7 +63,7 @@ object Mods {
     }
   }
 
-  private def tryPreInit(mod: ModProxy) {
+  private def tryPreInit(mod: ModProxy): Unit = {
     val handlers = mutable.Set.empty[ModProxy]
     val isBlacklisted = Settings.get.modBlacklist.contains(mod.getMod.id)
     val alwaysEnabled = mod.getMod == null || mod.getMod == Mods.Minecraft
@@ -85,7 +85,7 @@ object Mods {
     }
   }
 
-  private def tryInit(mod: ModProxy) {
+  private def tryInit(mod: ModProxy): Unit = {
     val handlers = mutable.Set.empty[ModProxy]
     val isBlacklisted = Settings.get.modBlacklist.contains(mod.getMod.id)
     val alwaysEnabled = mod.getMod == null || mod.getMod == Mods.Minecraft

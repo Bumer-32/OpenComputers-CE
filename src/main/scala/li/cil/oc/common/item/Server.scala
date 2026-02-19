@@ -4,7 +4,7 @@ import java.util
 
 import li.cil.oc.OpenComputers
 import li.cil.oc.client.KeyBindings
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.inventory.ServerInventory
 import li.cil.oc.util.Tooltip
 import net.minecraft.entity.player.PlayerEntity
@@ -35,7 +35,7 @@ class Server(props: Properties, val tier: Int) extends Item(props) with IForgeIt
     override def rackSlot = -1
   }
 
-  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[ITextComponent]) {
+  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[ITextComponent]): Unit = {
     super.tooltipExtended(stack, tooltip)
     if (KeyBindings.showExtendedTooltips) {
       HelperInventory.container = stack

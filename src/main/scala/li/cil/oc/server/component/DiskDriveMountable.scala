@@ -20,8 +20,8 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.common.{Slot, Sound}
-import li.cil.oc.common.container.ContainerTypes
-import li.cil.oc.common.container.{DiskDrive => DiskDriveContainer}
+import li.cil.oc.common.menu.ContainerTypes
+import li.cil.oc.common.menu.{DiskDrive => DiskDriveContainer}
 import li.cil.oc.common.inventory.ComponentInventory
 import li.cil.oc.common.inventory.ItemStackInventory
 import li.cil.oc.util.BlockPosition
@@ -124,7 +124,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends Abs
 
   override def container: ItemStack = rack.getItem(slot)
 
-  override protected def onItemAdded(slot: Int, stack: ItemStack) {
+  override protected def onItemAdded(slot: Int, stack: ItemStack): Unit = {
     super.onItemAdded(slot, stack)
     components(slot) match {
       case Some(environment) => environment.node match {
@@ -138,7 +138,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends Abs
     }
   }
 
-  override protected def onItemRemoved(slot: Int, stack: ItemStack) {
+  override protected def onItemRemoved(slot: Int, stack: ItemStack): Unit = {
     super.onItemRemoved(slot, stack)
     if (!rack.world.isClientSide) {
       rack.markChanged(this.slot)
@@ -154,13 +154,13 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends Abs
   // ----------------------------------------------------------------------- //
   // Persistable
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super[AbstractManagedEnvironment].loadData(nbt)
     super[ComponentInventory].loadData(nbt)
     connectComponents()
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super[AbstractManagedEnvironment].saveData(nbt)
     super[ComponentInventory].saveData(nbt)
   }

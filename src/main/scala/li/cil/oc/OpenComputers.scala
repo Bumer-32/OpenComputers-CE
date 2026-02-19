@@ -72,12 +72,12 @@ class OpenComputers {
   Mods.preInit() // Must happen after loading Settings but before registry events are fired.
 
   @SubscribeEvent
-  def registerBlocks(e: RegistryEvent.Register[Block]) {
+  def registerBlocks(e: RegistryEvent.Register[Block]): Unit = {
     Blocks.init()
   }
 
   @SubscribeEvent
-  def registerItems(e: RegistryEvent.Register[Item]) {
+  def registerItems(e: RegistryEvent.Register[Item]): Unit = {
     Items.init()
   }
 

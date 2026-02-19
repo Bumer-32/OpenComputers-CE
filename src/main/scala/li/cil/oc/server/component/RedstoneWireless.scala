@@ -94,14 +94,14 @@ trait RedstoneWireless extends RedstoneSignaller with DeviceInfo {
 
   // ----------------------------------------------------------------------- //
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node): Unit = {
     super.onConnect(node)
     if (node == this.node) {
       EventHandler.scheduleWirelessRedstone(this)
     }
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node): Unit = {
     super.onDisconnect(node)
     if (node == this.node) {
       util.WirelessRedstone.removeReceiver(this)
@@ -117,14 +117,14 @@ trait RedstoneWireless extends RedstoneSignaller with DeviceInfo {
   private final val WirelessInputTag = "wirelessInput"
   private final val WirelessOutputTag = "wirelessOutput"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
     wirelessFrequency = nbt.getInt(WirelessFrequencyTag)
     wirelessInput = nbt.getBoolean(WirelessInputTag)
     wirelessOutput = nbt.getBoolean(WirelessOutputTag)
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
     nbt.putInt(WirelessFrequencyTag, wirelessFrequency)
     nbt.putBoolean(WirelessInputTag, wirelessInput)

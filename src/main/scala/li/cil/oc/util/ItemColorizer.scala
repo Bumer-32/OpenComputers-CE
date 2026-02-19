@@ -27,7 +27,7 @@ object ItemColorizer {
     else -1
   }
 
-  def removeColor(stack: ItemStack) {
+  def removeColor(stack: ItemStack): Unit = {
     val tag = stack.getTag
     if (tag != null) {
       val displayTag = tag.getCompound("display")
@@ -37,7 +37,7 @@ object ItemColorizer {
     }
   }
 
-  def setColor(stack: ItemStack, color: Int) {
+  def setColor(stack: ItemStack, color: Int): Unit = {
     stack.getOrCreateTagElement("display").putInt("color", color)
   }
 }

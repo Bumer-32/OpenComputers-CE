@@ -119,14 +119,14 @@ trait Component extends network.Component with Node {
 
   // ----------------------------------------------------------------------- //
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
     if (nbt.contains(NodeData.VisibilityTag)) {
       _visibility = Visibility.values()(nbt.getInt(NodeData.VisibilityTag))
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
     nbt.putInt(NodeData.VisibilityTag, _visibility.ordinal())
   }

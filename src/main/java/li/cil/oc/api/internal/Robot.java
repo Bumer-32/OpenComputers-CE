@@ -2,8 +2,8 @@ package li.cil.oc.api.internal;
 
 import li.cil.oc.api.network.EnvironmentHost;
 import li.cil.oc.api.network.Environment;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.world.Container;
+import net.minecraft.world.WorldlyContainer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -19,9 +19,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  * follows:
  * <ul>
  * <li>Tool</li>
- * <li>{@link #equipmentInventory}.{@link IInventory#getContainerSize getContainerSize}
+ * <li>{@link #equipmentInventory}.{@link Container#getContainerSize getContainerSize}
  * hot-swappable components.</li>
- * <li>{@link #mainInventory}.{@link IInventory#getContainerSize getContainerSize}
+ * <li>{@link #mainInventory}.{@link Container#getContainerSize getContainerSize}
  * internal inventory slots.</li>
  * <li>{@link #componentCount} hard-wired components.</li>
  * </ul>
@@ -31,7 +31,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  * <br>
  * This interface is <em>not meant to be implemented</em>, just used.
  */
-public interface Robot extends Agent, Environment, EnvironmentHost, Tiered, ISidedInventory {
+public interface Robot extends Agent, Environment, EnvironmentHost, Tiered, WorldlyContainer {
     /**
      * The number of built-in components in this robot.
      */

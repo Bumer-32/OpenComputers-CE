@@ -22,7 +22,7 @@ import li.cil.oc.api.network.Node
 import li.cil.oc.common.InventorySlots
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.inventory.ComponentInventory
 import li.cil.oc.common.inventory.ServerInventory
 import li.cil.oc.common.item
@@ -65,31 +65,31 @@ class Server(val rack: api.internal.Rack, val slot: Int) extends Environment wit
   // ----------------------------------------------------------------------- //
   // Environment
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node): Unit = {
     if (node == this.node) {
       connectComponents()
     }
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node): Unit = {
     if (node == this.node) {
       disconnectComponents()
     }
   }
 
-  override def onMessage(message: Message) {
+  override def onMessage(message: Message): Unit = {
   }
 
   private final val MachineTag = "machine"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
     if (!rack.world.isClientSide) {
       machine.loadData(nbt.getCompound(MachineTag))
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
     if (!rack.world.isClientSide) {
       nbt.setNewCompoundTag(MachineTag, machine.saveData)
@@ -144,7 +144,7 @@ class Server(val rack: api.internal.Rack, val slot: Int) extends Environment wit
 
   override def container: ItemStack = rack.getItem(slot)
 
-  override protected def connectItemNode(node: Node) {
+  override protected def connectItemNode(node: Node): Unit = {
     if (node != null) {
       api.Network.joinNewNetwork(machine.node)
       machine.node.connect(node)

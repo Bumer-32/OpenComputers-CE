@@ -11,7 +11,7 @@ import net.minecraft.item.Rarity
 import net.minecraft.item.Item
 
 object Blocks {
-  def init() {
+  def init(): Unit = {
     def defaultProps = Properties.of(Material.METAL).strength(2, 5)
     def defaultItemProps = new Item.Properties().tab(CreativeTab)
     Items.registerBlock(new Adapter(defaultProps), Constants.BlockName.Adapter, defaultItemProps)

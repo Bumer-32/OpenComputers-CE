@@ -10,12 +10,12 @@ class Geolyzer(selfType: TileEntityType[_ <: Geolyzer]) extends TileEntity(selfT
 
   def node = geolyzer.node
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     super.loadForServer(nbt)
     geolyzer.loadData(nbt)
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
     geolyzer.saveData(nbt)
   }

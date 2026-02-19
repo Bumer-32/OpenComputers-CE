@@ -303,7 +303,7 @@ class FileSystem(val fileSystem: IFileSystem, var label: Label, val host: Option
 
   // ----------------------------------------------------------------------- //
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
 
     nbt.getList("owners", NBT.TAG_COMPOUND).foreach((ownerNbt: CompoundNBT) => {
@@ -360,7 +360,7 @@ class FileSystem(val fileSystem: IFileSystem, var label: Label, val host: Option
     if (!owners.contains(owner) || !owners(owner).contains(handle))
       throw new IOException("bad file descriptor")
 
-  private def diskActivity() {
+  private def diskActivity(): Unit = {
     (sound, host) match {
       case (Some(s), Some(h)) => ServerPacketSender.sendFileSystemActivity(node, h, s)
       case _ =>

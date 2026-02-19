@@ -94,7 +94,7 @@ object CallbackDocHandler {
     private var background: IDrawable = _
     private var icon: IDrawable = _
 
-    def initialize(guiHelper: IGuiHelper) {
+    def initialize(guiHelper: IGuiHelper): Unit = {
       background = guiHelper.createBlankDrawable(recipeWidth, recipeHeight)
       icon = new DrawableAnimatedIcon(new ResourceLocation(Settings.resourceDomain, "textures/items/tablet_on.png"), 0, 0, 16, 16, 16, 32,
         guiHelper.createTickTimer(20, 1, true), 0, 16)
@@ -106,11 +106,11 @@ object CallbackDocHandler {
 
     override def getBackground: IDrawable = background
 
-    override def setIngredients(recipeWrapper: CallbackDocRecipe, ingredients: IIngredients) {
+    override def setIngredients(recipeWrapper: CallbackDocRecipe, ingredients: IIngredients): Unit = {
       ingredients.setInput(VanillaTypes.ITEM, recipeWrapper.stack)
     }
 
-    override def setRecipe(recipeLayout: IRecipeLayout, recipeWrapper: CallbackDocRecipe, ingredients: IIngredients) {
+    override def setRecipe(recipeLayout: IRecipeLayout, recipeWrapper: CallbackDocRecipe, ingredients: IIngredients): Unit = {
     }
 
     override def draw(recipeWrapper: CallbackDocRecipe, stack: MatrixStack, mouseX: Double, mouseY: Double): Unit = {

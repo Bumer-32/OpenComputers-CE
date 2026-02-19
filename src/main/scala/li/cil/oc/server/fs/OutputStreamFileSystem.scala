@@ -50,7 +50,7 @@ trait OutputStreamFileSystem extends InputStreamFileSystem {
   private final val HandleTag = "handle"
   private final val PathTag = "path"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
 
     val handlesNbt = nbt.getList(OutputTag, NBT.TAG_COMPOUND)

@@ -1,9 +1,10 @@
 package li.cil.oc.api.machine;
 
 import li.cil.oc.api.network.Node;
+import net.minecraft.world.entity.player.Player;
 
 /**
- * This is used to provide some context to {@link li.cil.oc.api.machine.Callback}s, i.e. the
+ * This is used to provide some context to {@link Callback}s, i.e. the
  * computer from which the callback was called.
  */
 public interface Context {
@@ -36,7 +37,7 @@ public interface Context {
      * Use this to check whether you should signal something to the computer,
      * for example. Note that for signals triggered via network messages there
      * is a {@code computer.checked_signal} message, that expects an
-     * {@link net.minecraft.entity.player.PlayerEntity PlayerEntity}
+     * {@link Player PlayerEntity}
      * as the first argument and performs this check before pushing the signal.
      *
      * @param player the name of the player to check for.

@@ -11,7 +11,7 @@ import li.cil.repack.org.luaj.vm2.Varargs
 import scala.collection.convert.ImplicitConversionsToScala._
 
 class UserdataAPI(owner: LuaJLuaArchitecture) extends LuaJAPI(owner) {
-  override def initialize() {
+  override def initialize(): Unit = {
     val userdata = LuaValue.tableOf()
 
     userdata.set("apply", (args: Varargs) => {

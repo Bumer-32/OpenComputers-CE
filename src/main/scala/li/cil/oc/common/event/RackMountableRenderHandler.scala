@@ -85,7 +85,7 @@ object RackMountableRenderHandler {
     }
   }
 
-  private def renderOverlayFromAtlas(e: RackMountableRenderEvent.TileEntity, texture: ResourceLocation, u0: Float = 0, u1: Float = 1) {
+  private def renderOverlayFromAtlas(e: RackMountableRenderEvent.TileEntity, texture: ResourceLocation, u0: Float = 0, u1: Float = 1): Unit = {
     val matrix = e.stack.last.pose
     val r = e.typeBuffer.getBuffer(RenderTypes.BLOCK_OVERLAY)
     val icon = Textures.getSprite(texture)

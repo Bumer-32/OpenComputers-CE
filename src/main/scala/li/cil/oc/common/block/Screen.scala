@@ -40,7 +40,7 @@ class Screen(props: Properties, val tier: Int) extends RedstoneAware(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
+  override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag): Unit = {
     val (w, h) = Settings.screenResolutionsByTier(tier)
     val depth = PackedColor.Depth.bits(Settings.screenDepthsByTier(tier))
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase, w, h, depth)) {
@@ -54,7 +54,7 @@ class Screen(props: Properties, val tier: Int) extends RedstoneAware(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def setPlacedBy(world: World, pos: BlockPos, state: BlockState, placer: LivingEntity, stack: ItemStack) {
+  override def setPlacedBy(world: World, pos: BlockPos, state: BlockState, placer: LivingEntity, stack: ItemStack): Unit = {
     super.setPlacedBy(world, pos, state, placer, stack)
     world.getBlockEntity(pos) match {
       case screen: tileentity.Screen => screen.delayUntilCheckForMultiBlock = 0
@@ -85,7 +85,7 @@ class Screen(props: Properties, val tier: Int) extends RedstoneAware(props) {
   }
 
   @OnlyIn(Dist.CLIENT)
-  private def showGui(screen: tileentity.Screen) {
+  private def showGui(screen: tileentity.Screen): Unit = {
     Minecraft.getInstance.pushGuiLayer(new gui.Screen(screen.origin.buffer, screen.tier > 0, () => screen.origin.hasKeyboard, () => screen.origin.buffer.isRenderingEnabled))
   }
 

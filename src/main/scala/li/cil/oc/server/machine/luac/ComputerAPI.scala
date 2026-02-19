@@ -10,7 +10,7 @@ import li.cil.oc.util.ExtendedLuaState.extendLuaState
 import scala.collection.convert.ImplicitConversionsToScala._
 
 class ComputerAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
-  def initialize() {
+  def initialize(): Unit = {
     // Computer API, stuff that kinda belongs to os, but we don't want to
     // clutter it.
     lua.newTable()

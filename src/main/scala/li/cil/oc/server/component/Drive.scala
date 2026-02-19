@@ -216,7 +216,7 @@ class Drive(val capacity: Int, val platterCount: Int, val label: Label, host: Op
 
   private def offsetSector(offset: Int) = offset / sectorSize
 
-  private def diskActivity() {
+  private def diskActivity(): Unit = {
     (sound, host) match {
       case (Some(s), Some(h)) => ServerPacketSender.sendFileSystemActivity(node, h, s)
       case _ =>

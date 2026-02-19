@@ -23,7 +23,7 @@ class DrawableAnimatedIcon(resourceLocation: ResourceLocation, u: Int, v: Int, w
   override def getHeight: Int = height + paddingTop + paddingBottom
 
   @OnlyIn(Dist.CLIENT)
-  override def draw(stack: MatrixStack, xOffset: Int, yOffset: Int) {
+  override def draw(stack: MatrixStack, xOffset: Int, yOffset: Int): Unit = {
     val animationValue = tickTimer.getValue
 
     val uOffsetTotal = uOffset * animationValue

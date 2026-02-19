@@ -11,19 +11,19 @@ class MotionSensor(selfType: TileEntityType[_ <: MotionSensor]) extends TileEnti
 
   def node: Node = motionSensor.node
 
-  override def updateEntity() {
+  override def updateEntity(): Unit = {
     super.updateEntity()
     if (isServer) {
       motionSensor.update()
     }
   }
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     super.loadForServer(nbt)
     motionSensor.loadData(nbt)
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
     motionSensor.saveData(nbt)
   }

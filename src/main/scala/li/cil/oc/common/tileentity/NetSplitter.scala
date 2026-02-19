@@ -45,7 +45,7 @@ class NetSplitter(selfType: TileEntityType[_ <: NetSplitter]) extends TileEntity
 
   override def isSideOpen(side: Direction): Boolean = if (isInverted) !super.isSideOpen(side) else super.isSideOpen(side)
 
-  override def setSideOpen(side: Direction, value: Boolean) {
+  override def setSideOpen(side: Direction, value: Boolean): Unit = {
     val previous = isSideOpen(side)
     super.setSideOpen(side, value)
     if (previous != isSideOpen(side)) {

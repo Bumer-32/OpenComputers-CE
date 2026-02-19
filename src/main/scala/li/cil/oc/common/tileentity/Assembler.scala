@@ -12,8 +12,8 @@ import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
 import li.cil.oc.api.network._
-import li.cil.oc.common.container
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.template.AssemblerTemplates
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
@@ -133,7 +133,7 @@ class Assembler(selfType: TileEntityType[_ <: Assembler]) extends TileEntity(sel
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity(): Unit = {
     super.updateEntity()
     if (!output.isEmpty && getLevel.getGameTime % Settings.get.tickFrequency == 0) {
       val want = math.max(1, math.min(requiredEnergy, Settings.get.assemblerTickAmount * Settings.get.tickFrequency))
@@ -155,7 +155,7 @@ class Assembler(selfType: TileEntityType[_ <: Assembler]) extends TileEntity(sel
   private final val TotalTag = Settings.namespace + "total"
   private final val RemainingTag = Settings.namespace + "remaining"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     super.loadForServer(nbt)
     if (nbt.contains(OutputTag)) {
       output = StackOption(ItemStack.of(nbt.getCompound(OutputTag)))
@@ -167,7 +167,7 @@ class Assembler(selfType: TileEntityType[_ <: Assembler]) extends TileEntity(sel
     requiredEnergy = nbt.getDouble(RemainingTag)
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     super.saveForServer(nbt)
     nbt.setNewCompoundTag(OutputTag, output.get.save)
     nbt.putDouble(TotalTag, totalRequiredEnergy)
@@ -175,12 +175,12 @@ class Assembler(selfType: TileEntityType[_ <: Assembler]) extends TileEntity(sel
   }
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT) {
+  def loadForClient(nbt: CompoundNBT): Unit = {
     super.loadForClient(nbt)
     requiredEnergy = nbt.getDouble(RemainingTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundNBT): Unit = {
     super.saveForClient(nbt)
     nbt.putDouble(RemainingTag, requiredEnergy)
   }
@@ -211,5 +211,5 @@ class Assembler(selfType: TileEntityType[_ <: Assembler]) extends TileEntity(sel
   override def getDisplayName = StringTextComponent.EMPTY
 
   override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new container.Assembler(ContainerTypes.ASSEMBLER, id, playerInventory, this)
+    new menu.Assembler(ContainerTypes.ASSEMBLER, id, playerInventory, this)
 }

@@ -17,7 +17,7 @@ object Waypoints {
   val dimensions = mutable.Map.empty[RegistryKey[World], RTree[Waypoint]]
 
   @SubscribeEvent
-  def onWorldUnload(e: WorldEvent.Unload) {
+  def onWorldUnload(e: WorldEvent.Unload): Unit = {
     if (!e.getWorld.isClientSide) {
       e.getWorld match {
         case world: World => dimensions.remove(world.dimension)
@@ -27,7 +27,7 @@ object Waypoints {
   }
 
   @SubscribeEvent
-  def onWorldLoad(e: WorldEvent.Load) {
+  def onWorldLoad(e: WorldEvent.Load): Unit = {
     if (!e.getWorld.isClientSide) {
       e.getWorld match {
         case world: World => dimensions.remove(world.dimension)
@@ -38,7 +38,7 @@ object Waypoints {
 
   // Safety clean up, in case some tile entities didn't properly leave the net.
   @SubscribeEvent
-  def onChunkUnloaded(e: ChunkEvent.Unload) {
+  def onChunkUnloaded(e: ChunkEvent.Unload): Unit = {
     e.getChunk.getBlockEntitiesPos.map(e.getChunk.getBlockEntity).foreach {
       case waypoint: Waypoint => remove(waypoint)
       case _ =>

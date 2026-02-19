@@ -109,7 +109,7 @@ class LuaJLuaArchitecture(val machine: api.machine.Machine) extends Architecture
 
   // ----------------------------------------------------------------------- //
 
-  override def runSynchronized() {
+  override def runSynchronized(): Unit = {
     synchronizedResult = synchronizedCall.call()
     synchronizedCall = null
   }
@@ -237,7 +237,7 @@ class LuaJLuaArchitecture(val machine: api.machine.Machine) extends Architecture
     true
   }
 
-  override def onConnect() {
+  override def onConnect(): Unit = {
   }
 
   override def close() = {
@@ -250,12 +250,12 @@ class LuaJLuaArchitecture(val machine: api.machine.Machine) extends Architecture
 
   // ----------------------------------------------------------------------- //
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     if (machine.isRunning) {
       machine.stop()
       machine.start()
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {}
+  override def saveData(nbt: CompoundNBT): Unit = {}
 }

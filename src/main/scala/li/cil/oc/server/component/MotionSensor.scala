@@ -62,7 +62,7 @@ class MotionSensor(val host: EnvironmentHost) extends prefab.AbstractManagedEnvi
 
   override def canUpdate: Boolean = isServer
 
-  override def update() {
+  override def update(): Unit = {
     super.update()
     if (world.getGameTime % 10 == 0) {
       // Get a list of all living entities we could possibly detect, using a rough
@@ -116,7 +116,7 @@ class MotionSensor(val host: EnvironmentHost) extends prefab.AbstractManagedEnvi
       isClearPath(target) || isClearPath(target.add(0.0D, entity.getEyeHeight, 0.0D))
     }
 
-  private def sendSignal(entity: LivingEntity) {
+  private def sendSignal(entity: LivingEntity): Unit = {
     if (Settings.get.inputUsername) {
       node.sendToReachable("computer.signal", "motion", Double.box(entity.getX - (x + 0.5)), Double.box(entity.getY - (y + 0.5)), Double.box(entity.getZ - (z + 0.5)), entity.getName.getString)
     }
@@ -141,12 +141,12 @@ class MotionSensor(val host: EnvironmentHost) extends prefab.AbstractManagedEnvi
 
   private final val SensitivityTag = Settings.namespace + "sensitivity"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
     sensitivity = nbt.getDouble(SensitivityTag)
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
     nbt.putDouble(SensitivityTag, sensitivity)
   }

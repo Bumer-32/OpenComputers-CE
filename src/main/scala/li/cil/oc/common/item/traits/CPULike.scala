@@ -26,7 +26,7 @@ trait CPULike extends SimpleItem {
 
   override protected def tooltipData: Seq[Any] = Seq(Settings.get.cpuComponentSupport(cpuTier))
 
-  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[ITextComponent]) {
+  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[ITextComponent]): Unit = {
     for (curr <- Tooltip.get("cpu.Architecture", api.Machine.getArchitectureName(DriverCPU.architecture(stack)))) {
       tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
     }

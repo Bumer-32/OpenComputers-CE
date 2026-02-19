@@ -36,7 +36,7 @@ object BlockDataProvider extends IServerDataProvider[TileEntity] with IComponent
   val ConfigEnergy = new ResourceLocation(OpenComputers.ID, "oc.energy")
   val ConfigComponentName = new ResourceLocation(OpenComputers.ID, "oc.componentname")
 
-  private def register(registrar: IRegistrar) {
+  private def register(registrar: IRegistrar): Unit = {
     registrar.registerComponentProvider(this, TooltipPosition.BODY, classOf[SimpleBlock])
 
     registrar.registerBlockDataProvider(this, classOf[li.cil.oc.api.network.Environment])

@@ -2,10 +2,10 @@ package li.cil.oc.common.tileentity.traits
 
 import li.cil.oc.Settings
 import li.cil.oc.util.RotationHelper
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.core.Direction
+import net.minecraft.nbt.CompoundTag
 
 /**
  * Like Rotatable, but stores the rotation information in the TE's NBT instead
@@ -35,7 +35,7 @@ trait RotatableTile extends Rotatable {
   private final val PitchTag = Settings.namespace + "pitch"
   private final val YawTag = Settings.namespace + "yaw"
 
-  override def loadForServer(nbt: CompoundNBT) = {
+  override def loadForServer(nbt: CompoundTag) = {
     super.loadForServer(nbt)
     if (nbt.contains(PitchTag)) {
       pitch = Direction.from3DDataValue(nbt.getInt(PitchTag))
@@ -46,27 +46,27 @@ trait RotatableTile extends Rotatable {
     validatePitchAndYaw()
   }
 
-  override def saveForServer(nbt: CompoundNBT) = {
+  override def saveForServer(nbt: CompoundTag) = {
     super.saveForServer(nbt)
     nbt.putInt(PitchTag, pitch.ordinal)
     nbt.putInt(YawTag, yaw.ordinal)
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     pitch = Direction.from3DDataValue(nbt.getInt(PitchTag))
     yaw = Direction.from3DDataValue(nbt.getInt(YawTag))
     validatePitchAndYaw()
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundTag): Unit = {
     super.saveForClient(nbt)
     nbt.putInt(PitchTag, pitch.ordinal)
     nbt.putInt(YawTag, yaw.ordinal)
   }
 
-  private def validatePitchAndYaw() {
+  private def validatePitchAndYaw(): Unit = {
     if (!_pitch.getAxis.isVertical) {
       _pitch = Direction.NORTH
     }

@@ -99,7 +99,7 @@ trait SimpleItem extends Item with api.driver.item.UpgradeRenderer {
   protected def tooltipData = Seq.empty[Any]
 
   @OnlyIn(Dist.CLIENT)
-  override def appendHoverText(stack: ItemStack, world: World, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  override def appendHoverText(stack: ItemStack, world: World, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
     if (tooltipName.isDefined) {
       for (curr <- Tooltip.get(tooltipName.get, tooltipData: _*)) {
         tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
@@ -115,9 +115,9 @@ trait SimpleItem extends Item with api.driver.item.UpgradeRenderer {
   }
 
   // For stuff that goes to the normal 'extended' tooltip, before the costs.
-  protected def tooltipExtended(stack: ItemStack, tooltip: java.util.List[ITextComponent]) {}
+  protected def tooltipExtended(stack: ItemStack, tooltip: java.util.List[ITextComponent]): Unit = {}
 
-  protected def tooltipCosts(stack: ItemStack, tooltip: java.util.List[ITextComponent]) {
+  protected def tooltipCosts(stack: ItemStack, tooltip: java.util.List[ITextComponent]): Unit = {
     if (stack.hasTag && stack.getTag.contains(Settings.namespace + "data")) {
       val data = stack.getTag.getCompound(Settings.namespace + "data")
       if (data.contains("node") && data.getCompound("node").contains("address")) {

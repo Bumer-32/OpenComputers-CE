@@ -11,7 +11,7 @@ import net.minecraft.util.math.vector.Vector3f
 object HologramRendererFallback {
   var text = "Requires OpenGL 1.5"
 
-  def render(hologram: Hologram, f: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  def render(hologram: Hologram, f: Float, stack: MatrixStack, buffer: MultiBufferSource, light: Int, overlay: Int) = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderSystem.color4f(1, 1, 1, 1)

@@ -3,7 +3,7 @@ package li.cil.oc.common.block
 import java.util
 
 import li.cil.oc.client.KeyBindings
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.item.data.RaidData
 import li.cil.oc.common.tileentity
@@ -35,7 +35,7 @@ class Raid(props: Properties) extends SimpleBlock(props) with IForgeBlock with t
   protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]) =
     builder.add(PropertyRotatable.Facing)
 
-  override protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
+  override protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag): Unit = {
     super.tooltipTail(stack, world, tooltip, advanced)
     if (KeyBindings.showExtendedTooltips) {
       val data = new RaidData(stack)
@@ -102,7 +102,7 @@ class Raid(props: Properties) extends SimpleBlock(props) with IForgeBlock with t
     super.getDrops(state, newCtx)
   }
 
-  override def playerWillDestroy(world: World, pos: BlockPos, state: BlockState, player: PlayerEntity) {
+  override def playerWillDestroy(world: World, pos: BlockPos, state: BlockState, player: PlayerEntity): Unit = {
     if (!world.isClientSide && player.isCreative) {
       world.getBlockEntity(pos) match {
         case tileEntity: tileentity.Raid if tileEntity.items.exists(!_.isEmpty) =>

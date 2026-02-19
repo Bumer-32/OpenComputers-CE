@@ -17,7 +17,7 @@ object RelayRenderer extends Function[TileEntityRendererDispatcher, RelayRendere
 }
 
 class RelayRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[tileentity.Relay](dispatch) {
-  override def render(switch: tileentity.Relay, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(switch: tileentity.Relay, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderSystem.color4f(1, 1, 1, 1)

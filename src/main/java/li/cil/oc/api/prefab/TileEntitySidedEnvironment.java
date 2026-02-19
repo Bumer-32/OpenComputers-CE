@@ -3,17 +3,19 @@ package li.cil.oc.api.prefab;
 import li.cil.oc.api.Network;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.SidedEnvironment;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * TileEntities can implement the {@link li.cil.oc.api.network.SidedEnvironment}
+ * TileEntities can implement the {@link SidedEnvironment}
  * interface to allow them to interact with the component network, by providing
- * a separate {@link li.cil.oc.api.network.Node} for each block face, and
+ * a separate {@link Node} for each block face, and
  * connecting it to said network. This allows more control over connectivity
  * than the simple {@link li.cil.oc.api.network.Environment}.
  * <br>
@@ -21,7 +23,7 @@ import net.minecraft.util.Direction;
  * network as an index structure to find other nodes connected to them.
  */
 @SuppressWarnings("UnusedDeclaration")
-public abstract class TileEntitySidedEnvironment extends TileEntity implements SidedEnvironment, ITickableTileEntity {
+public abstract class TileEntitySidedEnvironment extends BlockEntity implements SidedEnvironment {
     // See constructor.
     protected Node[] nodes = new Node[6];
 
@@ -32,14 +34,14 @@ public abstract class TileEntitySidedEnvironment extends TileEntity implements S
      * This expects a node per face that is used to represent this tile entity.
      * <br>
      * You must only create new nodes using the factory method in the network
-     * API, {@link li.cil.oc.api.Network#newNode(li.cil.oc.api.network.Environment, li.cil.oc.api.network.Visibility)}.
+     * API, {@link Network#newNode(li.cil.oc.api.network.Environment, li.cil.oc.api.network.Visibility)}.
      * <br>
      * For example:
      * <pre>
      * // The first parameters to newNode is the host() of the node, which will
      * // usually be this tile entity. The second one is it's reachability,
      * // which determines how other nodes in the same network can query this
-     * // node. See {@link li.cil.oc.api.network.Network#nodes(li.cil.oc.api.network.Node)}.
+     * // node. See {@link li.cil.oc.api.network.Network#nodes(Node)}.
      * super(Network.newNode(???, Visibility.Network)
      *       // This call allows the node to consume energy from the
      *       // component network it is in and act as a consumer, or to
@@ -62,8 +64,8 @@ public abstract class TileEntitySidedEnvironment extends TileEntity implements S
      *       .create(), ...);
      * </pre>
      */
-    protected TileEntitySidedEnvironment(TileEntityType<?> type, final Node... nodes) {
-        super(type);
+    protected TileEntitySidedEnvironment(BlockEntityType<?> type, BlockPos pos, BlockState state, final Node... nodes) {
+        super(type, pos, state);
         System.arraycopy(nodes, 0, this.nodes, 0, Math.min(nodes.length, this.nodes.length));
     }
 
@@ -81,18 +83,12 @@ public abstract class TileEntitySidedEnvironment extends TileEntity implements S
 
     // ----------------------------------------------------------------------- //
 
-    @Override
-    public void tick() {
-        // On the first update, try to add our node to nearby networks. We do
-        // this in the update logic, not in clearRemoved() because we need to access
-        // neighboring tile entities, which isn't possible in clearRemoved().
-        // We could alternatively check node != null && node.network() == null,
-        // but this has somewhat better performance, and makes it clearer.
-        if (!addedToNetwork) {
-            addedToNetwork = true;
+    public static void tick(Level level, BlockPos pos, BlockState state, TileEntitySidedEnvironment be) {
+        if (!be.addedToNetwork) {
+            be.addedToNetwork = true;
             // Note that joinOrCreateNetwork will try to connect each of our
             // sided nodes to their respective neighbor (sided) node.
-            Network.joinOrCreateNetwork(this);
+            Network.joinOrCreateNetwork(be);
         }
     }
 
@@ -119,8 +115,8 @@ public abstract class TileEntitySidedEnvironment extends TileEntity implements S
     // ----------------------------------------------------------------------- //
 
     @Override
-    public void load(final BlockState state, final CompoundNBT nbt) {
-        super.load(state, nbt);
+    public void load(final @NotNull CompoundTag nbt) {
+        super.load(nbt);
         int index = 0;
         for (Node node : nodes) {
             // The host check may be superfluous for you. It's just there to allow
@@ -139,18 +135,17 @@ public abstract class TileEntitySidedEnvironment extends TileEntity implements S
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT nbt) {
-        super.save(nbt);
+    public void saveAdditional(CompoundTag nbt) {
+        super.saveAdditional(nbt);
         int index = 0;
         for (Node node : nodes) {
             // See load() regarding host check.
             if (node != null && node.host() == this) {
-                final CompoundNBT nodeNbt = new CompoundNBT();
+                final CompoundTag nodeNbt = new CompoundTag();
                 node.saveData(nodeNbt);
                 nbt.put("oc:node" + index, nodeNbt);
             }
             ++index;
         }
-        return nbt;
     }
 }

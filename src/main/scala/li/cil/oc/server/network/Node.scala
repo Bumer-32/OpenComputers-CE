@@ -53,7 +53,7 @@ trait Node extends ImmutableNode {
 
   // ----------------------------------------------------------------------- //
 
-  def onConnect(node: ImmutableNode) {
+  def onConnect(node: ImmutableNode): Unit = {
     try {
       host.onConnect(node)
     } catch {
@@ -61,7 +61,7 @@ trait Node extends ImmutableNode {
     }
   }
 
-  def onDisconnect(node: ImmutableNode) {
+  def onDisconnect(node: ImmutableNode): Unit = {
     try {
       host.onDisconnect(node)
     } catch {
@@ -71,7 +71,7 @@ trait Node extends ImmutableNode {
 
   // ----------------------------------------------------------------------- //
 
-  def loadData(nbt: CompoundNBT) {
+  def loadData(nbt: CompoundNBT): Unit = {
     if (nbt.contains("address")) {
       val newAddress = nbt.getString("address")
       if (!Strings.isNullOrEmpty(newAddress) && newAddress != address) network match {
@@ -81,7 +81,7 @@ trait Node extends ImmutableNode {
     }
   }
 
-  def saveData(nbt: CompoundNBT) {
+  def saveData(nbt: CompoundNBT): Unit = {
     if (address != null) {
       nbt.putString("address", address)
     }

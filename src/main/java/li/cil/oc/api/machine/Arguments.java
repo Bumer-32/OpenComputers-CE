@@ -1,6 +1,6 @@
 package li.cil.oc.api.machine;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
 
@@ -33,8 +33,8 @@ public interface Arguments extends Iterable<Object> {
      * performed internally:
      * <ul>
      * <li>{@code null} if the Lua value was {@code nil}.</li>
-     * <li>{@link java.lang.Boolean} if the Lua value was a boolean.</li>
-     * <li>{@link java.lang.Double} if the Lua value was a number.</li>
+     * <li>{@link Boolean} if the Lua value was a boolean.</li>
+     * <li>{@link Double} if the Lua value was a number.</li>
      * <li>{@code byte[]} if the Lua value was a string.</li>
      * </ul>
      *
@@ -167,8 +167,8 @@ public interface Arguments extends Iterable<Object> {
      * performed internally:
      * <ul>
      * <li>{@code null} if the Lua value was {@code nil}.</li>
-     * <li>{@link java.lang.Boolean} if the Lua value was a boolean.</li>
-     * <li>{@link java.lang.Double} if the Lua value was a number.</li>
+     * <li>{@link Boolean} if the Lua value was a boolean.</li>
+     * <li>{@link Double} if the Lua value was a number.</li>
      * <li>{@code byte[]} if the Lua value was a string.</li>
      * </ul>
      *

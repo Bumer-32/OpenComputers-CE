@@ -15,11 +15,11 @@ class HoverBootsData extends ItemData(Constants.ItemName.HoverBoots) {
 
   private final val ChargeTag = Settings.namespace + "charge"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     charge = nbt.getDouble(ChargeTag)
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     nbt.putDouble(ChargeTag, charge)
   }
 }

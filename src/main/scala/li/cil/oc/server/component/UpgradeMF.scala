@@ -49,14 +49,14 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
 
   override def getDeviceInfo: util.Map[String, String] = deviceInfo
 
-  private def otherNode(tile: TileEntity, f: (Node) => Unit) {
+  private def otherNode(tile: TileEntity, f: (Node) => Unit): Unit = {
     network.Network.getNetworkNode(tile, dir) match {
       case Some(otherNode) => f(otherNode)
       case _ => // Nothing to do here
     }
   }
 
-  private def updateBoundState() {
+  private def updateBoundState(): Unit = {
     if (node != null && node.network != null && coord.world.exists(_.dimension == host.world.dimension)
       && coord.toVec3.distanceTo(new Vector3d(host.xPosition, host.yPosition, host.zPosition)) <= Settings.get.mfuRange) {
       host.world.getBlockEntity(coord) match {
@@ -133,7 +133,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
     }
   }
 
-  private def disconnect() {
+  private def disconnect(): Unit = {
     otherEnv match {
       case Some(environment: TileEntity) =>
         otherNode(environment, node.disconnect)
@@ -152,7 +152,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
 
   override def onBlockChanged() = updateBoundState()
 
-  override def update() {
+  override def update(): Unit = {
     super.update()
     otherDrv match {
       case Some((env, drv)) if env.canUpdate => env.update()
@@ -166,7 +166,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
     }
   }
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node): Unit = {
     super.onConnect(node)
     if (node == this.node) {
       // Not checking for range yet because host may be a moving adapter, who knows?
@@ -176,7 +176,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
     }
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node): Unit = {
     super.onDisconnect(node)
     otherEnv match {
       case Some(env: TileEntity) => otherNode(env, (otherNode) => if (node == otherNode) otherEnv = None)
@@ -191,7 +191,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
     }
   }
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
     Option(nbt.getCompound(Settings.namespace + "adapter.block")) match {
       case Some(blockNbt: CompoundNBT) =>
@@ -202,7 +202,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
     val blockNbt = new CompoundNBT()
     blockData.foreach({ data =>

@@ -163,7 +163,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
 
   override val canUpdate = true
 
-  override def update() {
+  override def update(): Unit = {
     super.update()
     if (remainingTicks <= 0 && inventory.isDefined) {
       val stack = inventory.get
@@ -193,7 +193,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
 
   // ----------------------------------------------------------------------- //
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node): Unit = {
     super.onDisconnect(node)
     if (node == this.node) {
       inventory match {
@@ -213,7 +213,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
   private final val InventoryTag = "inventory"
   private final val RemainingTicksTag = "remainingTicks"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
       inventory = StackOption(ItemStack.of(nbt.getCompound("inventory")))
     if (nbt.contains(InventoryTag)) {
@@ -222,7 +222,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
     remainingTicks = nbt.getInt(RemainingTicksTag)
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
     inventory match {
       case SomeStack(stack) => nbt.setNewCompoundTag(InventoryTag, stack.save)

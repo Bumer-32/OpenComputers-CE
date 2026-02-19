@@ -24,8 +24,8 @@ import li.cil.oc.api.network.WirelessEndpoint
 import li.cil.oc.common.InventorySlots
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
-import li.cil.oc.common.container
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.item
 import li.cil.oc.integration.Mods
 import li.cil.oc.integration.opencomputers.DriverLinkedCard
@@ -131,7 +131,7 @@ class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) w
 
   // Isolated from parent class so automatic callbacks don't depend on optional mods.
   protected object RelayCCAdapter {
-    def queueMessage(source: String, destination: String, port: Int, answerPort: Int, args: Array[AnyRef]) {
+    def queueMessage(source: String, destination: String, port: Int, answerPort: Int, args: Array[AnyRef]): Unit = {
       for (computer <- computers.map(_.asInstanceOf[IComputerAccess])) {
         val address = s"cc${computer.getID}_${computer.getAttachmentName}"
         if (source != address && Option(destination).forall(_ == address) && openPorts(computer).contains(port)) {
@@ -208,7 +208,7 @@ class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) w
     withConnector(math.round(Settings.get.bufferAccessPoint)).
     create()
 
-  override protected def onPlugConnect(plug: Plug, node: Node) {
+  override protected def onPlugConnect(plug: Plug, node: Node): Unit = {
     super.onPlugConnect(plug, node)
     if (node == plug.node) {
       api.Network.joinWirelessNetwork(this)
@@ -219,7 +219,7 @@ class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) w
       componentNodes(plug.side.ordinal).remove()
   }
 
-  override protected def onPlugDisconnect(plug: Plug, node: Node) {
+  override protected def onPlugDisconnect(plug: Plug, node: Node): Unit = {
     super.onPlugDisconnect(plug, node)
     if (node == plug.node) {
       api.Network.leaveWirelessNetwork(this)
@@ -232,12 +232,12 @@ class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) w
 
   // ----------------------------------------------------------------------- //
 
-  override protected def onItemAdded(slot: Int, stack: ItemStack) {
+  override protected def onItemAdded(slot: Int, stack: ItemStack): Unit = {
     super.onItemAdded(slot, stack)
     updateLimits(slot, stack)
   }
   
-  private def updateLimits(slot: Int, stack: ItemStack) {
+  private def updateLimits(slot: Int, stack: ItemStack): Unit = {
     Option(Driver.driverFor(stack, getClass)) match {
       case Some(driver) if driver.slot(stack) == Slot.CPU =>
         relayDelay = math.max(1, relayBaseDelay - ((driver.tier(stack) + 1) * relayDelayPerUpgrade).toInt)
@@ -264,7 +264,7 @@ class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) w
     }
   }
 
-  override protected def onItemRemoved(slot: Int, stack: ItemStack) {
+  override protected def onItemRemoved(slot: Int, stack: ItemStack): Unit = {
     super.onItemRemoved(slot, stack)
     Driver.driverFor(stack, getClass) match {
       case driver if driver.slot(stack) == Slot.CPU => relayDelay = relayBaseDelay
@@ -291,7 +291,7 @@ class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) w
   // ----------------------------------------------------------------------- //
 
   override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new container.Relay(ContainerTypes.RELAY, id, playerInventory, this)
+    new menu.Relay(ContainerTypes.RELAY, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
 
@@ -299,7 +299,7 @@ class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) w
   private final val IsRepeaterTag = Settings.namespace + "isRepeater"
   private final val ComponentNodesTag = Settings.namespace + "componentNodes"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     super.loadForServer(nbt)
     for (slot <- items.indices) if (!items(slot).isEmpty) {
       updateLimits(slot, items(slot))

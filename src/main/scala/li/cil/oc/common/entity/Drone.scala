@@ -19,8 +19,8 @@ import li.cil.oc.api.machine.Context
 import li.cil.oc.api.machine.MachineHost
 import li.cil.oc.api.network._
 import li.cil.oc.common.EventHandler
-import li.cil.oc.common.container
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.inventory.ComponentInventory
 import li.cil.oc.common.inventory.Inventory
 import li.cil.oc.common.item.data.DroneData
@@ -119,7 +119,7 @@ class Drone(selfType: EntityType[Drone], world: World) extends Entity(selfType, 
 
     override def getContainerSize: Int = info.components.length
 
-    override def setChanged() {}
+    override def setChanged(): Unit = {}
 
     override def canPlaceItem(slot: Int, stack: ItemStack) = true
 
@@ -127,11 +127,11 @@ class Drone(selfType: EntityType[Drone], world: World) extends Entity(selfType, 
 
     override def node: Node = Option(machine).map(_.node).orNull
 
-    override def onConnect(node: Node) {}
+    override def onConnect(node: Node): Unit = {}
 
-    override def onDisconnect(node: Node) {}
+    override def onDisconnect(node: Node): Unit = {}
 
-    override def onMessage(message: Message) {}
+    override def onMessage(message: Message): Unit = {}
   }
   val equipmentInventory = new Inventory {
     val items = Array.empty[ItemStack]
@@ -153,7 +153,7 @@ class Drone(selfType: EntityType[Drone], world: World) extends Entity(selfType, 
 
     override def getMaxStackSize = 64
 
-    override def setChanged() {} // TODO update client GUI?
+    override def setChanged(): Unit = {} // TODO update client GUI?
 
     override def canPlaceItem(slot: Int, stack: ItemStack): Boolean = slot >= 0 && slot < getContainerSize
 
@@ -243,7 +243,7 @@ class Drone(selfType: EntityType[Drone], world: World) extends Entity(selfType, 
 
   override def zPosition: Double = getZ
 
-  override def markChanged() {}
+  override def markChanged(): Unit = {}
 
   @OnlyIn(Dist.CLIENT)
   override def getRopeHoldPosition(dt: Float): Vector3d =
@@ -267,9 +267,9 @@ class Drone(selfType: EntityType[Drone], world: World) extends Entity(selfType, 
 
   override def componentSlot(address: String): Int = components.components.indexWhere(_.exists(env => env.node != null && env.node.address == address))
 
-  override def onMachineConnect(node: Node) {}
+  override def onMachineConnect(node: Node): Unit = {}
 
-  override def onMachineDisconnect(node: Node) {}
+  override def onMachineDisconnect(node: Node): Unit = {}
 
   def computeInventorySize(): Int = math.min(maxInventorySize, info.components.foldLeft(0)((acc, component) => acc + (Option(component) match {
     case Some(stack) => Option(Driver.driverFor(stack, getClass)) match {
@@ -281,7 +281,7 @@ class Drone(selfType: EntityType[Drone], world: World) extends Entity(selfType, 
 
   // ----------------------------------------------------------------------- //
 
-  override def defineSynchedData() {
+  override def defineSynchedData(): Unit = {
     entityData.define(Drone.DataRunning, java.lang.Boolean.FALSE)
     entityData.define(Drone.DataTargetX, Float.box(0f))
     entityData.define(Drone.DataTargetY, Float.box(0f))
@@ -295,7 +295,7 @@ class Drone(selfType: EntityType[Drone], world: World) extends Entity(selfType, 
     entityData.define(Drone.DataLightColor, Int.box(0x66DD55))
   }
 
-  def initializeAfterPlacement(stack: ItemStack, player: PlayerEntity, position: Vector3d) {
+  def initializeAfterPlacement(stack: ItemStack, player: PlayerEntity, position: Vector3d): Unit = {
     info.loadData(stack)
     control.node.changeBuffer(info.storedEnergy - control.node.localBuffer)
     wireThingsTogether()
@@ -303,7 +303,7 @@ class Drone(selfType: EntityType[Drone], world: World) extends Entity(selfType, 
     setPos(position.x, position.y, position.z)
   }
 
-  def preparePowerUp() {
+  def preparePowerUp(): Unit = {
     targetX = math.floor(getX).toFloat + 0.5f
     targetY = math.round(getY).toFloat + 0.5f
     targetZ = math.floor(getZ).toFloat + 0.5f
@@ -378,7 +378,7 @@ class Drone(selfType: EntityType[Drone], world: World) extends Entity(selfType, 
     }
   }
 
-  override def tick() {
+  override def tick(): Unit = {
     super.tick()
 
     if (!world.isClientSide) {
@@ -496,7 +496,7 @@ class Drone(selfType: EntityType[Drone], world: World) extends Entity(selfType, 
     override def getDisplayName = StringTextComponent.EMPTY
 
     override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-      new container.Drone(ContainerTypes.DRONE, id, playerInventory, mainInventory, mainInventory.getContainerSize)
+      new menu.Drone(ContainerTypes.DRONE, id, playerInventory, mainInventory, mainInventory.getContainerSize)
   }
 
   override def interact(player: PlayerEntity, hand: Hand): ActionResultType = {
@@ -561,7 +561,7 @@ class Drone(selfType: EntityType[Drone], world: World) extends Entity(selfType, 
     }
   }
 
-  override def remove() {
+  override def remove(): Unit = {
     super.remove()
     if (!world.isClientSide && !isChangingDimension) {
       machine.stop()
@@ -589,7 +589,7 @@ class Drone(selfType: EntityType[Drone], world: World) extends Entity(selfType, 
 
   override protected def getAddEntityPacket = NetworkHooks.getEntitySpawningPacket(this)
 
-  override protected def readAdditionalSaveData(nbt: CompoundNBT) {
+  override protected def readAdditionalSaveData(nbt: CompoundNBT): Unit = {
     info.loadData(nbt.getCompound("info"))
     inventorySize = computeInventorySize()
     if (!world.isClientSide) {
@@ -616,7 +616,7 @@ class Drone(selfType: EntityType[Drone], world: World) extends Entity(selfType, 
     }
   }
 
-  override protected def addAdditionalSaveData(nbt: CompoundNBT) {
+  override protected def addAdditionalSaveData(nbt: CompoundNBT): Unit = {
     if (world.isClientSide) return
     components.saveComponents()
     info.storedEnergy = globalBuffer.toInt

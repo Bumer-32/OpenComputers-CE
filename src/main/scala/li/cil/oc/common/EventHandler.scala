@@ -94,13 +94,13 @@ object EventHandler {
 
   def unscheduleClose(machine: Machine): Unit = machines -= machine
 
-  def scheduleServer(tileEntity: TileEntity) {
+  def scheduleServer(tileEntity: TileEntity): Unit = {
     if (SideTracker.isServer) pendingServer.synchronized {
       pendingServer += (() => Network.joinOrCreateNetwork(tileEntity))
     }
   }
 
-  def scheduleServer(f: () => Unit) {
+  def scheduleServer(f: () => Unit): Unit = {
     pendingServer.synchronized {
       pendingServer += f
     }
@@ -112,7 +112,7 @@ object EventHandler {
     }
   }
 
-  def scheduleClient(f: () => Unit) {
+  def scheduleClient(f: () => Unit): Unit = {
     pendingClient.synchronized {
       pendingClient += f
     }
@@ -126,7 +126,7 @@ object EventHandler {
     }
   }
 
-  def scheduleWirelessRedstone(rs: server.component.RedstoneWireless) {
+  def scheduleWirelessRedstone(rs: server.component.RedstoneWireless): Unit = {
     if (SideTracker.isServer) pendingServer.synchronized {
       pendingServer += (() => if (rs.node.network != null) {
         util.WirelessRedstone.addReceiver(rs)
@@ -250,7 +250,7 @@ object EventHandler {
   }
 
   @SubscribeEvent
-  def playerLoggedIn(e: PlayerLoggedInEvent) {
+  def playerLoggedIn(e: PlayerLoggedInEvent): Unit = {
     if (SideTracker.isServer) e.getPlayer match {
       case _: FakePlayer => // Nope
       case player: ServerPlayerEntity =>
@@ -280,7 +280,7 @@ object EventHandler {
 
   @SubscribeEvent
   @OnlyIn(Dist.CLIENT)
-  def clientLoggedIn(e: ClientPlayerNetworkEvent.LoggedInEvent) {
+  def clientLoggedIn(e: ClientPlayerNetworkEvent.LoggedInEvent): Unit = {
     PetRenderer.isInitialized = false
     PetRenderer.hidden.clear()
     Loot.disksForClient.clear()
@@ -307,17 +307,17 @@ object EventHandler {
   }
 
   @SubscribeEvent
-  def onPlayerRespawn(e: PlayerRespawnEvent) {
+  def onPlayerRespawn(e: PlayerRespawnEvent): Unit = {
     keyboards.foreach(_.releasePressedKeys(e.getPlayer))
   }
 
   @SubscribeEvent
-  def onPlayerChangedDimension(e: PlayerChangedDimensionEvent) {
+  def onPlayerChangedDimension(e: PlayerChangedDimensionEvent): Unit = {
     keyboards.foreach(_.releasePressedKeys(e.getPlayer))
   }
 
   @SubscribeEvent
-  def onPlayerLogout(e: PlayerLoggedOutEvent) {
+  def onPlayerLogout(e: PlayerLoggedOutEvent): Unit = {
     keyboards.foreach(_.releasePressedKeys(e.getPlayer))
   }
 

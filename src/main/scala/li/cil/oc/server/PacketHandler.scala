@@ -11,7 +11,7 @@ import li.cil.oc.api.network.Connector
 import li.cil.oc.common.Achievement
 import li.cil.oc.common.PacketType
 import li.cil.oc.common.component.TextBuffer
-import li.cil.oc.common.container
+import li.cil.oc.common.menu
 import li.cil.oc.common.entity.Drone
 import li.cil.oc.common.entity.DroneInventory
 import li.cil.oc.common.item.{Tablet, TabletWrapper}
@@ -42,7 +42,7 @@ object PacketHandler extends CommonPacketHandler {
   override protected def world(player: PlayerEntity, dimension: ResourceLocation): Option[World] =
     Option(ServerLifecycleHooks.getCurrentServer.getLevel(RegistryKey.create(Registry.DIMENSION_REGISTRY, dimension)))
 
-  override def dispatch(p: PacketParser) {
+  override def dispatch(p: PacketParser): Unit = {
     p.packetType match {
       case PacketType.ComputerPower => onComputerPower(p)
       case PacketType.CopyToAnalyzer => onCopyToAnalyzer(p)
@@ -74,13 +74,13 @@ object PacketHandler extends CommonPacketHandler {
     val setPower = p.readBoolean()
     p.player match {
       case player: ServerPlayerEntity => player.containerMenu match {
-        case computer: container.Case if computer.containerId == containerId => {
+        case computer: menu.Case if computer.containerId == containerId => {
           computer.otherInventory match {
             case te: Computer => trySetComputerPower(te.machine, setPower, player)
             case _ => logForgedPacket(player)
           }
         }
-        case robot: container.Robot if robot.containerId == containerId => {
+        case robot: menu.Robot if robot.containerId == containerId => {
           robot.otherInventory match {
             case te: Computer => trySetComputerPower(te.machine, setPower, player)
             case _ => logForgedPacket(player)
@@ -98,7 +98,7 @@ object PacketHandler extends CommonPacketHandler {
     val setPower = p.readBoolean()
     p.player match {
       case player: ServerPlayerEntity => player.containerMenu match {
-        case server: container.Server if server.containerId == containerId => {
+        case server: menu.Server if server.containerId == containerId => {
           server.otherInventory match {
             case comp: component.Server => {
               if (comp.rack != null && comp.rack.getMountable(index) == comp)
@@ -114,7 +114,7 @@ object PacketHandler extends CommonPacketHandler {
     }
   }
 
-  def onCopyToAnalyzer(p: PacketParser) {
+  def onCopyToAnalyzer(p: PacketParser): Unit = {
     val text = p.readUTF()
     val line = p.readInt()
     ComponentTracker.get(p.player.level, text) match {
@@ -152,7 +152,7 @@ object PacketHandler extends CommonPacketHandler {
     val power = p.readBoolean()
     p.player match {
       case player: ServerPlayerEntity => player.containerMenu match {
-        case drone: container.Drone if drone.containerId == containerId => {
+        case drone: menu.Drone if drone.containerId == containerId => {
           drone.otherInventory match {
             case droneInv: DroneInventory => trySetComputerPower(droneInv.drone.machine, power, player)
             case _ => logForgedPacket(player)
@@ -164,7 +164,7 @@ object PacketHandler extends CommonPacketHandler {
     }
   }
 
-  private def trySetComputerPower(computer: Machine, value: Boolean, player: ServerPlayerEntity) {
+  private def trySetComputerPower(computer: Machine, value: Boolean, player: ServerPlayerEntity): Unit = {
     if (computer.canInteract(player.getName.getString)) {
       if (value) {
         if (!computer.isPaused) {
@@ -219,7 +219,7 @@ object PacketHandler extends CommonPacketHandler {
     }
   }
 
-  def onMouseClick(p: PacketParser) {
+  def onMouseClick(p: PacketParser): Unit = {
     val address = p.readUTF()
     val x = p.readFloat()
     val y = p.readFloat()
@@ -234,7 +234,7 @@ object PacketHandler extends CommonPacketHandler {
     }
   }
 
-  def onMouseUp(p: PacketParser) {
+  def onMouseUp(p: PacketParser): Unit = {
     val address = p.readUTF()
     val x = p.readFloat()
     val y = p.readFloat()
@@ -247,7 +247,7 @@ object PacketHandler extends CommonPacketHandler {
     }
   }
 
-  def onMouseScroll(p: PacketParser) {
+  def onMouseScroll(p: PacketParser): Unit = {
     val address = p.readUTF()
     val x = p.readFloat()
     val y = p.readFloat()
@@ -260,7 +260,7 @@ object PacketHandler extends CommonPacketHandler {
     }
   }
 
-  def onPetVisibility(p: PacketParser) {
+  def onPetVisibility(p: PacketParser): Unit = {
     val value = p.readBoolean()
     p.player match {
       case player: ServerPlayerEntity =>
@@ -284,7 +284,7 @@ object PacketHandler extends CommonPacketHandler {
     val side = p.readDirection()
     p.player match {
       case player: ServerPlayerEntity => player.containerMenu match {
-        case rack: container.Rack if rack.containerId == containerId => {
+        case rack: menu.Rack if rack.containerId == containerId => {
           rack.otherInventory match {
             case t: Rack => {
               if (t.stillValid(player))
@@ -304,7 +304,7 @@ object PacketHandler extends CommonPacketHandler {
     val containerId = p.readInt()
     val enabled = p.readBoolean()
     p.player.containerMenu match {
-      case rack: container.Rack if rack.containerId == containerId => {
+      case rack: menu.Rack if rack.containerId == containerId => {
         (rack.otherInventory, p.player) match {
           case (t: Rack, player: ServerPlayerEntity) if t.stillValid(player) =>
           t.isRelayEnabled = enabled
@@ -318,7 +318,7 @@ object PacketHandler extends CommonPacketHandler {
   def onRobotAssemblerStart(p: PacketParser): Unit = {
     val containerId = p.readInt()
     p.player.containerMenu match {
-      case assembler: container.Assembler if assembler.containerId == containerId => {
+      case assembler: menu.Assembler if assembler.containerId == containerId => {
         assembler.assembler match {
           case te: Assembler =>
             if (te.start(p.player match {
@@ -347,7 +347,7 @@ object PacketHandler extends CommonPacketHandler {
     case _ => // ignore
   }
 
-  def onTextBufferInit(p: PacketParser) {
+  def onTextBufferInit(p: PacketParser): Unit = {
     val address = p.readUTF()
     p.player match {
       case entity: ServerPlayerEntity =>

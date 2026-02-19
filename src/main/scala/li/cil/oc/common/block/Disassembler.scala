@@ -3,7 +3,7 @@ package li.cil.oc.common.block
 import java.util
 
 import li.cil.oc.Settings
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.Tooltip
 import net.minecraft.block.AbstractBlock.Properties
@@ -21,7 +21,7 @@ import net.minecraft.world.World
 import scala.collection.convert.ImplicitConversionsToScala._
 
 class Disassembler(props: Properties) extends SimpleBlock(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI {
-  override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
+  override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag): Unit = {
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase, (Settings.get.disassemblerBreakChance * 100).toInt.toString)) {
       tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
     }

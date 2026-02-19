@@ -15,8 +15,8 @@ import li.cil.oc.common.InventorySlots
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.common.block.property.PropertyRunning
-import li.cil.oc.common.container
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.util.Color
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
@@ -72,7 +72,7 @@ class Case(selfType: TileEntityType[_ <: Case], var tier: Int) extends TileEntit
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity(): Unit = {
     if (isServer && isCreative && getLevel.getGameTime % Settings.get.tickFrequency == 0) {
       // Creative case, make it generate power.
       node.asInstanceOf[Connector].changeBuffer(Double.PositiveInfinity)
@@ -100,21 +100,21 @@ class Case(selfType: TileEntityType[_ <: Case], var tier: Int) extends TileEntit
 
   private final val TierTag = Settings.namespace + "tier"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundNBT): Unit = {
     tier = nbt.getByte(TierTag) max 0 min 3
     setColor(Color.rgbValues(Color.byTier(tier)))
     super.loadForServer(nbt)
     isSizeInventoryReady = true
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundNBT): Unit = {
     nbt.putByte(TierTag, tier.toByte)
     super.saveForServer(nbt)
   }
 
   // ----------------------------------------------------------------------- //
 
-  override protected def onItemAdded(slot: Int, stack: ItemStack) {
+  override protected def onItemAdded(slot: Int, stack: ItemStack): Unit = {
     super.onItemAdded(slot, stack)
     if (isServer) {
       if (InventorySlots.computer(tier)(slot).slot == Slot.Floppy) {
@@ -123,7 +123,7 @@ class Case(selfType: TileEntityType[_ <: Case], var tier: Int) extends TileEntit
     }
   }
 
-  override protected def onItemRemoved(slot: Int, stack: ItemStack) {
+  override protected def onItemRemoved(slot: Int, stack: ItemStack): Unit = {
     super.onItemRemoved(slot, stack)
     if (isServer) {
       val slotType = InventorySlots.computer(tier)(slot).slot
@@ -150,5 +150,5 @@ class Case(selfType: TileEntityType[_ <: Case], var tier: Int) extends TileEntit
   // ----------------------------------------------------------------------- //
 
   override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new container.Case(ContainerTypes.CASE, id, playerInventory, this, tier)
+    new menu.Case(ContainerTypes.CASE, id, playerInventory, this, tier)
 }

@@ -36,12 +36,12 @@ class UpgradeTank(val owner: EnvironmentHost, val capacity: Int) extends Abstrac
 
   val tank = new FluidTank(capacity)
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     super.loadData(nbt)
     tank.readFromNBT(nbt)
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     super.saveData(nbt)
     tank.writeToNBT(nbt)
   }

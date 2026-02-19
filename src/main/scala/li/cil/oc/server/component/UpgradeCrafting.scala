@@ -84,14 +84,14 @@ class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends Abs
       Seq(countCrafted > 0, countCrafted)
     }
 
-    def copyItemsFromHost(inventory: IInventory) {
+    def copyItemsFromHost(inventory: IInventory): Unit = {
       for (slot <- 0 until getContainerSize) {
         val stack = inventory.getItem(toParentSlot(slot))
         setItem(slot, stack)
       }
     }
 
-    def copyItemsToHost(inventory: IInventory) {
+    def copyItemsToHost(inventory: IInventory): Unit = {
       for (slot <- 0 until getContainerSize) {
         inventory.setItem(toParentSlot(slot), getItem(slot))
       }

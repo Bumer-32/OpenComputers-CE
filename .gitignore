@@ -33,3 +33,5 @@
 /config
 /options.txt
 /usernamecache.json
+/.metals
+/.bloop

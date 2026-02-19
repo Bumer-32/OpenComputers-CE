@@ -30,20 +30,20 @@ abstract class TextureFontRenderer {
     * beforehand, outside the display list, to ensure no characters have to
     * be generated inside the draw call.
     */
-  def generateChars(chars: Array[Char]) {
+  def generateChars(chars: Array[Char]) = {
     RenderSystem.enableTexture()
     for (char <- chars) {
       generateChar(char)
     }
   }
 
-  def generateChars(chars: Array[Int]) {
+  def generateChars(chars: Array[Int]) = {
     for (char <- chars) {
       generateChar(char)
     }
   }
 
-  def drawBuffer(stack: MatrixStack, renderBuff: IRenderTypeBuffer, buffer: TextBuffer, viewportWidth: Int, viewportHeight: Int) {
+  def drawBuffer(stack: MatrixStack, renderBuff: IRenderTypeBuffer, buffer: TextBuffer, viewportWidth: Int, viewportHeight: Int) = {
     val format = buffer.format
 
     stack.pushPose()

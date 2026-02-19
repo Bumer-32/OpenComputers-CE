@@ -6,7 +6,7 @@ import com.google.common.base.Strings
 import li.cil.oc._
 import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
 import li.cil.oc.common.capabilities.Capabilities
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.menu.ContainerTypes
 import li.cil.oc.common.entity.Drone
 import li.cil.oc.common.entity.EntityTypes
 import li.cil.oc.common.init.Blocks
@@ -55,7 +55,7 @@ class Proxy {
   modBus.register(classOf[RecipeSerializers])
   LootFunctions.init()
 
-  def preInit() {
+  def preInit(): Unit = {
     OpenComputers.log.info("Initializing OpenComputers API.")
 
     api.CreativeTab.instance = CreativeTab
@@ -89,7 +89,7 @@ class Proxy {
   }
 
   @SubscribeEvent
-  def init(e: FMLCommonSetupEvent) {
+  def init(e: FMLCommonSetupEvent): Unit = {
     e.enqueueWork((() => {
       OpenComputers.channel = NetworkRegistry.newSimpleChannel(new ResourceLocation(OpenComputers.ID, "net_main"), () => "", "".equals(_), "".equals(_))
       OpenComputers.channel.registerMessage(0, classOf[Array[Byte]],
@@ -115,7 +115,7 @@ class Proxy {
   }
 
   @SubscribeEvent
-  def postInit(e: FMLLoadCompleteEvent) {
+  def postInit(e: FMLLoadCompleteEvent): Unit = {
     // Don't allow driver registration after this point, to avoid issues.
     driver.Registry.locked = true
   }
@@ -141,7 +141,7 @@ class Proxy {
   )
 
   @SubscribeEvent
-  def missingBlockMappings(e: MissingMappings[Block]) {
+  def missingBlockMappings(e: MissingMappings[Block]): Unit = {
     for (missing <- e.getMappings(OpenComputers.ID).asScala) {
         blockRenames.get(missing.key.getPath) match {
           case Some(name) =>
@@ -153,7 +153,7 @@ class Proxy {
   }
 
   @SubscribeEvent
-  def missingItemMappings(e: MissingMappings[Item]) {
+  def missingItemMappings(e: MissingMappings[Item]): Unit = {
     for (missing <- e.getMappings(OpenComputers.ID).asScala) {
         itemRenames.get(missing.key.getPath) match {
           case Some(name) =>

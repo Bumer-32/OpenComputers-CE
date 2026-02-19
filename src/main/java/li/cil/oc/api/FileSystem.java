@@ -4,7 +4,7 @@ import li.cil.oc.api.fs.Label;
 import li.cil.oc.api.network.EnvironmentHost;
 import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.network.Visibility;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * This class provides factory methods for creating file systems that are
@@ -19,7 +19,7 @@ import net.minecraft.util.ResourceLocation;
  * and set the visibility to the desired value.
  * <br>
  * Note that these methods should <em>not</em> be called in the pre-init phase,
- * since the {@link li.cil.oc.api.API#fileSystem} may not have been initialized
+ * since the {@link API#fileSystem} may not have been initialized
  * at that time. Only start calling these methods in the init phase or later.
  */
 public final class FileSystem {

@@ -5,7 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.client.Textures
 import li.cil.oc.client.{PacketSender => ClientPacketSender}
-import li.cil.oc.common.container
+import li.cil.oc.common.menu
 import li.cil.oc.util.RenderState
 import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.client.renderer.Tessellator
@@ -18,7 +18,7 @@ import org.lwjgl.opengl.GL11
 
 import scala.collection.JavaConverters.asJavaCollection
 
-class Rack(state: container.Rack, playerInventory: PlayerInventory, name: ITextComponent)
+class Rack(state: menu.Rack, playerInventory: PlayerInventory, name: ITextComponent)
   extends DynamicGuiContainer(state, playerInventory, name) {
 
   imageHeight = 210
@@ -94,7 +94,7 @@ class Rack(state: container.Rack, playerInventory: PlayerInventory, name: ITextC
     case _ => Localization.Rack.None
   }
 
-  protected def onRackButton(mountable: Int, connectable: Int, bus: Int) {
+  protected def onRackButton(mountable: Int, connectable: Int, bus: Int): Unit = {
     if (inventoryContainer.nodeMapping(mountable)(connectable).contains(busToSide(bus))) {
       ClientPacketSender.sendRackMountableMapping(inventoryContainer, mountable, connectable, None)
     }
@@ -103,7 +103,7 @@ class Rack(state: container.Rack, playerInventory: PlayerInventory, name: ITextC
     }
   }
 
-  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, dt: Float) {
+  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     for (bus <- 0 until 5) {
       for (mountable <- 0 until inventoryContainer.otherInventory.getContainerSize) {
         val presence = inventoryContainer.nodePresence(mountable)
@@ -117,7 +117,7 @@ class Rack(state: container.Rack, playerInventory: PlayerInventory, name: ITextC
     super.render(stack, mouseX, mouseY, dt)
   }
 
-  override protected def init() {
+  override protected def init(): Unit = {
     super.init()
 
     relayButton = new ImageButton(leftPos + 101, topPos + 96, 65, 18, new Button.IPressable {
@@ -257,7 +257,7 @@ class Rack(state: container.Rack, playerInventory: PlayerInventory, name: ITextC
     RenderState.popAttrib()
   }
 
-  override def drawSecondaryBackgroundLayer(stack: MatrixStack) {
+  override def drawSecondaryBackgroundLayer(stack: MatrixStack): Unit = {
     RenderSystem.color3f(1, 1, 1) // Required under Linux.
     minecraft.getTextureManager.bind(Textures.GUI.Rack)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)

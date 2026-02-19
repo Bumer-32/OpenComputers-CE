@@ -58,7 +58,7 @@ trait InputStreamFileSystem extends api.fs.FileSystem {
   private final val PathTag = "path"
   private final val PositionTag = "position"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     val handlesNbt = nbt.getList(InputTag, NBT.TAG_COMPOUND)
     (0 until handlesNbt.size).map(handlesNbt.getCompound).foreach(handleNbt => {
       val handle = handleNbt.getInt(HandleTag)

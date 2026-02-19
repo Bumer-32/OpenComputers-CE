@@ -27,7 +27,7 @@ object AEUtil {
 
   private def optionToScala[T](opt: Optional[T]): Option[T] = if (opt.isPresent) Some(opt.get) else None
 
-  private def onAPIAvailable(aeApi: IAppEngApi) {
+  private def onAPIAvailable(aeApi: IAppEngApi): Unit = {
     AEUtil.aeApi = Some(aeApi)
     itemStorageChannel = aeApi.storage.getStorageChannel[IAEItemStack, IItemStorageChannel](classOf[IItemStorageChannel])
     fluidStorageChannel = aeApi.storage.getStorageChannel[IAEFluidStack, IFluidStorageChannel](classOf[IFluidStorageChannel])

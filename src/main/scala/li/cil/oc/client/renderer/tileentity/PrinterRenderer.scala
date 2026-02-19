@@ -21,7 +21,7 @@ object PrinterRenderer extends Function[TileEntityRendererDispatcher, PrinterRen
 }
 
 class PrinterRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Printer](dispatch) {
-  override def render(printer: Printer, dt: Float, matrix: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(printer: Printer, dt: Float, matrix: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     if (printer.data.stateOff.nonEmpty) {

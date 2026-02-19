@@ -22,7 +22,7 @@ object DiskDriveRenderer extends Function[TileEntityRendererDispatcher, DiskDriv
 }
 
 class DiskDriveRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[DiskDrive](dispatch) {
-  override def render(drive: DiskDrive, dt: Float, matrix: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(drive: DiskDrive, dt: Float, matrix: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderSystem.color4f(1, 1, 1, 1)

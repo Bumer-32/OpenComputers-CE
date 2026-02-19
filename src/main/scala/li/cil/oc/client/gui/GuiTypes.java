@@ -1,11 +1,8 @@
 package li.cil.oc.client.gui;
 
-import li.cil.oc.OpenComputers;
-import li.cil.oc.common.container.ContainerTypes;
-import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.util.ResourceLocation;
+import li.cil.oc.common.menu.ContainerTypes;
+import li.cil.oc.common.menu.MenuTypes;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
@@ -14,21 +11,21 @@ public final class GuiTypes {
     public static void clientSetup(FMLClientSetupEvent e) {
         // ScreenManager.register is not thread-safe.
         e.enqueueWork(() -> {
-            ScreenManager.register(ContainerTypes.ADAPTER, Adapter::new);
-            ScreenManager.register(ContainerTypes.ASSEMBLER, Assembler::new);
-            ScreenManager.register(ContainerTypes.CASE, Case::new);
-            ScreenManager.register(ContainerTypes.CHARGER, Charger::new);
-            ScreenManager.register(ContainerTypes.DATABASE, Database::new);
-            ScreenManager.register(ContainerTypes.DISASSEMBLER, Disassembler::new);
-            ScreenManager.register(ContainerTypes.DISK_DRIVE, DiskDrive::new);
-            ScreenManager.register(ContainerTypes.DRONE, Drone::new);
-            ScreenManager.register(ContainerTypes.PRINTER, Printer::new);
-            ScreenManager.register(ContainerTypes.RACK, Rack::new);
-            ScreenManager.register(ContainerTypes.RAID, Raid::new);
-            ScreenManager.register(ContainerTypes.RELAY, Relay::new);
-            ScreenManager.register(ContainerTypes.ROBOT, Robot::new);
-            ScreenManager.register(ContainerTypes.SERVER, Server::new);
-            ScreenManager.register(ContainerTypes.TABLET, Tablet::new);
+            MenuScreens.register(MenuTypes.ADAPTER, Adapter::new);
+            MenuScreens.register(MenuTypes.ASSEMBLER, Assembler::new);
+            MenuScreens.register(MenuTypes.CASE, Case::new);
+            MenuScreens.register(MenuTypes.CHARGER, Charger::new);
+            MenuScreens.register(MenuTypes.DATABASE, Database::new);
+            MenuScreens.register(MenuTypes.DISASSEMBLER, Disassembler::new);
+            MenuScreens.register(MenuTypes.DISK_DRIVE, DiskDrive::new);
+            MenuScreens.register(MenuTypes.DRONE, Drone::new);
+            MenuScreens.register(MenuTypes.PRINTER, Printer::new);
+            MenuScreens.register(MenuTypes.RACK, Rack::new);
+            MenuScreens.register(MenuTypes.RAID, Raid::new);
+            MenuScreens.register(MenuTypes.RELAY, Relay::new);
+            MenuScreens.register(MenuTypes.ROBOT, Robot::new);
+            MenuScreens.register(MenuTypes.SERVER, Server::new);
+            MenuScreens.register(MenuTypes.TABLET, Tablet::new);
         });
     }
 

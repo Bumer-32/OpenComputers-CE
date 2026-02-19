@@ -20,7 +20,7 @@ object WirelessNetwork {
   val dimensions = mutable.Map.empty[RegistryKey[World], RTree[WirelessEndpoint]]
 
   @SubscribeEvent
-  def onWorldUnload(e: WorldEvent.Unload) {
+  def onWorldUnload(e: WorldEvent.Unload): Unit = {
     if (!e.getWorld.isClientSide) e.getWorld match {
       case world: World => dimensions.remove(world.dimension)
       case _ =>
@@ -28,7 +28,7 @@ object WirelessNetwork {
   }
 
   @SubscribeEvent
-  def onWorldLoad(e: WorldEvent.Load) {
+  def onWorldLoad(e: WorldEvent.Load): Unit = {
     if (!e.getWorld.isClientSide) e.getWorld match {
       case world: World => dimensions.remove(world.dimension)
       case _ =>
@@ -37,18 +37,18 @@ object WirelessNetwork {
 
   // Safety clean up, in case some tile entities didn't properly leave the net.
   @SubscribeEvent
-  def onChunkUnloaded(e: ChunkEvent.Unload) {
+  def onChunkUnloaded(e: ChunkEvent.Unload): Unit = {
     e.getChunk.getBlockEntitiesPos.map(e.getChunk.getBlockEntity).foreach {
       case endpoint: WirelessEndpoint => remove(endpoint)
       case _ =>
     }
   }
 
-  def add(endpoint: WirelessEndpoint) {
+  def add(endpoint: WirelessEndpoint): Unit = {
     dimensions.getOrElseUpdate(dimension(endpoint), new RTree[WirelessEndpoint](Settings.get.rTreeMaxEntries)((endpoint) => (endpoint.x + 0.5, endpoint.y + 0.5, endpoint.z + 0.5))).add(endpoint)
   }
 
-  def update(endpoint: WirelessEndpoint) {
+  def update(endpoint: WirelessEndpoint): Unit = {
     dimensions.get(dimension(endpoint)) match {
       case Some(tree) =>
         tree(endpoint) match {

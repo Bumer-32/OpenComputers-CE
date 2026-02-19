@@ -8,9 +8,9 @@ import li.cil.oc.common.inventory
 import li.cil.oc.util.ExtendedInventory._
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.core.Direction
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.LazyOptional
@@ -140,14 +140,14 @@ trait ComponentInventory extends Environment with Inventory with inventory.Compo
     }
   }
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node): Unit = {
     super.onConnect(node)
     if (node == this.node) {
       connectComponents()
     }
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node): Unit = {
     super.onDisconnect(node)
     if (node == this.node) {
       disconnectComponents()
@@ -169,14 +169,14 @@ trait ComponentInventory extends Environment with Inventory with inventory.Compo
     super.getCapability(capability, facing)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundTag): Unit = {
     connectComponents()
     super.saveForClient(nbt)
     saveData(nbt)
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     loadData(nbt)
     connectComponents()

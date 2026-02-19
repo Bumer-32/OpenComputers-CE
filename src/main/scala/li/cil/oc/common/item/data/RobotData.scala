@@ -59,7 +59,7 @@ class RobotData extends ItemData(Constants.BlockName.Robot) {
   private final val ContainersTag = Settings.namespace + "containers"
   private final val LightColorTag = Settings.namespace + "lightColor"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundNBT): Unit = {
     name = ItemUtils.getDisplayName(nbt).getOrElse("")
     if (Strings.isNullOrEmpty(name)) {
       name = RobotData.randomName
@@ -76,7 +76,7 @@ class RobotData extends ItemData(Constants.BlockName.Robot) {
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundNBT): Unit = {
     if (!Strings.isNullOrEmpty(name)) {
       ItemUtils.setDisplayName(nbt, name)
     }

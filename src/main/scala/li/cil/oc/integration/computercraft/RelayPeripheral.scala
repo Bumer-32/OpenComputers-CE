@@ -103,12 +103,12 @@ class RelayPeripheral(val relay: Relay) extends IDynamicPeripheral {
 
   override def getType = "modem"
 
-  override def attach(computer: IComputerAccess) {
+  override def attach(computer: IComputerAccess): Unit = {
     relay.computers += computer
     relay.openPorts += computer -> mutable.Set.empty
   }
 
-  override def detach(computer: IComputerAccess) {
+  override def detach(computer: IComputerAccess): Unit = {
     relay.computers -= computer
     relay.openPorts -= computer
   }

@@ -35,7 +35,7 @@ class Cable(selfType: TileEntityType[_ <: Cable]) extends TileEntity(selfType) w
 
   override def consumesDye = true
 
-  override protected def onColorChanged() {
+  override protected def onColorChanged(): Unit = {
     super.onColorChanged()
     if (getLevel != null && isServer) {
       api.Network.joinOrCreateNetwork(this)

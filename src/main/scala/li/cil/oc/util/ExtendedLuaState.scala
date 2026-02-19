@@ -24,7 +24,7 @@ object ExtendedLuaState {
       override def invoke(state: LuaState) = f(state)
     })
 
-    def pushValue(value: Any, memo: util.IdentityHashMap[Any, Int] = new util.IdentityHashMap()) {
+    def pushValue(value: Any, memo: util.IdentityHashMap[Any, Int] = new util.IdentityHashMap()): Unit = {
       val recursive = memo.size > 0
       val oldTop = lua.getTop
       if (memo.containsKey(value)) {
@@ -68,7 +68,7 @@ object ExtendedLuaState {
       }
     }
 
-    def pushList(obj: Any, list: Iterator[(Any, Int)], memo: util.IdentityHashMap[Any, Int]) {
+    def pushList(obj: Any, list: Iterator[(Any, Int)], memo: util.IdentityHashMap[Any, Int]): Unit = {
       lua.newTable()
       val tableIndex = lua.getTop
       memo += obj -> tableIndex
@@ -83,7 +83,7 @@ object ExtendedLuaState {
       lua.pushValue(tableIndex)
     }
 
-    def pushTable(obj: Any, map: Map[_, _], memo: util.IdentityHashMap[Any, Int]) {
+    def pushTable(obj: Any, map: Map[_, _], memo: util.IdentityHashMap[Any, Int]): Unit = {
       lua.newTable(0, map.size)
       val tableIndex = lua.getTop
       memo += obj -> tableIndex

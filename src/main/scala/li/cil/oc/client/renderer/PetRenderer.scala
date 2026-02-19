@@ -51,7 +51,7 @@ object PetRenderer {
   private var rendering: Option[(Double, Double, Double)] = None
 
   @SubscribeEvent
-  def onPlayerRender(e: RenderPlayerEvent.Pre) {
+  def onPlayerRender(e: RenderPlayerEvent.Pre) = {
     val uuid = e.getPlayer.getUUID.toString
     if (hidden.contains(uuid) || !entitledPlayers.contains(uuid)) return
     rendering = Some(entitledPlayers(uuid))
@@ -87,7 +87,7 @@ object PetRenderer {
   }
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
-  def onRobotRender(e: RobotRenderEvent) {
+  def onRobotRender(e: RobotRenderEvent) = {
     rendering match {
       case Some((r, g, b)) => {
         e.setLightColor(r.toFloat, g.toFloat, b.toFloat)
@@ -108,7 +108,7 @@ object PetRenderer {
     var lastZ = z
     var lastYaw = yaw
 
-    def update() {
+    def update() = {
       val dx = owner.xOld - owner.getX
       val dy = owner.yOld - owner.getY
       val dz = owner.zOld - owner.getZ
@@ -126,7 +126,7 @@ object PetRenderer {
       yaw += dYaw * 0.2f
     }
 
-    def applyInterpolatedTransformations(stack: MatrixStack, dt: Float) {
+    def applyInterpolatedTransformations(stack: MatrixStack, dt: Float) = {
       val ix = lastX + (x - lastX) * dt
       val iy = lastY + (y - lastY) * dt
       val iz = lastZ + (z - lastZ) * dt
@@ -146,7 +146,7 @@ object PetRenderer {
   }
 
   @SubscribeEvent
-  def tickStart(e: ClientTickEvent) {
+  def tickStart(e: ClientTickEvent) = {
     petLocations.cleanUp()
     for (pet <- petLocations.asMap.values) {
       pet.update()
