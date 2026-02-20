@@ -12,7 +12,7 @@ import li.cil.oc.server.agent.ActivationType
 import li.cil.oc.server.agent.Player
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedArguments._
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.InventoryUtils
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState

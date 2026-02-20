@@ -159,12 +159,9 @@ trait ComponentInventory extends Environment with Inventory with inventory.Compo
       case rotatable: Rotatable => rotatable.toLocal(facing)
       case _ => facing
     }
-    for (curr <- components) curr match {
-      case Some(comp: ICapabilityProvider) => {
-        val cap = comp.getCapability(capability, localFacing)
-        if (cap.isPresent) return cap
-      }
-      case _ =>
+    components.flatten.collect { case cp: ICapabilityProvider => cp }.foreach { comp =>
+      val cap = comp.getCapability(capability, localFacing)
+      if (cap.isPresent) return cap
     }
     super.getCapability(capability, facing)
   }

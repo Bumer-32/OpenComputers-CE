@@ -4,7 +4,7 @@ import li.cil.oc.Settings
 import li.cil.oc.api.network.WirelessEndpoint
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedBlock._
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.RTree
 import net.minecraft.util.RegistryKey
 import net.minecraft.util.math.vector.Vector3d

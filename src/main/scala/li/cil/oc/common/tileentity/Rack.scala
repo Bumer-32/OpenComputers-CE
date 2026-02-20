@@ -17,32 +17,31 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.util.StateAware
 import li.cil.oc.common.Slot
 import li.cil.oc.common.menu
-import li.cil.oc.common.menu.ContainerTypes
+import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.integration.opencomputers.DriverRedstoneCard
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedInventory._
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.RotationHelper
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.IntArrayNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.MenuProvider
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.entity.player.Player
+import li.cil.tis3d.common.inventory.Inventory
 
-class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) with traits.PowerAcceptor with traits.Hub with traits.PowerBalancer
-  with traits.ComponentInventory with traits.Rotatable with traits.BundledRedstoneAware with Analyzable with internal.Rack with traits.StateAware with INamedContainerProvider {
+class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.PowerAcceptor with traits.Hub with traits.PowerBalancer
+  with traits.ComponentInventory with traits.Rotatable with traits.BundledRedstoneAware with Analyzable with internal.Rack with traits.StateAware with MenuProvider {
 
   var isRelayEnabled = false
-  val lastData = new Array[CompoundNBT](getContainerSize)
+  val lastData = new Array[CompoundTag](getContainerSize)
   val hasChanged: Array[Boolean] = Array.fill(getContainerSize)(true)
 
   // Map node connections for each installed mountable. Each mountable may
@@ -262,7 +261,7 @@ class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) wit
   // ----------------------------------------------------------------------- //
   // Analyzable
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
+  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
     slotAt(side, hitX, hitY, hitZ) match {
       case Some(slot) => components(slot) match {
         case Some(analyzable: Analyzable) => analyzable.onAnalyze(player, side, hitX, hitY, hitZ)
@@ -282,7 +281,7 @@ class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) wit
     case _ => null
   }
 
-  override def getMountableData(slot: Int): CompoundNBT = lastData(slot)
+  override def getMountableData(slot: Int): CompoundTag = lastData(slot)
 
   override def markChanged(slot: Int): Unit = {
     hasChanged.synchronized(hasChanged(slot) = true)
@@ -346,8 +345,8 @@ class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) wit
   // ----------------------------------------------------------------------- //
   // INamedContainerProvider
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new menu.Rack(ContainerTypes.RACK, id, playerInventory, this)
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
+    new menu.Rack(MenuTypes.RACK, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
   // ComponentInventory
@@ -385,7 +384,7 @@ class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) wit
   override def updateEntity(): Unit = {
     super.updateEntity()
     if (isServer && isConnected) {
-      lazy val connectors = Direction.values.map(sidedNode).collect {
+      lazy val connectors = ArraySeq.unsafeWrapArray(Direction.values()).map(sidedNode).collect {
         case connector: Connector => connector
       }
       components.zipWithIndex.collect {

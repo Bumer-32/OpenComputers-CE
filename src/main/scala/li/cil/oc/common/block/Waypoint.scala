@@ -45,7 +45,7 @@ class Waypoint(props: Properties) extends RedstoneAware(props) {
     Minecraft.getInstance.pushGuiLayer(new gui.Waypoint(t))
   }
 
-  override def getValidRotations(world: World, pos: BlockPos): Array[Direction] =
+  override def getValidRotations(world: Level, pos: BlockPos): Array[Direction] =
     world.getBlockEntity(pos) match {
       case waypoint: tileentity.Waypoint =>
         Direction.values.filter {

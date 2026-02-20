@@ -12,7 +12,7 @@ import li.cil.oc.common.event.BlockChangeHandler
 import li.cil.oc.common.event.BlockChangeHandler.ChangeListener
 import li.cil.oc.server.network
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.driver.DriverBlock

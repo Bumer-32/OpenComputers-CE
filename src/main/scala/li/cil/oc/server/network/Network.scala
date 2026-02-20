@@ -282,9 +282,10 @@ private class Network private(private val data: mutable.Map[String, Network.Vert
           val neighbors = vertex.edges.map(_.other(vertex).data).toArray
 
           var newAddress = ""
-          do {
+          while ({
             newAddress = java.util.UUID.randomUUID().toString
-          } while (data.contains(newAddress) || otherNetwork.data.contains(newAddress))
+            data.contains(newAddress) || otherNetwork.data.contains(newAddress)
+          }) ()
 
           // This may lead to splits, which is the whole reason we have to
           // check the network of the other nodes after the readdressing.

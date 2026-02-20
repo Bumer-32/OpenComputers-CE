@@ -14,6 +14,9 @@ import net.minecraft.network.chat.Component
 
 import scala.collection.convert.ImplicitConversionsToJava.*
 import scala.collection.convert.ImplicitConversionsToScala.*
+import net.minecraft.world.inventory.Slot
+import net.minecraft.client.gui.components.Button
+import com.mojang.blaze3d.vertex.PoseStack
 
 class Assembler(val state: menu.Assembler, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
@@ -32,7 +35,7 @@ class Assembler(val state: menu.Assembler, playerInventory: Inventory, name: Com
     info = validate
   }
 
-  var info: Option[(Boolean, ITextComponent, Array[ITextComponent])] = None
+  var info: Option[(Boolean, Component, Array[Component])] = None
 
   protected var runButton: ImageButton = _
 
@@ -44,13 +47,13 @@ class Assembler(val state: menu.Assembler, playerInventory: Inventory, name: Com
 
   override protected def init() = {
     super.init()
-    runButton = new ImageButton(leftPos + 7, topPos + 89, 18, 18, new Button.IPressable {
+    runButton = new ImageButton(leftPos + 7, topPos + 89, 18, 18, new Button.OnPress {
       override def onPress(b: Button) = if (canBuild) ClientPacketSender.sendRobotAssemblerStart(inventoryContainer)
     }, Textures.GUI.ButtonRun, canToggle = true)
-    addButton(runButton)
+    addRenderableWidget(runButton)
   }
 
-  override protected def renderLabels(stack: MatrixStack, mouseX: Int, mouseY: Int): Unit = {
+  override protected def renderLabels(stack: PoseStack, mouseX: Int, mouseY: Int): Unit = {
     drawSecondaryForegroundLayer(stack, mouseX, mouseY)
 
     for (slot <- 0 until menu.slots.size()) {
@@ -58,7 +61,7 @@ class Assembler(val state: menu.Assembler, playerInventory: Inventory, name: Com
     }
   }
 
-  override def drawSecondaryForegroundLayer(stack: MatrixStack, mouseX: Int, mouseY: Int): Unit = {
+  override def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int): Unit = {
     RenderState.pushAttrib()
     if (!inventoryContainer.isAssembling) {
       val message =
@@ -97,8 +100,8 @@ class Assembler(val state: menu.Assembler, playerInventory: Inventory, name: Com
     else f"${seconds / 60}:${seconds % 60}%02d"
   }
 
-  override protected def renderBg(stack: MatrixStack, dt: Float, mouseX: Int, mouseY: Int): Unit = {
-    RenderSystem.color3f(1, 1, 1) // Required under Linux.
+  override protected def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int): Unit = {
+    RenderSystem.setShaderColor(1, 1, 1, 1) // Required under Linux.
     Textures.bind(Textures.GUI.RobotAssembler)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
     if (inventoryContainer.isAssembling) progress.level = inventoryContainer.assemblyProgress / 100.0
@@ -107,5 +110,5 @@ class Assembler(val state: menu.Assembler, playerInventory: Inventory, name: Com
     drawInventorySlots(stack)
   }
 
-  override protected def drawDisabledSlot(stack: MatrixStack, slot: ComponentSlot): Unit = {}
+  override protected def drawDisabledSlot(stack: PoseStack, slot: ComponentSlot): Unit = {}
 }

@@ -31,7 +31,7 @@ object RobotData {
 }
 
 class RobotData extends ItemData(Constants.BlockName.Robot) {
-  def this(stack: ItemStack) {
+  def this(stack: ItemStack) = {
     this()
     loadData(stack)
   }

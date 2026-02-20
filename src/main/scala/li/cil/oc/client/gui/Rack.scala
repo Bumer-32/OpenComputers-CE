@@ -1,24 +1,25 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.client.Textures
 import li.cil.oc.client.{PacketSender => ClientPacketSender}
 import li.cil.oc.common.menu
 import li.cil.oc.util.RenderState
-import net.minecraft.client.gui.widget.button.Button
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.Direction
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.core.Direction
 import org.lwjgl.opengl.GL11
 
 import scala.collection.JavaConverters.asJavaCollection
+import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.network.chat.TextComponent
+import com.mojang.blaze3d.vertex.Tesselator
+import com.mojang.blaze3d.vertex.VertexFormat
+import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import com.mojang.blaze3d.vertex.PoseStack
+import net.minecraft.client.gui.components.Button
 
-class Rack(state: menu.Rack, playerInventory: PlayerInventory, name: ITextComponent)
+class Rack(state: menu.Rack, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
 
   imageHeight = 210
@@ -103,7 +104,7 @@ class Rack(state: menu.Rack, playerInventory: PlayerInventory, name: ITextCompon
     }
   }
 
-  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
+  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     for (bus <- 0 until 5) {
       for (mountable <- 0 until inventoryContainer.otherInventory.getContainerSize) {
         val presence = inventoryContainer.nodePresence(mountable)
@@ -113,17 +114,17 @@ class Rack(state: menu.Rack, playerInventory: PlayerInventory, name: ITextCompon
       }
     }
     val relayMessage = if (inventoryContainer.isRelayEnabled) Localization.Rack.RelayEnabled else Localization.Rack.RelayDisabled
-    relayButton.setMessage(new StringTextComponent(relayMessage))
+    relayButton.setMessage(new TextComponent(relayMessage))
     super.render(stack, mouseX, mouseY, dt)
   }
 
   override protected def init(): Unit = {
     super.init()
 
-    relayButton = new ImageButton(leftPos + 101, topPos + 96, 65, 18, new Button.IPressable {
+    relayButton = new ImageButton(leftPos + 101, topPos + 96, 65, 18, new Button.OnPress {
       override def onPress(b: Button) = ClientPacketSender.sendRackRelayState(inventoryContainer, !inventoryContainer.isRelayEnabled)
-    }, Textures.GUI.ButtonRelay, new StringTextComponent(Localization.Rack.RelayDisabled), textIndent = 18)
-    addButton(relayButton)
+    }, Textures.GUI.ButtonRelay, new TextComponent(Localization.Rack.RelayDisabled), textIndent = 18)
+    addRenderableWidget(relayButton)
 
     val (mw, mh) = hoverMasterSize
     val (sw, sh) = hoverSlaveSize
@@ -135,31 +136,31 @@ class Rack(state: menu.Rack, playerInventory: PlayerInventory, name: ITextCompon
         val (bx, by) = busStart(bus)
 
         {
-          val button = new ImageButton(leftPos + bx, topPos + by + offset + 1, mw, mh, new Button.IPressable {
+          val button = new ImageButton(leftPos + bx, topPos + by + offset + 1, mw, mh, new Button.OnPress {
             override def onPress(b: Button) = onRackButton(mountable, 0, bus)
           })
-          addButton(button)
+          addRenderableWidget(button)
           wireButtons(mountable)(0)(bus) = button
         }
 
         for (connectable <- 0 until 3) {
-          val button = new ImageButton(leftPos + bx, topPos + by + offset + 1 + mbh + sbh * connectable, sw, sh, new Button.IPressable {
+          val button = new ImageButton(leftPos + bx, topPos + by + offset + 1 + mbh + sbh * connectable, sw, sh, new Button.OnPress {
             override def onPress(b: Button) = onRackButton(mountable, connectable + 1, bus)
           })
-          addButton(button)
+          addRenderableWidget(button)
           wireButtons(mountable)(connectable + 1)(bus) = button
         }
       }
     }
   }
 
-  override def drawSecondaryForegroundLayer(stack: MatrixStack, mouseX: Int, mouseY: Int) = {
+  override def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int) = {
     super.drawSecondaryForegroundLayer(stack, mouseX, mouseY)
     RenderState.pushAttrib() // Prevents NEI render glitch.
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
     RenderState.makeItBlend()
-    minecraft.getTextureManager.bind(Textures.GUI.Rack)
+    RenderSystem.setShaderTexture(0, Textures.GUI.Rack)
 
     if (inventoryContainer.isRelayEnabled) {
       val (left, top, w, h) = relayModeUVs
@@ -257,20 +258,20 @@ class Rack(state: menu.Rack, playerInventory: PlayerInventory, name: ITextCompon
     RenderState.popAttrib()
   }
 
-  override def drawSecondaryBackgroundLayer(stack: MatrixStack): Unit = {
-    RenderSystem.color3f(1, 1, 1) // Required under Linux.
-    minecraft.getTextureManager.bind(Textures.GUI.Rack)
+  override def drawSecondaryBackgroundLayer(stack: PoseStack): Unit = {
+    RenderSystem.setShaderColor(1, 1, 1, 1) // Required under Linux.
+    RenderSystem.setShaderTexture(0, Textures.GUI.Rack)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
   }
 
-  private def drawRect(stack: MatrixStack, x: Int, y: Int, w: Int, h: Int, u: Int, v: Int): Unit = {
+  private def drawRect(stack: PoseStack, x: Int, y: Int, w: Int, h: Int, u: Int, v: Int): Unit = {
     val u0 = u / 256f
     val v0 = v / 256f
     val u1 = u0 + w / 256f
     val v1 = v0 + h / 256f
-    val t = Tessellator.getInstance()
+    val t = Tesselator.getInstance()
     val r = t.getBuilder
-    r.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
+    r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
     r.vertex(stack.last.pose, x, y, windowZ).uv(u0, v0).endVertex()
     r.vertex(stack.last.pose, x, y + h, windowZ).uv(u0, v1).endVertex()
     r.vertex(stack.last.pose, x + w, y + h, windowZ).uv(u1, v1).endVertex()

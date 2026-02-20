@@ -2,7 +2,7 @@ package li.cil.oc.common.item
 
 import li.cil.oc.Localization
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import net.minecraft.block.Block
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.player.PlayerEntity

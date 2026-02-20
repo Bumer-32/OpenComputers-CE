@@ -33,7 +33,7 @@ import scala.collection.Iterable
 import scala.collection.convert.ImplicitConversionsToJava._
 
 class Print(selfType: TileEntityType[_ <: Print], val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int => Unit], val onStateChange: Option[() => Unit])
-  extends TileEntity(selfType) with traits.TileEntity with traits.RedstoneAware with traits.RotatableTile with IModelData {
+  extends TileEntity(selfType) with traits.BlockEntity with traits.RedstoneAware with traits.RotatableTile with IModelData {
 
   def this(selfType: TileEntityType[_ <: Print]) = this(selfType, None, None, None)
   def this(selfType: TileEntityType[_ <: Print], canToggle: () => Boolean, scheduleUpdate: Int => Unit, onStateChange: () => Unit) =

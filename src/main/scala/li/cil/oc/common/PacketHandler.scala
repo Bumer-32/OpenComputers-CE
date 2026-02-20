@@ -10,7 +10,7 @@ import li.cil.oc.OpenComputers
 import li.cil.oc.api
 import li.cil.oc.common.block.RobotAfterimage
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.RotationHelper
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.ServerPlayerEntity

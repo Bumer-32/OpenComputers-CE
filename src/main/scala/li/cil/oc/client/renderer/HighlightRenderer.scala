@@ -2,7 +2,7 @@ package li.cil.oc.client.renderer
 
 import com.mojang.blaze3d.matrix.MatrixStack
 import li.cil.oc.client.Textures
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.{Constants, Settings, api}
 import net.minecraft.client.Minecraft

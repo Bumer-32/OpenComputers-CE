@@ -9,7 +9,7 @@ import net.minecraft.nbt.CompoundNBT
 import net.minecraft.world.World
 
 class NavigationUpgradeData extends ItemData(Constants.ItemName.NavigationUpgrade) {
-  def this(stack: ItemStack) {
+  def this(stack: ItemStack) = {
     this()
     loadData(stack)
   }

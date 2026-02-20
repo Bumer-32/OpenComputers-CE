@@ -7,7 +7,7 @@ import li.cil.oc.server.fs
 import net.minecraft.entity.player.PlayerEntity
 
 class DriveData extends ItemData(null) {
-  def this(stack: ItemStack) {
+  def this(stack: ItemStack) = {
     this()
     loadData(stack)
   }

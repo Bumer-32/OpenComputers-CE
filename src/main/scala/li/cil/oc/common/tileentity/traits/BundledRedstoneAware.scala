@@ -54,7 +54,8 @@ trait BundledRedstoneAware extends RedstoneAware {
     val sideIndex = checkSide(side)
     val bundled = _bundledInput(sideIndex)
     val rednet = _rednetInput(sideIndex)
-    bundled.lazyZip(rednet).map((a, b) => a max b max 0)
+    val seq = scala.collection.immutable.ArraySeq.unsafeWrapArray(bundled)
+    seq.lazyZip(rednet).map((a, b) => a max b max 0)
   }
 
   def getBundledInput(side: Direction, color: Int): Int = {
@@ -151,26 +152,30 @@ trait BundledRedstoneAware extends RedstoneAware {
   override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
 
-    nbt.getList(BundledInputTag, Tag.TAG_INT_ARRAY).toArray[IntArrayTag].
-      map(_.getAsIntArray).zipWithIndex.foreach {
-      case (input, index) if index < _bundledInput.length =>
-        val safeLength = input.length min _bundledInput(index).length
-        input.copyToArray(_bundledInput(index), 0, safeLength)
-      case _ =>
-    }
-    nbt.getList(BundledOutputTag, Tag.TAG_INT_ARRAY).toArray[IntArrayTag].
-      map(_.getAsIntArray).zipWithIndex.foreach {
-      case (input, index) if index < _bundledOutput.length =>
-        val safeLength = input.length min _bundledOutput(index).length
-        input.copyToArray(_bundledOutput(index), 0, safeLength)
+    // Bundled Input
+    nbt.getList(BundledInputTag, Tag.TAG_INT_ARRAY).asScala.zipWithIndex.foreach {
+      case (tag, index) if index < _bundledInput.length =>
+        val data = tag.asInstanceOf[IntArrayTag].getAsIntArray
+        val safeLength = data.length min _bundledInput(index).length
+        System.arraycopy(data, 0, _bundledInput(index), 0, safeLength)
       case _ =>
     }
 
-    nbt.getList(RednetInputTag, Tag.TAG_INT_ARRAY).toArray[IntArrayTag].
-      map(_.getAsIntArray).zipWithIndex.foreach {
-      case (input, index) if index < _rednetInput.length =>
-        val safeLength = input.length min _rednetInput(index).length
-        input.copyToArray(_rednetInput(index), 0, safeLength)
+    // Bundled Output
+    nbt.getList(BundledOutputTag, Tag.TAG_INT_ARRAY).asScala.zipWithIndex.foreach {
+      case (tag, index) if index < _bundledOutput.length =>
+        val data = tag.asInstanceOf[IntArrayTag].getAsIntArray
+        val safeLength = data.length min _bundledOutput(index).length
+        System.arraycopy(data, 0, _bundledOutput(index), 0, safeLength)
+      case _ =>
+    }
+
+    // Rednet Input
+    nbt.getList(RednetInputTag, Tag.TAG_INT_ARRAY).asScala.zipWithIndex.foreach {
+      case (tag, index) if index < _rednetInput.length =>
+        val data = tag.asInstanceOf[IntArrayTag].getAsIntArray
+        val safeLength = data.length min _rednetInput(index).length
+        System.arraycopy(data, 0, _rednetInput(index), 0, safeLength)
       case _ =>
     }
   }

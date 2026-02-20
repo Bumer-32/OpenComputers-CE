@@ -1,14 +1,13 @@
 package li.cil.oc.util
 
-import li.cil.oc.util.ExtendedBlock._
-import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.block.Block
-import net.minecraft.block.FlowingFluidBlock
-import net.minecraft.block.Blocks
+import li.cil.oc.util.ExtendedBlock.*
+import li.cil.oc.util.ExtendedLevel.*
+import net.minecraft.world.level.block.Block
 import net.minecraft.fluid.Fluid
 import net.minecraft.item.ItemStack
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.Direction
+import net.minecraft.world.level.material.FlowingFluid
 import net.minecraftforge.fluids.FluidAttributes
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.IFluidBlock
@@ -95,7 +94,7 @@ object FluidUtils {
    */
   @Deprecated
   def lookupFluidForBlock(block: Block): Fluid = block match {
-    case fluid: FlowingFluidBlock => fluid.getFluid
+    case fluid: FlowingFluid => fluid.getFluid
     case _ => null
   }
 
@@ -118,7 +117,7 @@ object FluidUtils {
 
     def currentWrapper: Option[IFluidHandler] = if (position.world.get.blockExists(position)) position.world.get.getBlock(position) match {
       case block: IFluidBlock => Option(new FluidBlockWrapper(position, block))
-      case block: FlowingFluidBlock if lookupFluidForBlock(block) != null && isFullLiquidBlock => Option(new LiquidBlockWrapper(position, block))
+      case block: FlowingFluid if lookupFluidForBlock(block) != null && isFullLiquidBlock => Option(new LiquidBlockWrapper(position, block))
       case block: Block if block.isAir(position) || block.isReplaceable(position) => Option(new AirBlockWrapper(position, block))
       case _ => None
     }
@@ -126,7 +125,7 @@ object FluidUtils {
 
     def isFullLiquidBlock: Boolean = {
       val state = position.world.get.getBlockState(position.toBlockPos)
-      state.getValue(FlowingFluidBlock.LEVEL) == 0
+      state.getValue(FlowingFluid.LEVEL) == 0
     }
   }
 
@@ -165,7 +164,7 @@ object FluidUtils {
     override protected def uncheckedDrain(action: FluidAction): FluidStack = block.drain(position, action)
   }
 
-  private class LiquidBlockWrapper(val position: BlockPosition, val block: FlowingFluidBlock) extends BlockWrapperBase {
+  private class LiquidBlockWrapper(val position: BlockPosition, val block: FlowingFluid) extends BlockWrapperBase {
     val fluid: Fluid = lookupFluidForBlock(block)
 
     override def getFluidInTank(tank: Int) = if (isFullLiquidBlock) new FluidStack(fluid, FluidAttributes.BUCKET_VOLUME) else FluidStack.EMPTY
@@ -181,7 +180,7 @@ object FluidUtils {
 
     def isFullLiquidBlock: Boolean = {
       val state = position.world.get.getBlockState(position.toBlockPos)
-      state.getValue(FlowingFluidBlock.LEVEL) == 0
+      state.getValue(FlowingFluid.LEVEL) == 0
     }
   }
 

@@ -9,7 +9,7 @@ import net.minecraft.nbt.CompoundNBT
 import net.minecraftforge.common.util.Constants.NBT
 
 class TabletData extends ItemData(Constants.ItemName.Tablet) {
-  def this(stack: ItemStack) {
+  def this(stack: ItemStack) = {
     this()
     loadData(stack)
   }

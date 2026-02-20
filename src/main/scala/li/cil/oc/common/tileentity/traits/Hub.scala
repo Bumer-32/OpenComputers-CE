@@ -6,13 +6,14 @@ import li.cil.oc.api.network._
 import li.cil.oc.common.tileentity.traits
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.MovingAverage
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.core.Direction
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.mutable
+import net.minecraft.nbt.Tag
+import java.util.function.Consumer
 
 trait Hub extends traits.Environment with SidedEnvironment with Tickable {
   override def node: Node = null
@@ -114,36 +115,36 @@ trait Hub extends traits.Environment with SidedEnvironment with Tickable {
   private final val SideTag = "side"
   private final val RelayCooldownTag = Settings.namespace + "relayCooldown"
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
-    nbt.getList(PlugsTag, NBT.TAG_COMPOUND).toTagArray[CompoundNBT].
-      zipWithIndex.foreach {
-      case (tag, index) => plugs(index).node.loadData(tag)
+    nbt.getList(PlugsTag, 10).asScala.zipWithIndex.foreach {
+      case (tag, index) =>
+        plugs(index).node.loadData(tag.asInstanceOf[CompoundTag])
     }
-    nbt.getList(QueueTag, NBT.TAG_COMPOUND).foreach(
-      (tag: CompoundNBT) => {
-        val side = tag.getDirection(SideTag)
-        val packet = api.Network.newPacket(tag)
-        queue += side -> packet
-      })
+    nbt.getList(QueueTag, 10).forEach((t: Tag) => {
+      val tag = t.asInstanceOf[CompoundTag]
+      val side = tag.getDirection(SideTag)
+      val packet = api.Network.newPacket(tag)
+      queue += side -> packet
+    })
     if (nbt.contains(RelayCooldownTag)) {
       relayCooldown = nbt.getInt(RelayCooldownTag)
     }
   }
 
-  override def saveForServer(nbt: CompoundNBT) = queue.synchronized {
+  override def saveForServer(nbt: CompoundTag) = queue.synchronized {
     super.saveForServer(nbt)
     // Side check for Waila (and other mods that may call this client side).
     if (isServer) {
       nbt.setNewTagList(PlugsTag, plugs.map(plug => {
-        val plugNbt = new CompoundNBT()
+        val plugNbt = new CompoundTag()
         if (plug.node != null)
           plug.node.saveData(plugNbt)
         plugNbt
       }))
       nbt.setNewTagList(QueueTag, queue.map {
         case (sourceSide, packet) =>
-          val tag = new CompoundNBT()
+          val tag = new CompoundTag()
           tag.setDirection(SideTag, sourceSide)
           packet.saveData(tag)
           tag

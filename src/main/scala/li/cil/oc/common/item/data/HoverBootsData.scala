@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
 
 class HoverBootsData extends ItemData(Constants.ItemName.HoverBoots) {
-  def this(stack: ItemStack) {
+  def this(stack: ItemStack) = {
     this()
     loadData(stack)
   }

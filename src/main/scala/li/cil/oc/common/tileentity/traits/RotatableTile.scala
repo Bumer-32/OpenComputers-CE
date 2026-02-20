@@ -26,9 +26,9 @@ trait RotatableTile extends Rotatable {
   // Accessors
   // ----------------------------------------------------------------------- //
 
-  override def pitch = _pitch
+  override def pitch: Direction = _pitch
 
-  override def yaw = _yaw
+  override def yaw: Direction = _yaw
 
   // ----------------------------------------------------------------------- //
 

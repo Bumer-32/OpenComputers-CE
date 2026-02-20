@@ -23,24 +23,26 @@ import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraft.entity.Entity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.fluid.Fluid
-import net.minecraft.inventory.ISidedInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
-import net.minecraft.util.math.AxisAlignedBB
-import net.minecraft.util.text.ITextComponent
+
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.IFluidTank
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.world.WorldlyContainer
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.phys.AABB
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity
+import net.minecraft.network.chat.Component as MCComponent
 
-class RobotProxy(selfType: TileEntityType[_ <: RobotProxy], val robot: Robot) extends TileEntity(selfType)
-  with traits.Computer with traits.PowerInformation with traits.RotatableTile with ISidedInventory with IFluidHandler with internal.Robot {
+class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], pos: BlockPos, state: BlockState, val robot: Robot) extends BlockEntity(selfType, pos, state)
+  with traits.Computer with traits.PowerInformation with traits.RotatableTile with WorldlyContainer with IFluidHandler with internal.Robot {
 
-  def this(selfType: TileEntityType[_ <: RobotProxy]) = this(selfType, new Robot())
+  def this(selfType: BlockEntityType[_ <: RobotProxy], pos: BlockPos, state: BlockState) = this(selfType, pos, state, new Robot(pos, state))
 
   // ----------------------------------------------------------------------- //
 
@@ -95,7 +97,7 @@ class RobotProxy(selfType: TileEntityType[_ <: RobotProxy], val robot: Robot) ex
 
   override def setSelectedTank(index: Int): Unit = robot.setSelectedTank(index)
 
-  override def player: Player = robot.player()
+  override def player: entity.player.Player = robot.player()
 
   override def name: String = robot.name
 
@@ -170,13 +172,13 @@ class RobotProxy(selfType: TileEntityType[_ <: RobotProxy], val robot: Robot) ex
     super.clearRemoved()
     val firstProxy = robot.proxy == null
     robot.proxy = this
-    robot.setLevelAndPosition(getLevel, getBlockPos)
+    robot.setLevel(getLevel)
     if (firstProxy) {
       robot.clearRemoved()
     }
     if (isServer) {
       // Use the same address we use internally on the outside.
-      val nbt = new CompoundNBT()
+      val nbt = new CompoundTag()
       nbt.putString("address", robot.node.address)
       node.loadData(nbt)
     }
@@ -189,36 +191,33 @@ class RobotProxy(selfType: TileEntityType[_ <: RobotProxy], val robot: Robot) ex
     }
   }
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     robot.info.loadData(nbt)
     super.loadForServer(nbt)
     robot.loadForServer(nbt)
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
     robot.saveForServer(nbt)
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = robot.saveData(nbt)
+  override def saveData(nbt: CompoundTag): Unit = robot.saveData(nbt)
 
-  override def loadData(nbt: CompoundNBT): Unit = robot.loadData(nbt)
-
-  @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT): Unit = robot.loadForClient(nbt)
-
-  override def saveForClient(nbt: CompoundNBT): Unit = robot.saveForClient(nbt)
+  override def loadData(nbt: CompoundTag): Unit = robot.loadData(nbt)
 
   @OnlyIn(Dist.CLIENT)
-  override def getViewDistance: Double = robot.getViewDistance
+  override def loadForClient(nbt: CompoundTag): Unit = robot.loadForClient(nbt)
 
-  override def getRenderBoundingBox: AxisAlignedBB = robot.getRenderBoundingBox
+  override def saveForClient(nbt: CompoundTag): Unit = robot.saveForClient(nbt)
+
+  override def getRenderBoundingBox: AABB = robot.getRenderBoundingBox
 
   override def setChanged(): Unit = robot.setChanged()
 
   // ----------------------------------------------------------------------- //
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = robot.onAnalyze(player, side, hitX, hitY, hitZ)
+  override def onAnalyze(player: entity.player.Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = robot.onAnalyze(player, side, hitX, hitY, hitZ)
 
   // ----------------------------------------------------------------------- //
 
@@ -272,13 +271,13 @@ class RobotProxy(selfType: TileEntityType[_ <: RobotProxy], val robot: Robot) ex
 
   override def removeItemNoUpdate(slot: Int): ItemStack = robot.removeItemNoUpdate(slot)
 
-  override def startOpen(player: PlayerEntity): Unit = robot.startOpen(player)
+  override def startOpen(player: entity.player.Player): Unit = robot.startOpen(player)
 
-  override def stopOpen(player: PlayerEntity): Unit = robot.stopOpen(player)
+  override def stopOpen(player: entity.player.Player): Unit = robot.stopOpen(player)
 
   override def hasCustomName: Boolean = robot.hasCustomName
 
-  override def stillValid(player: PlayerEntity): Boolean = robot.stillValid(player)
+  override def stillValid(player: entity.player.Player): Boolean = robot.stillValid(player)
 
   override def forAllLoot(dst: Consumer[ItemStack]): Unit = robot.forAllLoot(dst)
 
@@ -290,7 +289,7 @@ class RobotProxy(selfType: TileEntityType[_ <: RobotProxy], val robot: Robot) ex
 
   override def componentSlot(address: String): Int = robot.componentSlot(address)
 
-  override def getName: ITextComponent = robot.getName
+  override def getName: MCComponent = robot.getName
 
   override def getContainerSize: Int = robot.getContainerSize
 

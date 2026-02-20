@@ -4,7 +4,7 @@ import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.util.{BlockInventorySource, BlockPosition, EntityInventorySource, InventorySource}
 import li.cil.oc.util.ExtendedBlock._
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import net.minecraft.block.FlowingFluidBlock
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity

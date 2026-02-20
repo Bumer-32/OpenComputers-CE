@@ -9,7 +9,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-trait Colored extends TileEntity with internal.Colored {
+trait Colored extends BlockEntity with internal.Colored {
   private var _color = 0
 
   def consumesDye = false

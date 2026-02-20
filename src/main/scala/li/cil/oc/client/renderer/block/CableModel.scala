@@ -7,7 +7,7 @@ import li.cil.oc.client.Textures
 import li.cil.oc.common.block.property.PropertyCableConnection
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.Color
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.ItemColorizer
 import net.minecraft.block.BlockState
 import net.minecraft.client.renderer.model.BakedQuad

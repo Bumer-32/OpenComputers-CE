@@ -1,6 +1,5 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.api
@@ -10,18 +9,20 @@ import li.cil.oc.client.renderer.markdown.segment.InteractiveSegment
 import li.cil.oc.client.renderer.markdown.segment.Segment
 import li.cil.oc.client.{Manual => ManualAPI}
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.screen
-import net.minecraft.client.gui.widget.button.Button
-import net.minecraft.client.util.InputMappings
-import net.minecraft.client.settings.KeyBinding
-import net.minecraft.util.text.ITextProperties
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.client.gui.screens
+import net.minecraft.client.gui.components.Button
 import org.lwjgl.glfw.GLFW
 
 import scala.collection.JavaConverters.{asJavaIterable, seqAsJavaList}
 import scala.collection.convert.ImplicitConversionsToScala._
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.client.KeyMapping
+import com.mojang.blaze3d.vertex.PoseStack
+import net.minecraft.network.chat.FormattedText
+import com.mojang.blaze3d.platform.InputConstants
+import net.minecraft.network.chat.Component
 
-class Manual extends screen.Screen(StringTextComponent.EMPTY) with traits.Window {
+class Manual extends screens.Screen(TextComponent.EMPTY) with traits.Window {
   final val documentMaxWidth = 230
   final val documentMaxHeight = 176
   final val scrollPosX = 244
@@ -87,32 +88,32 @@ class Manual extends screen.Screen(StringTextComponent.EMPTY) with traits.Window
   override protected def init(): Unit = {
     super.init()
     minecraft.mouseHandler.releaseMouse()
-    KeyBinding.releaseAll()
+    KeyMapping.releaseAll()
 
     for ((tab, i) <- ManualAPI.tabs.zipWithIndex if i < maxTabsPerSide) {
       val x = leftPos + tabPosX
       val y = topPos + tabPosY + i * (tabHeight - 1)
-      addButton(new ImageButton(x, y, tabWidth, tabHeight, new Button.IPressable {
+      addRenderableWidget(new ImageButton(x, y, tabWidth, tabHeight, new Button.OnPress {
         override def onPress(b: Button) = api.Manual.navigate(tab.path)
       }, Textures.GUI.ManualTab))
     }
 
-    scrollButton = new ImageButton(leftPos + scrollPosX, topPos + scrollPosY, 6, 13, new Button.IPressable {
+    scrollButton = new ImageButton(leftPos + scrollPosX, topPos + scrollPosY, 6, 13, new Button.OnPress {
       override def onPress(b: Button) = ()
     }, Textures.GUI.ButtonScroll)
-    addButton(scrollButton)
+    addRenderableWidget(scrollButton)
 
     refreshPage()
   }
 
-  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
+  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     super.render(stack, mouseX, mouseY, dt)
 
     scrollButton.active = canScroll
     scrollButton.hoverOverride = isScrolling
 
     for ((tab, i) <- ManualAPI.tabs.zipWithIndex if i < maxTabsPerSide) {
-      val button = buttons.get(i).asInstanceOf[ImageButton]
+      val button = renderables.get(i).asInstanceOf[ImageButton]
       stack.pushPose()
       stack.translate(button.x + 5, button.y + 5, getBlitOffset)
       tab.renderer.render(stack)
@@ -120,35 +121,34 @@ class Manual extends screen.Screen(StringTextComponent.EMPTY) with traits.Window
     }
 
     currentSegment = Document.render(stack, document, leftPos + 8, topPos + 8, documentMaxWidth, documentMaxHeight, offset, font, mouseX, mouseY)
-    def localizeAndWrap(text: String): java.util.List[_ <: ITextProperties] = {
-      val lines = Localization.localizeImmediately(text).linesIterator.map(new StringTextComponent(_))
-      seqAsJavaList(lines.toSeq)
+    def localizeAndWrap(text: String): java.util.List[Component] = {
+      Localization.localizeImmediately(text).linesIterator.map(new TextComponent(_)).seqAsJavaList
     }
 
     if (!isScrolling) currentSegment match {
       case Some(segment) =>
         segment.tooltip match {
-          case Some(text) if text.nonEmpty => renderWrappedToolTip(stack, localizeAndWrap(text), mouseX, mouseY, font)
+          case Some(text) if text.nonEmpty => renderComponentTooltip(stack, localizeAndWrap(text), mouseX, mouseY, font)
           case _ =>
         }
       case _ =>
     }
 
     if (!isScrolling) for ((tab, i) <- ManualAPI.tabs.zipWithIndex if i < maxTabsPerSide) {
-      val button = buttons.get(i).asInstanceOf[ImageButton]
+      val button = renderables.get(i).asInstanceOf[ImageButton]
       if (mouseX > button.x && mouseX < button.x + tabWidth && mouseY > button.y && mouseY < button.y + tabHeight) tab.tooltip.foreach(text => {
-        renderWrappedToolTip(stack, localizeAndWrap(text), mouseX, mouseY, font)
+        renderComponentTooltip(stack, localizeAndWrap(text), mouseX, mouseY, font)
       })
     }
 
     if (canScroll && (isCoordinateOverScrollBar(mouseX - leftPos, mouseY - topPos) || isScrolling)) {
-      val lines = seqAsJavaList(Seq(new StringTextComponent(s"${100 * offset / maxOffset}%")))
-      renderWrappedToolTip(stack, lines, leftPos + scrollPosX + scrollWidth, scrollButton.y + scrollButton.getHeight + 1, font)
+      val lines = seqAsJavaList(Seq(new TextComponent(s"${100 * offset / maxOffset}%")))
+      renderComponentTooltip(stack, lines, leftPos + scrollPosX + scrollWidth, scrollButton.y + scrollButton.getHeight + 1, font)
     }
   }
 
   override def keyPressed(keyCode: Int, scanCode: Int, mods: Int): Boolean = {
-    val input = InputMappings.getKey(keyCode, scanCode)
+    val input = InputConstants.getKey(keyCode, scanCode)
     if (minecraft.options.keyJump.isActiveAndMatches(input)) {
       popPage()
       return true

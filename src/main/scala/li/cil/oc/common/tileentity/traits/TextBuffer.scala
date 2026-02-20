@@ -5,9 +5,9 @@ import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.internal
 import li.cil.oc.api.network.Node
-import net.minecraft.nbt.CompoundNBT
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.nbt.CompoundTag
 
 trait TextBuffer extends Environment with Tickable {
   lazy val buffer: internal.TextBuffer = {
@@ -32,23 +32,23 @@ trait TextBuffer extends Environment with Tickable {
 
   // ----------------------------------------------------------------------- //
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
     buffer.loadData(nbt)
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
     buffer.saveData(nbt)
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT): Unit = {
+  override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     buffer.loadData(nbt)
   }
 
-  override def saveForClient(nbt: CompoundNBT): Unit = {
+  override def saveForClient(nbt: CompoundTag): Unit = {
     super.saveForClient(nbt)
     buffer.saveData(nbt)
   }

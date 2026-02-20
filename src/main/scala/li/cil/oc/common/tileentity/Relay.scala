@@ -25,27 +25,29 @@ import li.cil.oc.common.InventorySlots
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.common.menu
-import li.cil.oc.common.menu.ContainerTypes
+import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.item
 import li.cil.oc.integration.Mods
 import li.cil.oc.integration.opencomputers.DriverLinkedCard
 import li.cil.oc.server.network.QuantumNetwork
-import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
-import net.minecraft.util.Util
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.core.Direction
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.nbt.Tag
+import net.minecraft.nbt.ListTag
+import net.minecraft.Util
 
-class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) with traits.Hub with traits.ComponentInventory
-  with traits.PowerAcceptor with Analyzable with WirelessEndpoint with QuantumNetwork.QuantumNode with INamedContainerProvider {
+class Relay(selfType: BlockEntityType[_ <: Relay], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Hub with traits.ComponentInventory
+  with traits.PowerAcceptor with Analyzable with WirelessEndpoint with QuantumNetwork.QuantumNode with MenuProvider {
 
   lazy final val WirelessNetworkCardTier1: ItemInfo = api.Items.get(Constants.ItemName.WirelessNetworkCardTier1)
   lazy final val WirelessNetworkCardTier2: ItemInfo = api.Items.get(Constants.ItemName.WirelessNetworkCardTier2)
@@ -99,7 +101,7 @@ class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) w
 
   // ----------------------------------------------------------------------- //
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
+  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
     if (isWirelessEnabled) {
       player.sendMessage(Localization.Analyzer.WirelessStrength(strength), Util.NIL_UUID)
       Array(componentNodes(side.get3DDataValue))
@@ -129,10 +131,11 @@ class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) w
 
   // ----------------------------------------------------------------------- //
 
-  // Isolated from parent class so automatic callbacks don't depend on optional mods.
+// Isolated from parent class so automatic callbacks don't depend on optional mods.
   protected object RelayCCAdapter {
     def queueMessage(source: String, destination: String, port: Int, answerPort: Int, args: Array[AnyRef]): Unit = {
-      for (computer <- computers.map(_.asInstanceOf[IComputerAccess])) {
+      computers.foreach { c =>
+        val computer: IComputerAccess = c.asInstanceOf[IComputerAccess]
         val address = s"cc${computer.getID}_${computer.getAttachmentName}"
         if (source != address && Option(destination).forall(_ == address) && openPorts(computer).contains(port)) {
           val header = Seq(computer.getAttachmentName, Int.box(port), Int.box(answerPort))
@@ -290,8 +293,8 @@ class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) w
 
   // ----------------------------------------------------------------------- //
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new menu.Relay(ContainerTypes.RELAY, id, playerInventory, this)
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
+    new menu.Relay(MenuTypes.RELAY, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
 
@@ -299,7 +302,7 @@ class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) w
   private final val IsRepeaterTag = Settings.namespace + "isRepeater"
   private final val ComponentNodesTag = Settings.namespace + "componentNodes"
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
     for (slot <- items.indices) if (!items(slot).isEmpty) {
       updateLimits(slot, items(slot))
@@ -311,22 +314,26 @@ class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) w
     if (nbt.contains(IsRepeaterTag)) {
       isRepeater = nbt.getBoolean(IsRepeaterTag)
     }
-    nbt.getList(ComponentNodesTag, NBT.TAG_COMPOUND).toTagArray[CompoundNBT].
-      zipWithIndex.foreach {
-      case (tag, index) => componentNodes(index).loadData(tag)
+    val list = nbt.getList(ComponentNodesTag, Tag.TAG_COMPOUND)
+    for (i <- 0 until math.min(list.size(), componentNodes.length)) {
+      val tag = list.getCompound(i)
+      componentNodes(i).loadData(tag)
     }
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
     nbt.putDouble(StrengthTag, strength)
     nbt.putBoolean(IsRepeaterTag, isRepeater)
-    nbt.setNewTagList(ComponentNodesTag, componentNodes.map {
+    val componentNodesList = new ListTag()
+    componentNodes.foreach {
       case node: Node =>
-        val tag = new CompoundNBT()
+        val tag = new CompoundTag()
         node.saveData(tag)
-        tag
-      case _ => new CompoundNBT()
-    })
+        componentNodesList.add(tag)
+      case _ => 
+        componentNodesList.add(new CompoundTag())
+    }
+    nbt.put(ComponentNodesTag, componentNodesList)
   }
 }

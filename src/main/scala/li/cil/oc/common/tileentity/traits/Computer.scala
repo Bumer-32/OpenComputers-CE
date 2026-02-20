@@ -13,17 +13,17 @@ import li.cil.oc.integration.opencomputers.DriverRedstoneCard
 import li.cil.oc.server.agent
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.StringNBT
-import net.minecraft.util.Direction
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.StringTag
+import net.minecraft.core.Direction
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
+import net.minecraft.nbt.Tag
+import net.minecraft.world.entity.player.Player
 
 trait Computer extends Environment with ComponentInventory with Rotatable with BundledRedstoneAware with api.network.Analyzable with api.machine.MachineHost with StateAware with Tickable {
   private lazy val _machine = if (isServer) api.Machine.create(this) else null
@@ -58,7 +58,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
       getLevel.sendBlockUpdated(getBlockPos, getLevel.getBlockState(getBlockPos), getLevel.getBlockState(getBlockPos), 3)
       if (getLevel.isClientSide) {
         runSound.foreach(sound =>
-          if (_isRunning) Sound.startLoop(this, sound, 0.5f, 50 + getLevel.random.nextInt(50))
+          if (_isRunning) Sound.startLoop(this, sound, 0.5f, (50 + getLevel.random.nextInt(50)).toLong)
           else Sound.stopLoop(this)
         )
       }
@@ -78,8 +78,12 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
 
   // ----------------------------------------------------------------------- //
 
-  override def internalComponents(): lang.Iterable[ItemStack] = (0 until getContainerSize).collect {
-    case slot if !getItem(slot).isEmpty && isComponentSlot(slot, getItem(slot)) => getItem(slot)
+  override def internalComponents(): java.lang.Iterable[ItemStack] = {
+    val components = (0 until getContainerSize).collect {
+      case slot if !getItem(slot).isEmpty && isComponentSlot(slot, getItem(slot)) => getItem(slot)
+    }
+
+    components.asJava
   }
 
 
@@ -140,7 +144,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
   private final val IsRunningTag = Settings.namespace + "isRunning"
   private final val UsersTag = Settings.namespace + "users"
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
     // God, this is so ugly... will need to rework the robot architecture.
     // This is required for loading auxiliary data (kernel state), because the
@@ -158,7 +162,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
     _isOutputEnabled = hasRedstoneCard
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
     if (machine != null) {
       nbt.setNewCompoundTag(ComputerTag, machine.saveData)
@@ -166,20 +170,20 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT): Unit = {
+  override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     hasErrored = nbt.getBoolean(HasErroredTag)
     setRunning(nbt.getBoolean(IsRunningTag))
     _users.clear()
-    _users ++= nbt.getList(UsersTag, NBT.TAG_STRING).map((tag: StringNBT) => tag.getAsString)
-    if (_isRunning) runSound.foreach(sound => Sound.startLoop(this, sound, 0.5f, 1000 + getLevel.random.nextInt(2000)))
+    _users ++= nbt.getList(UsersTag, Tag.TAG_STRING).map((tag: StringTag) => tag.getAsString)
+    if (_isRunning) runSound.foreach(sound => Sound.startLoop(this, sound, 0.5f, (1000 + getLevel.random.nextInt(2000)).toLong))
   }
 
-  override def saveForClient(nbt: CompoundNBT): Unit = {
+  override def saveForClient(nbt: CompoundTag): Unit = {
     super.saveForClient(nbt)
     nbt.putBoolean(HasErroredTag, machine != null && machine.lastError != null)
     nbt.putBoolean(IsRunningTag, isRunning)
-    nbt.setNewTagList(UsersTag, machine.users.map(user => StringNBT.valueOf(user)))
+    nbt.setNewTagList(UsersTag, machine.users.map(user => StringTag.valueOf(user)))
   }
 
   // ----------------------------------------------------------------------- //
@@ -192,7 +196,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
     }
   }
 
-  override def stillValid(player: PlayerEntity): Boolean =
+  override def stillValid(player: Player): Boolean =
     super.stillValid(player) && (player match {
       case fakePlayer: agent.Player => canInteract(fakePlayer.agent.ownerName())
       case _ => canInteract(player.getName.getString)
@@ -211,5 +215,5 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
 
   // ----------------------------------------------------------------------- //
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = Array(machine.node)
+  override def onAnalyze(player: net.minecraft.world.entity.player.Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = Array(machine.node)
 }

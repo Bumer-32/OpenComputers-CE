@@ -11,7 +11,7 @@ import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Player
 
-trait Inventory extends TileEntity with inventory.Inventory {
+trait Inventory extends BlockEntity with inventory.Inventory {
   private lazy val inventory = Array.fill[ItemStack](getContainerSize)(ItemStack.EMPTY)
 
   def items = inventory

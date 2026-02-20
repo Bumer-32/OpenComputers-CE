@@ -15,7 +15,7 @@ import li.cil.oc.api.network._
 import li.cil.oc.common.tileentity.traits.{RedstoneAware, RedstoneChangedEventArgs}
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedBlock._
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.RotationHelper
 import net.minecraft.util.Direction
 

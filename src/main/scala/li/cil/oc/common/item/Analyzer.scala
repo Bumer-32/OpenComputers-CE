@@ -10,7 +10,7 @@ import li.cil.oc.api.network._
 import li.cil.oc.common.tileentity
 import li.cil.oc.server.PacketSender
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.item.Item

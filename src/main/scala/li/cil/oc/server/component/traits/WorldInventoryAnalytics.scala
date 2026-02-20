@@ -7,7 +7,7 @@ import li.cil.oc.api.machine.Context
 import li.cil.oc.api.prefab.ItemStackArrayValue
 import li.cil.oc.server.component.result
 import li.cil.oc.util.{BlockInventorySource, BlockPosition, DatabaseAccess, EntityInventorySource, InventorySource, InventoryUtils, StackOption}
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.ExtendedArguments._
 import net.minecraft.block.Block
 import net.minecraft.item.ItemStack

@@ -17,7 +17,7 @@ import net.minecraftforge.common.util.Constants.NBT
 import scala.collection.mutable
 
 class PrintData extends ItemData(Constants.BlockName.Print) {
-  def this(stack: ItemStack) {
+  def this(stack: ItemStack) = {
     this()
     loadData(stack)
   }

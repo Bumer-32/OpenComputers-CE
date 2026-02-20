@@ -8,13 +8,14 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.SideTracker
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.network.NetworkManager
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket
+import net.minecraft.network.Connection
 
-trait TileEntity extends net.minecraft.world.level.block.entity.BlockEntity {
+trait BlockEntity extends net.minecraft.world.level.block.entity.BlockEntity {
   private final val IsServerDataTag = Settings.namespace + "isServerData"
 
   def x: Int = getBlockPos.getX
@@ -32,7 +33,7 @@ trait TileEntity extends net.minecraft.world.level.block.entity.BlockEntity {
   // ----------------------------------------------------------------------- //
 
   def updateEntity(): Unit = {
-    if (Settings.get.periodicallyForceLightUpdate && getLevel.getGameTime % 40 == 0 && getBlockState.getBlock.getLightValue(getLevel.getBlockState(getBlockPos), getLevel, getBlockPos) > 0) {
+    if (Settings.get.periodicallyForceLightUpdate && getLevel.getGameTime % 40 == 0 && getBlockState.getLightEmission(getLevel, getBlockPos) > 0) {
       getLevel.sendBlockUpdated(getBlockPos, getLevel.getBlockState(getBlockPos), getLevel.getBlockState(getBlockPos), 3)
     }
   }
@@ -99,10 +100,8 @@ trait TileEntity extends net.minecraft.world.level.block.entity.BlockEntity {
     nbt
   }
 
-  override def getUpdatePacket: SUpdateTileEntityPacket = {
-    // Obfuscation workaround. If it works.
-    val te = this.asInstanceOf[net.minecraft.world.level.block.entity.BlockEntity]
-    new SUpdateTileEntityPacket(te.getBlockPos, 0, te.getUpdateTag)
+  override def getUpdatePacket: ClientboundBlockEntityDataPacket = {
+    ClientboundBlockEntityDataPacket.create(this)
   }
 
   override def getUpdateTag: CompoundTag = {
@@ -121,7 +120,7 @@ trait TileEntity extends net.minecraft.world.level.block.entity.BlockEntity {
     nbt
   }
 
-  override def onDataPacket(manager: NetworkManager, packet: SUpdateTileEntityPacket): Unit = {
+  override def onDataPacket(manager: Connection, packet: ClientboundBlockEntityDataPacket): Unit = {
     try loadForClient(packet.getTag) catch {
       case e: Throwable => OpenComputers.log.warn("There was a problem reading a TileEntity description packet. Please report this if you see it!", e)
     }

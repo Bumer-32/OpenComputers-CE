@@ -2,15 +2,15 @@ package li.cil.oc.common.tileentity.traits
 
 import li.cil.oc.Settings
 import li.cil.oc.util.RotationHelper
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.core.Direction
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 /**
   * @author Vexatos
   */
-trait OpenSides extends TileEntity {
+trait OpenSides extends BlockEntity {
   protected def SideCount = RotationHelper.getNumDirections
 
   protected def defaultState: Boolean = false
@@ -27,24 +27,24 @@ trait OpenSides extends TileEntity {
     openSides(side.ordinal()) = value
   }
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
     if (nbt.contains(Settings.namespace + "openSides"))
       openSides = uncompressSides(nbt.getByte(Settings.namespace + "openSides"))
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
     nbt.putByte(Settings.namespace + "openSides", compressSides)
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT): Unit = {
+  override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     openSides = uncompressSides(nbt.getByte(Settings.namespace + "openSides"))
   }
 
-  override def saveForClient(nbt: CompoundNBT): Unit = {
+  override def saveForClient(nbt: CompoundTag): Unit = {
     super.saveForClient(nbt)
     nbt.putByte(Settings.namespace + "openSides", compressSides)
   }

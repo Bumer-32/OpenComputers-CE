@@ -9,7 +9,7 @@ import li.cil.oc.common.tileentity.traits.Inventory
 import li.cil.oc.common.tileentity.traits.Rotatable
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Color
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.Tooltip
 import net.minecraft.block.AbstractBlock.Properties
 import net.minecraft.block.BlockState

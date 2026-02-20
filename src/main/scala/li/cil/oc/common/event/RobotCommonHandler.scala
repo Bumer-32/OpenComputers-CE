@@ -7,7 +7,7 @@ import li.cil.oc.api.internal
 import li.cil.oc.api.internal.Robot
 import li.cil.oc.common.item.UpgradeHover
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import net.minecraft.util.Direction
 import net.minecraftforge.eventbus.api.SubscribeEvent
 

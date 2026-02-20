@@ -24,7 +24,7 @@ import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
 import li.cil.oc.integration.Mods
 import li.cil.oc.integration.jei.ModJEI
 import li.cil.oc.util.Audio
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack

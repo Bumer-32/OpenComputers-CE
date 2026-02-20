@@ -4,7 +4,7 @@ import java.util.Optional
 import java.util.function.Consumer
 
 import li.cil.oc.OpenComputers
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.StackOption._
 import net.minecraft.entity.Entity
 import net.minecraft.entity.item.ItemEntity

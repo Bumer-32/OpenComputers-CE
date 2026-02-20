@@ -1,32 +1,24 @@
 package li.cil.oc.client.gui
 
 import java.util
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.gui.widget.WidgetContainer
 import li.cil.oc.util.RenderState
-import net.minecraft.client.gui.FontRenderer
-import net.minecraft.client.gui.screen.inventory.ContainerScreen
+import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.RenderHelper
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.Container
+import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.network.chat.Component
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.ITextProperties
-import net.minecraft.util.text.LanguageMap
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.network.chat.FormattedText
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.locale.Language
 
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.jdk.CollectionConverters.*
+import net.minecraft.client.renderer.Sheets
+import com.mojang.blaze3d.vertex.Tesselator
+import net.minecraft.network.chat.TextComponent
 
-// Workaround because certain other mods *cough*TMI*cough* do base class
-// transformations that break things! Such fun. Many annoyed. And yes, this
-// is a common issue, have a look at EnderIO and Enchanting Plus. They have
-// to work around this, too.
 abstract class CustomGuiContainer[C <: AbstractContainerMenu](val inventoryContainer: C, inv: Inventory, title: Component)
   extends AbstractContainerScreen[C](inventoryContainer, inv, title) with WidgetContainer {
 
@@ -40,30 +32,28 @@ abstract class CustomGuiContainer[C <: AbstractContainerMenu](val inventoryConta
 
   protected def add[T](list: util.List[T], value: Any) = list.add(value.asInstanceOf[T])
 
-  // Pretty much Scalaified copy-pasta from base-class.
-  override def renderWrappedToolTip(stack: MatrixStack, text: util.List[_ <: ITextProperties], x: Int, y: Int, font: FontRenderer): Unit = {
+  override def renderTooltip(stack: PoseStack, text: util.List[Component], x: Int, y: Int): Unit = {
     copiedDrawHoveringText0(stack, text, x, y, font)
   }
 
   protected def isPointInRegion(rectX: Int, rectY: Int, rectWidth: Int, rectHeight: Int, pointX: Int, pointY: Int): Boolean =
     pointX >= rectX - 1 && pointX < rectX + rectWidth + 1 && pointY >= rectY - 1 && pointY < rectY + rectHeight + 1
 
-  protected def copiedDrawHoveringText(stack: MatrixStack, lines: util.List[String], x: Int, y: Int, font: FontRenderer): Unit = {
-    val text = new util.ArrayList[StringTextComponent]()
-    for (line <- lines) {
-      text.add(new StringTextComponent(line))
+  protected def copiedDrawHoveringText(stack: PoseStack, lines: util.List[String], x: Int, y: Int, font: Font): Unit = {
+    val text = new util.ArrayList[Component]()
+    for (line <- lines.asScala) {
+      text.add(new TextComponent(line))
     }
     copiedDrawHoveringText0(stack, text, x, y, font)
   }
 
-  protected def copiedDrawHoveringText0(stack: MatrixStack, text: util.List[_ <: ITextProperties], x: Int, y: Int, font: FontRenderer): Unit = {
+  protected def copiedDrawHoveringText0(stack: PoseStack, text: util.List[_ <: FormattedText], x: Int, y: Int, font: Font): Unit = {
     if (!text.isEmpty) {
-      RenderSystem.disableRescaleNormal()
-      RenderHelper.turnOff()
-      RenderSystem.disableLighting()
       RenderSystem.disableDepthTest()
+      RenderSystem.enableBlend()
+      RenderSystem.defaultBlendFunc()
 
-      val textWidth = text.map(line => font.width(line)).max
+      val textWidth = text.asScala.map(line => font.width(line)).max
 
       var posX = x + 12
       var posY = y - 12
@@ -95,9 +85,10 @@ abstract class CustomGuiContainer[C <: AbstractContainerMenu](val inventoryConta
 
       stack.pushPose()
       stack.translate(0, 0, 400)
-      val buffer = IRenderTypeBuffer.immediate(Tessellator.getInstance.getBuilder())
-      for ((line, index) <- text.zipWithIndex) {
-        font.drawInBatch(LanguageMap.getInstance.getVisualOrder(line), posX, posY, -1, true, stack.last.pose, buffer, false, 0, 15728880)
+      val tesselator = Tesselator.getInstance()
+      val buffer = MultiBufferSource.immediate(tesselator.getBuilder())
+      for ((line, index) <- text.asScala.zipWithIndex) {
+        font.drawInBatch(Language.getInstance.getVisualOrder(line), posX.toFloat, posY.toFloat, -1, true, stack.last.pose, buffer, false, 0, 15728880)
         if (index == 0) {
           posY += 2
         }
@@ -108,19 +99,17 @@ abstract class CustomGuiContainer[C <: AbstractContainerMenu](val inventoryConta
       setBlitOffset(0)
       itemRenderer.blitOffset = 0f
 
-      RenderSystem.enableLighting()
       RenderSystem.enableDepthTest()
-      RenderHelper.turnBackOn()
-      RenderSystem.enableRescaleNormal()
+      RenderSystem.disableBlend()
     }
   }
 
-  override def fillGradient(stack: MatrixStack, left: Int, top: Int, right: Int, bottom: Int, startColor: Int, endColor: Int): Unit = {
+  override def fillGradient(stack: PoseStack, left: Int, top: Int, right: Int, bottom: Int, startColor: Int, endColor: Int): Unit = {
     super.fillGradient(stack, left, top, right, bottom, startColor, endColor)
     RenderState.makeItBlend()
   }
 
-  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, partialTicks: Float): Unit = {
+  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, partialTicks: Float): Unit = {
     this.renderBackground(stack)
     super.render(stack, mouseX, mouseY, partialTicks)
     this.renderTooltip(stack, mouseX, mouseY)

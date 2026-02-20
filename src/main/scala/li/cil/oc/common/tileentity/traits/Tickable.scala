@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity.traits
 
-import net.minecraft.tileentity.ITickableTileEntity
-
-trait Tickable extends TileEntity with ITickableTileEntity {
-  override def tick(): Unit = updateEntity()
+trait Tickable extends BlockEntity {
+  def tick(): Unit = updateEntity()
+  def updateEntity(): Unit = {}
 }

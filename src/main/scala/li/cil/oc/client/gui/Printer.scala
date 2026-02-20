@@ -1,16 +1,16 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
 import li.cil.oc.client.gui.widget.ProgressBar
 import li.cil.oc.common.menu
 import li.cil.oc.common.menu.ComponentSlot
 import li.cil.oc.util.RenderState
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.player.Inventory
+import com.mojang.blaze3d.vertex.PoseStack
 
-class Printer(state: menu.Printer, playerInventory: PlayerInventory, name: ITextComponent)
+class Printer(state: menu.Printer, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
 
   imageWidth = 176
@@ -38,7 +38,7 @@ class Printer(state: menu.Printer, playerInventory: PlayerInventory, name: IText
     override def barTexture = Textures.GUI.PrinterProgress
   })
 
-  override def drawSecondaryForegroundLayer(stack: MatrixStack, mouseX: Int, mouseY: Int) = {
+  override def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int) = {
     super.drawSecondaryForegroundLayer(stack, mouseX, mouseY)
     RenderState.pushAttrib()
     if (isPointInRegion(materialBar.x, materialBar.y, materialBar.width, materialBar.height, mouseX - leftPos, mouseY - topPos)) {
@@ -54,8 +54,8 @@ class Printer(state: menu.Printer, playerInventory: PlayerInventory, name: IText
     RenderState.popAttrib()
   }
 
-  override def renderBg(stack: MatrixStack, dt: Float, mouseX: Int, mouseY: Int): Unit = {
-    RenderSystem.color3f(1, 1, 1)
+  override def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int): Unit = {
+    RenderSystem.setShaderColor(1, 1, 1, 1)
     Textures.bind(Textures.GUI.Printer)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
     materialBar.level = inventoryContainer.amountMaterial / inventoryContainer.maxAmountMaterial.toDouble
@@ -65,5 +65,5 @@ class Printer(state: menu.Printer, playerInventory: PlayerInventory, name: IText
     drawInventorySlots(stack)
   }
 
-  override protected def drawDisabledSlot(stack: MatrixStack, slot: ComponentSlot): Unit = {}
+  override protected def drawDisabledSlot(stack: PoseStack, slot: ComponentSlot): Unit = {}
 }

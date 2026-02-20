@@ -3,7 +3,7 @@ package li.cil.oc.integration.minecraft
 import li.cil.oc.Settings
 import li.cil.oc.api.event.GeolyzerEvent
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import net.minecraft.block.Block
 import net.minecraft.block.CropsBlock
 import net.minecraft.block.FlowingFluidBlock

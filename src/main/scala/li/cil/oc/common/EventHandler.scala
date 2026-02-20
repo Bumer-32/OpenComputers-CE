@@ -33,7 +33,7 @@ import li.cil.oc.server.machine.Callbacks
 import li.cil.oc.server.machine.Machine
 import li.cil.oc.server.machine.luac.LuaStateFactory
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.StackOption._
 import li.cil.oc.util._
 import net.minecraft.entity.player.PlayerEntity
@@ -455,7 +455,7 @@ object EventHandler {
     if (!e.getWorld.isClientSide) {
       val world = e.getWorld.asInstanceOf[ServerWorld]
       world.blockEntityList.collect {
-        case te: tileentity.traits.TileEntity => te.dispose()
+        case te: tileentity.traits.BlockEntity => te.dispose()
       }
 
       getChunks(world).foreach(holder => {

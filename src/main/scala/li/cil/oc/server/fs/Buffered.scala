@@ -76,13 +76,12 @@ trait Buffered extends OutputStreamFileSystem {
                 val in = new io.FileInputStream(childFile)
                 val buffer = new Array[Byte](8 * 1024)
                 var read = 0
-                do {
-                  read = in.read(buffer)
+                while ( {read = in.read(buffer); read >= 0}) {
                   if (read > 0) {
                     if (read == buffer.length) stream.write(buffer)
                     else stream.write(buffer.view.slice(0, read).toArray)
                   }
-                } while (read >= 0)
+                }
                 in.close()
               }
               catch {

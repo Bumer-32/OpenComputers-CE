@@ -244,7 +244,7 @@ object InternetCard {
   TCPNotifier.start()
 
   class TCPSocket extends AbstractValue with Closable {
-    def this(owner: InternetCard, uri: URI, port: Int) {
+    def this(owner: InternetCard, uri: URI, port: Int) = {
       this()
       this.owner = Some(owner)
       channel = SocketChannel.open()
@@ -406,7 +406,7 @@ object InternetCard {
   }
 
   class HTTPRequest extends AbstractValue with Closable {
-    def this(owner: InternetCard, url: URL, post: Option[String], headers: Map[String, String], method: Option[String]) {
+    def this(owner: InternetCard, url: URL, post: Option[String], headers: Map[String, String], method: Option[String]) = {
       this()
       this.owner = Some(owner)
       this.stream = threadPool.submit(new RequestSender(url, post, headers, method))

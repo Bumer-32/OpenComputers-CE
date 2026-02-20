@@ -1,9 +1,9 @@
 package li.cil.oc.util
 
-import net.minecraft.item.DyeColor
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.DyeColor
+import net.minecraft.world.item.ItemStack
 
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.collection.convert.ImplicitConversionsToScala.*
 
 object Color {
   val rgbValues = Map(

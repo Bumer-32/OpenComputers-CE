@@ -1,14 +1,14 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
 import li.cil.oc.common.Tier
 import li.cil.oc.common.menu
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.text.ITextComponent
+import com.mojang.blaze3d.vertex.PoseStack
+import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.player.Inventory
 
-class Database(state: menu.Database, playerInventory: PlayerInventory, name: ITextComponent)
+class Database(state: menu.Database, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name)
   with traits.LockedHotbar[menu.Database] {
 
@@ -16,13 +16,13 @@ class Database(state: menu.Database, playerInventory: PlayerInventory, name: ITe
 
   override def lockedStack = inventoryContainer.container
 
-  override protected def renderLabels(stack: MatrixStack, mouseX: Int, mouseY: Int) =
+  override protected def renderLabels(stack: PoseStack, mouseX: Int, mouseY: Int) =
     drawSecondaryForegroundLayer(stack, mouseX, mouseY)
 
-  override def drawSecondaryForegroundLayer(stack: MatrixStack, mouseX: Int, mouseY: Int) = {}
+  override def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int) = {}
 
-  override protected def renderBg(stack: MatrixStack, dt: Float, mouseX: Int, mouseY: Int) = {
-    RenderSystem.color4f(1, 1, 1, 1)
+  override protected def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int) = {
+    RenderSystem.setShaderColor(1, 1, 1, 1)
     Textures.bind(Textures.GUI.Database)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
 

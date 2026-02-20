@@ -10,7 +10,7 @@ import net.minecraft.nbt.CompoundNBT
 import net.minecraftforge.common.util.Constants.NBT
 
 class MicrocontrollerData(itemName: String = Constants.BlockName.Microcontroller) extends ItemData(itemName) {
-  def this(stack: ItemStack) {
+  def this(stack: ItemStack) = {
     this()
     loadData(stack)
   }

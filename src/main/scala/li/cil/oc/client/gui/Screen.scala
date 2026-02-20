@@ -1,17 +1,17 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.api
 import li.cil.oc.client.renderer.TextBufferRenderCache
 import li.cil.oc.client.renderer.gui.BufferRenderer
-import net.minecraft.client.gui.INestedGuiEventHandler
-import net.minecraft.client.gui.screen
-import net.minecraft.client.settings.KeyBinding
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.client.gui.screens
+import net.minecraft.client.KeyMapping
 import org.lwjgl.glfw.GLFW
+import net.minecraft.client.gui.components.events.ContainerEventHandler
+import net.minecraft.network.chat.TextComponent
 
 class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val hasKeyboardCallback: () => Boolean, val hasPower: () => Boolean)
-  extends screen.Screen(StringTextComponent.EMPTY) with traits.InputBuffer with INestedGuiEventHandler {
+  extends screens.Screen(TextComponent.EMPTY) with traits.InputBuffer with ContainerEventHandler {
 
   override protected def hasKeyboard = hasKeyboardCallback()
 
@@ -29,16 +29,16 @@ class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val has
 
   private var mx, my = -1
 
-  override def mouseScrolled(mouseX: Double, mouseY: Double, scroll: Double): Boolean = {
+  override def mouseScrolled(mouseX: Double, mouseY: Double, delta: Double): Boolean = {
     if (hasMouse) {
       toBufferCoordinates(mouseX, mouseY) match {
         case Some((bx, by)) =>
-          buffer.mouseScroll(bx, by, math.signum(scroll).asInstanceOf[Int], null)
+          buffer.mouseScroll(bx, by, math.signum(delta).toInt, null)
           return true
         case _ => // Ignore when out of bounds.
       }
     }
-    super.mouseScrolled(mouseX, mouseY, scroll)
+    super.mouseScrolled(mouseX, mouseY, delta)
   }
 
   override def mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean = {
@@ -85,7 +85,7 @@ class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val has
         else buffer.mouseDown(bx, by, button, null)
         didClick = true
         mx = bx.toInt
-        my = (by*2).toInt // for high precision mode, sends some unnecessary packets when not using it, but eh
+        my = (by*2).toInt 
       case _ =>
     }
   }
@@ -102,15 +102,15 @@ class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val has
   override protected def init(): Unit = {
     super.init()
     minecraft.mouseHandler.releaseMouse()
-    KeyBinding.releaseAll()
+    KeyMapping.releaseAll()
   }
 
-  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
+  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     super.render(stack, mouseX, mouseY, dt)
     drawBufferLayer(stack)
   }
 
-  override def drawBuffer(stack: MatrixStack) = {
+  override def drawBuffer(stack: PoseStack) = {
     stack.translate(x, y, 0)
     BufferRenderer.drawBackground(stack, innerWidth, innerHeight)
     if (hasPower()) {

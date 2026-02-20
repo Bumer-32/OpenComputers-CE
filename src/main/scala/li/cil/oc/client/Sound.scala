@@ -12,20 +12,19 @@ import com.google.common.base.Charsets
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import net.minecraft.client.Minecraft
-import net.minecraft.client.audio.ITickableSound
-import net.minecraft.client.audio.LocatableSound
-import net.minecraft.client.audio.SoundEngine
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.SoundCategory
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
 import net.minecraftforge.event.world.WorldEvent
 
 import scala.collection.mutable
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.client.resources.sounds.AbstractSoundInstance
+import net.minecraft.client.resources.sounds.TickableSoundInstance
+import net.minecraft.sounds.SoundSource
 
 object Sound {
-  private val sources = mutable.Map.empty[TileEntity, PseudoLoopingStream]
+  private val sources = mutable.Map.empty[BlockEntity, PseudoLoopingStream]
 
   private val commandQueue = mutable.PriorityQueue.empty[Command]
 
@@ -52,26 +51,26 @@ object Sound {
     }
   }
 
-  def startLoop(tileEntity: TileEntity, name: String, volume: Float = 1f, delay: Long = 0): Unit = {
+  def startLoop(BlockEntity: BlockEntity, name: String, volume: Float = 1f, delay: Long = 0): Unit = {
     if (Settings.get.soundVolume > 0) {
       commandQueue.synchronized {
-        commandQueue += new StartCommand(System.currentTimeMillis() + delay, tileEntity, name, volume)
+        commandQueue += new StartCommand(System.currentTimeMillis() + delay, BlockEntity, name, volume)
       }
     }
   }
 
-  def stopLoop(tileEntity: TileEntity): Unit = {
+  def stopLoop(BlockEntity: BlockEntity): Unit = {
     if (Settings.get.soundVolume > 0) {
       commandQueue.synchronized {
-        commandQueue += new StopCommand(tileEntity)
+        commandQueue += new StopCommand(BlockEntity)
       }
     }
   }
 
-  def updatePosition(tileEntity: TileEntity): Unit = {
+  def updatePosition(BlockEntity: BlockEntity): Unit = {
     if (Settings.get.soundVolume > 0) {
       commandQueue.synchronized {
-        commandQueue += new UpdatePositionCommand(tileEntity)
+        commandQueue += new UpdatePositionCommand(BlockEntity)
       }
     }
   }
@@ -93,28 +92,28 @@ object Sound {
     sources.clear()
   }
 
-  private abstract class Command(val when: Long, val tileEntity: TileEntity) extends Ordered[Command] {
+  private abstract class Command(val when: Long, val BlockEntity: BlockEntity) extends Ordered[Command] {
     def apply(): Unit
 
     override def compare(that: Command) = (that.when - when).toInt
   }
 
-  private class StartCommand(when: Long, tileEntity: TileEntity, val name: String, val volume: Float) extends Command(when, tileEntity) {
+  private class StartCommand(when: Long, BlockEntity: BlockEntity, val name: String, val volume: Float) extends Command(when, BlockEntity) {
     override def apply(): Unit = {
       sources.synchronized {
-        val current = sources.getOrElse(tileEntity, null)
+        val current = sources.getOrElse(BlockEntity, null)
         if (current == null || !current.getLocation.getPath.equals(name)) {
           if (current != null) current.stop()
-          sources(tileEntity) = new PseudoLoopingStream(tileEntity, volume, name)
+          sources(BlockEntity) = new PseudoLoopingStream(BlockEntity, volume, name)
         }
       }
     }
   }
 
-  private class StopCommand(tileEntity: TileEntity) extends Command(System.currentTimeMillis() + 1, tileEntity) {
+  private class StopCommand(BlockEntity: BlockEntity) extends Command(System.currentTimeMillis() + 1, BlockEntity) {
     override def apply(): Unit = {
       sources.synchronized {
-        sources.remove(tileEntity) match {
+        sources.remove(BlockEntity) match {
           case Some(sound) => sound.stop()
           case _ =>
         }
@@ -123,15 +122,15 @@ object Sound {
         // Remove all other commands for this tile entity from the queue. This
         // is inefficient, but we generally don't expect the command queue to
         // be very long, so this should be OK.
-        commandQueue ++= commandQueue.dequeueAll.filter(_.tileEntity != tileEntity)
+        commandQueue ++= commandQueue.dequeueAll.filter(_.BlockEntity != BlockEntity)
       }
     }
   }
 
-  private class UpdatePositionCommand(tileEntity: TileEntity) extends Command(System.currentTimeMillis(), tileEntity) {
+  private class UpdatePositionCommand(BlockEntity: BlockEntity) extends Command(System.currentTimeMillis(), BlockEntity) {
     override def apply(): Unit = {
       sources.synchronized {
-        sources.get(tileEntity) match {
+        sources.get(BlockEntity) match {
           case Some(sound) => sound.updatePosition()
           case _ =>
         }
@@ -139,18 +138,18 @@ object Sound {
     }
   }
 
-  private class PseudoLoopingStream(val tileEntity: TileEntity, val subVolume: Float, name: String)
-    extends LocatableSound(new ResourceLocation(OpenComputers.ID, name), SoundCategory.BLOCKS) with ITickableSound {
+  private class PseudoLoopingStream(val BlockEntity: BlockEntity, val subVolume: Float, name: String)
+    extends AbstractSoundInstance(new ResourceLocation(OpenComputers.ID, name), SoundSource.BLOCKS) with TickableSoundInstance {
 
     var stopped = false
     volume = subVolume * Settings.get.soundVolume
-    relative = tileEntity != null
+    relative = BlockEntity != null
     looping = true
     updatePosition()
 
     def updatePosition(): Unit = {
-      if (tileEntity != null) {
-        val pos = tileEntity.getBlockPos
+      if (BlockEntity != null) {
+        val pos = BlockEntity.getBlockPos
         x = pos.getX + 0.5
         y = pos.getY + 0.5
         z = pos.getZ + 0.5

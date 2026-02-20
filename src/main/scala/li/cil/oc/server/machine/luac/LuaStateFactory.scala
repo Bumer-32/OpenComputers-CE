@@ -247,16 +247,14 @@ abstract class LuaStateFactory {
           val inExisting = new BufferedInputStream(new FileInputStream(tmpLibFile))
           var inCurrentByte = 0
           var inExistingByte = 0
-          do {
+          while (matching && {
             inCurrentByte = inCurrent.read()
             inExistingByte = inExisting.read()
             if (inCurrentByte != inExistingByte) {
               matching = false
-              inCurrentByte = -1
-              inExistingByte = -1
             }
-          }
-          while (inCurrentByte != -1 && inExistingByte != -1)
+            inCurrentByte != -1 && inExistingByte != -1
+          }) ()
           inCurrent.close()
           inExisting.close()
         }

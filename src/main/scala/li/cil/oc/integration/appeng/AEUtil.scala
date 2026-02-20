@@ -18,7 +18,7 @@ import net.minecraftforge.forgespi.language.MavenVersionAdapter
 import org.apache.maven.artifact.versioning.VersionRange
 
 @AEAddon
-class AEUtil extends IAEAddon {
+class AEUtil extends IAEAddonEntrypoint {
   override def onAPIAvailable(aeApi: IAppEngApi) = AEUtil.onAPIAvailable(aeApi)
 }
 

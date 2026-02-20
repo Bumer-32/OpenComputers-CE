@@ -2,39 +2,40 @@ package li.cil.oc.client.gui
 
 import java.text.DecimalFormat
 
-import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.client.Textures
 import li.cil.oc.common.menu
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.Rectangle2d
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.client.renderer.Rect2i
 import org.lwjgl.opengl.GL11
+import com.mojang.blaze3d.vertex.Tesselator
+import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.player.Inventory
+import com.mojang.blaze3d.vertex.VertexFormat
+import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import com.mojang.blaze3d.vertex.PoseStack
 
-class Relay(state: menu.Relay, playerInventory: PlayerInventory, name: ITextComponent)
+class Relay(state: menu.Relay, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
 
   private val format = new DecimalFormat("#.##hz")
 
-  val tabPosition = new Rectangle2d(imageWidth, 10, 23, 26)
+  val tabPosition = new Rect2i(imageWidth, 10, 23, 26)
 
-  override protected def drawSecondaryBackgroundLayer(stack: MatrixStack): Unit = {
+  override protected def drawSecondaryBackgroundLayer(stack: PoseStack): Unit = {
     super.drawSecondaryBackgroundLayer(stack)
 
     // Tab background.
-    RenderSystem.color4f(1, 1, 1, 1)
-    Minecraft.getInstance.getTextureManager.bind(Textures.GUI.UpgradeTab)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
+    RenderSystem.setShaderTexture(0, Textures.GUI.UpgradeTab)
     val x = windowX + tabPosition.getX
     val y = windowY + tabPosition.getY
     val w = tabPosition.getWidth
     val h = tabPosition.getHeight
-    val t = Tessellator.getInstance
+    val t = Tesselator.getInstance
     val r = t.getBuilder
-    r.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
+    r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
     r.vertex(stack.last.pose, x, y + h, getBlitOffset).uv(0, 1).endVertex()
     r.vertex(stack.last.pose, x + w, y + h, getBlitOffset).uv(1, 1).endVertex()
     r.vertex(stack.last.pose, x + w, y, getBlitOffset).uv(1, 0).endVertex()
@@ -66,7 +67,7 @@ class Relay(state: menu.Relay, playerInventory: PlayerInventory, name: ITextComp
     }
   }
 
-  override def drawSecondaryForegroundLayer(stack: MatrixStack, mouseX: Int, mouseY: Int): Unit = {
+  override def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int): Unit = {
     super.drawSecondaryForegroundLayer(stack, mouseX, mouseY)
 
     font.draw(stack,

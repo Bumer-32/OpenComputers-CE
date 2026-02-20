@@ -7,7 +7,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
 
 class DebugCardData extends ItemData(Constants.ItemName.DebugCard) {
-  def this(stack: ItemStack) {
+  def this(stack: ItemStack) = {
     this()
     loadData(stack)
   }

@@ -114,6 +114,7 @@ repositories {
         url "https://modmaven.dev"
         content {
             includeGroup "mezz.jei"
+            includeGroup 'appeng'
         }
     }
     maven {
@@ -146,6 +147,10 @@ repositories {
             includeModule("org.typelevel", "cats-free_3")
         }
     }
+    maven {
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+    }
     flatDir { dirs 'libs' }
 }
 
@@ -159,35 +164,35 @@ dependencies {
     }
 
     embedded "com.typesafe:config:1.2.1"
-
     embedded ":OC-LuaJ-20220907.1"
     embedded ":OC-JNLua-20230530.0"
     embedded ":OC-JNLua-Natives-20220928.1"
-/*
+
     def jeiSlug = "jei-${minecraft_version}"
 
-    compileOnly fg.deobf("li.cil.tis3d:tis3d-1.18.2-forge:${tis3d_version}")
-    compileOnly fg.deobf("curse.maven:jade-324717:${jade_version}")
-    compileOnly fg.deobf("org.squiddev:cc-tweaked-${minecraft_version}:${cct_version}")
+    compileOnly "curse.maven:tis-3d-238603:${tis3d_version}"
+    compileOnly "curse.maven:jade-324717:${jade_version}"
+    compileOnly "org.squiddev:cc-tweaked-${minecraft_version}:${cct_version}"
 
-    runtimeOnly fg.deobf("maven.modrinth:modernfix:${modernfix_version}")
+    runtimeOnly "maven.modrinth:modernfix:${modernfix_version}"
 
-    compileOnly fg.deobf("appeng:appliedenergistics2:${ae2_version}:api") { transitive = false }
-    compileOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:api") { transitive = false }
-    compileOnly fg.deobf("codechicken:CBMultipart:${cbmultipart_version}:universal") {
+    compileOnly("appeng:appliedenergistics2:${ae2_version}:api") { transitive = false }
+    compileOnly("mekanism:Mekanism:${mekanism_version}:api") { transitive = false }
+    compileOnly("codechicken:CBMultipart:${cbmultipart_version}:universal") {
         exclude module: jeiSlug
         exclude module: "CodeChickenLib"
     }
-    compileOnly fg.deobf("codechicken:ChickenASM:${casm_version}")
-    compileOnly fg.deobf("mezz.jei:${jeiSlug}:${jei_version}")
-    compileOnly fg.deobf("codechicken:CodeChickenLib:${ccl_version}:universal")
-    compileOnly fg.deobf("codechicken:EnderStorage:${enderstorage_version}:universal")
-    compileOnly fg.deobf("mrtjp:ProjectRed:${projred_version}:core") {
+    compileOnly "codechicken:ChickenASM:${casm_version}"
+    runtimeOnly "mezz.jei:${jeiSlug}-forge:${jei_version}"
+    compileOnly "mezz.jei:${jeiSlug}-forge-api:${jei_version}"
+    compileOnly "codechicken:CodeChickenLib:${ccl_version}:universal"
+    compileOnly "codechicken:EnderStorage:${enderstorage_version}:universal"
+    compileOnly("mrtjp:ProjectRed:${projred_version}:core") {
         exclude module: "CodeChickenLib"
         exclude module: jeiSlug
         exclude module: "CBMultipart"
     }
-*/
+
     testImplementation "org.scala-lang:scala-library:2.13.10"
     testImplementation "junit:junit:4.13.2"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
@@ -232,5 +237,6 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 tasks.withType(ScalaCompile).configureEach {
-    scalaCompileOptions.forkOptions.memoryMaximumSize = '1g'
+    scalaCompileOptions.forkOptions.memoryMaximumSize = '2g'
+    scalaCompileOptions.forkOptions.jvmArgs = ['-Xss4m']
 }

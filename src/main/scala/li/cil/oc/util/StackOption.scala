@@ -1,7 +1,9 @@
 package li.cil.oc.util
 
-import li.cil.oc.util.StackOption._
-import net.minecraft.item.ItemStack
+import li.cil.oc.util.StackOption.*
+import net.minecraft.world.item.ItemStack
+
+import scala.language.implicitConversions
 
 object StackOption {
 
