@@ -1,30 +1,24 @@
 package li.cil.oc.client.renderer.markdown.segment.render
 
-import java.io.InputStream
-import java.nio.Buffer
-import javax.imageio.ImageIO
-
-import com.mojang.blaze3d.matrix.MatrixStack
+import java.io.IOException
+import com.mojang.blaze3d.platform.NativeImage
+import com.mojang.blaze3d.platform.TextureUtil
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex._
 import li.cil.oc.api.manual.ImageRenderer
-import li.cil.oc.client.Textures
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.texture.Texture
-import net.minecraft.client.renderer.texture.TextureUtil
-import net.minecraft.resources.IResourceManager
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.vector.Matrix4f
-import net.minecraft.util.math.vector.Vector4f
-import org.lwjgl.opengl.GL11
-import org.lwjgl.system.MemoryUtil
+import net.minecraft.client.renderer.GameRenderer
+import net.minecraft.client.renderer.texture.AbstractTexture
+import net.minecraft.server.packs.resources.ResourceManager
+import net.minecraft.resources.ResourceLocation
+import com.mojang.math.Matrix4f
 
 class TextureImageRenderer(val location: ResourceLocation) extends ImageRenderer {
-  private val texture = {
+  private val texture: ImageTexture = {
     val manager = Minecraft.getInstance.getTextureManager
     manager.getTexture(location) match {
       case image: ImageTexture => image
-      case other =>
-        if (other != null) other.releaseId()
+      case _ =>
         val image = new ImageTexture(location)
         manager.register(location, image)
         image
@@ -35,61 +29,60 @@ class TextureImageRenderer(val location: ResourceLocation) extends ImageRenderer
 
   override def getHeight: Int = texture.height
 
-  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int): Unit = {
-    Textures.bind(location)
-    RenderSystem.color4f(1, 1, 1, 1)
-    GL11.glBegin(GL11.GL_QUADS)
-    GL11.glTexCoord2f(0, 0)
+  override def render(stack: PoseStack, mouseX: Int, mouseY: Int): Unit = {
+    RenderSystem.setShaderTexture(0, location)
+    RenderSystem.setShader(() => GameRenderer.getPositionTexShader)
+    RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
+
+    RenderSystem.enableBlend()
+    RenderSystem.defaultBlendFunc()
+
     val matrix = stack.last.pose
-    val vec = new Vector4f(0, 0, 0, 1)
-    vec.transform(matrix)
-    GL11.glVertex3f(vec.x, vec.y, vec.z)
-    GL11.glTexCoord2f(0, 1)
-    vec.set(0, texture.height, 0, 1)
-    vec.transform(matrix)
-    GL11.glVertex3f(vec.x, vec.y, vec.z)
-    GL11.glTexCoord2f(1, 1)
-    vec.set(texture.width, texture.height, 0, 1)
-    vec.transform(matrix)
-    GL11.glVertex3f(vec.x, vec.y, vec.z)
-    GL11.glTexCoord2f(1, 0)
-    vec.set(texture.width, 0, 0, 1)
-    vec.transform(matrix)
-    GL11.glVertex3f(vec.x, vec.y, vec.z)
-    GL11.glEnd()
+    val tesselator = Tesselator.getInstance()
+    val builder = tesselator.getBuilder
+
+    builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
+    builder.vertex(matrix, 0, texture.height.toFloat, 0).uv(0, 1).endVertex()
+    builder.vertex(matrix, texture.width.toFloat, texture.height.toFloat, 0).uv(1, 1).endVertex()
+    builder.vertex(matrix, texture.width.toFloat, 0, 0).uv(1, 0).endVertex()
+    builder.vertex(matrix, 0, 0, 0).uv(0, 0).endVertex()
+    tesselator.end()
+
+    RenderSystem.disableBlend()
   }
 
-  private class ImageTexture(val location: ResourceLocation) extends Texture {
+  private class ImageTexture(val resLoc: ResourceLocation) extends AbstractTexture {
     var width = 0
     var height = 0
 
-    override def load(manager: IResourceManager): Unit = {
-      releaseId()
+    override def load(manager: ResourceManager): Unit = {
+      this.releaseId()
 
-      var is: InputStream = null
-      try {
-        val resource = manager.getResource(location)
-        is = resource.getInputStream
-        val bi = ImageIO.read(is)
-        val data = MemoryUtil.memAllocInt(bi.getWidth * bi.getHeight)
-        val tempArr = Array.ofDim[Int]((1024 * 1024) min data.capacity)
-        val dy = tempArr.length / bi.getWidth
-        for (y0 <- 0 until bi.getHeight by dy) {
-          val currH = dy min (bi.getHeight - y0 - 1)
-          bi.getRGB(0, y0, bi.getWidth, currH, tempArr, 0, bi.getWidth)
-          data.put(tempArr, 0, bi.getWidth * currH)
-        }
-
-        bind()
-        data.asInstanceOf[Buffer].flip()
-        TextureUtil.initTexture(data, bi.getWidth, bi.getHeight)
-        width = bi.getWidth
-        height = bi.getHeight
+      val resource = try {
+        manager.getResource(resLoc)
+      } catch {
+        case _: IOException => return
       }
-      finally {
-        Option(is).foreach(_.close())
+
+      val is = resource.getInputStream
+      try {
+        val nativeImage = NativeImage.read(is)
+        try {
+          this.width = nativeImage.getWidth
+          this.height = nativeImage.getHeight
+
+          RenderSystem.recordRenderCall(() => {
+            TextureUtil.prepareImage(this.getId, this.width, this.height)
+            nativeImage.upload(0, 0, 0, false)
+          })
+        } finally {
+          RenderSystem.recordRenderCall(() => nativeImage.close())
+        }
+      } catch {
+        case _: IOException =>
+      } finally {
+        if (is != null) is.close()
       }
     }
   }
-
 }

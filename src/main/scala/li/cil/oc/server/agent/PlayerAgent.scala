@@ -14,40 +14,41 @@ import li.cil.oc.common.EventHandler
 import li.cil.oc.server.agent.{Inventory => AgentInventory}
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.block.PistonBlock
-import net.minecraft.entity.Entity
-import net.minecraft.entity.EntitySize
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.Pose
-import net.minecraft.entity.item.ItemEntity
-import net.minecraft.entity.merchant.IMerchant
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerEntity.SleepResult
-import net.minecraft.block.Blocks
-import net.minecraft.item.Items
-import net.minecraft.inventory._
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.inventory.container.PlayerContainer
-import net.minecraft.item.BlockItem
-import net.minecraft.item.ItemUseContext
-import net.minecraft.item.ItemStack
-import net.minecraft.item.MerchantOffers
-import net.minecraft.network.play.ServerPlayNetHandler
-import net.minecraft.network.play.client.CPlayerDiggingPacket
-import net.minecraft.potion.EffectInstance
-import net.minecraft.server.management.{PlayerInteractionManager, OpEntry}
-import net.minecraft.tileentity._
-import net.minecraft.util.ActionResultType
-import net.minecraft.util.DamageSource
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.BlockRayTraceResult
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.world.level.block.piston.PistonBaseBlock
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityDimensions
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.Pose
+import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.world.item.trading.Merchant
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.Player.BedStatus
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.item.Items
+import net.minecraft.world.Container
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.inventory.InventoryMenu
+import net.minecraft.world.item.BlockItem
+import net.minecraft.world.item.context.UseOnContext
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.trading.MerchantOffers
+import net.minecraft.server.network.ServerGamePacketListenerImpl
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket
+import net.minecraft.world.effect.MobEffectInstance
+import net.minecraft.server.level.ServerPlayerGameMode
+import net.minecraft.server.players.UserWhiteListEntry
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.damagesource.DamageSource
+import net.minecraft.core.Direction
+import net.minecraft.world.InteractionHand
+import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.phys.Vec3
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.world.level.Level
+import net.minecraft.server.level.ServerLevel
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayer
 import net.minecraftforge.common.util.LazyOptional
@@ -55,14 +56,14 @@ import net.minecraftforge.common.util.NonNullSupplier
 import net.minecraftforge.event.ForgeEventFactory
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper
 import net.minecraftforge.eventbus.api.{Event, EventPriority, SubscribeEvent}
 import net.minecraftforge.items.IItemHandler
 import net.minecraftforge.items.wrapper._
 
 import scala.jdk.CollectionConverters._
 
-object Player {
+object PlayerAgent {
   // These use unobfuscated names because they're added by forge (LazyOptional / capabilities).
   private val playerMainHandler = ObfuscationReflectionHelper.findField(classOf[PlayerEntity], "playerMainHandler")
 
@@ -150,7 +151,7 @@ object Player {
   }
 }
 
-class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanceOf[ServerWorld], Player.profileFor(agent)) {
+class PlayerAgent(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanceOf[ServerWorld], Player.profileFor(agent)) {
   connection= new ServerPlayNetHandler(server, FakeNetworkManager, this)
 
   abilities.mayfly = true

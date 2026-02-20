@@ -3,29 +3,29 @@ package li.cil.oc.common.block
 import java.util
 
 import li.cil.oc.client.KeyBindings
-import li.cil.oc.common.menu.ContainerTypes
+import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.item.data.RaidData
 import li.cil.oc.common.tileentity
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Tooltip
-import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.state.StateContainer
-import net.minecraft.loot.LootContext
-import net.minecraft.loot.LootParameters
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties as Properties
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.item.TooltipFlag as ITooltipFlag
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.server.level.ServerPlayer as ServerPlayerEntity
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.state.StateDefinition as StateContainer
+import net.minecraft.world.level.storage.loot.LootContext
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams as LootParameters
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
+import net.minecraft.network.chat.Component as ITextComponent
+import net.minecraft.network.chat.TextComponent as StringTextComponent
+import net.minecraft.world.level.BlockGetter as IBlockReader
+import net.minecraft.world.level.Level as World
 import net.minecraftforge.common.extensions.IForgeBlock
 
 import scala.reflect.ClassTag
@@ -48,11 +48,11 @@ class Raid(props: Properties) extends SimpleBlock(props) with IForgeBlock with t
   // ----------------------------------------------------------------------- //
 
   override def openGui(player: ServerPlayerEntity, world: World, pos: BlockPos): Unit = world.getBlockEntity(pos) match {
-    case te: tileentity.Raid => ContainerTypes.openRaidGui(player, te)
+    case te: tileentity.Raid => MenuTypes.openRaidGui(player, te)
     case _ =>
   }
 
-  override def newBlockEntity(world: IBlockReader) = new tileentity.Raid(tileentity.TileEntityTypes.RAID)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Raid(tileentity.TileEntityTypes.RAID, pos, state)
 
   // ----------------------------------------------------------------------- //
 

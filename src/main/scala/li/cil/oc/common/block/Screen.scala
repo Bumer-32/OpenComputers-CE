@@ -13,24 +13,26 @@ import li.cil.oc.integration.util.Wrench
 import li.cil.oc.util.PackedColor
 import li.cil.oc.util.RotationHelper
 import li.cil.oc.util.Tooltip
-import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties as Properties
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.entity.Entity
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.projectile.ArrowEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.state.StateContainer
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.{IBlockReader, World}
-import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+import net.minecraft.world.item.TooltipFlag as ITooltipFlag
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.world.entity.projectile.Arrow as ArrowEntity
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.state.StateDefinition as StateContainer
+import net.minecraft.core.Direction
+import net.minecraft.world.InteractionHand as Hand
+import net.minecraft.core.BlockPos
+import net.minecraft.network.chat.Component as ITextComponent
+import net.minecraft.network.chat.TextComponent as StringTextComponent
+import net.minecraft.world.level.BlockGetter as IBlockReader
+import net.minecraft.world.level.Level as World
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
@@ -50,7 +52,7 @@ class Screen(props: Properties, val tier: Int) extends RedstoneAware(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(world: IBlockReader) = new tileentity.Screen(tileentity.TileEntityTypes.SCREEN, tier)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Screen(tileentity.TileEntityTypes.SCREEN, pos, state, tier)
 
   // ----------------------------------------------------------------------- //
 
@@ -89,10 +91,10 @@ class Screen(props: Properties, val tier: Int) extends RedstoneAware(props) {
     Minecraft.getInstance.pushGuiLayer(new gui.Screen(screen.origin.buffer, screen.tier > 0, () => screen.origin.hasKeyboard, () => screen.origin.buffer.isRenderingEnabled))
   }
 
-  override def stepOn(world: World, pos: BlockPos, entity: Entity): Unit =
+  override def stepOn(world: World, pos: BlockPos, state: BlockState, entity: Entity): Unit =
     if (!world.isClientSide) world.getBlockEntity(pos) match {
       case screen: tileentity.Screen if screen.tier > 0 && screen.facing == Direction.UP => screen.walk(entity)
-      case _ => super.stepOn(world, pos, entity)
+      case _ => super.stepOn(world, pos, state, entity)
     }
 
   override def entityInside(state: BlockState, world: World, pos: BlockPos, entity: Entity): Unit =

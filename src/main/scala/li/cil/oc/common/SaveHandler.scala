@@ -16,17 +16,17 @@ import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.SafeThreadPool
 import li.cil.oc.util.ThreadPoolFactory
-import net.minecraft.nbt.CompressedStreamTools
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.ChunkPos
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
-import net.minecraft.world.storage.FolderName
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraft.nbt.{NbtIo => CompressedStreamTools}
+import net.minecraft.nbt.{CompoundTag => CompoundNBT}
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.ChunkPos
+import net.minecraft.world.level.{Level => World}
+import net.minecraft.server.level.{ServerLevel => ServerWorld}
+import net.minecraft.world.level.storage.{LevelResource => FolderName}
+import net.minecraftforge.event.level.{LevelEvent => WorldEvent}
 import net.minecraftforge.eventbus.api.EventPriority
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraftforge.server.ServerLifecycleHooks
 import org.apache.commons.lang3.JavaVersion
 import org.apache.commons.lang3.SystemUtils
 

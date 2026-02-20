@@ -151,7 +151,7 @@ object ZipFileInputStreamFileSystem {
     def find(path: Iterable[String]): Option[Archive]
   }
 
-  private class ArchiveFile(zip: ZipFile, entry: ZipEntry, root: String) extends Archive(entry, root) {
+  class ArchiveFile(zip: ZipFile, entry: ZipEntry, root: String) extends Archive(entry, root) {
     val data = {
       val in = zip.getInputStream(entry)
       Iterator.continually(in.read).takeWhile(-1 !=).map(_.toByte).toArray
@@ -168,7 +168,7 @@ object ZipFileInputStreamFileSystem {
       else None
   }
 
-  private class ArchiveDirectory(entry: ZipEntry, root: String) extends Archive(entry, root) {
+  class ArchiveDirectory(entry: ZipEntry, root: String) extends Archive(entry, root) {
     val children = mutable.Set.empty[Archive]
 
     val size = 0

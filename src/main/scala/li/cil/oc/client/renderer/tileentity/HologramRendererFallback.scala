@@ -1,12 +1,12 @@
 package li.cil.oc.client.renderer.tileentity
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.common.tileentity.Hologram
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.util.math.vector.Vector3f
+import net.minecraft.client.renderer.MultiBufferSource
+import com.mojang.math.Vector3f
 
 object HologramRendererFallback {
   var text = "Requires OpenGL 1.5"

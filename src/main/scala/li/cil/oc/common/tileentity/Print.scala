@@ -12,19 +12,19 @@ import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.util.ExtendedAABB
 import li.cil.oc.util.ExtendedAABB._
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.util.SoundEvents
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
-import net.minecraft.util.SoundCategory
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.RayTraceResult
-import net.minecraft.util.math.shapes.IBooleanFunction
-import net.minecraft.util.math.shapes.VoxelShape
-import net.minecraft.util.math.shapes.VoxelShapes
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.nbt.{CompoundTag => CompoundNBT}
+import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
+import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
+import net.minecraft.core.Direction
+import net.minecraft.sounds.{SoundSource => SoundCategory}
+import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.{HitResult => RayTraceResult}
+import net.minecraft.world.phys.shapes.{BooleanOp => IBooleanFunction}
+import net.minecraft.world.phys.shapes.VoxelShape
+import net.minecraft.world.phys.shapes.{Shapes => VoxelShapes}
+import net.minecraft.world.phys.{Vec3 => Vector3d}
+import net.minecraft.server.level.{ServerLevel => ServerWorld}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.model.data.IModelData

@@ -11,12 +11,12 @@ import li.cil.oc.common.EventHandler
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.RotationHelper
-import net.minecraft.util.SoundEvents
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
-import net.minecraft.util.SoundCategory
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.nbt.{CompoundTag => CompoundNBT}
+import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
+import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
+import net.minecraft.core.Direction
+import net.minecraft.sounds.{SoundSource => SoundCategory}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 

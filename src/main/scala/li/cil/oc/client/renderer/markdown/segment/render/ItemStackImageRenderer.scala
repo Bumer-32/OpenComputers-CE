@@ -1,14 +1,10 @@
 package li.cil.oc.client.renderer.markdown.segment.render
 
-import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.api.manual.ImageRenderer
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.RenderHelper
-import net.minecraft.item.ItemStack
-import org.lwjgl.opengl.GL11
-import org.lwjgl.opengl.GL12
-import org.lwjgl.opengl.GL13
+import net.minecraft.world.item.ItemStack
 
 private[markdown] class ItemStackImageRenderer(val stacks: Array[ItemStack]) extends ImageRenderer {
   // How long to show individual stacks, in milliseconds, before switching to the next.
@@ -18,7 +14,7 @@ private[markdown] class ItemStackImageRenderer(val stacks: Array[ItemStack]) ext
 
   override def getHeight = 32
 
-  override def render(matrix: MatrixStack, mouseX: Int, mouseY: Int): Unit = {
+  override def render(matrix: PoseStack, mouseX: Int, mouseY: Int): Unit = {
     val mc = Minecraft.getInstance
     val index = (System.currentTimeMillis() % (cycleSpeed * stacks.length)).toInt / cycleSpeed
     val stack = stacks(index)

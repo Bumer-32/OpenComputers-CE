@@ -10,8 +10,8 @@ import li.cil.oc.api.fs.Label
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common.Slot
 import li.cil.oc.integration.opencomputers.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 
 object DriverComputerCraftMedia extends Item {
   override def worksWith(stack: ItemStack) = stack.getItem.isInstanceOf[IMedia]
@@ -36,7 +36,7 @@ object DriverComputerCraftMedia extends Item {
     case ro: IMount => new ComputerCraftFileSystem(ro)
   }
 
-  private def addressFromTag(tag: CompoundNBT) =
+  private def addressFromTag(tag: CompoundTag) =
     if (tag.contains("node") && tag.getCompound("node").contains("address")) {
       tag.getCompound("node").getString("address")
     }
@@ -51,9 +51,9 @@ object DriverComputerCraftMedia extends Item {
       media.setLabel(stack, value)
     }
 
-    override def loadData(nbt: CompoundNBT): Unit = {}
+    override def loadData(nbt: CompoundTag): Unit = {}
 
-    override def saveData(nbt: CompoundNBT): Unit = {}
+    override def saveData(nbt: CompoundTag): Unit = {}
   }
 
 }

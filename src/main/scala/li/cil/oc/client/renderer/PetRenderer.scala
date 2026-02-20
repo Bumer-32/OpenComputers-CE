@@ -4,16 +4,16 @@ import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
 
 import com.google.common.cache.CacheBuilder
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack as MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.api.event.RobotRenderEvent
 import li.cil.oc.client.renderer.tileentity.RobotRenderer
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.entity.Entity
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.util.math.vector.Vector3f
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.phys.Vec3
+import com.mojang.math.Vector3f
 import net.minecraftforge.client.event.RenderPlayerEvent
 import net.minecraftforge.eventbus.api.EventPriority
 import net.minecraftforge.eventbus.api.SubscribeEvent

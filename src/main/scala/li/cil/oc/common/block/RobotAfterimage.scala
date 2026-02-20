@@ -1,28 +1,28 @@
 package li.cil.oc.common.block
 
 import java.util.Random
-
 import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.common.tileentity
-import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.Blocks
-import net.minecraft.block.BlockState
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.fluid.FluidState
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ActionResultType
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.BlockRayTraceResult
-import net.minecraft.util.math.RayTraceResult
-import net.minecraft.util.math.shapes.ISelectionContext
-import net.minecraft.util.math.shapes.VoxelShape
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.{Block, Blocks}
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.world.level.material.FluidState
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.InteractionResult as ActionResultType
+import net.minecraft.core.Direction
+import net.minecraft.world.InteractionHand as Hand
+import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.BlockHitResult as BlockRayTraceResult
+import net.minecraft.world.phys.HitResult as RayTraceResult
+import net.minecraft.world.phys.shapes.CollisionContext as ISelectionContext
+import net.minecraft.world.phys.shapes.VoxelShape
+import net.minecraft.world.level.BlockGetter as IBlockReader
+import net.minecraft.world.level.Level as World
+import net.minecraft.server.level.ServerLevel as ServerWorld
+import net.minecraft.world.ticks.ScheduledTick
 
 class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
   override def getPickBlock(state: BlockState, target: RayTraceResult, world: IBlockReader, pos: BlockPos, player: PlayerEntity): ItemStack =
@@ -47,9 +47,20 @@ class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def onPlace(state: BlockState, world: World, pos: BlockPos, prevState: BlockState, moved: Boolean): Unit = {
+  override def onPlace(
+                        state: BlockState,
+                        world: World,
+                        pos: BlockPos,
+                        prevState: BlockState,
+                        moved: Boolean
+                      ): Unit = {
+    super.onPlace(state, world, pos, prevState, moved)
+
     if (!world.isClientSide) {
-      world.asInstanceOf[ServerWorld].getBlockTicks.scheduleTick(pos, this, Math.max((Settings.get.moveDelay * 20).toInt, 1) - 1)
+      val delay = Math.max((Settings.get.moveDelay * 20).toInt, 1) - 1
+      val triggerTime = world.getGameTime + delay.toLong
+
+      world.getBlockTicks.schedule(new ScheduledTick)(this, pos, triggerTime, world.nextSubTickCount)
     }
   }
 
@@ -57,11 +68,19 @@ class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
     world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState)
   }
 
-  override def removedByPlayer(state: BlockState, world: World, pos: BlockPos, player: PlayerEntity, willHarvest: Boolean, fluid: FluidState): Boolean = {
+  override def removedByPlayer(
+                                state: BlockState,
+                                world: World,
+                                pos: BlockPos,
+                                player: PlayerEntity,
+                                willHarvest: Boolean,
+                                fluid: FluidState
+                              ): Boolean = {
     findMovingRobot(world, pos) match {
       case Some(robot) if robot.isAnimatingMove && robot.moveFrom.contains(pos) =>
         robot.proxy.getBlockState.getBlock.removedByPlayer(state, world, pos, player, false, fluid)
-      case _ => super.removedByPlayer(state, world, pos, player, willHarvest, fluid) // Probably broken by the robot we represent.
+      case _ =>
+        super.removedByPlayer(state, world, pos, player, willHarvest, fluid)
     }
   }
 

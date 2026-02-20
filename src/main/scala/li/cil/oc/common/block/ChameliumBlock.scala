@@ -2,18 +2,18 @@ package li.cil.oc.common.block
 
 import java.util.List
 
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.item.BlockItemUseContext
-import net.minecraft.item.DyeColor
-import net.minecraft.item.ItemGroup
-import net.minecraft.item.ItemStack
-import net.minecraft.state.EnumProperty
-import net.minecraft.state.StateContainer
-import net.minecraft.util.NonNullList
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.IBlockReader
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties as Properties
+import net.minecraft.world.item.context.BlockPlaceContext as BlockItemUseContext
+import net.minecraft.world.item.DyeColor
+import net.minecraft.world.item.CreativeModeTab as ItemGroup
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.state.properties.EnumProperty
+import net.minecraft.world.level.block.state.StateDefinition as StateContainer
+import net.minecraft.core.NonNullList
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.BlockGetter as IBlockReader
 
 object ChameliumBlock {
   final val Color = EnumProperty.create("color", classOf[DyeColor])

@@ -3,13 +3,13 @@ package li.cil.oc.common.block
 import java.util.Random
 
 import li.cil.oc.common.tileentity
-import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.world.level.block.state.BlockBehaviour.{Properties => Properties}
+import net.minecraft.world.level.block.{Block => Block}
+import net.minecraft.world.level.block.state.{BlockState => BlockState}
+import net.minecraft.core.{BlockPos => BlockPos}
+import net.minecraft.world.level.{BlockGetter => IBlockReader}
+import net.minecraft.world.level.{Level => World}
+import net.minecraft.server.level.{ServerLevel => ServerWorld}
 
 class Capacitor(props: Properties) extends SimpleBlock(props) {
   @Deprecated

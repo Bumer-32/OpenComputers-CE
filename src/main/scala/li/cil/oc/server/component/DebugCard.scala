@@ -30,46 +30,64 @@ import li.cil.oc.util.ExtendedBlock._
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.block.Block
-import net.minecraft.block.FlowingFluidBlock
-import net.minecraft.command.CommandSource
-import net.minecraft.command.ICommandSource
-import net.minecraft.entity.item.minecart.MinecartEntity
-import net.minecraft.entity.{Entity, LivingEntity}
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.LiquidBlock
+import net.minecraft.commands.CommandSource
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.world.entity.vehicle.AbstractMinecart
+import net.minecraft.world.entity.{Entity, LivingEntity}
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt._
-import net.minecraft.scoreboard.{ScoreCriteria, Scoreboard}
+import net.minecraft.world.scores.criteria.ObjectiveCriteria
+import net.minecraft.world.scores.Scoreboard
 import net.minecraft.server.MinecraftServer
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.RegistryKey
-import net.minecraft.util.SoundCategory
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.shapes.ISelectionContext
-import net.minecraft.util.math.vector.Vector2f
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.util.registry.Registry
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.{GameType, World, WorldSettings}
-import net.minecraft.world.server.ServerWorld
-import net.minecraft.world.storage.IServerWorldInfo
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.ResourceKey
+import net.minecraft.sounds.SoundSource
+import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.shapes.CollisionContext
+import net.minecraft.world.phys.Vec2
+import net.minecraft.world.phys.Vec3
+import net.minecraft.core.Registry
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.world.level.{GameType, Level, LevelSettings}
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.storage.ServerLevelData
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayer
 import net.minecraftforge.common.util.FakePlayerFactory
-import net.minecraftforge.event.world.BlockEvent
+import net.minecraftforge.event.level.BlockEvent
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.IFluidBlock
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fml.ModList
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraftforge.server.ServerLifecycleHooks
 import net.minecraftforge.registries.ForgeRegistries
-import net.minecraftforge.registries.ForgeRegistry
 import net.minecraftforge.registries.IForgeRegistry
-
+/*
+FlowingFluidBlock → LiquidBlock
+ICommandSource → CommandSource
+CommandSource → CommandSourceStack
+MinecartEntity → AbstractMinecart
+ServerPlayerEntity → ServerPlayer
+ScoreCriteria → ObjectiveCriteria
+TileEntity → BlockEntity
+RegistryKey → ResourceKey
+SoundCategory → SoundSource
+ISelectionContext → CollisionContext
+Vector2f → Vec2
+Vector3d → Vec3
+ITextComponent → Component
+StringTextComponent → TextComponent
+World → Level
+WorldSettings → LevelSettings
+ServerWorld → ServerLevel
+*/
 import scala.collection.JavaConverters.{collectionAsScalaIterable, mapAsScalaMap}
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
@@ -534,9 +552,9 @@ object DebugCard {
     }
   }
 
-  class ScoreboardValue(world: Option[World])(implicit var ctx: Option[AccessContext]) extends prefab.AbstractValue {
+  class ScoreboardValue(world: Option[Level])(implicit var ctx: Option[AccessContext]) extends prefab.AbstractValue {
     var scoreboard: Scoreboard = world.fold(null: Scoreboard)(_.getScoreboard)
-    var dimension: ResourceLocation = world.fold(World.OVERWORLD)(_.dimension).location
+    var dimension: ResourceLocation = world.fold(Level.OVERWORLD)(_.dimension).location
 
     def this() = this(None)(None) // For loading.
 
@@ -668,7 +686,7 @@ object DebugCard {
   }
 
 
-  class WorldValue(var world: World)(implicit var ctx: Option[AccessContext]) extends prefab.AbstractValue {
+  class WorldValue(var world: Level)(implicit var ctx: Option[AccessContext]) extends prefab.AbstractValue {
     def this() = this(null)(None) // For loading.
 
     // ----------------------------------------------------------------------- //

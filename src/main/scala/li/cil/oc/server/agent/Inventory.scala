@@ -7,20 +7,20 @@ import li.cil.oc.util.ExtendedInventory._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
-import net.minecraft.util.DamageSource
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.block.BlockState
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player
+import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTa
+import net.minecraft.nbt.ListTag
+import net.minecraft.world.damagesource.DamageSource
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.world.level.block.state.BlockState
 
 import scala.collection.immutable
 
-class Inventory(playerEntity: PlayerEntity, val agent: internal.Agent) extends PlayerInventory(playerEntity) {
+class Inventory(playerEntity: Player, val agent: internal.Agent) extends player.Inventory(playerEntity) {
 
   private def selectedItemStack: ItemStack = agent.mainInventory.getItem(agent.selectedSlot)
 

@@ -2,15 +2,15 @@ package li.cil.oc.common.block.traits
 
 import li.cil.oc.OpenComputers
 import li.cil.oc.common.block.SimpleBlock
-import net.minecraft.block.BlockState
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.server.level.ServerPlayer as ServerPlayerEntity
+import net.minecraft.world.MenuProvider as INamedContainerProvider
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
+import net.minecraft.world.InteractionHand as Hand
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level as World
 
 trait GUI extends SimpleBlock {
   def openGui(player: ServerPlayerEntity, world: World, pos: BlockPos): Unit

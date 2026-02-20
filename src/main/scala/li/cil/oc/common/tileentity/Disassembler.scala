@@ -19,15 +19,15 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.ItemUtils
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
+import net.minecraft.world.entity.player.{Inventory => PlayerInventory}
+import net.minecraft.world.{MenuProvider => INamedContainerProvider}
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.{CompoundTag => CompoundNBT}
+import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
+import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
+import net.minecraft.core.Direction
+import net.minecraft.nbt.{Tag => NBT}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 

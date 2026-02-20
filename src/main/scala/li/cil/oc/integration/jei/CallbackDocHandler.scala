@@ -3,7 +3,6 @@ package li.cil.oc.integration.jei
 import java.util
 
 import com.google.common.base.Strings
-import com.mojang.blaze3d.matrix.MatrixStack
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -17,12 +16,11 @@ import mezz.jei.api.ingredients.IIngredients
 import mezz.jei.api.recipe.category.IRecipeCategory
 import mezz.jei.api.registration.IRecipeRegistration
 import net.minecraft.client.Minecraft
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ICharacterConsumer
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.CharacterManager.ISliceAcceptor
-import net.minecraft.util.text.Style
-import net.minecraft.util.text.TextFormatting
+import net.minecraft.world.item.ItemStack
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.FormattedCharSink // ICharacterConsumer / ISliceAcceptor
+import net.minecraft.network.chat.Style
+import net.minecraft.ChatFormatting
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -78,10 +76,10 @@ object CallbackDocHandler {
   }
   else Seq.empty
 
-  protected def wrap(line: String, width: Int): util.List[String] = {
-    val list = new util.ArrayList[String]
-    Minecraft.getInstance.font.getSplitter.splitLines(line, width, Style.EMPTY, true, new ISliceAcceptor {
-      override def accept(style: Style, start: Int, end: Int) = list.add(line.substring(start, end))
+  protected def wrap(line: String, width: Int): java.util.List[String] = {
+    val list = new java.util.ArrayList[String]
+    Minecraft.getInstance.font.getSplitter.splitLines(line, width, Style.EMPTY, (style, contents) => {
+      list.add(contents)
     })
     list
   }
@@ -100,17 +98,15 @@ object CallbackDocHandler {
         guiHelper.createTickTimer(20, 1, true), 0, 16)
     }
 
-    override def getRecipeClass = classOf[CallbackDocRecipe]
-
     override def getIcon: IDrawable = icon
 
     override def getBackground: IDrawable = background
 
-    override def setIngredients(recipeWrapper: CallbackDocRecipe, ingredients: IIngredients): Unit = {
-      ingredients.setInput(VanillaTypes.ITEM, recipeWrapper.stack)
-    }
-
-    override def setRecipe(recipeLayout: IRecipeLayout, recipeWrapper: CallbackDocRecipe, ingredients: IIngredients): Unit = {
+    override def getRecipeType: RecipeType[CallbackDocRecipe] = RECIPE_TYPE
+    
+    override def setRecipe(builder: IRecipeLayoutBuilder, recipe: CallbackDocRecipe, focuses: IFocusGroup): Unit = {
+      builder.addSlot(RecipeIngredientRole.INPUT, 1, 1)
+        .addIngredient(VanillaTypes.ITEM_STACK, recipe.stack)
     }
 
     override def draw(recipeWrapper: CallbackDocRecipe, stack: MatrixStack, mouseX: Double, mouseY: Double): Unit = {
@@ -125,5 +121,4 @@ object CallbackDocHandler {
 
     override def getUid = new ResourceLocation(OpenComputers.ID, "part_api")
   }
-
 }

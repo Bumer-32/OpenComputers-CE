@@ -7,10 +7,10 @@ import li.cil.oc.Constants
 import li.cil.oc.util.Color
 import net.minecraft.item.DyeColor
 import li.cil.oc.util.ItemColorizer
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
+import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
 
 class Cable(selfType: TileEntityType[_ <: Cable]) extends TileEntity(selfType) with traits.Environment with traits.NotAnalyzable with traits.ImmibisMicroblock with traits.Colored {
   val node = api.Network.newNode(this, Visibility.None).create()

@@ -3,26 +3,26 @@ package li.cil.oc.common.block
 import java.util
 
 import li.cil.oc.Settings
-import li.cil.oc.common.menu.ContainerTypes
+import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.Tooltip
-import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.fluid.FluidState
-import net.minecraft.item.ItemStack
-import net.minecraft.state.StateContainer
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties as Properties
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.item.TooltipFlag as ITooltipFlag
+import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.server.level.ServerPlayer as ServerPlayerEntity
+import net.minecraft.world.level.material.FluidState
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.state.StateDefinition as StateContainer
+import net.minecraft.core.Direction
+import net.minecraft.world.InteractionHand as Hand
+import net.minecraft.core.BlockPos
+import net.minecraft.network.chat.Component as ITextComponent
+import net.minecraft.network.chat.TextComponent as StringTextComponent
+import net.minecraft.world.level.BlockGetter as IBlockReader
+import net.minecraft.world.level.Level as World
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
@@ -50,7 +50,7 @@ class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with t
   override def energyThroughput = Settings.get.caseRate(tier)
 
   override def openGui(player: ServerPlayerEntity, world: World, pos: BlockPos): Unit = world.getBlockEntity(pos) match {
-    case te: tileentity.Case if te.stillValid(player) => ContainerTypes.openCaseGui(player, te)
+    case te: tileentity.Case if te.stillValid(player) => MenuTypes.openCaseGui(player, te)
     case _ =>
   }
 
@@ -69,11 +69,23 @@ class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with t
     else super.localOnBlockActivated(world, pos, player, hand, heldItem, side, hitX, hitY, hitZ)
   }
 
-  override def removedByPlayer(state: BlockState, world: World, pos: BlockPos, player: PlayerEntity, willHarvest: Boolean, fluid: FluidState): Boolean =
-    world.getBlockEntity(pos) match {
-      case c: tileentity.Case =>
-        if (c.isCreative && (!player.isCreative || !c.canInteract(player.getName.getString))) false
-        else c.canInteract(player.getName.getString) && super.removedByPlayer(state, world, pos, player, willHarvest, fluid)
-      case _ => super.removedByPlayer(state, world, pos, player, willHarvest, fluid)
+  override def removedByPlayer(state: BlockState,
+                               world: World,
+                               pos: BlockPos,
+                               player: PlayerEntity,
+                               willHarvest: Boolean,
+                               fluid: FluidState
+                              ): Boolean = {
+    Option(world.getBlockEntity(pos)) match {
+      case Some(c: tileentity.Case) =>
+        val playerName = player.getName.getString
+        if (c.isCreative && (!player.isCreative || !c.canInteract(playerName))) {
+          false
+        } else {
+          c.canInteract(playerName) && super.removedByPlayer(state, world, pos, player, willHarvest, fluid)
+        }
+      case _ =>
+        super.removedByPlayer(state, world, pos, player, willHarvest, fluid)
     }
+  }
 }

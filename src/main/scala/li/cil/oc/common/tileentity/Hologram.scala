@@ -13,13 +13,13 @@ import li.cil.oc.api.network.Analyzable
 import li.cil.oc.api.network._
 import li.cil.oc.common.SaveHandler
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
-import net.minecraft.util.math.AxisAlignedBB
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
+import net.minecraft.nbt.{CompoundTag => CompoundNBT}
+import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
+import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
+import net.minecraft.core.Direction
+import net.minecraft.world.phys.{AABB => AxisAlignedBB}
+import net.minecraft.world.phys.{Vec3 => Vector3d}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 

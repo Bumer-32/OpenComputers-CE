@@ -2,7 +2,7 @@ package li.cil.oc.integration.jei
 
 import java.util
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack as MatrixStack
 import li.cil.oc.Localization
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
@@ -15,7 +15,7 @@ import mezz.jei.api.ingredients.IIngredients
 import mezz.jei.api.recipe.category.IRecipeCategory
 import mezz.jei.api.registration.IRecipeRegistration
 import net.minecraft.client.Minecraft
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import net.minecraft.client.gui.widget.button.Button
 import org.lwjgl.glfw.GLFW

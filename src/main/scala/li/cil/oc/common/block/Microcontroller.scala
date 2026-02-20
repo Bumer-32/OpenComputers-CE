@@ -15,24 +15,24 @@ import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.StackOption._
 import li.cil.oc.util.Tooltip
-import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.loot.LootContext
-import net.minecraft.loot.LootParameters
-import net.minecraft.state.StateContainer
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.RayTraceResult
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties as Properties
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.item.TooltipFlag as ITooltipFlag
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.storage.loot.LootContext
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams as LootParameters
+import net.minecraft.world.level.block.state.StateDefinition as StateContainer
+import net.minecraft.core.Direction
+import net.minecraft.world.InteractionHand as Hand
+import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.HitResult as RayTraceResult
+import net.minecraft.network.chat.Component as ITextComponent
+import net.minecraft.network.chat.TextComponent as StringTextComponent
+import net.minecraft.world.level.BlockGetter as IBlockReader
+import net.minecraft.world.level.Level as World
 import net.minecraftforge.common.extensions.IForgeBlock
 
 import scala.reflect.ClassTag
@@ -88,7 +88,7 @@ class Microcontroller(props: Properties)
         if (!world.isClientSide) {
           world.getBlockEntity(pos) match {
             case mcu: tileentity.Microcontroller =>
-              val newEeprom = player.inventory.removeItem(player.inventory.selected, 1)
+              val newEeprom = player.getInventory.removeItem(player.getInventory.selected, 1)
               mcu.changeEEPROM(newEeprom) match {
                 case SomeStack(oldEeprom) => InventoryUtils.addToPlayerInventory(oldEeprom, player)
                 case _ =>

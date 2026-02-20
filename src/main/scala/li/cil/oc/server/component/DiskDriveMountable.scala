@@ -1,7 +1,6 @@
 package li.cil.oc.server.component
 
 import java.util
-
 import li.cil.oc.{Constants, OpenComputers, api}
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -21,25 +20,23 @@ import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.common.{Slot, Sound}
 import li.cil.oc.common.menu.ContainerTypes
-import li.cil.oc.common.menu.{DiskDrive => DiskDriveContainer}
+import li.cil.oc.common.menu.DiskDrive as DiskDriveContainer
 import li.cil.oc.common.inventory.ComponentInventory
 import li.cil.oc.common.inventory.ItemStackInventory
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.util.ExtendedNBT.*
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.inventory.container.INamedContainerProvider
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.util.Direction
 import net.minecraft.util.Hand
 import net.minecraft.util.text.StringTextComponent
+import net.minecraft.world.MenuProvider
 
-import scala.collection.convert.ImplicitConversionsToJava._
+import scala.collection.convert.ImplicitConversionsToJava.*
 
-class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends AbstractManagedEnvironment with ItemStackInventory with ComponentInventory with RackMountable with Analyzable with DeviceInfo with INamedContainerProvider {
+class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) 
+  extends AbstractManagedEnvironment with ItemStackInventory with ComponentInventory with RackMountable with Analyzable with DeviceInfo with MenuProvider {
   // Stored for filling data packet when queried.
   var lastAccess = 0L
 

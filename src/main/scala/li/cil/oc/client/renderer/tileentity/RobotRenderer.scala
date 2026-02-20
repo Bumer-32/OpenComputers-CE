@@ -3,8 +3,6 @@ package li.cil.oc.client.renderer.tileentity
 import java.util.function.Function
 
 import com.google.common.base.Strings
-import com.mojang.blaze3d.matrix.MatrixStack
-import com.mojang.blaze3d.vertex.IVertexBuilder
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api.driver.item.UpgradeRenderer
@@ -16,20 +14,22 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.RenderState
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer._
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.item.Items
-import net.minecraft.item.BlockItem
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.util.math.vector.Vector3f
-import net.minecraft.util.math.vector.Matrix3f
-import net.minecraft.util.text.TextFormatting
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer as TileEntityRenderer
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher as TileEntityRendererDispatcher
+import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import net.minecraft.world.item.Items
+import net.minecraft.world.item.BlockItem
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
+import net.minecraft.world.phys.Vec3
+import com.mojang.math.Vector3f
+import com.mojang.math.Matrix3f
+import net.minecraft.ChatFormatting
 import net.minecraftforge.client.ForgeHooksClient
 import net.minecraftforge.common.MinecraftForge
 

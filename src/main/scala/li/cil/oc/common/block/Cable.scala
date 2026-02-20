@@ -8,24 +8,26 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.Color
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.ItemColorizer
-import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.{Entity, LivingEntity}
-import net.minecraft.item.{BlockItemUseContext, DyeColor, ItemStack}
-import net.minecraft.state.StateContainer
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.math.{BlockPos, RayTraceResult}
-import net.minecraft.util.math.shapes.ISelectionContext
-import net.minecraft.util.math.shapes.VoxelShape
-import net.minecraft.util.math.shapes.VoxelShapes
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.IWorld
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
-import net.minecraftforge.common.extensions.IForgeBlock
+import net.minecraft.world.level.block.state.BlockBehaviour.{Properties => Properties}
+import net.minecraft.world.level.block.{Block => Block}
+import net.minecraft.world.level.block.state.{BlockState => BlockState}
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
+import net.minecraft.world.entity.{Entity => Entity, LivingEntity => LivingEntity}
+import net.minecraft.world.item.context.{BlockPlaceContext => BlockItemUseContext}
+import net.minecraft.world.item.{DyeColor => DyeColor, ItemStack => ItemStack}
+import net.minecraft.world.level.block.state.{StateDefinition => StateContainer}
+import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
+import net.minecraft.core.{Direction => Direction}
+import net.minecraft.core.{BlockPos => BlockPos}
+import net.minecraft.world.phys.{HitResult => RayTraceResult}
+import net.minecraft.world.phys.shapes.{CollisionContext => ISelectionContext}
+import net.minecraft.world.phys.shapes.{VoxelShape => VoxelShape}
+import net.minecraft.world.phys.shapes.{Shapes => VoxelShapes}
+import net.minecraft.world.level.{BlockGetter => IBlockReader}
+import net.minecraft.world.level.{LevelAccessor => IWorld}
+import net.minecraft.world.level.{Level => World}
+import net.minecraft.server.level.{ServerLevel => ServerWorld}
+import net.minecraftforge.common.extensions.{IForgeBlock => IForgeBlock}
 
 import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
@@ -45,17 +47,17 @@ class Cable(props: Properties) extends SimpleBlock(props) with IForgeBlock {
       PropertyCableConnection.WEST, PropertyCableConnection.EAST)
   }
 
-  registerDefaultState(defaultBlockState.
-    setValue(PropertyCableConnection.DOWN, PropertyCableConnection.Shape.NONE).
-    setValue(PropertyCableConnection.UP, PropertyCableConnection.Shape.NONE).
-    setValue(PropertyCableConnection.NORTH, PropertyCableConnection.Shape.NONE).
-    setValue(PropertyCableConnection.SOUTH, PropertyCableConnection.Shape.NONE).
-    setValue(PropertyCableConnection.WEST, PropertyCableConnection.Shape.NONE).
-    setValue(PropertyCableConnection.EAST, PropertyCableConnection.Shape.NONE))
+  registerDefaultState(stateDefinition.any.
+    setValue[PropertyCableConnection.Shape, PropertyCableConnection.Shape](PropertyCableConnection.DOWN, PropertyCableConnection.Shape.NONE).
+    setValue[PropertyCableConnection.Shape, PropertyCableConnection.Shape](PropertyCableConnection.UP, PropertyCableConnection.Shape.NONE).
+    setValue[PropertyCableConnection.Shape, PropertyCableConnection.Shape](PropertyCableConnection.NORTH, PropertyCableConnection.Shape.NONE).
+    setValue[PropertyCableConnection.Shape, PropertyCableConnection.Shape](PropertyCableConnection.SOUTH, PropertyCableConnection.Shape.NONE).
+    setValue[PropertyCableConnection.Shape, PropertyCableConnection.Shape](PropertyCableConnection.WEST, PropertyCableConnection.Shape.NONE).
+    setValue[PropertyCableConnection.Shape, PropertyCableConnection.Shape](PropertyCableConnection.EAST, PropertyCableConnection.Shape.NONE))
 
   override def getStateForPlacement(ctx: BlockItemUseContext): BlockState = {
     val color = Cable.getConnectionColor(ctx.getItemInHand)
-    val fromPos = new BlockPos.Mutable()
+    val fromPos = new BlockPos.MutableBlockPos()
     Direction.values.foldLeft(defaultBlockState)((state, fromSide) => {
       fromPos.setWithOffset(ctx.getClickedPos, fromSide)
       val fromState = ctx.getLevel.getBlockState(fromPos)
@@ -75,7 +77,7 @@ class Cable(props: Properties) extends SimpleBlock(props) with IForgeBlock {
     if (world.isClientSide) return
     val newState = world.getBlockEntity(pos) match {
       case t: tileentity.Cable => {
-        val fromPos = new BlockPos.Mutable()
+        val fromPos = new BlockPos.MutableBlockPos()
         Direction.values.foldLeft(state)((state, fromSide) => {
           fromPos.setWithOffset(pos, fromSide)
           val fromState = world.getBlockState(fromPos)
@@ -137,7 +139,7 @@ object Cable {
   def shape(state: BlockState): VoxelShape = {
     var result = 0
     for (side <- Direction.values) {
-      val sideShape = state.getValue(PropertyCableConnection.BY_DIRECTION.get(side))
+      val sideShape = state.getValue[PropertyCableConnection.Shape](PropertyCableConnection.BY_DIRECTION.get(side))
       if (sideShape != PropertyCableConnection.Shape.NONE) {
         result = mask(side, result)
       }
@@ -154,14 +156,14 @@ object Cable {
       val canConnectIM = canConnectFromSideIM(tileEntity, fromSide) && canConnectFromSideIM(neighborTileEntity, fromSide.getOpposite)
       if (neighborHasNode && canConnectColor && canConnectIM) {
         if (fromState.is(state.getBlock)) {
-          return state.setValue(prop, PropertyCableConnection.Shape.CABLE)
+          return state.setValue[PropertyCableConnection.Shape, PropertyCableConnection.Shape](prop, PropertyCableConnection.Shape.CABLE)
         }
         else {
-          return state.setValue(prop, PropertyCableConnection.Shape.DEVICE)
+          return state.setValue[PropertyCableConnection.Shape, PropertyCableConnection.Shape](prop, PropertyCableConnection.Shape.DEVICE)
         }
       }
     }
-    state.setValue(prop, PropertyCableConnection.Shape.NONE)
+    state.setValue[PropertyCableConnection.Shape, PropertyCableConnection.Shape](prop, PropertyCableConnection.Shape.NONE)
   }
 
   private def hasNetworkNode(tileEntity: TileEntity, side: Direction): Boolean = {

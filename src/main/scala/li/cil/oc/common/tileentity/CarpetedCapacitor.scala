@@ -6,11 +6,12 @@ import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
 import li.cil.oc.Settings
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.passive.{OcelotEntity, SheepEntity}
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.DamageSource
-import net.minecraft.util.Direction
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.animal.{Ocelot => OcelotEntity}
+import net.minecraft.world.entity.animal.{Sheep => SheepEntity}
+import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
+import net.minecraft.world.damagesource.DamageSource
+import net.minecraft.core.Direction
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._

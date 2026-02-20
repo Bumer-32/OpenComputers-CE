@@ -1,12 +1,11 @@
 package li.cil.oc.common.block
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.client.KeyBindings
-import li.cil.oc.common.menu.ContainerTypes
+import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.item.data.RobotData
 import li.cil.oc.common.tileentity
 import li.cil.oc.server.PacketSender
@@ -15,29 +14,30 @@ import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.Tooltip
-import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.BlockState
-import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.fluid.FluidState
-import net.minecraft.item.ItemStack
-import net.minecraft.loot.LootContext
-import net.minecraft.loot.LootParameters
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.RayTraceResult
-import net.minecraft.util.math.shapes.ISelectionContext
-import net.minecraft.util.math.shapes.VoxelShape
-import net.minecraft.util.math.shapes.VoxelShapes
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.network.chat.Component as ITextComponent
+import net.minecraft.network.chat.TextComponent as StringTextComponent
+import net.minecraft.world.item.TooltipFlag as ITooltipFlag
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.server.level.ServerPlayer as ServerPlayerEntity
+import net.minecraft.world.level.material.FluidState
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.storage.loot.LootContext
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams as LootParameters
+import net.minecraft.core.Direction
+import net.minecraft.world.InteractionHand as Hand
+import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.HitResult as RayTraceResult
+import net.minecraft.world.phys.shapes.CollisionContext as ISelectionContext
+import net.minecraft.world.phys.shapes.VoxelShape
+import net.minecraft.world.phys.shapes.Shapes as VoxelShapes
+import net.minecraft.world.level.BlockGetter as IBlockReader
+import net.minecraft.world.level.Level as World
+import net.minecraft.world.level.block.Blocks
 
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.collection.convert.ImplicitConversionsToScala.*
 
 class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.StateAware {
   val shape = VoxelShapes.box(0.1, 0.1, 0.1, 0.9, 0.9, 0.9)
@@ -125,10 +125,10 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(world: IBlockReader): tileentity.RobotProxy = {
+  override def newBlockEntity(pos: BlockPos, state: BlockState): tileentity.RobotProxy = {
     moving.get match {
-      case Some(robot) => new tileentity.RobotProxy(tileentity.TileEntityTypes.ROBOT, robot)
-      case _ => new tileentity.RobotProxy(tileentity.TileEntityTypes.ROBOT)
+      case Some(robot) => new tileentity.RobotProxy(tileentity.TileEntityTypes.ROBOT, pos, state, robot)
+      case _ => new tileentity.RobotProxy(tileentity.TileEntityTypes.ROBOT, pos, state)
     }
   }
 
@@ -186,7 +186,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
           case (srvPlr: ServerPlayerEntity, proxy: tileentity.RobotProxy) if proxy.robot.node.network != null =>
             PacketSender.sendRobotSelectedSlotChange(proxy.robot)
             if (proxy.stillValid(player)) {
-              ContainerTypes.openRobotGui(srvPlr, proxy.robot)
+              MenuTypes.openRobotGui(srvPlr, proxy.robot)
             }
           case _ =>
         }
@@ -208,7 +208,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
   override def setPlacedBy(world: World, pos: BlockPos, state: BlockState, entity: LivingEntity, stack: ItemStack): Unit = {
     super.setPlacedBy(world, pos, state, entity, stack)
     if (!world.isClientSide) ((entity, world.getBlockEntity(pos)) match {
-      case (player: agent.Player, proxy: tileentity.RobotProxy) =>
+      case (player: agent.PlayerAgent, proxy: tileentity.RobotProxy) =>
         Some((proxy.robot, player.agent.ownerName, player.agent.ownerUUID))
       case (player: PlayerEntity, proxy: tileentity.RobotProxy) =>
         Some((proxy.robot, player.getName.getString, player.getGameProfile.getId))
@@ -216,7 +216,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
     }) match {
       case Some((robot, owner, uuid)) =>
         robot.ownerName = owner
-        robot.ownerUUID = agent.Player.determineUUID(Option(uuid))
+        robot.ownerUUID = agent.PlayerAgent.determineUUID(Option(uuid))
         robot.info.loadData(stack)
         robot.bot.node.changeBuffer(robot.info.robotEnergy - robot.bot.node.localBuffer)
         robot.updateInventorySize()
@@ -224,26 +224,41 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
     }
   }
 
-  override def removedByPlayer(state: BlockState, world: World, pos: BlockPos, player: PlayerEntity, willHarvest: Boolean, fluid: FluidState): Boolean = {
-    world.getBlockEntity(pos) match {
-      case proxy: tileentity.RobotProxy =>
-        val robot = proxy.robot
-        // Only allow breaking creative tier robots by allowed users.
-        // Unlike normal robots, griefing isn't really a valid concern
-        // here, because to get a creative robot you need creative
-        // mode in the first place.
-        if (robot.isCreative && (!player.isCreative || !robot.canInteract(player.getName.getString))) return false
-        if (!world.isClientSide) {
-          if (robot.player == player) return false
-          robot.node.remove()
-          robot.saveComponents()
-          if (player.isCreative) InventoryUtils.spawnStackInWorld(BlockPosition(pos, world), robot.info.createItemStack())
+  override def removedByPlayer(
+                                state: BlockState,
+                                world: World,    
+                                pos: BlockPos,
+                                player: PlayerEntity, 
+                                willHarvest: Boolean,
+                                fluid: FluidState
+                              ): Boolean = {
+    Option(world.getBlockEntity(pos)).collect { case proxy: tileentity.RobotProxy => proxy }.foreach { proxy =>
+      val robot = proxy.robot
+      val playerName = player.getName.getString
+
+      if (robot.isCreative && (!player.isCreative || !robot.canInteract(playerName))) {
+        return false
+      }
+
+      if (!world.isClientSide) {
+        if (robot.player == player) return false
+
+        robot.node.remove()
+        robot.saveComponents()
+
+        if (player.isCreative) {
+          InventoryUtils.spawnStackInWorld(BlockPosition(pos, world), robot.info.createItemStack())
         }
-        robot.moveFrom.foreach(fromPos => if (world.getBlockState(fromPos).getBlock == api.Items.get(Constants.BlockName.RobotAfterimage).block) {
-          world.setBlock(fromPos, net.minecraft.block.Blocks.AIR.defaultBlockState, 1)
-        })
-      case _ =>
+      }
+
+      robot.moveFrom.foreach(fromPos => {
+        val targetState = world.getBlockState(fromPos)
+        if (targetState.getBlock == api.Items.get(Constants.BlockName.RobotAfterimage).block) {
+          world.setBlock(fromPos, Blocks.AIR.defaultBlockState, 3)
+        }
+      })
     }
+
     super.removedByPlayer(state, world, pos, player, willHarvest, fluid)
   }
 }

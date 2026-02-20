@@ -1,10 +1,10 @@
 package li.cil.oc.common.block.traits
 
 import li.cil.oc.api
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level as World
 
 trait StateAware extends Block {
   override def hasAnalogOutputSignal(state: BlockState): Boolean = true

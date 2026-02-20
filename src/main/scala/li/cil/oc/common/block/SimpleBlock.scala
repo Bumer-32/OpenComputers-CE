@@ -11,34 +11,33 @@ import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Color
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.Tooltip
-import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.BlockState
-import net.minecraft.block.BlockRenderType
-import net.minecraft.block.ContainerBlock
-import net.minecraft.block.material.Material
-import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityType
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.DyeColor
-import net.minecraft.item.ItemGroup
-import net.minecraft.item.ItemStack
-import net.minecraft.loot.LootContext
-import net.minecraft.loot.LootParameters
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.ActionResultType
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.BlockRayTraceResult
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.IWorldReader
-import net.minecraft.world.World
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.RenderShape as BlockRenderType
+import net.minecraft.world.level.block.BaseEntityBlock as ContainerBlock
+import net.minecraft.world.level.material.Material
+import net.minecraft.world.item.TooltipFlag as ITooltipFlag
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.world.item.DyeColor
+import net.minecraft.world.item.CreativeModeTab as ItemGroup
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.storage.loot.LootContext
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams as LootParameters
+import net.minecraft.world.level.block.entity.BlockEntity as TileEntity
+import net.minecraft.world.InteractionResult as ActionResultType
+import net.minecraft.core.Direction
+import net.minecraft.world.InteractionHand as Hand
+import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.BlockHitResult as BlockRayTraceResult
+import net.minecraft.network.chat.Component as ITextComponent
+import net.minecraft.network.chat.TextComponent as StringTextComponent
+import net.minecraft.world.level.BlockGetter as IBlockReader
+import net.minecraft.world.level.LevelReader as IWorldReader
+import net.minecraft.world.level.Level as World
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.common.ToolType
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
@@ -116,9 +115,7 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
   // ----------------------------------------------------------------------- //
 
   override def canHarvestBlock(state: BlockState, world: IBlockReader, pos: BlockPos, player: PlayerEntity) = true
-
-  override def getHarvestTool(state: BlockState): ToolType = null
-
+  
   override def canBeReplacedByLeaves(state: BlockState, world: IWorldReader, pos: BlockPos): Boolean = false
 
   def getValidRotations(world: World, pos: BlockPos): Array[Direction] = validRotations_

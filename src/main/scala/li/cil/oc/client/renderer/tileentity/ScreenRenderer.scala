@@ -2,7 +2,6 @@ package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
 
-import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.IVertexBuilder
 import li.cil.oc.Constants
@@ -15,13 +14,13 @@ import li.cil.oc.common.tileentity.Screen
 import li.cil.oc.integration.util.Wrench
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.math.vector.Vector3f
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
+import com.mojang.math.Vector3f
+import com.mojang.blaze3d.vertex.PoseStack as MatrixStack
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer as TileEntityRenderer
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher as TileEntityRendererDispatcher
 
 object ScreenRenderer extends Function[TileEntityRendererDispatcher, ScreenRenderer] {
   override def apply(dispatch: TileEntityRendererDispatcher) = new ScreenRenderer(dispatch)
@@ -40,7 +39,7 @@ class ScreenRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityR
   // Rendering
   // ----------------------------------------------------------------------- //
 
-  override def render(screen: Screen, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int): Unit = {
+  override def render(screen: Screen, dt: Float, stack: MatrixStack, buffer: MultiBufferSource, light: Int, overlay: Int): Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     this.screen = screen
@@ -142,7 +141,7 @@ class ScreenRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityR
     }
   }
 
-  private def draw(stack: MatrixStack, alpha: Float, buffer: IRenderTypeBuffer) = {
+  private def draw(stack: MatrixStack, alpha: Float, buffer: MultiBufferSource) = {
     RenderState.checkError(getClass.getName + ".draw: entering (aka: wasntme)")
 
     val sx = screen.width

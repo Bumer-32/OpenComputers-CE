@@ -20,8 +20,8 @@ import li.cil.oc.common.EventHandler
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.entity.Entity
-import net.minecraft.entity.MobEntity
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.Mob
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.nbt.StringNBT
 import net.minecraftforge.common.util.Constants.NBT
@@ -58,7 +58,7 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
     val nearBounds = position.bounds
     val farBounds = nearBounds.move(side.getStepX * 2.0, side.getStepY * 2.0, side.getStepZ * 2.0)
     val bounds = nearBounds.minmax(farBounds)
-    entitiesInBounds[MobEntity](classOf[MobEntity], bounds).find(_.canBeLeashed(fakePlayer)) match {
+    entitiesInBounds[Mob](classOf[Mob], bounds).find(_.canBeLeashed(fakePlayer)) match {
       case Some(entity) =>
         entity.setLeashedTo(host, true)
         leashedEntities += entity.getUUID
@@ -82,7 +82,7 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
   }
 
   private def unleashAll(): Unit = {
-    entitiesInBounds(classOf[MobEntity], position.bounds.inflate(5, 5, 5)).foreach(entity => {
+    entitiesInBounds(classOf[Mob], position.bounds.inflate(5, 5, 5)).foreach(entity => {
       if (leashedEntities.contains(entity.getUUID) && entity.getLeashHolder == host) {
         entity.dropLeash(true, false)
       }
@@ -100,7 +100,7 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
     // entities only remember their leashee if it's an LivingEntity...
     EventHandler.scheduleServer(() => {
       val foundEntities = mutable.Set.empty[UUID]
-      entitiesInBounds(classOf[MobEntity], position.bounds.inflate(5, 5, 5)).foreach(entity => {
+      entitiesInBounds(classOf[Mob], position.bounds.inflate(5, 5, 5)).foreach(entity => {
         if (leashedEntities.contains(entity.getUUID)) {
           entity.setLeashedTo(host, true)
           foundEntities += entity.getUUID

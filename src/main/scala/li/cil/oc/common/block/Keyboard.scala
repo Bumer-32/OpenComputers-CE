@@ -1,34 +1,34 @@
 package li.cil.oc.common.block
 
 import java.util.Random
-
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Constants
 import li.cil.oc.api
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedEnumFacing._
+import li.cil.oc.util.ExtendedEnumFacing.*
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.RotationHelper
-import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.Block
-import net.minecraft.block.Blocks
-import net.minecraft.block.BlockState
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.BlockItemUseContext
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.shapes.ISelectionContext
-import net.minecraft.util.math.shapes.VoxelShape
-import net.minecraft.util.math.shapes.VoxelShapes
-import net.minecraft.state.StateContainer
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.IWorldReader
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.world.item.context.BlockPlaceContext as BlockItemUseContext
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
+import net.minecraft.world.InteractionHand as Hand
+import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.shapes.CollisionContext as ISelectionContext
+import net.minecraft.world.phys.shapes.VoxelShape
+import net.minecraft.world.phys.shapes.Shapes as VoxelShapes
+import net.minecraft.world.level.block.state.StateDefinition as StateContainer
+import net.minecraft.world.level.BlockGetter as IBlockReader
+import net.minecraft.world.level.LevelReader as IWorldReader
+import net.minecraft.world.level.Level as World
+import net.minecraft.server.level.ServerLevel as ServerWorld
+import net.minecraft.world.ticks.ScheduledTick
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -66,7 +66,7 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
 
   override def onPlace(state: BlockState, world: World, pos: BlockPos, prevState: BlockState, moved: Boolean): Unit = {
     if (!world.isClientSide) {
-      world.asInstanceOf[ServerWorld].getBlockTicks.scheduleTick(pos, this, 10)
+      world.getBlockTicks.schedule(new ScheduledTick(this, pos, 10, world.nextSubTickCount))
     }
   }
 
@@ -75,7 +75,7 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
       case keyboard: tileentity.Keyboard => api.Network.joinOrCreateNetwork(keyboard)
       case _ =>
     }
-    world.getBlockTicks.scheduleTick(pos, this, 10)
+    world.getBlockTicks.schedule(ScheduledTick.create(this, pos, 10))
   }
 
   override def getStateForPlacement(ctx: BlockItemUseContext): BlockState = {

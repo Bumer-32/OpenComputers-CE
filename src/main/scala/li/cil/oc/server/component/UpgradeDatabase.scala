@@ -1,7 +1,6 @@
 package li.cil.oc.server.component
 
 import java.util
-
 import com.google.common.hash.Hashing
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
@@ -16,15 +15,15 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.DatabaseAccess
-import li.cil.oc.util.ExtendedArguments._
+import li.cil.oc.util.ExtendedArguments.*
 import li.cil.oc.util.ItemUtils
 import li.cil.oc.util.StackOption
-import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
+import net.minecraft.world.Container
 
-import scala.collection.convert.ImplicitConversionsToJava._
+import scala.collection.convert.ImplicitConversionsToJava.*
 
-class UpgradeDatabase(val data: IInventory) extends AbstractManagedEnvironment with internal.Database with DeviceInfo {
+class UpgradeDatabase(val data: Container) extends AbstractManagedEnvironment with internal.Database with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
     withComponent("database").
     create()
@@ -75,7 +74,7 @@ class UpgradeDatabase(val data: IInventory) extends AbstractManagedEnvironment w
   def copy(context: Context, args: Arguments): Array[AnyRef] = {
     val fromSlot = args.checkSlot(data, 0)
     val entry = data.getItem(fromSlot)
-    def set(inventory: IInventory) = {
+    def set(inventory: Container) = {
       val toSlot = args.checkSlot(inventory, 1)
       val nonEmpty = inventory.getItem(toSlot) != ItemStack.EMPTY // zero size stacks
       inventory.setItem(toSlot, entry.copy())

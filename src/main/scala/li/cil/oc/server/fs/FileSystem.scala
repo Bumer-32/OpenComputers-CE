@@ -13,8 +13,8 @@ import li.cil.oc.api.fs.Label
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common.item.traits.FileSystemLike
 import li.cil.oc.server.component
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.storage.FolderName
 import net.minecraftforge.fml.loading.FMLLoader
@@ -147,9 +147,9 @@ object FileSystem extends api.detail.FileSystemAPI {
 
     private final val LabelTag = Settings.namespace + "fs.label"
 
-    override def loadData(nbt: CompoundNBT): Unit = {}
+    override def loadData(nbt: CompoundTag): Unit = {}
 
-    override def saveData(nbt: CompoundNBT): Unit = {
+    override def saveData(nbt: CompoundTag): Unit = {
       if (label != null) {
         nbt.putString(LabelTag, label)
       }

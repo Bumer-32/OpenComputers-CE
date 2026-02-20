@@ -1,24 +1,24 @@
 package li.cil.oc.common.block
 
-import li.cil.oc.common.menu.ContainerTypes
+import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.tileentity
 import li.cil.oc.integration.util.Wrench
-import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.IWorldReader
-import net.minecraft.world.World
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties as Properties
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.server.level.ServerPlayer as ServerPlayerEntity
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
+import net.minecraft.world.InteractionHand as Hand
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.BlockGetter as IBlockReader
+import net.minecraft.world.level.LevelReader as IWorldReader
+import net.minecraft.world.level.Level as World
 
 class Adapter(props: Properties) extends SimpleBlock(props) with traits.GUI {
   override def openGui(player: ServerPlayerEntity, world: World, pos: BlockPos): Unit = world.getBlockEntity(pos) match {
-    case te: tileentity.Adapter => ContainerTypes.openAdapterGui(player, te)
+    case te: tileentity.Adapter => MenuTypes.openAdapterGui(player, te)
     case _ =>
   }
 

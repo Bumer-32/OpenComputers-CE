@@ -31,37 +31,55 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.block.BlockState
-import net.minecraft.block.material.Material
-import net.minecraft.entity.Entity
-import net.minecraft.entity.EntitySize
-import net.minecraft.entity.EntityType
-import net.minecraft.entity.MoverType
-import net.minecraft.entity.Pose
-import net.minecraft.entity.item.ItemEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.network.datasync.DataParameter
-import net.minecraft.network.datasync.DataSerializers
-import net.minecraft.network.datasync.EntityDataManager
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.material.Material
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityDimensions
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.MoverType
+import net.minecraft.world.entity.Pose
+import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.syncher.EntityDataAccessor
+import net.minecraft.network.syncher.EntityDataSerializers
+import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.tags.FluidTags
-import net.minecraft.util.ActionResultType
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.world.InteractionResult
+import net.minecraft.core.Direction
+import net.minecraft.world.InteractionHand
+import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.Vec3
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.world.level.Level
+import net.minecraft.server.level.ServerLevel
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.fluids.IFluidTank
-import net.minecraftforge.fml.network.NetworkHooks
+import net.minecraftforge.network.NetworkHooks
+/*
+PlayerEntity → Player
+ServerPlayerEntity → ServerPlayer
+PlayerInventory → Inventory
+INamedContainerProvider → MenuProvider
+CompoundNBT → CompoundTag
+DataParameter → EntityDataAccessor
+DataSerializers → EntityDataSerializers
+EntityDataManager → SynchedEntityData
+ActionResultType → InteractionResult
+Hand → InteractionHand
+Vector3d → Vec3
+ITextComponent → Component
+StringTextComponent → TextComponent
+World → Level
+ServerWorld → ServerLevel
+EntitySize → EntityDimensions
+*/
 
 import scala.collection.JavaConverters.asJavaIterable
 
@@ -84,8 +102,8 @@ abstract class DroneInventory(val drone: Drone) extends Inventory
 // internal.Rotatable is also in internal.Drone, but it wasn't since the start
 // so this is to ensure it is implemented here, in the very unlikely case that
 // someone decides to ship that specific version of the API.
-class Drone(selfType: EntityType[Drone], world: World) extends Entity(selfType, world) with MachineHost with internal.Drone with internal.Rotatable with Analyzable with Context {
-  override def world: World = level
+class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, world) with MachineHost with internal.Drone with internal.Rotatable with Analyzable with Context {
+  override def world: Level = level
 
   // Some basic constants.
   val gravity = 0.05f
