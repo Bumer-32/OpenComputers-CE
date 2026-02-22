@@ -28,13 +28,17 @@ object ScalaClosure {
   implicit def wrapVarArgClosure(f: (Varargs) => Varargs): ScalaClosure = new ScalaClosure(f)
 
   def toLuaValue(value: Any): LuaValue = {
+    value match {
+      case null | () | _: BoxedUnit => return LuaValue.NIL
+      case _ =>
+    }
+
     (value match {
       case number: ScalaNumber => number.underlying
       case reference: AnyRef => reference
       case null => null
       case primitive => primitive.asInstanceOf[AnyRef]
     }) match {
-      case null | () | _: BoxedUnit => LuaValue.NIL
       case value: java.lang.Boolean => LuaValue.valueOf(value.booleanValue)
       case value: java.lang.Byte => LuaValue.valueOf(value.byteValue)
       case value: java.lang.Character => LuaValue.valueOf(String.valueOf(value))

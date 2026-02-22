@@ -29,6 +29,7 @@ import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL15
 
+import java.util
 import scala.util.Random
 
 object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramRenderer]
@@ -76,7 +77,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
    */
   private var failed = false
 
-  private val renderQueue = new ArrayDeque[Hologram]
+  private val renderQueue = new util.ArrayDeque[Hologram]
 
   // Defer actual rendering until now so transparent things render correctly.
   @SubscribeEvent
@@ -406,7 +407,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
 }
 
 class HologramRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Hologram](dispatch) {
-  override def render(hologram: Hologram, f: Float, stack: MatrixStack, buffer: MultiBufferSource, light: Int, overlay: Int) = {
+  override def render(hologram: Hologram, f: Float, stack: MatrixStack, buffer: MultiBufferSource, light: Int, overlay: Int): Unit = {
     if (HologramRenderer.failed) {
       HologramRendererFallback.render(hologram, f, stack, buffer, light, overlay)
       return

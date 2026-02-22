@@ -4,22 +4,23 @@ import li.cil.oc.api.internal.Colored;
 import li.cil.oc.api.network.Environment;
 import li.cil.oc.api.network.SidedEnvironment;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.concurrent.Callable;
 
-// Gotta be Java, @CapabilityInject don't werk for Scala ;_;
+@Mod.EventBusSubscriber(modid = "opencomputers", bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class Capabilities {
-    @CapabilityInject(Colored.class)
-    public static Capability<Colored> ColoredCapability;
+    public static Capability<Colored> ColoredCapability = CapabilityManager.get(new CapabilityToken<>(){});
 
-    @CapabilityInject(Environment.class)
-    public static Capability<Environment> EnvironmentCapability;
+    public static Capability<Environment> EnvironmentCapability = CapabilityManager.get(new CapabilityToken<>(){});
 
-    @CapabilityInject(SidedEnvironment.class)
-    public static Capability<SidedEnvironment> SidedEnvironmentCapability;
+    public static Capability<SidedEnvironment> SidedEnvironmentCapability = CapabilityManager.get(new CapabilityToken<>(){});
 
+    // *legacy of the past*
     // java 7 doesn't have generic type constraints
     // java 7 doesn't have lambdas
     // java 7 doesn't generic type covariance
@@ -37,10 +38,11 @@ public final class Capabilities {
         private Class _cls;
     }
 
-    public static void init() {
-        CapabilityManager.INSTANCE.register(Environment.class, new CapabilityEnvironment.DefaultStorage(), new StupidJavaTookTooManyYearsToIntroduceLambdas<Environment>(CapabilityEnvironment.DefaultImpl.class));
-        CapabilityManager.INSTANCE.register(SidedEnvironment.class, new CapabilitySidedEnvironment.DefaultStorage(), new StupidJavaTookTooManyYearsToIntroduceLambdas<SidedEnvironment>(CapabilitySidedEnvironment.DefaultImpl.class));
-        CapabilityManager.INSTANCE.register(Colored.class, new CapabilityColored.DefaultStorage(), new StupidJavaTookTooManyYearsToIntroduceLambdas<Colored>(CapabilityColored.DefaultImpl.class));
+    @SubscribeEvent
+    public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
+        event.register(Colored.class);
+        event.register(Environment.class);
+        event.register(SidedEnvironment.class);
     }
 
     private Capabilities() {

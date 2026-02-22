@@ -1,30 +1,25 @@
 package li.cil.oc.common.block
 
-import java.util
-
 import li.cil.oc.Settings
-import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.block.property.PropertyRotatable
+import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties as Properties
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.item.TooltipFlag as ITooltipFlag
-import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.network.chat.{Component as ITextComponent, TextComponent as StringTextComponent}
 import net.minecraft.server.level.ServerPlayer as ServerPlayerEntity
-import net.minecraft.world.level.material.FluidState
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.block.state.StateDefinition as StateContainer
-import net.minecraft.core.Direction
 import net.minecraft.world.InteractionHand as Hand
-import net.minecraft.core.BlockPos
-import net.minecraft.network.chat.Component as ITextComponent
-import net.minecraft.network.chat.TextComponent as StringTextComponent
-import net.minecraft.world.level.BlockGetter as IBlockReader
-import net.minecraft.world.level.Level as World
+import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.world.item.{ItemStack, TooltipFlag as ITooltipFlag}
+import net.minecraft.world.level.{BlockGetter as IBlockReader, Level as World}
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.{BlockState, StateDefinition as StateContainer}
+import net.minecraft.world.level.material.FluidState
+import net.minecraftforge.common.extensions.IForgeBlock
 
-import scala.collection.convert.ImplicitConversionsToScala._
+import java.util
+import scala.collection.convert.ImplicitConversionsToScala.*
 
 class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI {
   protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]) =
@@ -82,10 +77,10 @@ class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with t
         if (c.isCreative && (!player.isCreative || !c.canInteract(playerName))) {
           false
         } else {
-          c.canInteract(playerName) && super.removedByPlayer(state, world, pos, player, willHarvest, fluid)
+          c.canInteract(playerName) && super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid)
         }
       case _ =>
-        super.removedByPlayer(state, world, pos, player, willHarvest, fluid)
+        super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid)
     }
   }
 }

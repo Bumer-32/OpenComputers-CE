@@ -4,23 +4,23 @@ import li.cil.oc.Settings
 import li.cil.oc.common.tileentity.Waypoint
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.RTree
-import net.minecraft.util.RegistryKey
-import net.minecraft.world.World
 import net.minecraftforge.event.world.ChunkEvent
 import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
+import net.minecraft.world.level.Level
+import net.minecraft.resources.ResourceKey
 
 object Waypoints {
-  val dimensions = mutable.Map.empty[RegistryKey[World], RTree[Waypoint]]
+  val dimensions = mutable.Map.empty[ResourceKey[Level], RTree[Waypoint]]
 
   @SubscribeEvent
   def onWorldUnload(e: WorldEvent.Unload): Unit = {
     if (!e.getWorld.isClientSide) {
       e.getWorld match {
-        case world: World => dimensions.remove(world.dimension)
+        case level: Level => dimensions.remove(level.dimension)
         case _ =>
       }
     }
@@ -30,7 +30,7 @@ object Waypoints {
   def onWorldLoad(e: WorldEvent.Load): Unit = {
     if (!e.getWorld.isClientSide) {
       e.getWorld match {
-        case world: World => dimensions.remove(world.dimension)
+        case level: Level => dimensions.remove(level.dimension)
         case _ =>
       }
     }

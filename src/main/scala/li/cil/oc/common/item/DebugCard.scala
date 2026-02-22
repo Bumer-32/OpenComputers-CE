@@ -6,48 +6,48 @@ import li.cil.oc.Settings
 import li.cil.oc.Settings.DebugCardAccess
 import li.cil.oc.common.item.data.DebugCardData
 import li.cil.oc.server.component.{DebugCard => CDebugCard}
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ActionResult
-import net.minecraft.util.ActionResultType
-import net.minecraft.util.Hand
-import net.minecraft.util.Util
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.World
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemStack
 import net.minecraftforge.common.extensions.IForgeItem
+import net.minecraft.world.level.Level
+import net.minecraft.world.InteractionResultHolder
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.InteractionHand
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.world.entity.player.Player
+import net.minecraft.Util
 
 class DebugCard(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem {
-  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[ITextComponent]): Unit = {
+  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[Component]): Unit = {
     super.tooltipExtended(stack, tooltip)
     val data = new DebugCardData(stack)
-    data.access.foreach(access => tooltip.add(new StringTextComponent(s"§8${access.player}§r")))
+    data.access.foreach(access => tooltip.add(new TextComponent(s"§8${access.player}§r")))
   }
 
-  override def use(stack: ItemStack, world: World, player: PlayerEntity): ActionResult[ItemStack] = {
-    if (!world.isClientSide && player.isCrouching) {
+  override def use(stack: ItemStack, level: Level, player: Player): InteractionResultHolder[ItemStack] = {
+    if (!level.isClientSide && player.isCrouching) {
       val data = new DebugCardData(stack)
       val name = player.getName
 
-      if (data.access.exists(_.player == name)) data.access = None
+      if (data.access.exists(_.player == name.getString)) data.access = None
       else data.access =
         Some(CDebugCard.AccessContext(name.getString, Settings.get.debugCardAccess match {
           case wl: DebugCardAccess.Whitelist => wl.nonce(name.getString) match {
             case Some(n) => n
             case None =>
-              player.sendMessage(new StringTextComponent("§cYou are not whitelisted to use debug card"), Util.NIL_UUID)
-              player.swing(Hand.MAIN_HAND)
-              return new ActionResult[ItemStack](ActionResultType.FAIL, stack)
+              player.sendMessage(new TextComponent("§cYou are not whitelisted to use debug card"), Util.NIL_UUID)
+              player.swing(InteractionHand.MAIN_HAND)
+              return new InteractionResultHolder[ItemStack](InteractionResult.FAIL, stack)
           }
 
           case _ => ""
         }))
 
       data.saveData(stack)
-      player.swing(Hand.MAIN_HAND)
+      player.swing(InteractionHand.MAIN_HAND)
     }
-    new ActionResult(ActionResultType.sidedSuccess(world.isClientSide), stack)
+    new InteractionResultHolder(InteractionResult.sidedSuccess(level.isClientSide), stack)
   }
 }

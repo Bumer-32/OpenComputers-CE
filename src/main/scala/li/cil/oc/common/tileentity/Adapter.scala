@@ -15,20 +15,20 @@ import li.cil.oc.api.network.Analyzable
 import li.cil.oc.api.network._
 import li.cil.oc.common.Slot
 import li.cil.oc.common.menu
-import li.cil.oc.common.menu.ContainerTypes
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import net.minecraft.world.entity.player.{Player => PlayerEntity}
-import net.minecraft.world.entity.player.{Inventory => PlayerInventory}
-import net.minecraft.world.{MenuProvider => INamedContainerProvider}
+import li.cil.oc.common.menu.MenuTypes
+import li.cil.oc.server.PacketSender
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.{CompoundTag => CompoundNBT}
-import net.minecraft.nbt.{ListTag => ListNBT}
-import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
-import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.core.Direction
-import net.minecraft.sounds.{SoundSource => SoundCategory}
+import net.minecraft.sounds.SoundSource
 import net.minecraft.sounds.SoundEvents
-import net.minecraft.nbt.{Tag => NBT}
+import net.minecraft.nbt.Tag
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable

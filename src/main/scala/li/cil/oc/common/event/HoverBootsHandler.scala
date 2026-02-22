@@ -1,9 +1,7 @@
 package li.cil.oc.common.event
 
-import com.mojang.blaze3d.matrix.MatrixStack
 import li.cil.oc.Settings
 import li.cil.oc.common.item.HoverBoots
-import net.minecraft.entity.player.PlayerEntity
 import net.minecraftforge.common.util.FakePlayer
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent
@@ -11,11 +9,12 @@ import net.minecraftforge.event.entity.living.LivingFallEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import scala.collection.convert.ImplicitConversionsToScala._
+import net.minecraft.world.entity.player.Player
 
 object HoverBootsHandler {
   @SubscribeEvent
   def onLivingUpdate(e: LivingUpdateEvent): Unit = e.getEntity match {
-    case player: PlayerEntity if !player.isInstanceOf[FakePlayer] =>
+    case player: Player if !player.isInstanceOf[FakePlayer] =>
       val nbt = player.getPersistentData
       val hadHoverBoots = nbt.getBoolean(Settings.namespace + "hasHoverBoots")
       val hasHoverBoots = !player.isCrouching && equippedArmor(player).exists(stack => stack.getItem match {
@@ -43,7 +42,7 @@ object HoverBootsHandler {
 
   @SubscribeEvent
   def onLivingJump(e: LivingJumpEvent): Unit = e.getEntity match {
-    case player: PlayerEntity if !player.isInstanceOf[FakePlayer] && !player.isCrouching =>
+    case player: Player if !player.isInstanceOf[FakePlayer] && !player.isCrouching =>
       equippedArmor(player).collectFirst {
         case stack if stack.getItem.isInstanceOf[HoverBoots] =>
           val boots = stack.getItem.asInstanceOf[HoverBoots]
@@ -63,7 +62,7 @@ object HoverBootsHandler {
 
   @SubscribeEvent
   def onLivingFall(e: LivingFallEvent): Unit = if (e.getDistance > 3) e.getEntity match {
-    case player: PlayerEntity if !player.isInstanceOf[FakePlayer] =>
+    case player: Player if !player.isInstanceOf[FakePlayer] =>
       equippedArmor(player).collectFirst {
         case stack if stack.getItem.isInstanceOf[HoverBoots] =>
           val boots = stack.getItem.asInstanceOf[HoverBoots]
@@ -77,5 +76,5 @@ object HoverBootsHandler {
     case _ => // Ignore.
   }
 
-  private def equippedArmor(player: PlayerEntity) = player.inventory.armor.filter(!_.isEmpty)
+  private def equippedArmor(player: Player) = player.getInventory.armor.filter(!_.isEmpty)
 }

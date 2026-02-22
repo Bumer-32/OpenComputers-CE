@@ -17,13 +17,13 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.BlockPosition
-import net.minecraft.entity.Entity
-import net.minecraft.entity.merchant.IMerchant
-import net.minecraft.util.math.vector.Vector3d
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
+import net.minecraft.world.phys.Vec3
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.item.trading.Merchant
 
 class UpgradeTrading(val host: EnvironmentHost) extends AbstractManagedEnvironment with traits.WorldAware with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
@@ -43,16 +43,16 @@ class UpgradeTrading(val host: EnvironmentHost) extends AbstractManagedEnvironme
 
   def maxRange = Settings.get.tradingRange
 
-  def isInRange(entity: Entity) = new Vector3d(entity.getX, entity.getY, entity.getZ).distanceTo(position.toVec3) <= maxRange
+  def isInRange(entity: Entity) = new Vec3(entity.getX, entity.getY, entity.getZ).distanceTo(position.toVec3) <= maxRange
 
   @Callback(doc = "function():table -- Returns a table of trades in range as userdata objects.")
   def getTrades(context: Context, args: Arguments): Array[AnyRef] = {
     val merchants = entitiesInBounds[Entity](classOf[Entity], position.bounds.inflate(maxRange, maxRange, maxRange)).
       filter(isInRange).
-      collect { case merchant: Entity with IMerchant => merchant }
+      collect { case merchant: Entity with Merchant => merchant }
     var nextId = 1
     val idMap = mutable.Map[UUID, Int]()
-    for (id: UUID <- merchants.collect { case merchant: IMerchant => merchant.getUUID }.sorted) {
+    for (id: UUID <- merchants.collect { case merchant: Merchant => merchant.getUUID }.sorted) {
       idMap.put(id, nextId)
       nextId += 1
     }

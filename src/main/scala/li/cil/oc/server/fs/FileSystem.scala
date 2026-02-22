@@ -15,17 +15,17 @@ import li.cil.oc.common.item.traits.FileSystemLike
 import li.cil.oc.server.component
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.util.ResourceLocation
-import net.minecraft.world.storage.FolderName
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.storage.LevelResource
 import net.minecraftforge.fml.loading.FMLLoader
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraftforge.server.ServerLifecycleHooks
 
 import scala.util.Try
 
 object FileSystem extends api.detail.FileSystemAPI {
   lazy val isCaseInsensitive: Boolean = Settings.get.forceCaseInsensitive || (try {
     val uuid = UUID.randomUUID().toString
-    val saveDir = ServerLifecycleHooks.getCurrentServer.getWorldPath(FolderName.ROOT).toFile
+    val saveDir = ServerLifecycleHooks.getCurrentServer.getWorldPath(LevelResource.ROOT).toFile
     val lowerCase = new io.File(saveDir, uuid + "oc_rox")
     val upperCase = new io.File(saveDir, uuid + "OC_ROX")
     // This should NEVER happen but could also lead to VERY weird bugs, so we
@@ -80,7 +80,7 @@ object FileSystem extends api.detail.FileSystemAPI {
   }
 
   override def fromSaveDirectory(root: String, capacity: Long, buffered: Boolean): Capacity = {
-    val path = ServerLifecycleHooks.getCurrentServer.getWorldPath(new FolderName(Settings.savePath + root)).toFile
+    val path = ServerLifecycleHooks.getCurrentServer.getWorldPath(new LevelResource(Settings.savePath + root)).toFile
     if (!path.isDirectory) {
       path.delete()
     }

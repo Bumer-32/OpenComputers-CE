@@ -2,20 +2,19 @@ package li.cil.oc.common.item
 
 import li.cil.oc.Constants
 import li.cil.oc.Settings
-import net.minecraft.client.renderer.model.ModelBakery
-import net.minecraft.client.renderer.model.ModelResourceLocation
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.DyeColor
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.IWorldReader
+import net.minecraft.world.item.DyeColor
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemStack
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.core.BlockPos
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.common.extensions.IForgeItem
+import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.entity.player.Player
+import net.minecraft.client.resources.model.ModelResourceLocation
+import net.minecraft.world.level.LevelReader
 
 class FloppyDisk(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with CustomModel with traits.FileSystemLike {
   // Necessary for anonymous subclasses used for loot disks.
@@ -38,13 +37,14 @@ class FloppyDisk(props: Properties) extends Item(props) with IForgeItem with tra
     modelLocationFromDyeName(DyeColor.byId(dyeIndex max 0 min 15))
   }
 
-  @OnlyIn(Dist.CLIENT)
-  override def registerModelLocations(): Unit = {
-    for (dye <- DyeColor.values) {
-      val location = modelLocationFromDyeName(dye)
-      ModelLoader.addSpecialModel(location)
-    }
-  }
+  //@TODO replace with ModelEvent.RegisterAdditional
+  //@OnlyIn(Dist.CLIENT)
+  //override def registerModelLocations(): Unit = {
+  //  for (dye <- DyeColor.values) {
+  //    val location = modelLocationFromDyeName(dye)
+  //    ModelLoader.addSpecialModel(location)
+  //  }
+  //}
 
-  override def doesSneakBypassUse(stack: ItemStack, world: IWorldReader, pos: BlockPos, player: PlayerEntity): Boolean = true
+  override def doesSneakBypassUse(stack: ItemStack, level: LevelReader, pos: BlockPos, player: Player): Boolean = true
 }

@@ -11,15 +11,14 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.model.ItemCameraTransforms
-import net.minecraft.entity.item.ItemEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.vector.Vector3f
-import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL13
+import com.mojang.math.Vector3f
+import net.minecraft.client.renderer.block.model.ItemTransforms
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.Tag
+import net.minecraft.resources.ResourceLocation
 
 object RackMountableRenderHandler {
   lazy val DiskDriveMountable = api.Items.get(Constants.ItemName.DiskDriveMountable)
@@ -48,7 +47,15 @@ object RackMountableRenderHandler {
           matrix.mulPose(Vector3f.XN.rotationDegrees(90))
           matrix.scale(0.5f, 0.5f, 0.5f)
 
-          Minecraft.getInstance.getItemRenderer.renderStatic(stack, ItemCameraTransforms.TransformType.FIXED, e.light, e.overlay, matrix, e.typeBuffer)
+          Minecraft.getInstance.getItemRenderer.renderStatic(
+            stack,                              
+            ItemTransforms.TransformType.FIXED, 
+            e.light,                            
+            e.overlay,                          
+            matrix,                             
+            e.typeBuffer,                       
+            0                                   
+          )
           matrix.popPose()
         }
       }
@@ -75,7 +82,7 @@ object RackMountableRenderHandler {
     else if (e.data != null && TerminalServer == api.Items.get(e.rack.getItem(e.mountable))) {
       // Terminal server.
       renderOverlayFromAtlas(e, Textures.Block.RackTerminalServerOn)
-      val countConnected = e.data.getList("keys", NBT.TAG_STRING).size()
+      val countConnected = e.data.getList("keys", Tag.TAG_STRING).size()
 
       if (countConnected > 0) {
         val u0 = 7 / 16f

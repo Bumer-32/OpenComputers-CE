@@ -5,27 +5,26 @@ import li.cil.oc.api.driver
 import li.cil.oc.api.driver.DriverBlock
 import li.cil.oc.api.driver.NamedBlock
 import li.cil.oc.api.network.ManagedEnvironment
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.entity.BlockEntity
 
 class CompoundBlockDriver(val sidedBlocks: Array[DriverBlock]) extends DriverBlock {
-  override def createEnvironment(world: World, pos: BlockPos, side: Direction): CompoundBlockEnvironment = {
+  override def createEnvironment(level: Level, pos: BlockPos, side: Direction): CompoundBlockEnvironment = {
     val list = sidedBlocks.map {
-      driver => Option(driver.createEnvironment(world, pos, side)) match {
+      driver => Option(driver.createEnvironment(level, pos, side)) match {
         case Some(environment) => (driver.getClass.getName, environment)
         case _ => null
       }
     } filter (_ != null)
     if (list.isEmpty) null
-    else new CompoundBlockEnvironment(cleanName(tryGetName(world, pos, list.map(_._2))), list: _*)
+    else new CompoundBlockEnvironment(cleanName(tryGetName(level, pos, list.map(_._2))), list: _*)
   }
 
-  override def worksWith(world: World, pos: BlockPos, side: Direction): Boolean = sidedBlocks.forall(_.worksWith(world, pos, side))
+  override def worksWith(level: Level, pos: BlockPos, side: Direction): Boolean = sidedBlocks.forall(_.worksWith(level, pos, side))
 
   override def equals(obj: Any): Boolean = obj match {
     case multi: CompoundBlockDriver if multi.sidedBlocks.length == sidedBlocks.length => sidedBlocks.intersect(multi.sidedBlocks).length == sidedBlocks.length
@@ -33,7 +32,7 @@ class CompoundBlockDriver(val sidedBlocks: Array[DriverBlock]) extends DriverBlo
   }
 
   // TODO rework this method
-  private def tryGetName(world: World, pos: BlockPos, environments: Seq[ManagedEnvironment]): String = {
+  private def tryGetName(level: Level, pos: BlockPos, environments: Seq[ManagedEnvironment]): String = {
     environments.collect {
       case named: NamedBlock => named
     }.sortBy(_.priority).lastOption match {
@@ -41,7 +40,7 @@ class CompoundBlockDriver(val sidedBlocks: Array[DriverBlock]) extends DriverBlo
       case _ => // No preferred name.
     }
     try {
-      val block = world.getBlockState(pos).getBlock
+      val block = level.getBlockState(pos).getBlock
       val stack = if (block.asItem() != null) {
         Some(new ItemStack(block, 1))
       }
@@ -52,8 +51,8 @@ class CompoundBlockDriver(val sidedBlocks: Array[DriverBlock]) extends DriverBlo
     } catch {
       case _: Throwable =>
     }
-    try world.getBlockEntity(pos) match {
-      case tileEntity: TileEntity =>
+    try level.getBlockEntity(pos) match {
+      case tileEntity: BlockEntity =>
         return tileEntity.getType.getRegistryName.getPath
     } catch {
       case _: Throwable =>

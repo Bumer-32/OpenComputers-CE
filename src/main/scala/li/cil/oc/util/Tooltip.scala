@@ -4,20 +4,20 @@ import li.cil.oc.Localization
 import li.cil.oc.Settings
 import li.cil.oc.client.KeyBindings
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.FontRenderer
-import net.minecraft.util.text.CharacterManager.ISliceAcceptor
-import net.minecraft.util.text.Style
-import net.minecraft.util.text.TextFormatting
-
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
+import net.minecraft.client.gui.Font
+import net.minecraft.network.chat.Style
+import net.minecraft.ChatFormatting
+import net.minecraft.util.FormattedCharSink
+import net.minecraft.client.StringSplitter
 
 object Tooltip {
   private val maxWidth = 220
 
   private def font = Minecraft.getInstance.font
 
-  val DefaultStyle = Style.EMPTY.applyFormat(TextFormatting.GRAY)
+  val DefaultStyle = Style.EMPTY.applyFormat(ChatFormatting.GRAY)
 
   def get(name: String, args: Any*): java.util.List[String] = {
     if (!Localization.canLocalize(Settings.namespace + "tooltip." + name)) return Seq.empty[String]
@@ -48,10 +48,12 @@ object Tooltip {
     }
     else Seq.empty[String]
 
-  private def wrap(font: FontRenderer, line: String, width: Int): java.util.List[String] = {
+  private def wrap(font: Font, line: String, width: Int): java.util.List[String] = {
     val list = new java.util.ArrayList[String]
-    font.getSplitter.splitLines(line, width, net.minecraft.util.text.Style.EMPTY, true, new ISliceAcceptor {
-      override def accept(style: Style, start: Int, end: Int) = list.add(line.substring(start, end))
+    font.getSplitter.splitLines(line, width, Style.EMPTY, true, new StringSplitter.LinePosConsumer {
+      override def accept(style: Style, start: Int, end: Int): Unit = {
+        list.add(line.substring(start, end))
+      }
     })
     list
   }

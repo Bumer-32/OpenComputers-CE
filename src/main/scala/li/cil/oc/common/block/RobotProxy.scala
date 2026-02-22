@@ -1,43 +1,33 @@
 package li.cil.oc.common.block
 
-import java.util
-import li.cil.oc.Constants
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.client.KeyBindings
-import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.item.data.RobotData
+import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.tileentity
-import li.cil.oc.server.PacketSender
-import li.cil.oc.server.agent
+import li.cil.oc.server.{PacketSender, agent}
 import li.cil.oc.server.loot.LootFunctions
-import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.InventoryUtils
-import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.network.chat.Component as ITextComponent
-import net.minecraft.network.chat.TextComponent as StringTextComponent
-import net.minecraft.world.item.TooltipFlag as ITooltipFlag
+import li.cil.oc.util.{BlockPosition, InventoryUtils, Tooltip}
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.network.chat.{Component as ITextComponent, TextComponent as StringTextComponent}
+import net.minecraft.server.level.ServerPlayer as ServerPlayerEntity
+import net.minecraft.world.InteractionHand as Hand
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player as PlayerEntity
-import net.minecraft.server.level.ServerPlayer as ServerPlayerEntity
+import net.minecraft.world.item.{ItemStack, TooltipFlag as ITooltipFlag}
+import net.minecraft.world.level.{BlockGetter as IBlockReader, Level as World}
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.FluidState
-import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.storage.loot.LootContext
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams as LootParameters
-import net.minecraft.core.Direction
-import net.minecraft.world.InteractionHand as Hand
-import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.HitResult as RayTraceResult
-import net.minecraft.world.phys.shapes.CollisionContext as ISelectionContext
-import net.minecraft.world.phys.shapes.VoxelShape
-import net.minecraft.world.phys.shapes.Shapes as VoxelShapes
-import net.minecraft.world.level.BlockGetter as IBlockReader
-import net.minecraft.world.level.Level as World
-import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.phys.shapes.{VoxelShape, CollisionContext as ISelectionContext, Shapes as VoxelShapes}
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToScala.*
+import net.minecraftforge.common.extensions.IForgeBlock
 
 class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.StateAware {
   val shape = VoxelShapes.box(0.1, 0.1, 0.1, 0.9, 0.9, 0.9)
@@ -259,6 +249,6 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
       })
     }
 
-    super.removedByPlayer(state, world, pos, player, willHarvest, fluid)
+    super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid)
   }
 }

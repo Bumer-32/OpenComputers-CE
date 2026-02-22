@@ -12,8 +12,8 @@ import li.cil.oc.Settings
 import li.cil.oc.common.SaveHandler
 import li.cil.oc.server.fs.Buffered
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent
-import net.minecraftforge.fml.event.server.FMLServerStoppedEvent
+import net.minecraftforge.event.server.ServerAboutToStartEvent
+import net.minecraftforge.event.server.ServerStoppedEvent
 
 import scala.collection.mutable
 
@@ -29,7 +29,7 @@ object ThreadPoolFactory {
   }
 
   @SubscribeEvent
-  def serverStart(e: FMLServerAboutToStartEvent): Unit = {
+  def serverStart(e: ServerAboutToStartEvent): Unit = {
     // Access these handles to ensure the pools actually exist.
     SaveHandler.stateSaveHandler
     Buffered.fileSaveHandler
@@ -63,7 +63,7 @@ object ThreadPoolFactory {
   }
 
   @SubscribeEvent
-  def serverStop(e: FMLServerStoppedEvent): Unit = {
+  def serverStop(e: ServerStoppedEvent): Unit = {
     ThreadPoolFactory.safePools.foreach(_.waitForCompletion())
   }
 

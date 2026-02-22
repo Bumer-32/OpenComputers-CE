@@ -1,28 +1,30 @@
 package li.cil.oc.common.item
 
 import li.cil.oc.OpenComputers
-import li.cil.oc.common.menu.ContainerTypes
+import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.inventory.DiskDriveMountableInventory
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemStack
-import net.minecraft.util.{ActionResult, ActionResultType, Hand}
-import net.minecraft.world.World
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemStack
 import net.minecraftforge.common.extensions.IForgeItem
+import net.minecraft.world.level.Level
+import net.minecraft.world.entity.player.Player
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.InteractionResultHolder
 
 class DiskDriveMountable(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem {
-  override def use(stack: ItemStack, world: World, player: PlayerEntity) = {
-    if (!world.isClientSide) player match {
-      case srvPlr: ServerPlayerEntity => ContainerTypes.openDiskDriveGui(srvPlr, new DiskDriveMountableInventory {
+  override def use(stack: ItemStack, level: Level, player: Player) = {
+    if (!level.isClientSide) player match {
+      case srvPlr: ServerPlayer => MenuTypes.openDiskDriveGui(srvPlr, new DiskDriveMountableInventory {
         override def container: ItemStack = stack
 
-        override def stillValid(player: PlayerEntity) = player == srvPlr
+        override def stillValid(player: Player) = player == srvPlr
       })
       case _ =>
     }
-    player.swing(Hand.MAIN_HAND)
-    new ActionResult(ActionResultType.sidedSuccess(world.isClientSide), stack)
+    player.swing(InteractionHand.MAIN_HAND)
+    new InteractionResultHolder(InteractionResult.sidedSuccess(level.isClientSide), stack)
   }
 }

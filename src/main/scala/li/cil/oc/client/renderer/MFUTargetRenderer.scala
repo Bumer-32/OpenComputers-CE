@@ -24,7 +24,7 @@ object MFUTargetRenderer {
   private lazy val mfu = api.Items.get(Constants.ItemName.MFU)
 
   @SubscribeEvent
-  def onRenderWorldLastEvent(e: RenderWorldLastEvent) = {
+  def onRenderWorldLastEvent(e: RenderWorldLastEvent): Unit = {
     val mc = Minecraft.getInstance
     val player = mc.player
     if (player == null) return

@@ -1,15 +1,13 @@
 package li.cil.oc.util
 
-import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.math.{Matrix3f, Matrix4f}
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.RenderHelper
-import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.vector.Matrix3f
-import net.minecraft.util.math.vector.Matrix4f
-import org.lwjgl.opengl._
+import net.minecraft.util.Mth
+import org.lwjgl.opengl.*
 
 // This class has evolved into a wrapper for RenderSystem that basically does
 // nothing but call the corresponding RenderSystem methods and then also
@@ -58,13 +56,11 @@ object RenderState {
   }
 
   def disableEntityLighting(): Unit = {
-    RenderSystem.disableLighting()
-    RenderSystem.disableColorMaterial()
+    // RenderSystem.disableLighting() removed in 1.18.2
   }
 
   def enableEntityLighting(): Unit = {
-    RenderSystem.enableLighting()
-    RenderSystem.enableColorMaterial()
+    // RenderSystem.enableLighting() removed in 1.18.2
   }
 
   def makeItBlend(): Unit = {
@@ -80,7 +76,7 @@ object RenderState {
   }
 
   def setBlendAlpha(alpha: Float) = {
-    RenderSystem.color4f(1, 1, 1, alpha)
+    RenderSystem.setShaderColor(1, 1, 1, alpha)
     RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE)
   }
 
@@ -89,21 +85,20 @@ object RenderState {
     GL11.glBindTexture(GL11.GL_TEXTURE_2D, id)
   }
 
-  def mirrorScale(matrix: MatrixStack, sx: Float, sy: Float, sz: Float): Unit = {
-    matrix.last.pose.multiply(Matrix4f.createScaleMatrix(sx, sy, sz))
+  def mirrorScale(stack: PoseStack, sx: Float, sy: Float, sz: Float): Unit = {
+    stack.last.pose.multiply(Matrix4f.createScaleMatrix(sx, sy, sz))
     if (sx != sy || sx != sz || sx <= 0) {
       val isx = 1 / sx
       val isy = 1 / sy
       val isz = 1 / sz
       val invScale = isx * isy * isz
       // Issue with vanilla impl: the inverse cube root algorithm completely fails for negative values.
-      var normScale = MathHelper.fastInvCubeRoot(MathHelper.abs(invScale))
-      if (invScale < 0)
-      {
+      var normScale = Mth.fastInvCubeRoot(Mth.abs(invScale))
+      if (invScale < 0) {
         // compensate for taking the absolute of invScale
         normScale = -normScale
       }
-      matrix.last.normal.mul(Matrix3f.createScaleMatrix(isx * normScale, isy * normScale, isz * normScale))
+      stack.last.normal.mul(Matrix3f.createScaleMatrix(isx * normScale, isy * normScale, isz * normScale))
     }
   }
 }

@@ -11,19 +11,18 @@ import li.cil.oc.server.agent
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.Rarity
 import li.cil.oc.util.Tooltip
-import net.minecraft.client.renderer.model.ModelResourceLocation
-import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.world.item.{CreativeModeTab, Item, ItemStack}
 import net.minecraft.world.item.Item.Properties
-import net.minecraft.util.Direction
-import net.minecraft.util.NonNullList
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.core.Direction
+import net.minecraft.core.NonNullList
 import net.minecraft.world.entity.player.Player
 import net.minecraftforge.client.event.ModelBakeEvent
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.client.resources.model.ModelResourceLocation
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.TextComponent
 
 class Drone(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with CustomModel {
   @OnlyIn(Dist.CLIENT)
@@ -34,11 +33,11 @@ class Drone(props: Properties) extends Item(props) with IForgeItem with traits.S
     bakeEvent.getModelRegistry.put(getModelLocation(createItemStack()), DroneModel)
   }
 
-  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[ITextComponent]): Unit = {
+  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[Component]): Unit = {
     if (KeyBindings.showExtendedTooltips) {
       val info = new DroneData(stack)
       for (component <- info.components if !component.isEmpty) {
-        tooltip.add(new StringTextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+        tooltip.add(new TextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
       }
     }
   }
@@ -56,7 +55,7 @@ class Drone(props: Properties) extends Item(props) with IForgeItem with traits.S
     if (!world.isClientSide) {
       val drone = entity.EntityTypes.DRONE.create(world)
       player match {
-        case fakePlayer: agent.Player =>
+        case fakePlayer: agent.PlayerAgent =>
           drone.ownerName = fakePlayer.agent.ownerName
           drone.ownerUUID = fakePlayer.agent.ownerUUID
         case _ =>

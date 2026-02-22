@@ -16,15 +16,14 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedArguments._
-import net.minecraft.block.Blocks
-import net.minecraft.block.PistonBlock
-import net.minecraft.util.SoundEvents
-import net.minecraft.util.{Direction, SoundCategory}
-import net.minecraft.util.math.BlockPos
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import net.minecraft.block.material.PushReaction
+import net.minecraft.core.{BlockPos, Direction}
 
 import scala.collection.convert.ImplicitConversionsToJava._
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.world.level.material.PushReaction
+import net.minecraft.world.level.block.piston.PistonBaseBlock
 
 protected object PistonTraits {
   trait ExtendAware {
@@ -73,7 +72,7 @@ abstract class UpgradePiston(val host: EnvironmentHost) extends AbstractManagedE
   protected def doPistonAction(context: Context, side: Direction, extending: Boolean): Array[AnyRef] = {
     val sound = if (extending) SoundEvents.PISTON_EXTEND.getRegistryName else SoundEvents.PISTON_CONTRACT.getRegistryName
     val hostPos = pushOrigin(side).toBlockPos
-    val piston = (if (isSticky) Blocks.STICKY_PISTON else Blocks.PISTON).asInstanceOf[PistonBlock]
+    val piston = (if (isSticky) Blocks.STICKY_PISTON else Blocks.PISTON).asInstanceOf[PistonBaseBlock]
 
     if (!extending) {
       if (!isSticky) {
@@ -84,7 +83,7 @@ abstract class UpgradePiston(val host: EnvironmentHost) extends AbstractManagedE
       val innerBlockPos = hostPos.relative(side): BlockPos
       val innerBlockState = host.world.getBlockState(innerBlockPos)
       if (innerBlockState != null) {
-        if (!innerBlockState.getBlock.isAir(innerBlockState, host.world, innerBlockPos)) {
+        if (!innerBlockState.isAir()) {
           if (innerBlockState.getPistonPushReaction != PushReaction.DESTROY) {
             return result(false, "path is obstructed")
           }

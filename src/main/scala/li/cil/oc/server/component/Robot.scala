@@ -23,12 +23,13 @@ import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.particles.ParticleTypes
 import net.minecraft.util.Direction
 import net.minecraft.util.ResourceLocation
 
 import scala.collection.convert.ImplicitConversionsToJava._
+import net.minecraft.nbt.CompoundTag
 
 class Robot(val agent: tileentity.Robot) extends AbstractManagedEnvironment with Agent with DeviceInfo {
   override val node = api.Network.newNode(this, Visibility.Network).
@@ -158,12 +159,12 @@ class Robot(val agent: tileentity.Robot) extends AbstractManagedEnvironment with
 
   private final val RomRobotTag = "romRobot"
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     super.loadData(nbt)
     romRobot.foreach(_.loadData(nbt.getCompound(RomRobotTag)))
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     super.saveData(nbt)
     romRobot.foreach(fs => nbt.setNewCompoundTag(RomRobotTag, fs.saveData))
   }

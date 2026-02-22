@@ -9,11 +9,11 @@ import li.cil.oc.api
 import li.cil.oc.integration.opencomputers.DriverScreen
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ItemUtils
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.world.item.ItemStack
 
 import scala.io.Source
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.Tag
 
 object RobotData {
   val names = try {
@@ -59,7 +59,7 @@ class RobotData extends ItemData(Constants.BlockName.Robot) {
   private final val ContainersTag = Settings.namespace + "containers"
   private final val LightColorTag = Settings.namespace + "lightColor"
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     name = ItemUtils.getDisplayName(nbt).getOrElse("")
     if (Strings.isNullOrEmpty(name)) {
       name = RobotData.randomName
@@ -67,16 +67,16 @@ class RobotData extends ItemData(Constants.BlockName.Robot) {
     totalEnergy = nbt.getInt(StoredEnergyTag)
     robotEnergy = nbt.getInt(RobotEnergyTag)
     tier = nbt.getInt(TierTag)
-    components = nbt.getList(ComponentsTag, NBT.TAG_COMPOUND).
-      toTagArray[CompoundNBT].map(ItemStack.of(_))
-    containers = nbt.getList(ContainersTag, NBT.TAG_COMPOUND).
-      toTagArray[CompoundNBT].map(ItemStack.of(_))
+    components = nbt.getList(ComponentsTag, Tag.TAG_COMPOUND).
+      toTagArray[CompoundTag].map(ItemStack.of(_))
+    containers = nbt.getList(ContainersTag, Tag.TAG_COMPOUND).
+      toTagArray[CompoundTag].map(ItemStack.of(_))
     if (nbt.contains(LightColorTag)) {
       lightColor = nbt.getInt(LightColorTag)
     }
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     if (!Strings.isNullOrEmpty(name)) {
       ItemUtils.setDisplayName(nbt, name)
     }

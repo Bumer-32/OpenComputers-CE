@@ -1,14 +1,14 @@
 package li.cil.oc.common.menu
 
 import java.util.Arrays
-
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common
 import li.cil.oc.common.InventorySlots.InventorySlot
 import li.cil.oc.common.Tier
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
+import li.cil.oc.server.PacketSender as ServerPacketSender
 import li.cil.oc.util.SideTracker
-import scala.collection.convert.ImplicitConversionsToScala._
+
+import scala.collection.convert.ImplicitConversionsToScala.*
 import scala.collection.mutable
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.MenuType
@@ -27,6 +27,8 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraft.nbt.Tag
 import net.minecraft.nbt.ByteArrayTag
 import net.minecraft.nbt.IntArrayTag
+
+import java.util
 
 abstract class AbstractMenu(selfType: MenuType[_ <: AbstractMenu], id: Int, val playerInventory: Inventory, val otherInventory: Container) extends AbstractContainerMenu(selfType, id) {
   /** Number of player inventory slots to display horizontally. */
@@ -263,7 +265,7 @@ abstract class AbstractMenu(selfType: MenuType[_ <: AbstractMenu], id: Int, val 
 
     override def putByteArray(key: String, value: Array[Byte]): Unit = this.synchronized {
       get(key) match {
-        case arr: ByteArrayTag if !Arrays.equals(value, arr.getAsByteArray) => delta.putByteArray(key, value)
+        case arr: ByteArrayTag if !util.Arrays.equals(value, arr.getAsByteArray) => delta.putByteArray(key, value)
         case _ =>
       }
       super.putByteArray(key, value)
@@ -271,7 +273,7 @@ abstract class AbstractMenu(selfType: MenuType[_ <: AbstractMenu], id: Int, val 
 
     override def putIntArray(key: String, value: Array[Int]): Unit = this.synchronized {
       get(key) match {
-        case arr: IntArrayTag if !Arrays.equals(value, arr.getAsIntArray) => delta.putIntArray(key, value)
+        case arr: IntArrayTag if !util.Arrays.equals(value, arr.getAsIntArray) => delta.putIntArray(key, value)
         case _ =>
       }
       super.putIntArray(key, value)

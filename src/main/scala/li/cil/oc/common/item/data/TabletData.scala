@@ -4,9 +4,9 @@ import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.common.Tier
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.Tag
 
 class TabletData extends ItemData(Constants.ItemName.Tablet) {
   def this(stack: ItemStack) = {
@@ -30,8 +30,8 @@ class TabletData extends ItemData(Constants.ItemName.Tablet) {
   private final val TierTag = Settings.namespace + "tier"
   private final val ContainerTag = Settings.namespace + "container"
 
-  override def loadData(nbt: CompoundNBT): Unit = {
-    nbt.getList(ItemsTag, NBT.TAG_COMPOUND).foreach((slotNbt: CompoundNBT) => {
+  override def loadData(nbt: CompoundTag): Unit = {
+    nbt.getList(ItemsTag, Tag.TAG_COMPOUND).foreach((slotNbt: CompoundTag) => {
       val slot = slotNbt.getByte(SlotTag)
       if (slot >= 0 && slot < items.length) {
         items(slot) = ItemStack.of(slotNbt.getCompound(ItemTag))
@@ -46,13 +46,13 @@ class TabletData extends ItemData(Constants.ItemName.Tablet) {
     }
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     nbt.setNewTagList(ItemsTag,
       items.zipWithIndex collect {
         case (stack, slot) if !stack.isEmpty => (stack, slot)
       } map {
         case (stack, slot) =>
-          val slotNbt = new CompoundNBT()
+          val slotNbt = new CompoundTag()
           slotNbt.putByte(SlotTag, slot.toByte)
           slotNbt.setNewCompoundTag(ItemTag, stack.save)
       })

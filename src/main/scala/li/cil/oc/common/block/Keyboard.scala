@@ -1,36 +1,26 @@
 package li.cil.oc.common.block
 
-import java.util.Random
 import com.mojang.blaze3d.systems.RenderSystem
-import li.cil.oc.Constants
-import li.cil.oc.api
+import li.cil.oc.{Constants, api}
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
-import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedEnumFacing.*
-import li.cil.oc.util.InventoryUtils
-import li.cil.oc.util.RotationHelper
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.entity.player.Player as PlayerEntity
-import net.minecraft.world.item.context.BlockPlaceContext as BlockItemUseContext
-import net.minecraft.world.item.ItemStack
-import net.minecraft.core.Direction
-import net.minecraft.world.InteractionHand as Hand
-import net.minecraft.core.BlockPos
-import net.minecraft.world.phys.shapes.CollisionContext as ISelectionContext
-import net.minecraft.world.phys.shapes.VoxelShape
-import net.minecraft.world.phys.shapes.Shapes as VoxelShapes
-import net.minecraft.world.level.block.state.StateDefinition as StateContainer
-import net.minecraft.world.level.BlockGetter as IBlockReader
-import net.minecraft.world.level.LevelReader as IWorldReader
-import net.minecraft.world.level.Level as World
+import li.cil.oc.util.{BlockPosition, InventoryUtils, RotationHelper}
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.server.level.ServerLevel as ServerWorld
+import net.minecraft.world.InteractionHand as Hand
+import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.context.BlockPlaceContext as BlockItemUseContext
+import net.minecraft.world.level.{BlockGetter as IBlockReader, Level as World, LevelReader as IWorldReader}
+import net.minecraft.world.level.block.{Block, Blocks}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.{BlockState, StateDefinition as StateContainer}
+import net.minecraft.world.phys.shapes.{VoxelShape, CollisionContext as ISelectionContext, Shapes as VoxelShapes}
 import net.minecraft.world.ticks.ScheduledTick
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+
+import java.util.Random
 
 class Keyboard(props: Properties) extends SimpleBlock(props) {
   // For Immibis Microblock support.
@@ -66,7 +56,7 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
 
   override def onPlace(state: BlockState, world: World, pos: BlockPos, prevState: BlockState, moved: Boolean): Unit = {
     if (!world.isClientSide) {
-      world.getBlockTicks.schedule(new ScheduledTick(this, pos, 10, world.nextSubTickCount))
+      world.getBlockTicks.schedule(new ScheduledTick[Block](this, pos, 10, world.nextSubTickCount))
     }
   }
 
@@ -75,7 +65,7 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
       case keyboard: tileentity.Keyboard => api.Network.joinOrCreateNetwork(keyboard)
       case _ =>
     }
-    world.getBlockTicks.schedule(ScheduledTick.create(this, pos, 10))
+    world.getBlockTicks.schedule(new ScheduledTick[Block](this, pos, 10, world.nextSubTickCount))
   }
 
   override def getStateForPlacement(ctx: BlockItemUseContext): BlockState = {

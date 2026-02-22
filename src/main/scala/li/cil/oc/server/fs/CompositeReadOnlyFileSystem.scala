@@ -7,7 +7,7 @@ import li.cil.oc.api
 import li.cil.oc.api.fs.Handle
 import li.cil.oc.api.fs.Mode
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 
 import scala.collection.mutable
 
@@ -82,13 +82,13 @@ class CompositeReadOnlyFileSystem(factories: mutable.LinkedHashMap[String, Calla
 
   // ----------------------------------------------------------------------- //
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     for ((name, fs) <- parts) {
       fs.loadData(nbt.getCompound(name))
     }
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     for ((name, fs) <- parts) {
       nbt.setNewCompoundTag(name, fs.saveData)
     }

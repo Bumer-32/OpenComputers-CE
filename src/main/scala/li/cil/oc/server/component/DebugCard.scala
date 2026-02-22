@@ -91,6 +91,7 @@ ServerWorld → ServerLevel
 import scala.collection.JavaConverters.{collectionAsScalaIterable, mapAsScalaMap}
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
+import net.minecraft.nbt.CompoundTag
 
 class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with DebugNode {
   override val node: ComponentConnector = Network.newNode(this, Visibility.Neighbors).
@@ -131,7 +132,7 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
       case _ => defaultFakePlayer
     }
     val permLevel = server.getProfilePermissions(sourcePlayer.getGameProfile)
-    new CommandSource(sender, new Vector3d(host.xPosition, host.yPosition, host.zPosition), Vector2f.ZERO, world,
+    new CommandSourceStack(sender, new Vec3(host.xPosition, host.yPosition, host.zPosition), Vec2.ZERO, world,
       permLevel, sourcePlayer.getName.getString, sourcePlayer.getDisplayName, server, sourcePlayer)
   }
 
@@ -381,7 +382,7 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
 
   // ----------------------------------------------------------------------- //
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     super.loadData(nbt)
     access = AccessContext.loadData(nbt)
     if (nbt.contains(Settings.namespace + "remoteX")) {
@@ -392,7 +393,7 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
     }
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     super.saveData(nbt)
     access.foreach(_.saveData(nbt))
     remoteNodePosition.foreach {
@@ -410,12 +411,12 @@ object DebugCard {
       throw new Exception(msg)
 
   object AccessContext {
-    def remove(nbt: CompoundNBT): Unit = {
+    def remove(nbt: CompoundTag): Unit = {
       nbt.remove(Settings.namespace + "player")
       nbt.remove(Settings.namespace + "accessNonce")
     }
 
-    def loadData(nbt: CompoundNBT): Option[AccessContext] = {
+    def loadData(nbt: CompoundTag): Option[AccessContext] = {
       if (nbt.contains(Settings.namespace + "player"))
         Some(AccessContext(
           nbt.getString(Settings.namespace + "player"),
@@ -427,7 +428,7 @@ object DebugCard {
   }
 
   case class AccessContext(player: String, nonce: String) {
-    def saveData(nbt: CompoundNBT): Unit = {
+    def saveData(nbt: CompoundTag): Unit = {
       nbt.putString(Settings.namespace + "player", player)
       nbt.putString(Settings.namespace + "accessNonce", nonce)
     }
@@ -539,13 +540,13 @@ object DebugCard {
 
     private final val NameTag = "name"
 
-    override def loadData(nbt: CompoundNBT): Unit = {
+    override def loadData(nbt: CompoundTag): Unit = {
       super.loadData(nbt)
       ctx = AccessContext.loadData(nbt)
       name = nbt.getString(NameTag)
     }
 
-    override def saveData(nbt: CompoundNBT): Unit = {
+    override def saveData(nbt: CompoundTag): Unit = {
       super.saveData(nbt)
       ctx.foreach(_.saveData(nbt))
       nbt.putString(NameTag, name)
@@ -670,7 +671,7 @@ object DebugCard {
 
     private final val DimensionTag = "dimension"
 
-    override def loadData(nbt: CompoundNBT): Unit = {
+    override def loadData(nbt: CompoundTag): Unit = {
       super.loadData(nbt)
       ctx = AccessContext.loadData(nbt)
       dimension = new ResourceLocation(nbt.getString(DimensionTag))
@@ -678,7 +679,7 @@ object DebugCard {
       scoreboard = ServerLifecycleHooks.getCurrentServer.getLevel(dimKey).getScoreboard
     }
 
-    override def saveData(nbt: CompoundNBT): Unit = {
+    override def saveData(nbt: CompoundTag): Unit = {
       super.saveData(nbt)
       ctx.foreach(_.saveData(nbt))
       nbt.putString(DimensionTag, dimension.toString)
@@ -852,7 +853,7 @@ object DebugCard {
       world.getBlockEntity(blockPos) match {
         case tileEntity: TileEntity =>
           typedMapToNbt(mapAsScalaMap(args.checkTable(3)).toMap) match {
-            case nbt: CompoundNBT =>
+            case nbt: CompoundTag =>
               tileEntity.load(state, nbt)
               tileEntity.setChanged()
               world.notifyBlockUpdate(blockPos)
@@ -992,7 +993,7 @@ object DebugCard {
 
     private final val DimensionTag = "dimension"
 
-    override def loadData(nbt: CompoundNBT): Unit = {
+    override def loadData(nbt: CompoundTag): Unit = {
       super.loadData(nbt)
       ctx = AccessContext.loadData(nbt)
       val dimension = new ResourceLocation(nbt.getString(DimensionTag))
@@ -1000,7 +1001,7 @@ object DebugCard {
       world = ServerLifecycleHooks.getCurrentServer.getLevel(dimKey)
     }
 
-    override def saveData(nbt: CompoundNBT): Unit = {
+    override def saveData(nbt: CompoundTag): Unit = {
       super.saveData(nbt)
       ctx.foreach(_.saveData(nbt))
       nbt.putString(DimensionTag, world.dimension.location.toString)
@@ -1032,12 +1033,12 @@ object DebugCard {
 
     private final val ValueTag = "value"
 
-    override def loadData(nbt: CompoundNBT): Unit = {
+    override def loadData(nbt: CompoundTag): Unit = {
       super.loadData(nbt)
       value = nbt.getString(ValueTag)
     }
 
-    override def saveData(nbt: CompoundNBT): Unit = {
+    override def saveData(nbt: CompoundTag): Unit = {
       super.saveData(nbt)
       nbt.putString(ValueTag, value)
     }

@@ -11,6 +11,7 @@ import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.language.reflectiveCalls
 import scala.reflect.ClassTag
+import scala.jdk.CollectionConverters._
 
 object ExtendedNBT {
 
@@ -262,20 +263,12 @@ object ExtendedNBT {
 
     def append(values: Tag*): Unit = append(values)
 
-    def foreach[Tag <: Tag](f: Tag => Unit): Unit = {
-      val iterable = nbt.copy(): ListTag
-      while (iterable.size > 0) {
-        f((iterable.remove(0): Tag).asInstanceOf[Tag])
-      }
+    def foreach[T <: Tag](f: T => Unit): Unit = {
+      nbt.asScala.foreach(t => f(t.asInstanceOf[T]))
     }
 
-    def map[Tag <: Tag, Value](f: Tag => Value): IndexedSeq[Value] = {
-      val iterable = nbt.copy(): ListTag
-      val buffer = mutable.ArrayBuffer.empty[Value]
-      while (iterable.size > 0) {
-        buffer += f((iterable.remove(0): Tag).asInstanceOf[Tag])
-      }
-      buffer.toIndexedSeq
+    def map[T <: Tag, V](f: T => V): Vector[V] = {
+      nbt.asScala.map(t => f(t.asInstanceOf[T])).toVector
     }
 
     def toTagArray[Tag: ClassTag] = map((t: Tag) => t).toArray

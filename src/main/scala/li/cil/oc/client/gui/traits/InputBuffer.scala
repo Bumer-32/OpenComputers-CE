@@ -14,6 +14,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
 
+import java.util
 import scala.collection.mutable
 
 trait InputBuffer extends DisplayBuffer {
@@ -205,7 +206,7 @@ trait InputBuffer extends DisplayBuffer {
 
 object GLFWTranslator {
   private val toLWJGL = new Array[Int](GLFW.GLFW_KEY_LAST + 1)
-  Arrays.fill(toLWJGL, -1)
+  util.Arrays.fill(toLWJGL, -1)
 
   /** Printable keys. */
   toLWJGL(GLFW.GLFW_KEY_SPACE) = 0x39

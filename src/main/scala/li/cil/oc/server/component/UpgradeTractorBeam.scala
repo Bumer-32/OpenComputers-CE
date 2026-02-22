@@ -17,7 +17,7 @@ import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.{Player => MinecraftPlayer}
 

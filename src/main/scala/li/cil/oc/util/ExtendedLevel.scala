@@ -1,24 +1,26 @@
 package li.cil.oc.util
 
 import li.cil.oc.api.network.EnvironmentHost
-import net.minecraft.block.Block
-import net.minecraft.block.Blocks
-import net.minecraft.block.BlockState
-import net.minecraft.block.material.Material
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.BlockGetter
 
 import scala.language.implicitConversions
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.Block
+import net.minecraft.tags.BlockTags
+import net.minecraftforge.common.Tags
+import net.minecraft.world.level.material.Material
 
 object ExtendedLevel {
 
   implicit def extendedBlockAccess(getter: BlockGetter): ExtendedBlockAccess = new ExtendedBlockAccess(getter)
 
-  implicit def extendedLevel(level: Level): ExtendedLevel = new ExtendedLevel(world)
+  implicit def extendedLevel(level: Level): ExtendedLevel = new ExtendedLevel(level)
 
   class ExtendedBlockAccess(val getter: BlockGetter) {
     def getBlock(position: BlockPosition) = getter.getBlockState(position.toBlockPos).getBlock
@@ -32,8 +34,7 @@ object ExtendedLevel {
     def getBlockEntity(host: EnvironmentHost): BlockEntity = getBlockEntity(BlockPosition(host))
 
     def isAirBlock(position: BlockPosition) = {
-      val state = getter.getBlockState(position.toBlockPos)
-      state.getBlock.isAir(state, getter, position.toBlockPos)
+      position.world.get.isEmptyBlock(position.toBlockPos)
     }
   }
 
@@ -44,7 +45,7 @@ object ExtendedLevel {
 
     def destroyBlockInWorldPartially(entityId: Int, position: BlockPosition, progress: Int) = level.destroyBlockProgress(entityId, position.toBlockPos, progress)
 
-    def extinguishFire(player: PlayerEntity, position: BlockPosition, side: Direction) = {
+    def extinguishFire(player: Player, position: BlockPosition, side: Direction) = {
       val pos = position.toBlockPos
       val state = level.getBlockState(pos)
       if (state.getMaterial == Material.FIRE) {
@@ -54,11 +55,27 @@ object ExtendedLevel {
       else false
     }
 
-    def getBlockHardness(position: BlockPosition) = level.getBlockState(position.toBlockPos).getDestroySpeed(world, position.toBlockPos)
+    def getBlockHardness(position: BlockPosition) = level.getBlockState(position.toBlockPos).getDestroySpeed(level, position.toBlockPos)
 
-    def getBlockHarvestLevel(position: BlockPosition) = getBlock(position).getHarvestLevel(getBlockMetadata(position))
+    def getBlockHarvestLevel(position: BlockPosition): Int = {
+      val state = position.world.get.getBlockState(position.toBlockPos)
 
-    def getBlockHarvestTool(position: BlockPosition) = getBlock(position).getHarvestTool(getBlockMetadata(position))
+      if (state.is(Tags.Blocks.NEEDS_NETHERITE_TOOL)) 4
+      else if (state.is(BlockTags.NEEDS_DIAMOND_TOOL)) 3
+      else if (state.is(BlockTags.NEEDS_IRON_TOOL)) 2
+      else if (state.is(BlockTags.NEEDS_STONE_TOOL)) 1
+      else 0
+    }
+
+    def getBlockHarvestTool(position: BlockPosition): String = {
+      val state = position.world.get.getBlockState(position.toBlockPos)
+
+      if (state.is(BlockTags.MINEABLE_WITH_PICKAXE)) "pickaxe"
+      else if (state.is(BlockTags.MINEABLE_WITH_AXE)) "axe"
+      else if (state.is(BlockTags.MINEABLE_WITH_SHOVEL)) "shovel"
+      else if (state.is(BlockTags.MINEABLE_WITH_HOE)) "hoe"
+      else null
+    }
 
     def computeRedstoneSignal(position: BlockPosition, side: Direction) = math.max(level.isBlockProvidingPowerTo(position.offset(side), side), level.getIndirectPowerLevelTo(position.offset(side), side))
 

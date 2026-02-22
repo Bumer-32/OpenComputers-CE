@@ -12,22 +12,21 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedLevel.*
 import li.cil.oc.util.RotationHelper
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompressedStreamTools
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.network.INetHandler
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.player.Player
-import net.minecraftforge.fml.network.NetworkDirection
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraftforge.network.NetworkDirection
+import net.minecraftforge.server.ServerLifecycleHooks
 import net.minecraftforge.registries.*
 
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 import scala.reflect.classTag
+import net.minecraft.world.level.Level
+import net.minecraft.nbt.NbtIo
 
 object PacketHandler {
   var clientHandler: PacketHandler = _
@@ -76,7 +75,7 @@ abstract class PacketHandler {
     * dimension; None otherwise. For the server it returns the world for the
     * specified dimension, if such a dimension exists; None otherwise.
     */
-  protected def world(player: Player, dimension: ResourceLocation): Option[World]
+  protected def world(player: Player, dimension: ResourceLocation): Option[Level]
 
   protected def dispatch(p: PacketParser): Unit
 
@@ -153,7 +152,7 @@ abstract class PacketHandler {
     def readNBT(): CompoundTag = {
       val haveNbt = readBoolean()
       if (haveNbt) {
-        CompressedStreamTools.read(this)
+        NbtIo.read(this)
       }
       else null
     }

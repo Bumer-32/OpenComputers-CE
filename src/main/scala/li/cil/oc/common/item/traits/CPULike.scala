@@ -7,34 +7,34 @@ import li.cil.oc.api
 import li.cil.oc.api.driver.item.MutableProcessor
 import li.cil.oc.integration.opencomputers.DriverCPU
 import li.cil.oc.util.Tooltip
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ActionResult
-import net.minecraft.util.ActionResultType
-import net.minecraft.util.Hand
-import net.minecraft.util.Util
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.util.text.TranslationTextComponent
-import net.minecraft.world.World
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.language.existentials
+import net.minecraft.world.item.ItemStack
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.world.level.Level
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.InteractionResultHolder
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.InteractionHand
+import net.minecraft.network.chat.TranslatableComponent
+import net.minecraft.Util
 
 trait CPULike extends SimpleItem {
   def cpuTier: Int
 
   override protected def tooltipData: Seq[Any] = Seq(Settings.get.cpuComponentSupport(cpuTier))
 
-  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[ITextComponent]): Unit = {
+  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[Component]): Unit = {
     for (curr <- Tooltip.get("cpu.Architecture", api.Machine.getArchitectureName(DriverCPU.architecture(stack)))) {
-      tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 
-  override def use(stack: ItemStack, world: World, player: PlayerEntity): ActionResult[ItemStack] = {
+  override def use(stack: ItemStack, level: Level, player: Player): InteractionResultHolder[ItemStack] = {
     if (player.isCrouching) {
-      if (!world.isClientSide) {
+      if (!level.isClientSide) {
         api.Driver.driverFor(stack) match {
           case driver: MutableProcessor =>
             val architectures = driver.allArchitectures.toList
@@ -44,13 +44,13 @@ trait CPULike extends SimpleItem {
               val archClass = architectures(newIndex)
               val archName = api.Machine.getArchitectureName(archClass)
               driver.setArchitecture(stack, archClass)
-              player.sendMessage(new TranslationTextComponent(Settings.namespace + "tooltip.cpu.Architecture", archName), Util.NIL_UUID)
+              player.sendMessage(new TranslatableComponent(Settings.namespace + "tooltip.cpu.Architecture", archName), Util.NIL_UUID)
             }
-            player.swing(Hand.MAIN_HAND)
+            player.swing(InteractionHand.MAIN_HAND)
           case _ => // No known driver for this processor.
         }
       }
     }
-    new ActionResult(ActionResultType.sidedSuccess(world.isClientSide), stack)
+    new InteractionResultHolder(InteractionResult.sidedSuccess(level.isClientSide), stack)
   }
 }

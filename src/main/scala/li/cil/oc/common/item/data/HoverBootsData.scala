@@ -2,8 +2,8 @@ package li.cil.oc.common.item.data
 
 import li.cil.oc.Constants
 import li.cil.oc.Settings
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 
 class HoverBootsData extends ItemData(Constants.ItemName.HoverBoots) {
   def this(stack: ItemStack) = {
@@ -15,11 +15,11 @@ class HoverBootsData extends ItemData(Constants.ItemName.HoverBoots) {
 
   private final val ChargeTag = Settings.namespace + "charge"
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     charge = nbt.getDouble(ChargeTag)
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     nbt.putDouble(ChargeTag, charge)
   }
 }

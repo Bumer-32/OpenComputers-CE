@@ -13,7 +13,7 @@ import li.cil.oc.OpenComputers
 import li.cil.oc.api.fs.Mode
 import li.cil.oc.util.ThreadPoolFactory
 import li.cil.oc.util.SafeThreadPool
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 import org.apache.commons.io.FileUtils
 
 import scala.collection.mutable
@@ -49,7 +49,7 @@ trait Buffered extends OutputStreamFileSystem {
 
   private var saving: Option[Future[_]] = None
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     saving.foreach(f => try {
       f.get(120L, TimeUnit.SECONDS)
     } catch {
@@ -60,7 +60,7 @@ trait Buffered extends OutputStreamFileSystem {
     super.loadData(nbt)
   }
 
-  private def loadFiles(nbt: CompoundNBT): Unit = this.synchronized {
+  private def loadFiles(nbt: CompoundTag): Unit = this.synchronized {
     def recurse(path: String, directory: io.File): Unit = {
       makeDirectory(path)
       for (child <- directory.listFiles() if FileSystem.isValidFilename(child.getName)) {
@@ -101,7 +101,7 @@ trait Buffered extends OutputStreamFileSystem {
     else recurse("", fileRoot)
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     super.saveData(nbt)
     saving = Buffered.fileSaveHandler.withPool(_.submit(new Runnable {
       override def run(): Unit = saveFiles()

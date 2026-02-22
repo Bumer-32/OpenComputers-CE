@@ -16,19 +16,20 @@ import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedLevel._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.SignTileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.core.Direction
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayerFactory
 import net.minecraftforge.event.world.BlockEvent
 import net.minecraftforge.eventbus.api.Event
 
 import scala.collection.convert.ImplicitConversionsToJava._
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.world.level.block.entity.SignBlockEntity
+import net.minecraft.world.entity.player.Player
+import net.minecraft.network.chat.Component
 
 abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
   private final lazy val deviceInfo = Map(
@@ -42,19 +43,23 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
 
   def host: EnvironmentHost
 
-  protected def getValue(tileEntity: Option[SignTileEntity]): Array[AnyRef] = {
+  private def getAllMessages(sign: SignBlockEntity): Seq[Component] = {
+    (0 until 4).map(i => sign.getMessage(i, false))
+  }
+
+  protected def getValue(tileEntity: Option[SignBlockEntity]): Array[AnyRef] = {
     tileEntity match {
-      case Some(sign) => result(sign.messages.map(_.getString).mkString("\n"))
+      case Some(sign) => result(getAllMessages(sign).map(_.getString).mkString("\n"))
       case _ => result((), "no sign")
     }
   }
 
-  protected def setValue(tileEntity: Option[SignTileEntity], text: String): Array[AnyRef] = {
+  protected def setValue(tileEntity: Option[SignBlockEntity], text: String): Array[AnyRef] = {
     tileEntity match {
       case Some(sign) =>
         val player = host match {
           case robot: internal.Robot => robot.player
-          case _ => FakePlayerFactory.get(host.world.asInstanceOf[ServerWorld], Settings.get.fakePlayerProfile)
+          case _ => FakePlayerFactory.get(host.world.asInstanceOf[ServerLevel], Settings.get.fakePlayerProfile)
         }
 
         val lines = text.linesIterator.padTo(4, "").map(line => if (line.length > 15) line.substring(0, 15) else line).toArray
@@ -63,12 +68,12 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
           return result((), "not allowed")
         }
 
-        lines.map(line => new StringTextComponent(line)).copyToArray(sign.messages)
+        lines.map(line => new TextComponent(line)).copyToArray(getAllMessages(sign).toArray)
         host.world.notifyBlockUpdate(sign.getBlockPos)
 
         MinecraftForge.EVENT_BUS.post(new SignChangeEvent.Post(sign, lines))
 
-        result(sign.messages.mkString("\n"))
+        result(getAllMessages(sign).mkString("\n"))
       case _ => result((), "no sign")
     }
   }
@@ -76,15 +81,15 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
   protected def findSign(side: Direction) = {
     val hostPos = BlockPosition(host)
     host.world.getBlockEntity(hostPos) match {
-      case sign: SignTileEntity => Option(sign)
+      case sign: SignBlockEntity => Option(sign)
       case _ => host.world.getBlockEntity(hostPos.offset(side)) match {
-        case sign: SignTileEntity => Option(sign)
+        case sign: SignBlockEntity => Option(sign)
         case _ => None
       }
     }
   }
 
-  private def canChangeSign(player: PlayerEntity, tileEntity: SignTileEntity, lines: Array[String]): Boolean = {
+  private def canChangeSign(player: Player, tileEntity: SignBlockEntity, lines: Array[String]): Boolean = {
     if (!host.world.mayInteract(player, tileEntity.getBlockPos)) {
       return false
     }
@@ -103,10 +108,10 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
     super.onMessage(message)
     if (message.name == "tablet.use") message.source.host match {
       case machine: api.machine.Machine => (machine.host, message.data) match {
-        case (tablet: internal.Tablet, Array(nbt: CompoundNBT, stack: ItemStack, player: PlayerEntity, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
+        case (tablet: internal.Tablet, Array(nbt: CompoundTag, stack: ItemStack, player: Player, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
           host.world.getBlockEntity(blockPos) match {
-            case sign: SignTileEntity =>
-              nbt.putString("signText", sign.messages.map(_.getString).mkString("\n"))
+            case sign: SignBlockEntity =>
+              nbt.putString("signText", getAllMessages(sign).map(_.getString).mkString("\n"))
             case _ =>
           }
         case _ => // Ignore.

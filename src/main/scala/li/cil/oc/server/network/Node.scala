@@ -6,7 +6,7 @@ import li.cil.oc.api
 import li.cil.oc.api.network.Environment
 import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.network.{Node => ImmutableNode}
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -71,7 +71,7 @@ trait Node extends ImmutableNode {
 
   // ----------------------------------------------------------------------- //
 
-  def loadData(nbt: CompoundNBT): Unit = {
+  def loadData(nbt: CompoundTag): Unit = {
     if (nbt.contains("address")) {
       val newAddress = nbt.getString("address")
       if (!Strings.isNullOrEmpty(newAddress) && newAddress != address) network match {
@@ -81,7 +81,7 @@ trait Node extends ImmutableNode {
     }
   }
 
-  def saveData(nbt: CompoundNBT): Unit = {
+  def saveData(nbt: CompoundTag): Unit = {
     if (address != null) {
       nbt.putString("address", address)
     }

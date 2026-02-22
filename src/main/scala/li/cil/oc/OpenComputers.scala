@@ -1,17 +1,12 @@
 package li.cil.oc
 
 import java.nio.file.Paths
-
 import li.cil.oc.common.IMC
 import li.cil.oc.common.Proxy
 import li.cil.oc.common.init.Blocks
 import li.cil.oc.common.init.Items
 import li.cil.oc.integration.Mods
 import li.cil.oc.util.ThreadPoolFactory
-import net.minecraft.block.Block
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.world.World
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.MinecraftForge
@@ -22,13 +17,17 @@ import net.minecraftforge.fml.ModContainer
 import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent
 import net.minecraftforge.fml.loading.FMLPaths
-import net.minecraftforge.fml.network.simple.SimpleChannel
-import net.minecraftforge.scorge.lang.ScorgeModLoadingContext
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.collection.convert.ImplicitConversionsToScala.*
+import net.minecraftforge.network.simple.SimpleChannel
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.item.Item
+import net.minecraftforge.fml.common.Mod
 
+@Mod(OpenComputers.ID)
 object OpenComputers {
   final val ID = "opencomputers"
 
@@ -60,12 +59,13 @@ object OpenComputers {
 
 class OpenComputers {
   val modContainer: ModContainer = ModLoadingContext.get.getActiveContainer
+  val modBus = FMLJavaModLoadingContext.get.getModEventBus
 
-  ScorgeModLoadingContext.get.getModEventBus.register(this)
+  modBus.register(this)
   OpenComputers.instance = Some(this)
 
   MinecraftForge.EVENT_BUS.register(OpenComputers.proxy)
-  ScorgeModLoadingContext.get.getModEventBus.register(OpenComputers.proxy)
+  modBus.register(OpenComputers.proxy)
   Settings.load(FMLPaths.CONFIGDIR.get().resolve(Paths.get("opencomputers", "settings.conf")).toFile())
   OpenComputers.proxy.preInit()
   MinecraftForge.EVENT_BUS.register(ThreadPoolFactory)

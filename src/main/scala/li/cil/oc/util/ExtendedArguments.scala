@@ -2,14 +2,14 @@ package li.cil.oc.util
 
 import li.cil.oc.api.internal.MultiTank
 import li.cil.oc.api.machine.Arguments
-import net.minecraft.inventory.IInventory
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraftforge.fluids.FluidAttributes
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.items.IItemHandler
 
 import scala.language.implicitConversions
+import net.minecraft.world.Container
 
 object ExtendedArguments {
 
@@ -37,9 +37,9 @@ object ExtendedArguments {
       else checkSlot(inventory, index)
     }
 
-    def checkSlot(inventory: IInventory, n: Int): Int = checkSlot(InventoryUtils.asItemHandler(inventory), n)
+    def checkSlot(inventory: Container, n: Int): Int = checkSlot(InventoryUtils.asItemHandler(inventory), n)
 
-    def optSlot(inventory: IInventory, index: Int, default: Int): Int = optSlot(InventoryUtils.asItemHandler(inventory), index, default)
+    def optSlot(inventory: Container, index: Int, default: Int): Int = optSlot(InventoryUtils.asItemHandler(inventory), index, default)
 
     def checkTank(multi: MultiTank, n: Int) = {
       val tank = args.checkInteger(n) - 1

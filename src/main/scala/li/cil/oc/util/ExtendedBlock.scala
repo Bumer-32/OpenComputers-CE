@@ -13,8 +13,8 @@ object ExtendedBlock {
 
   class ExtendedBlock(val block: Block) {
     @Deprecated
-    def isAir(position: BlockPosition) = block.isAir(position.world.get.getBlockState(position.toBlockPos), position.world.get, position.toBlockPos)
-
+    def isAir(position: BlockPosition) = position.world.get.isEmptyBlock(position.toBlockPos)
+    
     @Deprecated
     def isReplaceable(position: BlockPosition) = block.defaultBlockState.getMaterial.isReplaceable
 

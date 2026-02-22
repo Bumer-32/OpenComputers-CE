@@ -13,12 +13,9 @@ import li.cil.oc.api.driver.item.HostAware
 import li.cil.oc.api.machine.Value
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
 
@@ -28,6 +25,9 @@ import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.math.ScalaNumber
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.Container
+import net.minecraft.world.level.Level
 
 /**
  * This class keeps track of registered drivers and provides installation logic
@@ -99,8 +99,8 @@ private[oc] object Registry extends api.detail.DriverAPI {
     }
   }
 
-  override def driverFor(world: World, pos: BlockPos, side: Direction): DriverBlock =
-    sidedBlocks.filter(_.worksWith(world, pos, side)) match {
+  override def driverFor(level: Level, pos: BlockPos, side: Direction): DriverBlock =
+    sidedBlocks.filter(_.worksWith(level, pos, side)) match {
       case sidedDrivers if sidedDrivers.nonEmpty => new CompoundBlockDriver(sidedDrivers.toArray)
       case _ => null
     }
@@ -130,7 +130,7 @@ private[oc] object Registry extends api.detail.DriverAPI {
 
   override def environmentsFor(stack: ItemStack): util.Set[Class[_]] = environmentProviders.map(_.getEnvironment(stack)).filter(_ != null).toSet[Class[_]]
 
-  override def itemHandlerFor(stack: ItemStack, player: PlayerEntity): IItemHandler = {
+  override def itemHandlerFor(stack: ItemStack, player: Player): IItemHandler = {
     inventoryProviders.find(provider => provider.worksWith(stack, player)).
       map(provider => InventoryUtils.asItemHandler(provider.getInventory(stack, player))).
       getOrElse {
@@ -159,74 +159,75 @@ private[oc] object Registry extends api.detail.DriverAPI {
     if (!force && memo.containsKey(valueRef)) {
       memo.get(valueRef)
     }
-    else valueRef match {
-      case null | () | None => null
+    else {
+      valueRef match {
+        case null | None => null
+        case arg: java.lang.Boolean => arg
+        case arg: java.lang.Byte => arg
+        case arg: java.lang.Character => arg
+        case arg: java.lang.Short => arg
+        case arg: java.lang.Integer => arg
+        case arg: java.lang.Long => arg
+        case arg: java.lang.Float => arg
+        case arg: java.lang.Double => arg
+        case arg: java.lang.Number => Double.box(arg.doubleValue)
+        case arg: java.lang.String => arg
 
-      case arg: java.lang.Boolean => arg
-      case arg: java.lang.Byte => arg
-      case arg: java.lang.Character => arg
-      case arg: java.lang.Short => arg
-      case arg: java.lang.Integer => arg
-      case arg: java.lang.Long => arg
-      case arg: java.lang.Float => arg
-      case arg: java.lang.Double => arg
-      case arg: java.lang.Number => Double.box(arg.doubleValue)
-      case arg: java.lang.String => arg
+        case arg: Array[Boolean] => arg
+        case arg: Array[Byte] => arg
+        case arg: Array[Character] => arg
+        case arg: Array[Short] => arg
+        case arg: Array[Integer] => arg
+        case arg: Array[Long] => arg
+        case arg: Array[Float] => arg
+        case arg: Array[Double] => arg
+        case arg: Array[String] => arg
 
-      case arg: Array[Boolean] => arg
-      case arg: Array[Byte] => arg
-      case arg: Array[Character] => arg
-      case arg: Array[Short] => arg
-      case arg: Array[Integer] => arg
-      case arg: Array[Long] => arg
-      case arg: Array[Float] => arg
-      case arg: Array[Double] => arg
-      case arg: Array[String] => arg
+        case arg: Value => arg
 
-      case arg: Value => arg
+        case arg: Array[_] => convertList(arg, arg.zipWithIndex.iterator, memo)
+        case arg: Product => convertList(arg, arg.productIterator.zipWithIndex, memo)
+        case arg: Seq[_] => convertList(arg, arg.zipWithIndex.iterator, memo)
 
-      case arg: Array[_] => convertList(arg, arg.zipWithIndex.iterator, memo)
-      case arg: Product => convertList(arg, arg.productIterator.zipWithIndex, memo)
-      case arg: Seq[_] => convertList(arg, arg.zipWithIndex.iterator, memo)
+        case arg: Map[_, _] => convertMap(arg, arg, memo)
+        case arg: mutable.Map[_, _] => convertMap(arg, arg.toMap, memo)
+        case arg: java.util.Map[_, _] => convertMap(arg, arg.toMap, memo)
 
-      case arg: Map[_, _] => convertMap(arg, arg, memo)
-      case arg: mutable.Map[_, _] => convertMap(arg, arg.toMap, memo)
-      case arg: java.util.Map[_, _] => convertMap(arg, arg.toMap, memo)
+        case arg: Iterable[_] => convertList(arg, arg.zipWithIndex.toIterator, memo)
+        case arg: java.lang.Iterable[_] => convertList(arg, arg.zipWithIndex.iterator, memo)
 
-      case arg: Iterable[_] => convertList(arg, arg.zipWithIndex.toIterator, memo)
-      case arg: java.lang.Iterable[_] => convertList(arg, arg.zipWithIndex.iterator, memo)
-
-      case arg =>
-        val converted = new util.HashMap[AnyRef, AnyRef]()
-        memo += arg -> converted
-        converters.foreach(converter => try converter.convert(arg, converted) catch {
-          case t: Throwable => OpenComputers.log.warn("Type converter threw an exception.", t)
-        })
-        if (converted.isEmpty) {
-          memo += arg -> arg.toString
-          arg.toString
-        }
-        else {
-          // This is a little nasty but necessary because we need to keep the
-          // 'converted' value up-to-date for any reference created to it in
-          // the following convertRecursively call. For example:
-          // - Converter C is called for A with map M.
-          // - C puts A into M again.
-          // - convertRecursively(M) encounters A in the memoization map, uses M.
-          //   That M is then 'wrong', as in not fully converted. Hence the clear
-          //   plus copy action afterwards.
-          memo += converted -> converted // Makes convertMap re-use the map.
-          convertRecursively(converted, memo, force = true)
-          memo -= converted
-          if (converted.size == 1 && converted.containsKey("oc:flatten")) {
-            val value = converted.get("oc:flatten")
-            memo += arg -> value // Update memoization map.
-            value
+        case arg =>
+          val converted = new util.HashMap[AnyRef, AnyRef]()
+          memo += arg -> converted
+          converters.foreach(converter => try converter.convert(arg, converted) catch {
+            case t: Throwable => OpenComputers.log.warn("Type converter threw an exception.", t)
+          })
+          if (converted.isEmpty) {
+            memo += arg -> arg.toString
+            arg.toString
           }
           else {
-            converted
+            // This is a little nasty but necessary because we need to keep the
+            // 'converted' value up-to-date for any reference created to it in
+            // the following convertRecursively call. For example:
+            // - Converter C is called for A with map M.
+            // - C puts A into M again.
+            // - convertRecursively(M) encounters A in the memoization map, uses M.
+            //   That M is then 'wrong', as in not fully converted. Hence the clear
+            //   plus copy action afterwards.
+            memo += converted -> converted // Makes convertMap re-use the map.
+            convertRecursively(converted, memo, force = true)
+            memo -= converted
+            if (converted.size == 1 && converted.containsKey("oc:flatten")) {
+              val value = converted.get("oc:flatten")
+              memo += arg -> value // Update memoization map.
+              value
+            }
+            else {
+              converted
+            }
           }
-        }
+      }
     }
   }
 

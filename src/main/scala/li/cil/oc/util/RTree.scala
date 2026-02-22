@@ -21,7 +21,7 @@ class RTree[Data](private val M: Int)(implicit val coordinate: Data => (Double, 
 
   def add(value: Data): Boolean = this.synchronized {
     val replaced = remove(value)
-    val entry = new Leaf(value, new Point(value))
+    val entry = new Leaf(value, new Point(coordinate(value)))
     entries += value -> entry
     root.add(entry) match {
       case newNode if newNode != root => root = new NonLeaf(newNode, root)

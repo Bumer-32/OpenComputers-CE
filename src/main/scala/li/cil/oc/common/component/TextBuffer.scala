@@ -1,7 +1,6 @@
 package li.cil.oc.common.component
 
 import com.google.common.base.Strings
-import com.mojang.blaze3d.matrix.MatrixStack
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -32,9 +31,7 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.PackedColor
 import li.cil.oc.util.SideTracker
 import net.minecraft.client.Minecraft
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Hand
+import net.minecraft.nbt.CompoundTag
 import net.minecraftforge.event.world.ChunkEvent
 import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -44,6 +41,9 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
+import com.mojang.blaze3d.vertex.PoseStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.InteractionHand
 
 class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment with traits.TextBufferProxy with VideoRamRasterizer with DeviceInfo {
   override val node = api.Network.newNode(this, Visibility.Network).
@@ -363,7 +363,7 @@ class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment w
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def renderText(stack: MatrixStack): Boolean = relativeLitArea != 0 && proxy.render(stack)
+  override def renderText(stack: PoseStack): Boolean = relativeLitArea != 0 && proxy.render(stack)
 
   @OnlyIn(Dist.CLIENT)
   override def renderWidth: Int = TextBufferRenderCache.renderer.charRenderWidth * getViewportWidth
@@ -377,31 +377,31 @@ class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment w
   @OnlyIn(Dist.CLIENT)
   override def isRenderingEnabled: Boolean = isRendering
 
-  override def keyDown(character: Char, code: Int, player: PlayerEntity): Unit =
+  override def keyDown(character: Char, code: Int, player: Player): Unit =
     proxy.keyDown(character, code, player)
 
-  override def keyUp(character: Char, code: Int, player: PlayerEntity): Unit =
+  override def keyUp(character: Char, code: Int, player: Player): Unit =
     proxy.keyUp(character, code, player)
 
-  override def textInput(codePt: Int, player: PlayerEntity): Unit =
+  override def textInput(codePt: Int, player: Player): Unit =
     proxy.textInput(codePt, player)
 
-  override def clipboard(value: String, player: PlayerEntity): Unit =
+  override def clipboard(value: String, player: Player): Unit =
     proxy.clipboard(value, player)
 
-  override def mouseDown(x: Double, y: Double, button: Int, player: PlayerEntity): Unit =
+  override def mouseDown(x: Double, y: Double, button: Int, player: Player): Unit =
     proxy.mouseDown(x, y, button, player)
 
-  override def mouseDrag(x: Double, y: Double, button: Int, player: PlayerEntity): Unit =
+  override def mouseDrag(x: Double, y: Double, button: Int, player: Player): Unit =
     proxy.mouseDrag(x, y, button, player)
 
-  override def mouseUp(x: Double, y: Double, button: Int, player: PlayerEntity): Unit =
+  override def mouseUp(x: Double, y: Double, button: Int, player: Player): Unit =
     proxy.mouseUp(x, y, button, player)
 
-  override def mouseScroll(x: Double, y: Double, delta: Int, player: PlayerEntity): Unit =
+  override def mouseScroll(x: Double, y: Double, delta: Int, player: Player): Unit =
     proxy.mouseScroll(x, y, delta, player)
 
-  def copyToAnalyzer(line: Int, player: PlayerEntity): Unit = {
+  def copyToAnalyzer(line: Int, player: Player): Unit = {
     proxy.copyToAnalyzer(line, player)
   }
 
@@ -432,7 +432,7 @@ class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment w
   private final val ViewportWidthTag = Settings.namespace + "viewportWidth"
   private final val ViewportHeightTag = Settings.namespace + "viewportHeight"
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     super.loadData(nbt)
     if (SideTracker.isClient) {
       if (!Strings.isNullOrEmpty(proxy.nodeAddress)) return // Only load once.
@@ -471,7 +471,7 @@ class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment w
   }
 
   // Null check for Waila (and other mods that may call this client side).
-  override def saveData(nbt: CompoundNBT): Unit = if (node != null) {
+  override def saveData(nbt: CompoundTag): Unit = if (node != null) {
     super.saveData(nbt)
     // Happy thread synchronization hack! Here's the problem: GPUs allow direct
     // calls for modifying screens to give a more responsive experience. This
@@ -547,7 +547,7 @@ object TextBuffer {
     }
 
     @OnlyIn(Dist.CLIENT)
-    def render(stack: MatrixStack) = false
+    def render(stack: PoseStack) = false
 
     def onBufferColorChange(): Unit
 
@@ -602,23 +602,23 @@ object TextBuffer {
       owner.relativeLitArea = -1
     }
 
-    def keyDown(character: Char, code: Int, player: PlayerEntity): Unit
+    def keyDown(character: Char, code: Int, player: Player): Unit
 
-    def keyUp(character: Char, code: Int, player: PlayerEntity): Unit
+    def keyUp(character: Char, code: Int, player: Player): Unit
 
-    def textInput(codePt: Int, player: PlayerEntity): Unit
+    def textInput(codePt: Int, player: Player): Unit
 
-    def clipboard(value: String, player: PlayerEntity): Unit
+    def clipboard(value: String, player: Player): Unit
 
-    def mouseDown(x: Double, y: Double, button: Int, player: PlayerEntity): Unit
+    def mouseDown(x: Double, y: Double, button: Int, player: Player): Unit
 
-    def mouseDrag(x: Double, y: Double, button: Int, player: PlayerEntity): Unit
+    def mouseDrag(x: Double, y: Double, button: Int, player: Player): Unit
 
-    def mouseUp(x: Double, y: Double, button: Int, player: PlayerEntity): Unit
+    def mouseUp(x: Double, y: Double, button: Int, player: Player): Unit
 
-    def mouseScroll(x: Double, y: Double, delta: Int, player: PlayerEntity): Unit
+    def mouseScroll(x: Double, y: Double, delta: Int, player: Player): Unit
 
-    def copyToAnalyzer(line: Int, player: PlayerEntity): Unit
+    def copyToAnalyzer(line: Int, player: Player): Unit
   }
 
   class ClientProxy(val owner: TextBuffer) extends Proxy {
@@ -633,7 +633,7 @@ object TextBuffer {
     }
 
     @OnlyIn(Dist.CLIENT)
-    override def render(stack: MatrixStack) = {
+    override def render(stack: PoseStack) = {
       val wasDirty = dirty
       TextBufferRenderCache.render(stack, renderer)
       wasDirty
@@ -689,54 +689,54 @@ object TextBuffer {
       super.onBufferRamDestroy(ram)
     }
 
-    override def keyDown(character: Char, code: Int, player: PlayerEntity): Unit = {
+    override def keyDown(character: Char, code: Int, player: Player): Unit = {
       debug(s"{type = keyDown, char = $character, code = $code}")
       ClientPacketSender.sendKeyDown(nodeAddress, character, code)
     }
 
-    override def keyUp(character: Char, code: Int, player: PlayerEntity): Unit = {
+    override def keyUp(character: Char, code: Int, player: Player): Unit = {
       debug(s"{type = keyUp, char = $character, code = $code}")
       ClientPacketSender.sendKeyUp(nodeAddress, character, code)
     }
 
-    override def textInput(codePt: Int, player: PlayerEntity): Unit = {
+    override def textInput(codePt: Int, player: Player): Unit = {
       debug(s"{type = textInput, codePt = $codePt}")
       ClientPacketSender.sendTextInput(nodeAddress, codePt)
     }
 
-    override def clipboard(value: String, player: PlayerEntity): Unit = {
+    override def clipboard(value: String, player: Player): Unit = {
       debug(s"{type = clipboard}")
       ClientPacketSender.sendClipboard(nodeAddress, value)
     }
 
-    override def mouseDown(x: Double, y: Double, button: Int, player: PlayerEntity): Unit = {
+    override def mouseDown(x: Double, y: Double, button: Int, player: Player): Unit = {
       debug(s"{type = mouseDown, x = $x, y = $y, button = $button}")
       ClientPacketSender.sendMouseClick(nodeAddress, x, y, drag = false, button)
     }
 
-    override def mouseDrag(x: Double, y: Double, button: Int, player: PlayerEntity): Unit = {
+    override def mouseDrag(x: Double, y: Double, button: Int, player: Player): Unit = {
       debug(s"{type = mouseDrag, x = $x, y = $y, button = $button}")
       ClientPacketSender.sendMouseClick(nodeAddress, x, y, drag = true, button)
     }
 
-    override def mouseUp(x: Double, y: Double, button: Int, player: PlayerEntity): Unit = {
+    override def mouseUp(x: Double, y: Double, button: Int, player: Player): Unit = {
       debug(s"{type = mouseUp, x = $x, y = $y, button = $button}")
       ClientPacketSender.sendMouseUp(nodeAddress, x, y, button)
     }
 
-    override def mouseScroll(x: Double, y: Double, delta: Int, player: PlayerEntity): Unit = {
+    override def mouseScroll(x: Double, y: Double, delta: Int, player: Player): Unit = {
       debug(s"{type = mouseScroll, x = $x, y = $y, delta = $delta}")
       ClientPacketSender.sendMouseScroll(nodeAddress, x, y, delta)
     }
 
-    override def copyToAnalyzer(line: Int, player: PlayerEntity): Unit = {
+    override def copyToAnalyzer(line: Int, player: Player): Unit = {
       ClientPacketSender.sendCopyToAnalyzer(nodeAddress, line)
     }
 
     private lazy val Debugger = api.Items.get(Constants.ItemName.Debugger)
 
     private def debug(message: String): Unit = {
-      if (Minecraft.getInstance != null && Minecraft.getInstance.player != null && api.Items.get(Minecraft.getInstance.player.getItemInHand(Hand.MAIN_HAND)) == Debugger) {
+      if (Minecraft.getInstance != null && Minecraft.getInstance.player != null && api.Items.get(Minecraft.getInstance.player.getItemInHand(InteractionHand.MAIN_HAND)) == Debugger) {
         OpenComputers.log.info(s"[NETWORK DEBUGGER] Sending packet to node $nodeAddress: " + message)
       }
     }
@@ -805,7 +805,7 @@ object TextBuffer {
     override def onBufferRamInit(ram: component.GpuTextBuffer): Unit = {
       super.onBufferRamInit(ram)
       owner.host.markChanged()
-      val nbt = new CompoundNBT()
+      val nbt = new CompoundTag()
       ram.saveData(nbt)
       owner.synchronized(ServerPacketSender.appendTextBufferRamInit(owner.pendingCommands, ram.owner, ram.id, nbt))
     }
@@ -834,40 +834,40 @@ object TextBuffer {
       owner.synchronized(ServerPacketSender.appendTextBufferRawSetForeground(owner.pendingCommands, col, row, color))
     }
 
-    override def keyDown(character: Char, code: Int, player: PlayerEntity): Unit = {
+    override def keyDown(character: Char, code: Int, player: Player): Unit = {
       sendToKeyboards("keyboard.keyDown", player, Char.box(character), Int.box(code))
     }
 
-    override def keyUp(character: Char, code: Int, player: PlayerEntity): Unit = {
+    override def keyUp(character: Char, code: Int, player: Player): Unit = {
       sendToKeyboards("keyboard.keyUp", player, Char.box(character), Int.box(code))
     }
 
-    override def textInput(codePt: Int, player: PlayerEntity): Unit = {
+    override def textInput(codePt: Int, player: Player): Unit = {
       sendToKeyboards("keyboard.textInput", player, Int.box(codePt))
     }
 
-    override def clipboard(value: String, player: PlayerEntity): Unit = {
+    override def clipboard(value: String, player: Player): Unit = {
       sendToKeyboards("keyboard.clipboard", player, value)
     }
 
-    override def mouseDown(x: Double, y: Double, button: Int, player: PlayerEntity): Unit = {
+    override def mouseDown(x: Double, y: Double, button: Int, player: Player): Unit = {
       sendMouseEvent(player, "touch", x, y, button)
     }
 
-    override def mouseDrag(x: Double, y: Double, button: Int, player: PlayerEntity): Unit = {
+    override def mouseDrag(x: Double, y: Double, button: Int, player: Player): Unit = {
       sendMouseEvent(player, "drag", x, y, button)
     }
 
-    override def mouseUp(x: Double, y: Double, button: Int, player: PlayerEntity): Unit = {
+    override def mouseUp(x: Double, y: Double, button: Int, player: Player): Unit = {
       sendMouseEvent(player, "drop", x, y, button)
     }
 
-    override def mouseScroll(x: Double, y: Double, delta: Int, player: PlayerEntity): Unit = {
+    override def mouseScroll(x: Double, y: Double, delta: Int, player: Player): Unit = {
       sendMouseEvent(player, "scroll", x, y, delta)
     }
 
-    override def copyToAnalyzer(line: Int, player: PlayerEntity): Unit = {
-      val stack = player.getItemInHand(Hand.MAIN_HAND)
+    override def copyToAnalyzer(line: Int, player: Player): Unit = {
+      val stack = player.getItemInHand(InteractionHand.MAIN_HAND)
       if (!stack.isEmpty) {
         stack.removeTagKey(Settings.namespace + "clipboard")
 
@@ -880,7 +880,7 @@ object TextBuffer {
       }
     }
 
-    private def sendMouseEvent(player: PlayerEntity, name: String, x: Double, y: Double, data: Int) = {
+    private def sendMouseEvent(player: Player, name: String, x: Double, y: Double, data: Int) = {
       val args = mutable.ArrayBuffer.empty[AnyRef]
 
       args += player

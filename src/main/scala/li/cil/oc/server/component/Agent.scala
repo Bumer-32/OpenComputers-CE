@@ -9,20 +9,11 @@ import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
 import li.cil.oc.common.entity
 import li.cil.oc.server.agent.ActivationType
-import li.cil.oc.server.agent.Player
+import li.cil.oc.server.agent.PlayerAgent
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.entity.Entity
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.Pose
-import net.minecraft.entity.item.ItemEntity
-import net.minecraft.entity.item.minecart.MinecartEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory.IInventory
 import net.minecraft.util.Direction
 import net.minecraft.util.Hand
 import net.minecraft.util.math.BlockPos
@@ -34,17 +25,18 @@ import net.minecraft.util.math.vector.Vector3d
 import net.minecraftforge.common.MinecraftForge
 
 import scala.collection.convert.ImplicitConversionsToScala._
+import net.minecraft.world.entity.player.Player
 
 trait Agent extends traits.WorldControl with traits.InventoryControl with traits.InventoryWorldControl with traits.TankAware with traits.TankControl with traits.TankWorldControl {
   def agent: internal.Agent
 
   override def position = BlockPosition(agent)
 
-  override def fakePlayer: PlayerEntity = agent.player
+  override def fakePlayer: Player = agent.player
 
-  protected def rotatedPlayer(facing: Direction = agent.facing, side: Direction = agent.facing): Player = {
-    val player = agent.player.asInstanceOf[Player]
-    Player.updatePositionAndRotation(player, facing, side)
+  protected def rotatedPlayer(facing: Direction = agent.facing, side: Direction = agent.facing): PlayerAgent = {
+    val player = agent.player.asInstanceOf[PlayerAgent]
+    PlayerAgent.updatePositionAndRotation(player, facing, side)
     // no need to set inventory, calling agent.Player already did that
     //Player.setPlayerInventoryItems(player)
     player
@@ -100,7 +92,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
     def triggerDelay(delay: Double = Settings.get.swingDelay) = {
       onWorldInteraction(context, delay)
     }
-    def attack(player: Player, entity: Entity) = {
+    def attack(player: PlayerAgent, entity: Entity) = {
       beginConsumeDrops(entity)
       player.attack(entity)
       // Mine carts have to be hit quickly in succession to break, so we click
@@ -115,7 +107,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
       triggerDelay()
       (true, "entity")
     }
-    def click(player: Player, pos: BlockPos, side: Direction) = {
+    def click(player: PlayerAgent, pos: BlockPos, side: Direction) = {
       val breakTime = player.clickBlock(pos, side)
       val broke = breakTime > 0
       if (broke) {
@@ -208,7 +200,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
           (true, "item_used")
         case _ => (false, "")
       }
-    def interact(player: Player, entity: Entity) = {
+    def interact(player: PlayerAgent, entity: Entity) = {
       beginConsumeDrops(entity)
       val result = player.interactOn(entity, Hand.MAIN_HAND)
       endConsumeDrops(player, entity)
@@ -317,7 +309,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
   }
 
 
-  protected def endConsumeDrops(player: Player, entity: Entity): Unit = {
+  protected def endConsumeDrops(player: PlayerAgent, entity: Entity): Unit = {
     val captured = entity.captureDrops(null)
     // this inventory size check is a HACK to preserve old behavior that a agent can suck items out
     // of the capturedDrops. Ideally, we'd only pick up items off the ground. We could clear the
@@ -337,7 +329,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
 
   protected def checkSideForFace(args: Arguments, n: Int, facing: Direction): Direction = agent.toGlobal(args.checkSideForFace(n, agent.toLocal(facing)))
 
-  protected def pick(player: Player, range: Double): RayTraceResult = {
+  protected def pick(player: PlayerAgent, range: Double): RayTraceResult = {
     val origin = new Vector3d(
       player.getX + player.facing.getStepX * 0.5,
       player.getY + player.facing.getStepY * 0.5,

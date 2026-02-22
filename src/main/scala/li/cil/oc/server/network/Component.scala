@@ -14,7 +14,7 @@ import li.cil.oc.server.machine.Callbacks.ComponentCallback
 import li.cil.oc.server.machine.Callbacks.PeripheralCallback
 import li.cil.oc.server.machine.Machine
 import li.cil.oc.util.SideTracker
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -119,14 +119,14 @@ trait Component extends network.Component with Node {
 
   // ----------------------------------------------------------------------- //
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     super.loadData(nbt)
     if (nbt.contains(NodeData.VisibilityTag)) {
       _visibility = Visibility.values()(nbt.getInt(NodeData.VisibilityTag))
     }
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     super.saveData(nbt)
     nbt.putInt(NodeData.VisibilityTag, _visibility.ordinal())
   }

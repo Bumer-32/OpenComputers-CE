@@ -7,13 +7,13 @@ import li.cil.oc.OpenComputers
 import li.cil.oc.api
 import li.cil.oc.api.network._
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 
 class CompoundBlockEnvironment(val name: String, val environments: (String, ManagedEnvironment)*) extends ManagedEnvironment {
   // Block drivers with visibility < network usually won't make much sense,
   // but let's play it safe and use the least possible visibility based on
   // the drivers we encapsulate.
-  val node: Component = api.Network.newNode(this, (environments.filter(_._2.node != null).map(_._2.node.reachability) ++ Seq(Visibility.None)).max).
+  val node: Component = api.Network.newNode(this, (environments.filter(_._2.node != null).map(_._2.node.reachability) ++ Seq(Visibility.None)).maxBy(_.ordinal())).
     withComponent(name).
     create()
 
@@ -54,7 +54,7 @@ class CompoundBlockEnvironment(val name: String, val environments: (String, Mana
 
   private final val TypeHashTag = "typeHash"
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     // Ignore existing data if the underlying type is different.
     if (nbt.contains(TypeHashTag) && nbt.getLong(TypeHashTag) != typeHash) return
     node.loadData(nbt)
@@ -69,7 +69,7 @@ class CompoundBlockEnvironment(val name: String, val environments: (String, Mana
     }
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     nbt.putLong(TypeHashTag, typeHash)
     node.saveData(nbt)
     for ((driver, environment) <- environments) {

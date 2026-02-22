@@ -35,3 +35,5 @@
 /usernamecache.json
 /.metals
 /.bloop
+/.scalafmt.conf
+/font

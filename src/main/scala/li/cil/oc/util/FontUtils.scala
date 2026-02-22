@@ -3,11 +3,12 @@ package li.cil.oc.util
 import java.io.{BufferedReader, InputStreamReader}
 import java.nio.charset.StandardCharsets
 import scala.collection.mutable.BitSet
-
 import li.cil.oc.OpenComputers
 
+import scala.collection.mutable
+
 object FontUtils {
-  private val defined_double_wide: BitSet = BitSet()
+  private val defined_double_wide: mutable.BitSet = mutable.BitSet()
 
   // theoretical Unicode maximum
   val codepoint_limit: Int = 0x110000
