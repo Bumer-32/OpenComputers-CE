@@ -25,49 +25,47 @@ object TextBufferRenderCache {
   // ----------------------------------------------------------------------- //
 
   def render(stack: PoseStack, buffer: TextBufferRenderData): Unit = {
-    RenderSystem.setShader(() => GameRenderer.getPositionColorShader)
-    RenderSystem.disableTexture()
-    RenderSystem.enableBlend()
-    RenderSystem.defaultBlendFunc()
+    {
+      RenderSystem.setShader(() => GameRenderer.getPositionColorShader)
+      RenderSystem.disableTexture()
+      RenderSystem.enableBlend()
+      RenderSystem.defaultBlendFunc()
 
-    RenderSystem.disableDepthTest()
+      RenderSystem.disableDepthTest()
 
-    val tesselator = Tesselator.getInstance
-    val builder = tesselator.getBuilder
-    val matrix = stack.last.pose
+      val tesselator = Tesselator.getInstance
+      val builder = tesselator.getBuilder
+      val matrix = stack.last.pose
 
-    builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR)
-    builder.vertex(matrix, 0f, 0f, 0f).color(255, 0, 0, 255).endVertex()
-    builder.vertex(matrix, 0f, 50f, 0f).color(0, 255, 0, 255).endVertex()
-    builder.vertex(matrix, 50f, 50f, 0f).color(0, 0, 255, 255).endVertex()
-    builder.vertex(matrix, 50f, 0f, 0f).color(255, 255, 255, 255).endVertex()
-    tesselator.end()
+      builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR)
+      builder.vertex(matrix, 0f, 0f, 0f).color(255, 0, 0, 255).endVertex()
+      builder.vertex(matrix, 0f, 50f, 0f).color(0, 255, 0, 255).endVertex()
+      builder.vertex(matrix, 50f, 50f, 0f).color(0, 0, 255, 255).endVertex()
+      builder.vertex(matrix, 50f, 0f, 0f).color(255, 255, 255, 255).endVertex()
+      tesselator.end()
 
-    RenderSystem.enableDepthTest()
-    RenderSystem.enableTexture()
-    /*
-    RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
-
-    // すべての文字を生成
-    for (line <- buffer.data.buffer) {
-      renderer.generateChars(line)
+      RenderSystem.enableDepthTest()
+      RenderSystem.enableTexture()
     }
 
-    // Immediateモードで直接描画（キャッシュなし）
-    val tesselator = Tesselator.getInstance
-    val immediate = MultiBufferSource.immediate(tesselator.getBuilder)
+    RenderState.checkError(getClass.getName + ".render: entering")
 
-    // バッファを描画
-    renderer.drawBuffer(stack, immediate, buffer.data, buffer.viewport._1, buffer.viewport._2)
+    val cached = cache.get(buffer, () => new RenderCache)
+    if (buffer.dirty || cached.isEmpty) {
+      for (line <- buffer.data.buffer) {
+        renderer.generateChars(line)
+      }
 
-    // 即座にフラッシュして描画を実行
-    immediate.endBatch()
+      buffer.dirty = false
+      cached.clear()
 
-    // dirtyフラグをクリア
-    buffer.dirty = false
+      renderer.drawBuffer(new PoseStack(), cached, buffer.data, buffer.viewport._1, buffer.viewport._2)
+      cached.finish()
+    }
+
+    cached.render(stack)
 
     RenderState.checkError(getClass.getName + ".render: leaving")
-    */
   }
 
   // ----------------------------------------------------------------------- //

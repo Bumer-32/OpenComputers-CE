@@ -35,20 +35,24 @@ abstract class TextureFontRenderer {
       var width = 0
       for (col <- color.map(PackedColor.unpackBackground(_, format)) if x + width < viewportWidth) {
         if (col != cbg) {
-          if (quadBuilder == null) quadBuilder = renderBuff.getBuffer(RenderTypes.FONT_QUAD)
-          drawQuad(quadBuilder, stack.last.pose, cbg, x, y, width)
+          if (cbg != 0 && width > 0) {
+            if (quadBuilder == null) quadBuilder = renderBuff.getBuffer(RenderTypes.FONT_QUAD)
+            drawQuad(quadBuilder, stack.last.pose, cbg, x, y, width)
+          }
           cbg = col
           x += width
           width = 0
         }
         width += 1
       }
-      if (quadBuilder == null) quadBuilder = renderBuff.getBuffer(RenderTypes.FONT_QUAD)
-      drawQuad(quadBuilder, stack.last.pose, cbg, x, y, width)
+      if (cbg != 0 && width > 0) {
+        if (quadBuilder == null) quadBuilder = renderBuff.getBuffer(RenderTypes.FONT_QUAD)
+        drawQuad(quadBuilder, stack.last.pose, cbg, x, y, width)
+      }
     }
 
     for (i <- 0 until textureCount) {
-      val fontBuilder = renderBuff.getBuffer(selectType(i))
+      var fontBuilder: VertexConsumer = null
       for (y <- 0 until (viewportHeight min buffer.height)) {
         val line = buffer.buffer(y)
         val color = buffer.color(y)
@@ -57,6 +61,7 @@ abstract class TextureFontRenderer {
         for (n <- 0 until viewportWidth) {
           val ch = line(n)
           if (ch != ' ') {
+            if (fontBuilder == null) fontBuilder = renderBuff.getBuffer(selectType(i))
             val col = PackedColor.unpackForeground(color(n), format)
             drawChar(fontBuilder, stack.last.pose, col, tx, ty.toFloat, ch.toInt)
           }
