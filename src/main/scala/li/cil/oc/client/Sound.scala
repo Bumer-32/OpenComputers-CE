@@ -104,7 +104,9 @@ object Sound {
         val current = sources.getOrElse(BlockEntity, null)
         if (current == null || !current.getLocation.getPath.equals(name)) {
           if (current != null) current.stop()
-          sources(BlockEntity) = new PseudoLoopingStream(BlockEntity, volume, name)
+          val sound = new PseudoLoopingStream(BlockEntity, volume, name)
+          sources(BlockEntity) = sound
+          Minecraft.getInstance.getSoundManager.play(sound)
         }
       }
     }

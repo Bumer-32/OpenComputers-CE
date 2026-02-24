@@ -4,9 +4,10 @@ import li.cil.oc.Settings
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
+import li.cil.oc.common.tileentity.TileEntityTypes
 import li.cil.oc.integration.util.Wrench
 import li.cil.oc.server.PacketSender
-import net.minecraft.world.level.block.state.BlockBehaviour.{Properties => Properties}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.entity.player.{Player => PlayerEntity}
@@ -16,10 +17,11 @@ import net.minecraft.world.level.block.state.{StateDefinition => StateContainer}
 import net.minecraft.core.Direction
 import net.minecraft.world.{InteractionHand => Hand}
 import net.minecraft.core.BlockPos
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraft.world.level.{Level => World}
 
-class Charger(props: Properties) extends RedstoneAware(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI {
+class Charger(props: Properties) extends RedstoneAware(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI with traits.Tickable {
   protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]) =
     builder.add(PropertyRotatable.Facing)
 
@@ -62,4 +64,6 @@ class Charger(props: Properties) extends RedstoneAware(props) with traits.PowerA
     }
     super.neighborChanged(state, world, pos, block, fromPos, b)
   }
+
+  override def getBlockEntityType: BlockEntityType[_ <: BlockEntity] = TileEntityTypes.CHARGER.get()
 }

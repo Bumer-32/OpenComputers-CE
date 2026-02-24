@@ -5,6 +5,7 @@ import li.cil.oc.client.KeyBindings
 import li.cil.oc.common.item.data.RobotData
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.tileentity
+import li.cil.oc.common.tileentity.TileEntityTypes
 import li.cil.oc.server.{PacketSender, agent}
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.{BlockPosition, InventoryUtils, Tooltip}
@@ -17,6 +18,7 @@ import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.{ItemStack, TooltipFlag => ITooltipFlag}
 import net.minecraft.world.level.{BlockGetter => IBlockReader, Level => World}
 import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.FluidState
@@ -29,7 +31,7 @@ import java.util
 import scala.collection.convert.ImplicitConversionsToScala._
 import net.minecraftforge.common.extensions.IForgeBlock
 
-class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.StateAware {
+class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.StateAware with traits.Tickable {
   val shape = VoxelShapes.box(0.1, 0.1, 0.1, 0.9, 0.9, 0.9)
 
   override val getDescriptionId = "robot"
@@ -251,4 +253,6 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
 
     super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid)
   }
+
+  override def getBlockEntityType: BlockEntityType[_ <: BlockEntity] = TileEntityTypes.ROBOT.get()
 }

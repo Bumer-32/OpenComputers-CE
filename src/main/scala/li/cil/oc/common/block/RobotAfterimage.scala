@@ -1,12 +1,14 @@
 package li.cil.oc.common.block
 
 import li.cil.oc.common.tileentity
+import li.cil.oc.common.tileentity.TileEntityTypes
 import li.cil.oc.util.BlockPosHelper
 import li.cil.oc.{Constants, Settings, api}
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.server.level.{ServerLevel => ServerWorld}
 import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.{Block, Blocks}
@@ -19,7 +21,7 @@ import net.minecraft.world.{InteractionHand, InteractionResult => ActionResultTy
 
 import java.util.Random
 
-class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
+class RobotAfterimage(props: Properties) extends SimpleBlock(props) with traits.Tickable {
   override def getCloneItemStack(state: BlockState, target: RayTraceResult, world: IBlockReader, pos: BlockPos, player: PlayerEntity): ItemStack =
     findMovingRobot(world, pos) match {
       case Some(robot) => robot.info.createItemStack()
@@ -100,4 +102,6 @@ class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
     }
     None
   }
+
+  override def getBlockEntityType: BlockEntityType[_ <: BlockEntity] = TileEntityTypes.ROBOT.get()
 }

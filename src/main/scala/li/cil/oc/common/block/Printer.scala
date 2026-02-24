@@ -2,6 +2,7 @@ package li.cil.oc.common.block
 
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.tileentity
+import li.cil.oc.common.tileentity.TileEntityTypes
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
@@ -13,9 +14,9 @@ import net.minecraft.world.phys.shapes.VoxelShape
 import net.minecraft.world.phys.shapes.{Shapes => VoxelShapes}
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraft.world.level.{Level => World}
-import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 
-class Printer(props: Properties) extends SimpleBlock(props) with traits.StateAware with traits.GUI {
+class Printer(props: Properties) extends SimpleBlock(props) with traits.StateAware with traits.GUI with traits.Tickable {
   val blockShape = {
     val base = Block.box(0, 0, 0, 16, 8, 16)
     val pillars = VoxelShapes.or(Block.box(0, 8, 0, 3, 13, 3), Block.box(13, 8, 0, 16, 13, 3),
@@ -33,4 +34,6 @@ class Printer(props: Properties) extends SimpleBlock(props) with traits.StateAwa
   }
 
   override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Printer(pos, state)
+
+  override def getBlockEntityType: BlockEntityType[_ <: BlockEntity] = TileEntityTypes.PRINTER.get()
 }

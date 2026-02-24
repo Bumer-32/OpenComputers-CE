@@ -91,17 +91,19 @@ object Audio {
       // really does happen. I'm assuming this is due to too many sounds being
       // kept loaded, since from what I can see OC's releasing its audio
       // memory as it should.
-      try sources.synchronized(sources += new Source(x, y, z, data, gain)) catch {
-        case e: OpenALException =>
-          if (e.errorCode == AL10.AL_OUT_OF_MEMORY) {
-            // Well... let's just stop here.
-            OpenComputers.log.info("Couldn't play computer speaker sound because your sound card ran out of memory. Either your sound card is just really low-end, or there are just too many sounds in use already by other mods. Disabling computer speakers to avoid spamming your log file now.")
-            disableAudio = true
-          }
-          else {
-            OpenComputers.log.warn("Error playing computer speaker sound.", e)
-          }
-      }
+      Minecraft.getInstance.execute(() => {
+        try sources.synchronized(sources += new Source(x, y, z, data, gain)) catch {
+          case e: OpenALException =>
+            if (e.errorCode == AL10.AL_OUT_OF_MEMORY) {
+              // Well... let's just stop here.
+              OpenComputers.log.info("Couldn't play computer speaker sound because your sound card ran out of memory. Either your sound card is just really low-end, or there are just too many sounds in use already by other mods. Disabling computer speakers to avoid spamming your log file now.")
+              disableAudio = true
+            }
+            else {
+              OpenComputers.log.warn("Error playing computer speaker sound.", e)
+            }
+        }
+      })
     }
   }
 

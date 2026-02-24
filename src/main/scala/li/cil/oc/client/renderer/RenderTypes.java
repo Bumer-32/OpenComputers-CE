@@ -81,6 +81,7 @@ public class RenderTypes extends RenderType {
             DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 1024, false, false, CompositeState.builder()
                     .setShaderState(POSITION_COLOR_SHADER)
                     .setWriteMaskState(COLOR_WRITE)
+                    .setDepthTestState(NO_DEPTH_TEST)
                     .createCompositeState(false));
 
     private static class CustomTextureState extends RenderStateShard.TexturingStateShard {
@@ -109,6 +110,7 @@ public class RenderTypes extends RenderType {
                         .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
                         .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                         .setTexturingState(linear ? LINEAR : NEAR)
+                        .setDepthTestState(NO_DEPTH_TEST)
                         .createCompositeState(false));
     }
 
@@ -118,6 +120,7 @@ public class RenderTypes extends RenderType {
                         .setShaderState(POSITION_COLOR_TEX_SHADER)
                         .setTexturingState(new CustomTextureState(id))
                         .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setDepthTestState(NO_DEPTH_TEST)
                         .createCompositeState(false));
     }
 

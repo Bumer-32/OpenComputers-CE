@@ -1,10 +1,12 @@
 package li.cil.oc.client.renderer.gui
 
-import com.mojang.blaze3d.vertex.{DefaultVertexFormat, VertexFormat, PoseStack, Tesselator, VertexConsumer}
+import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.{DefaultVertexFormat, PoseStack, Tesselator, VertexConsumer, VertexFormat}
 import com.mojang.math.Matrix4f
 import li.cil.oc.api
 import li.cil.oc.client.Textures
 import li.cil.oc.util.RenderState
+import net.minecraft.client.renderer.GameRenderer
 import org.lwjgl.opengl.GL11
 
 object BufferRenderer {
@@ -17,9 +19,12 @@ object BufferRenderer {
     val innerWidth  = innerMargin * 2 + bufferWidth
     val innerHeight = innerMargin * 2 + bufferHeight
 
+    RenderSystem.setShader(() => GameRenderer.getPositionTexShader)
+    RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
+    Textures.bind(Textures.GUI.Borders)
+
     val t = Tesselator.getInstance
     val r = t.getBuilder
-    Textures.bind(Textures.GUI.Borders)
     // 1.18.2: DefaultVertexFormats.POSITION_TEX → DefaultVertexFormat.POSITION_TEX
     r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
 

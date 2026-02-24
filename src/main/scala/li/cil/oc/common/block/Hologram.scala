@@ -1,11 +1,11 @@
 package li.cil.oc.common.block
 
 import java.util
-
 import li.cil.oc.common.tileentity
+import li.cil.oc.common.tileentity.TileEntityTypes
 import li.cil.oc.util.Rarity
 import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockBehaviour.{Properties => Properties}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.item.{TooltipFlag => ITooltipFlag}
 import net.minecraft.world.entity.player.{Player => PlayerEntity}
@@ -16,13 +16,14 @@ import net.minecraft.world.phys.shapes.VoxelShape
 import net.minecraft.world.phys.shapes.{Shapes => VoxelShapes}
 import net.minecraft.network.chat.{Component => ITextComponent}
 import net.minecraft.network.chat.{TextComponent => StringTextComponent}
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
-class Hologram(props: Properties, val tier: Int) extends SimpleBlock(props) {
+class Hologram(props: Properties, val tier: Int) extends SimpleBlock(props) with traits.Tickable {
   val shape = VoxelShapes.box(0, 0, 0, 1, 0.5, 1)
 
   // ----------------------------------------------------------------------- //
@@ -40,4 +41,6 @@ class Hologram(props: Properties, val tier: Int) extends SimpleBlock(props) {
   // ----------------------------------------------------------------------- //
 
   override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Hologram(pos, state, tier)
+
+  override def getBlockEntityType: BlockEntityType[_ <: BlockEntity] = TileEntityTypes.HOLOGRAM.get()
 }

@@ -28,7 +28,7 @@ object CapabilitySidedEnvironment {
 
     override def canConnect(side: Direction) = tileEntity.canConnect(side)
 
-    override def serializeNBT(): CompoundTag = null
+    override def serializeNBT(): CompoundTag = new CompoundTag()
 
     override def deserializeNBT(nbt: CompoundTag): Unit = {}
   }

@@ -1,6 +1,7 @@
 package li.cil.oc.client.gui.traits
 
 import com.mojang.blaze3d.platform.InputConstants
+import com.mojang.blaze3d.systems.RenderSystem
 
 import java.util.Arrays
 import com.mojang.blaze3d.vertex.{DefaultVertexFormat, PoseStack, Tesselator, VertexFormat}
@@ -11,6 +12,7 @@ import li.cil.oc.integration.util.ItemSearch
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+import net.minecraft.client.renderer.GameRenderer
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
 
@@ -85,7 +87,9 @@ trait InputBuffer extends DisplayBuffer {
     super.drawBufferLayer(stack)
 
     if (System.currentTimeMillis() - showKeyboardMissing < 1000) {
-      Textures.bind(Textures.GUI.KeyboardMissing)
+      RenderSystem.setShader(() => GameRenderer.getPositionTexShader)
+      RenderSystem.setShaderTexture(0, Textures.GUI.KeyboardMissing)
+      RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
 
       val x = bufferX + buffer.renderWidth - 16
       val y = bufferY + buffer.renderHeight - 16
@@ -104,7 +108,6 @@ trait InputBuffer extends DisplayBuffer {
   }
 
   def containerTick(): Unit = {
-    super.tick()
     flushQueuedKey()
   }
 

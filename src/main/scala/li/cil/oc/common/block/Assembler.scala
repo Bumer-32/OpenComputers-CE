@@ -3,18 +3,20 @@ package li.cil.oc.common.block
 import li.cil.oc.Settings
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.tileentity
+import li.cil.oc.common.tileentity.TileEntityTypes
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.server.level.{ServerPlayer => ServerPlayerEntity}
 import net.minecraft.core.BlockPos
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.phys.shapes.{CollisionContext => ISelectionContext}
 import net.minecraft.world.phys.shapes.VoxelShape
 import net.minecraft.world.phys.shapes.{Shapes => VoxelShapes}
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraft.world.level.{Level => World}
 
-class Assembler(props: Properties) extends SimpleBlock(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI {
+class Assembler(props: Properties) extends SimpleBlock(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI with traits.Tickable {
   override def energyThroughput = Settings.get.assemblerRate
 
   val blockShape = {
@@ -32,4 +34,6 @@ class Assembler(props: Properties) extends SimpleBlock(props) with traits.PowerA
   }
 
   override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Assembler(pos, state)
+
+  override def getBlockEntityType: BlockEntityType[_ <: BlockEntity] = TileEntityTypes.ASSEMBLER.get()
 }

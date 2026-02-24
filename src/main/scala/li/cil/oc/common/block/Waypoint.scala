@@ -4,6 +4,7 @@ import li.cil.oc.OpenComputers
 import li.cil.oc.client.gui
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
+import li.cil.oc.common.tileentity.TileEntityTypes
 import li.cil.oc.util.RotationHelper
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.Block
@@ -15,11 +16,12 @@ import net.minecraft.world.InteractionResult
 import net.minecraft.core.Direction
 import net.minecraft.world.InteractionHand
 import net.minecraft.core.BlockPos
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.level.{BlockGetter, Level}
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
-class Waypoint(props: Properties) extends RedstoneAware(props) {
+class Waypoint(props: Properties) extends RedstoneAware(props) with traits.Tickable {
   protected override def createBlockStateDefinition(builder: StateDefinition.Builder[Block, BlockState]) =
     builder.add(PropertyRotatable.Pitch, PropertyRotatable.Yaw)
 
@@ -53,4 +55,6 @@ class Waypoint(props: Properties) extends RedstoneAware(props) {
         }
       case _ => super.getValidRotations(world, pos)
     }
+
+  override def getBlockEntityType: BlockEntityType[_ <: BlockEntity] = TileEntityTypes.WAYPOINT.get()
 }

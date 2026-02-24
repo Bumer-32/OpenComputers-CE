@@ -2,42 +2,44 @@ package li.cil.oc.client.renderer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.datafixers.util.Pair;
+import com.mojang.math.Matrix4f;
+import li.cil.oc.OpenComputers;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.ShaderInstance;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.system.MemoryUtil;
 
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RenderCache implements MultiBufferSource {
-    public static class DrawEntry {
-        private final RenderType type;
-        private final BufferBuilder.DrawState state;
-        private final ByteBuffer data;
 
-        public DrawEntry(RenderType type, BufferBuilder.DrawState state, ByteBuffer data, boolean copy) {
+    // ------------------------------------------------------------------ //
+    // DrawEntry
+    // ------------------------------------------------------------------ //
+
+    public static class DrawEntry implements AutoCloseable {
+        private final RenderType type;
+        private final VertexBuffer vertexBuffer;
+
+        public DrawEntry(RenderType type, BufferBuilder builder) {
             this.type = type;
-            this.state = state;
-            if (copy) {
-                ByteBuffer temp = ByteBuffer.allocateDirect(data.remaining());
-                temp.order(data.order());
-                temp.put(data);
-                ((Buffer) temp).flip();
-                this.data = temp;
-            } else {
-                this.data = data;
-            }
+            this.vertexBuffer = new VertexBuffer();
+            builder.end();
+            this.vertexBuffer.bind();
+            this.vertexBuffer.upload(builder);
+            VertexBuffer.unbind();
         }
 
         public RenderType type() { return type; }
-        public BufferBuilder.DrawState state() { return state; }
-        public ByteBuffer data() { return data; }
+        public VertexBuffer vertexBuffer() { return vertexBuffer; }
+
+        @Override
+        public void close() {
+            vertexBuffer.close();
+        }
     }
 
     private final List<DrawEntry> cached = new ArrayList<>();
@@ -49,18 +51,16 @@ public class RenderCache implements MultiBufferSource {
     public boolean isEmpty() { return cached.isEmpty(); }
 
     public void clear() {
+        cached.forEach(DrawEntry::close);
         cached.clear();
     }
 
     private void flush(RenderType type) {
         if (type == activeType) {
             activeBuilder.end();
-            Pair<BufferBuilder.DrawState, ByteBuffer> rendered = activeBuilder.popNextBuffer();
-
-            if (rendered.getSecond().hasRemaining()) {
-                cached.add(new DrawEntry(type, rendered.getFirst(), rendered.getSecond(), true));
-            }
+            cached.add(new DrawEntry(type, activeBuilder));
             activeType = null;
+            activeBuilder = null;
         }
     }
 
@@ -71,7 +71,7 @@ public class RenderCache implements MultiBufferSource {
             flush(activeType);
         }
         activeType = type;
-        activeBuilder = Tesselator.getInstance().getBuilder();
+        activeBuilder = new BufferBuilder(256);
         activeBuilder.begin(type.mode(), type.format());
         return activeBuilder;
     }
@@ -83,38 +83,26 @@ public class RenderCache implements MultiBufferSource {
     public void render(PoseStack poseStack) {
         if (isEmpty()) return;
 
-        RenderSystem.getModelViewStack().pushPose();
-        RenderSystem.getModelViewStack().last().pose().multiply(poseStack.last().pose());
-        RenderSystem.applyModelViewMatrix();
+        Matrix4f modelView = poseStack.last().pose();
+        Matrix4f projection = RenderSystem.getProjectionMatrix();
 
-        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
 
-        cached.forEach(entry -> {
+        for (DrawEntry entry : cached) {
             entry.type().setupRenderState();
+            ShaderInstance shader = RenderSystem.getShader();
 
-            BufferBuilder.DrawState state = entry.state();
-            VertexFormat format = state.format();
-            long bufferAddress = MemoryUtil.memAddress(entry.data());
-            int vertexSize = format.getVertexSize();
-            List<VertexFormatElement> elements = format.getElements();
-
-            for (int i = 0; i < elements.size(); ++i) {
-                VertexFormatElement element = elements.get(i);
-                element.setupBufferState(i, bufferAddress + format.getOffset(i), vertexSize);
+            if (shader == null) {
+                shader = GameRenderer.getPositionColorTexShader();
+                RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
             }
 
-            GL11.glDrawArrays(
-                    state.mode().asGLMode,
-                    0,
-                    state.vertexCount()
-            );
-            
-            format.clearBufferState();
+            entry.vertexBuffer().bind();
+            entry.vertexBuffer().drawWithShader(modelView, projection, shader);
             entry.type().clearRenderState();
-        });
+        }
 
-        RenderSystem.getModelViewStack().popPose();
-        RenderSystem.applyModelViewMatrix();
+        VertexBuffer.unbind();
     }
 }

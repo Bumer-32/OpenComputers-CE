@@ -1,7 +1,6 @@
 package li.cil.oc.common.block
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
@@ -9,11 +8,12 @@ import li.cil.oc.api
 import li.cil.oc.client.gui
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
+import li.cil.oc.common.tileentity.TileEntityTypes
 import li.cil.oc.integration.util.Wrench
 import li.cil.oc.util.PackedColor
 import li.cil.oc.util.RotationHelper
 import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockBehaviour.{Properties => Properties}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
@@ -29,6 +29,7 @@ import net.minecraft.world.{InteractionHand => Hand}
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.{Component => ITextComponent}
 import net.minecraft.network.chat.{TextComponent => StringTextComponent}
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraft.world.level.{Level => World}
 import net.minecraftforge.api.distmarker.Dist
@@ -36,7 +37,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
-class Screen(props: Properties, val tier: Int) extends RedstoneAware(props) {
+class Screen(props: Properties, val tier: Int) extends RedstoneAware(props) with traits.Tickable {
   protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]) =
     builder.add(PropertyRotatable.Pitch, PropertyRotatable.Yaw)
 
@@ -135,4 +136,6 @@ class Screen(props: Properties, val tier: Int) extends RedstoneAware(props) {
         }
       case _ => super.getValidRotations(world, pos)
     }
+
+  override def getBlockEntityType: BlockEntityType[_ <: BlockEntity] = TileEntityTypes.SCREEN.get()
 }

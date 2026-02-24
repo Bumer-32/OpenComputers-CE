@@ -16,6 +16,7 @@ import li.cil.oc.api.machine.Architecture
 import li.cil.oc.server.machine.Machine
 import li.cil.oc.util.ExtendedLuaState._
 import li.cil.repack.com.naef.jnlua
+import li.cil.repack.com.naef.jnlua.LuaState
 import net.minecraft.world.item.ItemStack
 import org.apache.commons.lang3.SystemUtils
 
@@ -210,9 +211,19 @@ abstract class LuaStateFactory {
     }
 
     if (currentLib.isEmpty) {
-      val libraryUrl = classOf[Machine].getResource(s"/assets/${Settings.resourceDomain}/lib/$libraryName")
+      val libraryPath = s"/assets/${Settings.resourceDomain}/lib/$libraryName"
+      val libraryUrl = {
+        val path = libraryPath.stripPrefix("/")
+        val loaders = Seq(
+          Thread.currentThread().getContextClassLoader,
+          getClass.getClassLoader,
+          ClassLoader.getSystemClassLoader,
+          classOf[LuaState].getClassLoader
+        )
+        loaders.iterator.flatMap(cl => Option(cl.getResource(path))).nextOption().orNull
+      }
       if (libraryUrl == null) {
-        OpenComputers.log.warn(s"Native library with name '$libraryName' not found.")
+        OpenComputers.log.warn(s"Native library with name '$libraryPath' not found.")
         return
       }
 

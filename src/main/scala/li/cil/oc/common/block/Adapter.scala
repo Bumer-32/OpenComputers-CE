@@ -2,8 +2,9 @@ package li.cil.oc.common.block
 
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.tileentity
+import li.cil.oc.common.tileentity.TileEntityTypes
 import li.cil.oc.integration.util.Wrench
-import net.minecraft.world.level.block.state.BlockBehaviour.{Properties => Properties}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.entity.player.{Player => PlayerEntity}
@@ -12,11 +13,12 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraft.world.{InteractionHand => Hand}
 import net.minecraft.core.BlockPos
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraft.world.level.{LevelReader => IWorldReader}
 import net.minecraft.world.level.{Level => World}
 
-class Adapter(props: Properties) extends SimpleBlock(props) with traits.GUI {
+class Adapter(props: Properties) extends SimpleBlock(props) with traits.GUI with traits.Tickable {
   override def openGui(player: ServerPlayerEntity, world: World, pos: BlockPos): Unit = world.getBlockEntity(pos) match {
     case te: tileentity.Adapter => MenuTypes.openAdapterGui(player, te)
     case _ =>
@@ -64,4 +66,6 @@ class Adapter(props: Properties) extends SimpleBlock(props) with traits.GUI {
     }
     else super.localOnBlockActivated(world, pos, player, hand, heldItem, side, hitX, hitY, hitZ)
   }
+
+  override def getBlockEntityType: BlockEntityType[_ <: BlockEntity] = TileEntityTypes.ADAPTER.get()
 }

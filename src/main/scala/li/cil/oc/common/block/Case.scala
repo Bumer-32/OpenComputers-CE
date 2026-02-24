@@ -4,6 +4,7 @@ import li.cil.oc.Settings
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.tileentity
+import li.cil.oc.common.tileentity.TileEntityTypes
 import li.cil.oc.util.Tooltip
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.network.chat.{Component => ITextComponent, TextComponent => StringTextComponent}
@@ -13,6 +14,7 @@ import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.{ItemStack, TooltipFlag => ITooltipFlag}
 import net.minecraft.world.level.{BlockGetter => IBlockReader, Level => World}
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.{BlockState, StateDefinition => StateContainer}
 import net.minecraft.world.level.material.FluidState
@@ -21,7 +23,7 @@ import net.minecraftforge.common.extensions.IForgeBlock
 import java.util
 import scala.collection.convert.ImplicitConversionsToScala._
 
-class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI {
+class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI with traits.Tickable {
   protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]): Unit =
     builder.add(PropertyRotatable.Facing, property.PropertyRunning.Running)
 
@@ -83,4 +85,6 @@ class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with t
         super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid)
     }
   }
+
+  override def getBlockEntityType: BlockEntityType[_ <: BlockEntity] = TileEntityTypes.CASE.get()
 }

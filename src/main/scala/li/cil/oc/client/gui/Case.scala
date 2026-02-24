@@ -25,9 +25,7 @@ class Case(state: menu.Case, playerInventory: Inventory, name: Component)
 
   override protected def init() = {
     super.init()
-    powerButton = new ImageButton(leftPos + 70, topPos + 33, 18, 18, new Button.OnPress {
-      override def onPress(b: Button) = ClientPacketSender.sendComputerPower(inventoryContainer, !inventoryContainer.isRunning)
-    }, Textures.GUI.ButtonPower, canToggle = true)
+    powerButton = new ImageButton(leftPos + 70, topPos + 33, 18, 18, (b: Button) => ClientPacketSender.sendComputerPower(inventoryContainer, !inventoryContainer.isRunning), Textures.GUI.ButtonPower, canToggle = true)
     addRenderableWidget(powerButton)
   }
 

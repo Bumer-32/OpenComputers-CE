@@ -3,14 +3,16 @@ package li.cil.oc.common.block
 import li.cil.oc.Settings
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.tileentity
+import li.cil.oc.common.tileentity.TileEntityTypes
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.server.level.{ServerPlayer => ServerPlayerEntity}
 import net.minecraft.core.BlockPos
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraft.world.level.{Level => World}
 import net.minecraft.world.level.block.state.BlockState
 
-class Relay(props: Properties) extends SimpleBlock(props) with traits.GUI with traits.PowerAcceptor {
+class Relay(props: Properties) extends SimpleBlock(props) with traits.GUI with traits.PowerAcceptor with traits.Tickable {
   override def openGui(player: ServerPlayerEntity, world: World, pos: BlockPos): Unit = world.getBlockEntity(pos) match {
     case te: tileentity.Relay => MenuTypes.openRelayGui(player, te)
     case _ =>
@@ -19,4 +21,6 @@ class Relay(props: Properties) extends SimpleBlock(props) with traits.GUI with t
   override def energyThroughput = Settings.get.accessPointRate
 
   override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Relay(pos, state)
+
+  override def getBlockEntityType: BlockEntityType[_ <: BlockEntity] = TileEntityTypes.RELAY.get()
 }
