@@ -1,6 +1,5 @@
 package li.cil.oc.client.gui;
 
-import li.cil.oc.common.menu.ContainerTypes;
 import li.cil.oc.common.menu.MenuTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

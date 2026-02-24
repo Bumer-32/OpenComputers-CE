@@ -34,12 +34,12 @@ import net.minecraftforge.client.model.data.ModelProperty
 import scala.collection.Iterable
 import scala.collection.convert.ImplicitConversionsToJava.*
 
-class Print(selfType: BlockEntityType[_ <: Print], pos: BlockPos, blockState: BlockState, val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int => Unit], val onStateChange: Option[() => Unit])
-  extends BlockEntity(selfType, pos, blockState) with traits.BlockEntity with traits.RedstoneAware with traits.RotatableTile with IModelData {
+class Print(pos: BlockPos, blockState: BlockState, val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int => Unit], val onStateChange: Option[() => Unit])
+  extends BlockEntity(TileEntityTypes.PRINT.get(), pos, blockState) with traits.TileEntity with traits.RedstoneAware with traits.RotatableTile with IModelData {
 
-  def this(selfType: BlockEntityType[_ <: Print], pos: BlockPos, blockState: BlockState) = this(selfType, pos, blockState, None, None, None)
-  def this(selfType: BlockEntityType[_ <: Print], pos: BlockPos, blockState: BlockState, canToggle: () => Boolean, scheduleUpdate: Int => Unit, onStateChange: () => Unit) =
-    this(selfType, pos, blockState, Option(canToggle), Option(scheduleUpdate), Option(onStateChange))
+  def this(pos: BlockPos, blockState: BlockState) = this(pos, blockState, None, None, None)
+  def this(pos: BlockPos, blockState: BlockState, canToggle: () => Boolean, scheduleUpdate: Int => Unit, onStateChange: () => Unit) =
+    this(pos, blockState, Option(canToggle), Option(scheduleUpdate), Option(onStateChange))
 
   _isOutputEnabled = true
 

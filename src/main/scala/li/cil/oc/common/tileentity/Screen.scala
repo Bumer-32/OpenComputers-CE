@@ -24,8 +24,8 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.projectile.Arrow
 import net.minecraft.world.entity.player.Player
 
-class Screen(selfType: BlockEntityType[_ <: Screen], pos: BlockPos, state: BlockState, var tier: Int) extends BlockEntity(selfType, pos, state) with traits.TextBuffer with SidedEnvironment with traits.Rotatable with traits.RedstoneAware with traits.Colored with Analyzable with Ordered[Screen] {
-  def this(selfType: BlockEntityType[_ <: Screen], pos: BlockPos, state: BlockState) = this(selfType, pos, state, 0)
+class Screen(pos: BlockPos, state: BlockState, var tier: Int) extends BlockEntity(TileEntityTypes.SCREEN.get(), pos, state) with traits.TextBuffer with SidedEnvironment with traits.Rotatable with traits.RedstoneAware with traits.Colored with Analyzable with Ordered[Screen] {
+  def this(pos: BlockPos, state: BlockState) = this(pos, state, 0)
 
   // Enable redstone functionality.
   _isOutputEnabled = true

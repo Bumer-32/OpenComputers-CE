@@ -10,7 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 /**
   * @author Vexatos
   */
-trait OpenSides extends BlockEntity {
+trait OpenSides extends TileEntity {
   protected def SideCount = RotationHelper.getNumDirections
 
   protected def defaultState: Boolean = false

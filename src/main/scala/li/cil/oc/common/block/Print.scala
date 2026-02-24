@@ -114,7 +114,7 @@ class Print(props: Properties) extends RedstoneAware(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Print(tileentity.TileEntityTypes.PRINT, pos, state)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Print(pos, state)
 
   // ----------------------------------------------------------------------- //
 

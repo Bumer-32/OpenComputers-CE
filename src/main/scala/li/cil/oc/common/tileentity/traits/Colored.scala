@@ -9,7 +9,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-trait Colored extends BlockEntity with internal.Colored {
+trait Colored extends TileEntity with internal.Colored {
   private var _color = 0
 
   def consumesDye = false
@@ -24,7 +24,7 @@ trait Colored extends BlockEntity with internal.Colored {
   override def controlsConnectivity = false
 
   protected def onColorChanged(): Unit = {
-    if (level != null && isServer) {
+    if (getLevel != null && isServer) {
       PacketSender.sendColorChange(this)
     }
   }

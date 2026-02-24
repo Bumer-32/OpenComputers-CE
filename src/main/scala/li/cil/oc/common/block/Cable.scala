@@ -84,7 +84,7 @@ class Cable(props: Properties) extends SimpleBlock(props) with IForgeBlock {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Cable(tileentity.TileEntityTypes.CABLE, pos, state)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Cable(pos, state)
 
   // ----------------------------------------------------------------------- //
 

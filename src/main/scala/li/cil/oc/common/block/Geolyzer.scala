@@ -8,5 +8,5 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
 
 class Geolyzer(props: Properties) extends SimpleBlock(props) {
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Geolyzer(tileentity.TileEntityTypes.GEOLYZER, pos, state)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Geolyzer(pos, state)
 }

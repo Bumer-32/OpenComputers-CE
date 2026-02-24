@@ -39,10 +39,11 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity
 import net.minecraft.network.chat.Component as MCComponent
 
-class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], pos: BlockPos, state: BlockState, val robot: Robot) extends BlockEntity(selfType, pos, state)
+class RobotProxy(pos: BlockPos, state: BlockState, val robot: Robot)
+  extends BlockEntity(TileEntityTypes.ROBOT.get(), pos, state)
   with traits.Computer with traits.PowerInformation with traits.RotatableTile with WorldlyContainer with IFluidHandler with internal.Robot {
 
-  def this(selfType: BlockEntityType[_ <: RobotProxy], pos: BlockPos, state: BlockState) = this(selfType, pos, state, new Robot(pos, state))
+  def this(pos: BlockPos, state: BlockState) = this(pos, state, new Robot(pos, state))
 
   // ----------------------------------------------------------------------- //
 

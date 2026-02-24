@@ -33,8 +33,8 @@ import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToJava.*
 
-class Assembler(selfType: BlockEntityType[_ <: Assembler], pos: BlockPos, state: BlockState) 
-  extends BlockEntity(selfType, pos, state) with traits.Environment with traits.PowerAcceptor
+class Assembler(pos: BlockPos, state: BlockState) 
+  extends BlockEntity(TileEntityTypes.ASSEMBLER.get(), pos, state) with traits.Environment with traits.PowerAcceptor
   with traits.Inventory with SidedEnvironment with traits.StateAware with traits.Tickable with DeviceInfo with MenuProvider {
 
   val node = api.Network.newNode(this, Visibility.Network).

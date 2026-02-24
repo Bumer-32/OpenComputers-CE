@@ -16,11 +16,11 @@ public class CableHelper {
                 setValue(PropertyCableConnection.NORTH, PropertyCableConnection.Shape.NONE).
                 setValue(PropertyCableConnection.SOUTH, PropertyCableConnection.Shape.NONE).
                 setValue(PropertyCableConnection.WEST , PropertyCableConnection.Shape.NONE).
-                setValue(PropertyCableConnection.EAST , PropertyCableConnection.Shape.NONE))
+                setValue(PropertyCableConnection.EAST , PropertyCableConnection.Shape.NONE);
     }
     
     public static PropertyCableConnection.Shape getCableShape(final BlockState state, Direction side) {
-        return state.getValue(PropertyCableConnection.BY_DIRECTION.get(side))
+        return state.getValue(PropertyCableConnection.BY_DIRECTION.get(side));
     }
     
     public static BlockState helperSetCableShapeState(BlockState state, Direction fromSide, PropertyCableConnection.Shape type) {

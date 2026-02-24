@@ -34,7 +34,8 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import scala.collection.JavaConverters.asJavaIterable
 import scala.collection.convert.ImplicitConversionsToJava.*
 
-class Microcontroller(selfType: BlockEntityType[_ <: Microcontroller], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.PowerAcceptor with traits.Hub with traits.Computer with WorldlyContainer with internal.Microcontroller with DeviceInfo {
+class Microcontroller(pos: BlockPos, state: BlockState)
+  extends BlockEntity(TileEntityTypes.MICROCONTROLLER.get(), pos, state) with traits.PowerAcceptor with traits.Hub with traits.Computer with WorldlyContainer with internal.Microcontroller with DeviceInfo {
   val info = new MicrocontrollerData()
 
   override def node = null

@@ -8,7 +8,8 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 
-class MotionSensor(selfType: BlockEntityType[_ <: MotionSensor], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.Tickable {
+class MotionSensor(pos: BlockPos, state: BlockState) 
+  extends BlockEntity(TileEntityTypes.MOTION_SENSOR.get(), pos, state) with traits.Environment with traits.Tickable {
   val motionSensor = new component.MotionSensor(this)
 
   def node: Node = motionSensor.node

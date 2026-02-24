@@ -25,7 +25,7 @@ class Waypoint(props: Properties) extends RedstoneAware(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Waypoint(tileentity.TileEntityTypes.WAYPOINT, pos, state)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Waypoint(pos, state)
 
   // ----------------------------------------------------------------------- //
 

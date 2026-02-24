@@ -117,8 +117,8 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
 
   override def newBlockEntity(pos: BlockPos, state: BlockState): tileentity.RobotProxy = {
     moving.get match {
-      case Some(robot) => new tileentity.RobotProxy(tileentity.TileEntityTypes.ROBOT, pos, state, robot)
-      case _ => new tileentity.RobotProxy(tileentity.TileEntityTypes.ROBOT, pos, state)
+      case Some(robot) => new tileentity.RobotProxy(pos, state, robot)
+      case _ => new tileentity.RobotProxy(pos, state)
     }
   }
 

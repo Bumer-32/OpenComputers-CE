@@ -28,5 +28,5 @@ class Redstone(props: Properties) extends RedstoneAware(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Redstone(tileentity.TileEntityTypes.REDSTONE_IO, pos, state)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Redstone(pos, state)
 }

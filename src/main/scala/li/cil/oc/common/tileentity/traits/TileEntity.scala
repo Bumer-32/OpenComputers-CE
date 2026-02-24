@@ -15,7 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket
 import net.minecraft.network.Connection
 
-trait BlockEntity extends net.minecraft.world.level.block.entity.BlockEntity {
+trait TileEntity extends net.minecraft.world.level.block.entity.BlockEntity {
   private final val IsServerDataTag = Settings.namespace + "isServerData"
 
   def x: Int = getBlockPos.getX

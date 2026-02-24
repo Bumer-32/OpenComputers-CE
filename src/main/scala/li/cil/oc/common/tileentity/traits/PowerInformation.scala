@@ -6,7 +6,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-trait PowerInformation extends BlockEntity {
+trait PowerInformation extends TileEntity {
   private var lastSentRatio = -1.0
 
   private var ticksUntilSync = 0

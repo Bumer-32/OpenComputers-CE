@@ -17,7 +17,8 @@ import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToJava.*
 
-class PowerConverter(selfType: TileEntityType[_ <: PowerConverter], pos: BlockPos, state: BlockState) extends TileEntity(selfType, pos, state) with traits.PowerAcceptor with traits.Environment with traits.NotAnalyzable with DeviceInfo {
+class PowerConverter(pos: BlockPos, state: BlockState)
+  extends TileEntity(TileEntityTypes.POWER_CONVERTER.get(), pos, state) with traits.PowerAcceptor with traits.Environment with traits.NotAnalyzable with DeviceInfo {
   val node = api.Network.newNode(this, Visibility.None).
     withConnector(Settings.get.bufferConverter).
     create()

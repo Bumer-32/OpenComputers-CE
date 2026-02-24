@@ -23,7 +23,8 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import scala.collection.convert.ImplicitConversionsToJava.*
 import scala.collection.mutable
 
-class NetSplitter(selfType: BlockEntityType[_ <: NetSplitter], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.OpenSides with traits.RedstoneAware with api.network.SidedEnvironment with DeviceInfo {
+class NetSplitter(pos: BlockPos, state: BlockState) 
+  extends BlockEntity(TileEntityTypes.NET_SPLITTER.get(), pos, state) with traits.Environment with traits.OpenSides with traits.RedstoneAware with api.network.SidedEnvironment with DeviceInfo {
   private lazy val deviceInfo: util.Map[String, String] = Map(
     DeviceAttribute.Class -> DeviceClass.Network,
     DeviceAttribute.Description -> "Ethernet controller",

@@ -13,7 +13,8 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-class PowerDistributor(selfType: BlockEntityType[_ <: PowerDistributor], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.PowerBalancer with traits.NotAnalyzable {
+class PowerDistributor(pos: BlockPos, state: BlockState)
+  extends BlockEntity(TileEntityTypes.POWER_DISTRIBUTOR.get(), pos, state) with traits.Environment with traits.PowerBalancer with traits.NotAnalyzable {
   val node = null
 
   private val nodes = Array.fill(6)(api.Network.newNode(this, Visibility.None).

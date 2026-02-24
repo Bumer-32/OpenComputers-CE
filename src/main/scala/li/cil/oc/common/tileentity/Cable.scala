@@ -14,8 +14,8 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 
-class Cable(selfType: BlockEntityType[_ <: Cable], pos: BlockPos, state: BlockState) 
-  extends BlockEntity(selfType, pos, state) with traits.Environment with traits.NotAnalyzable with traits.ImmibisMicroblock with traits.Colored {
+class Cable(pos: BlockPos, state: BlockState) 
+  extends BlockEntity(TileEntityTypes.CABLE.get(), pos, state) with traits.Environment with traits.NotAnalyzable with traits.ImmibisMicroblock with traits.Colored {
   val node = api.Network.newNode(this, Visibility.None).create()
 
   setColor(Color.rgbValues(DyeColor.LIGHT_GRAY))

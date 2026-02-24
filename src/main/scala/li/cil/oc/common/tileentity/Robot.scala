@@ -71,7 +71,8 @@ import net.minecraft.world.entity.EquipmentSlot
 // robot moves we only create a new proxy tile entity, hook the instance of this
 // class that was held by the old proxy to it and can then safely forget the
 // old proxy, which will be cleaned up by Minecraft like any other tile entity.
-class Robot(pos: BlockPos, state: BlockState) extends BlockEntity(TileEntityTypes.ROBOT, pos, state) with traits.Computer with traits.PowerInformation with traits.RotatableTile
+class Robot(pos: BlockPos, state: BlockState) 
+  extends BlockEntity(TileEntityTypes.ROBOT.get(), pos, state) with traits.Computer with traits.PowerInformation with traits.RotatableTile
   with IFluidHandler with internal.Robot with InventorySelection with TankSelection with MenuProvider {
 
   var proxy: RobotProxy = _

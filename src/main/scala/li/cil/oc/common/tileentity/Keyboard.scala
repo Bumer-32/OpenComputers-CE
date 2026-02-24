@@ -15,7 +15,8 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-class Keyboard(selfType: BlockEntityType[_ <: Keyboard], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.Rotatable with traits.ImmibisMicroblock with SidedEnvironment with Analyzable {
+class Keyboard(pos: BlockPos, state: BlockState) 
+  extends BlockEntity(TileEntityTypes.KEYBOARD.get(), pos, state) with traits.Environment with traits.Rotatable with traits.ImmibisMicroblock with SidedEnvironment with Analyzable {
   override def validFacings = Direction.values
 
   val keyboard = {

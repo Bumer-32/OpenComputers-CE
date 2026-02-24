@@ -17,7 +17,7 @@ class Capacitor(props: Properties) extends SimpleBlock(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Capacitor(tileentity.TileEntityTypes.CAPACITOR, pos, state)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Capacitor(pos, state)
 
   // ----------------------------------------------------------------------- //
 

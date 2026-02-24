@@ -17,8 +17,8 @@ import net.minecraft.world.level.block.state.BlockState
 import scala.collection.convert.ImplicitConversionsToJava.*
 import scala.collection.convert.ImplicitConversionsToScala.*
 
-class CarpetedCapacitor(selfType: BlockEntityType[_ <: CarpetedCapacitor], pos: BlockPos, state: BlockState) 
-  extends Capacitor(selfType, pos, state) with traits.Tickable {
+class CarpetedCapacitor(pos: BlockPos, state: BlockState) 
+  extends Capacitor(pos, state) with traits.Tickable {
   private final lazy val deviceInfo = Map(
     DeviceAttribute.Class -> DeviceClass.Power,
     DeviceAttribute.Description -> "Battery",

@@ -31,10 +31,10 @@ import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToJava.*
 
-class Case(selfType: BlockEntityType[_ <: Case], pos: BlockPos, state: BlockState, var tier: Int) 
-  extends BlockEntity(selfType, pos, state) with traits.PowerAcceptor with traits.Computer with traits.Colored with internal.Case with DeviceInfo with MenuProvider {
-  def this(selfType: BlockEntityType[_ <: Case], pos: BlockPos, state: BlockState) = {
-    this(selfType, pos, state, 0)
+class Case(pos: BlockPos, state: BlockState, var tier: Int)
+  extends BlockEntity(TileEntityTypes.CASE.get(), pos, state) with traits.PowerAcceptor with traits.Computer with traits.Colored with internal.Case with DeviceInfo with MenuProvider {
+  def this(pos: BlockPos, state: BlockState) = {
+    this(pos, state, 0)
     // If no tier was defined when constructing this case, then we don't yet know the inventory size
     // this is set back to true when the nbt data is loaded
     isSizeInventoryReady = false

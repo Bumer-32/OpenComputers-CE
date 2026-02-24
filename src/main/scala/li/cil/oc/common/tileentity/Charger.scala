@@ -39,8 +39,8 @@ import scala.collection.convert.ImplicitConversionsToJava.*
 import scala.collection.convert.ImplicitConversionsToScala.*
 import scala.collection.mutable
 
-class Charger(selfType: BlockEntityType[_ <: Charger], pos: BlockPos, state: BlockState)
-  extends BlockEntity(selfType, pos, state) with traits.Environment with traits.PowerAcceptor with traits.RedstoneAware
+class Charger(pos: BlockPos, state: BlockState)
+  extends BlockEntity(TileEntityTypes.CHARGER.get(), pos, state) with traits.Environment with traits.PowerAcceptor with traits.RedstoneAware
   with traits.Rotatable with traits.ComponentInventory with traits.Tickable with Analyzable with traits.StateAware with DeviceInfo with MenuProvider {
 
   val node: Connector = api.Network.newNode(this, Visibility.None).

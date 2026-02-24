@@ -9,5 +9,5 @@ import net.minecraft.world.level.BlockGetter as IBlockReader
 import net.minecraft.world.level.Level as World
 
 class Transposer(props: Properties) extends SimpleBlock(props) {
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Transposer(tileentity.TileEntityTypes.TRANSPOSER, pos, state)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Transposer(pos, state)
 }

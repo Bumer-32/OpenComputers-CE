@@ -37,7 +37,8 @@ import net.minecraft.world.entity.player.{Inventory, Player}
 
 import scala.collection.immutable.ArraySeq
 
-class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.PowerAcceptor with traits.Hub with traits.PowerBalancer
+class Rack(pos: BlockPos, state: BlockState)
+  extends BlockEntity(TileEntityTypes.RACK.get(), pos, state) with traits.PowerAcceptor with traits.Hub with traits.PowerBalancer
   with traits.ComponentInventory with traits.Rotatable with traits.BundledRedstoneAware with Analyzable with internal.Rack with traits.StateAware with MenuProvider {
 
   var isRelayEnabled = false

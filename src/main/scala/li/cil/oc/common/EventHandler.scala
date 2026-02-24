@@ -445,7 +445,7 @@ object EventHandler {
         val chunk = holder.getTickingChunk
         if (chunk != null) {
           chunk.getBlockEntities.values().asScala.foreach {
-            case te: tileentity.traits.BlockEntity => te.dispose()
+            case te: tileentity.traits.TileEntity => te.dispose()
             case _ =>
           }
         }

@@ -47,7 +47,8 @@ import net.minecraft.nbt.ListTag
 import net.minecraft.Util
 import net.minecraft.world.level.Level
 
-class Relay(selfType: BlockEntityType[_ <: Relay], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Hub with traits.ComponentInventory
+class Relay(pos: BlockPos, state: BlockState) 
+  extends BlockEntity(TileEntityTypes.RELAY.get(), pos, state) with traits.Hub with traits.ComponentInventory
   with traits.PowerAcceptor with Analyzable with WirelessEndpoint with QuantumNetwork.QuantumNode with MenuProvider {
 
   lazy final val WirelessNetworkCardTier1: ItemInfo = api.Items.get(Constants.ItemName.WirelessNetworkCardTier1)

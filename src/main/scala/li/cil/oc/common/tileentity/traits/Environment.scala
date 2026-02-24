@@ -12,7 +12,7 @@ import net.minecraft.world.level.Level
 import net.minecraftforge.client.model.data.IModelData
 import net.minecraftforge.client.model.data.ModelProperty
 
-trait Environment extends BlockEntity with network.Environment with network.EnvironmentHost with IModelData {
+trait Environment extends TileEntity with network.Environment with network.EnvironmentHost with IModelData {
   protected var isChangeScheduled = false
 
   override def getEnvironmentLevel: Level = getLevel

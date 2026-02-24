@@ -17,8 +17,8 @@ import net.minecraft.world.level.block.state.BlockState
 
 import scala.collection.convert.ImplicitConversionsToJava.*
 
-class Capacitor(selfType: BlockEntityType[_ <: Capacitor], pos: BlockPos, state: BlockState)
-  extends BlockEntity(selfType, pos, state) with traits.Environment with DeviceInfo {
+class Capacitor( pos: BlockPos, state: BlockState)
+  extends BlockEntity(TileEntityTypes.CAPACITOR.get(), pos, state) with traits.Environment with DeviceInfo {
   // Start with maximum theoretical capacity, gets reduced after validation.
   // This is done so that we don't lose energy while loading.
   val node = api.Network.newNode(this, Visibility.Network).

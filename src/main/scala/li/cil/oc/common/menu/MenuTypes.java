@@ -130,7 +130,7 @@ public final class MenuTypes {
 
     public static void openDroneGui(ServerPlayer player, li.cil.oc.common.entity.Drone drone) {
         NetworkHooks.openGui(player, drone.containerProvider(), buff -> {
-            buff.writeVarInt(drone.mainSimpleContainer().getContainerSize());
+            buff.writeVarInt(drone.mainInventory().getContainerSize());
         });
     }
 
@@ -174,5 +174,5 @@ public final class MenuTypes {
         });
     }
 
-    private ContainerTypes() {}
+    private MenuTypes() {}
 }

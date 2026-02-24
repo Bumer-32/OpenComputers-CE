@@ -33,8 +33,8 @@ import net.minecraft.world.level.block.state.BlockState
 import scala.collection.convert.ImplicitConversionsToJava.*
 import scala.collection.mutable
 
-class Adapter(selfType: BlockEntityType[_ <: Adapter], pos: BlockPos, state: BlockState)
-  extends BlockEntity(selfType, pos, state) with traits.Environment with traits.ComponentInventory
+class Adapter(pos: BlockPos, state: BlockState)
+  extends BlockEntity(TileEntityTypes.ADAPTER.get(), pos, state) with traits.Environment with traits.ComponentInventory
   with traits.Tickable with traits.OpenSides with Analyzable with internal.Adapter with DeviceInfo with MenuProvider {
 
   val node: Node = api.Network.newNode(this, Visibility.Network).create()

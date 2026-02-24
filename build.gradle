@@ -27,7 +27,7 @@ base {
 }
 
 scala {
-    version = "3.3.0"
+    version = "3.3.7"
 }
 
 java {
@@ -163,9 +163,9 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    compileOnly "org.scala-lang:scala3-library_3:3.3.0"
+    compileOnly "org.scala-lang:scala3-library_3:3.3.7"
     compileOnly "org.typelevel:cats-core_3:2.9.2-kotori"
-    runtimeOnly(group: "com.kotori316", name: "scalablecatsforce", version: "3.3.0-build-2", classifier: "with-library") {
+    runtimeOnly(group: "com.kotori316", name: "scalablecatsforce", version: "3.3.3-build-15", classifier: "with-library") {
         transitive(false)
     }
 
@@ -204,7 +204,7 @@ dependencies {
         exclude module: "CBMultipart"
     }
 
-    testImplementation "org.scala-lang:scala3-library_3:3.3.0"
+    testImplementation "org.scala-lang:scala3-library_3:3.3.7"
     testImplementation "junit:junit:4.13.2"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
@@ -250,4 +250,5 @@ tasks.withType(JavaCompile).configureEach {
 tasks.withType(ScalaCompile).configureEach {
     scalaCompileOptions.forkOptions.memoryMaximumSize = '2g'
     scalaCompileOptions.forkOptions.jvmArgs = ['-Xss4m']
+    scalaCompileOptions.fork = false
 }
