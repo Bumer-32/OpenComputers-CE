@@ -4,12 +4,12 @@ import java.util
 
 import li.cil.oc.common.block.SimpleBlock
 import li.cil.oc.util.Tooltip
-import net.minecraft.world.item.TooltipFlag as ITooltipFlag
-import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.world.item.{TooltipFlag => ITooltipFlag}
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.network.chat.Component as ITextComponent
-import net.minecraft.network.chat.TextComponent as StringTextComponent
-import net.minecraft.world.level.BlockGetter as IBlockReader
+import net.minecraft.network.chat.{Component => ITextComponent}
+import net.minecraft.network.chat.{TextComponent => StringTextComponent}
+import net.minecraft.world.level.{BlockGetter => IBlockReader}
 
 import scala.collection.convert.ImplicitConversionsToScala._
 

@@ -5,21 +5,21 @@ import li.cil.oc.api.component.RackMountable
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties as Properties
+import net.minecraft.world.level.block.state.BlockBehaviour.{Properties => Properties}
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.entity.player.Player as PlayerEntity
-import net.minecraft.server.level.ServerPlayer as ServerPlayerEntity
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
+import net.minecraft.server.level.{ServerPlayer => ServerPlayerEntity}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.block.state.StateDefinition as StateContainer
+import net.minecraft.world.level.block.state.{StateDefinition => StateContainer}
 import net.minecraft.core.Direction
 import net.minecraft.core.Direction.Axis
-import net.minecraft.world.InteractionHand as Hand
+import net.minecraft.world.{InteractionHand => Hand}
 import net.minecraft.core.BlockPos
-import net.minecraft.world.phys.HitResult as RayTraceResult
-import net.minecraft.world.phys.Vec3 as Vector3d
-import net.minecraft.world.level.BlockGetter as IBlockReader
-import net.minecraft.world.level.Level as World
+import net.minecraft.world.phys.{HitResult => RayTraceResult}
+import net.minecraft.world.phys.{Vec3 => Vector3d}
+import net.minecraft.world.level.{BlockGetter => IBlockReader}
+import net.minecraft.world.level.{Level => World}
 
 class Rack(props: Properties) extends RedstoneAware(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI {
   protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]) =

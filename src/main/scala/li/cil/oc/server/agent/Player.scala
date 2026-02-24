@@ -6,19 +6,19 @@ import com.mojang.datafixers.util.Either
 import com.mojang.authlib.GameProfile
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
-import li.cil.oc.api.event.*
+import li.cil.oc.api.event._
 import li.cil.oc.api.internal
 import li.cil.oc.api.network.Connector
 import li.cil.oc.common.EventHandler
-import li.cil.oc.server.agent.Inventory as AgentInventory
+import li.cil.oc.server.agent.{Inventory => AgentInventory}
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.InventoryUtils
 import net.minecraft.world.level.block.piston.PistonBaseBlock
 import net.minecraft.world.entity.{Entity, EntityDimensions, EquipmentSlot, LivingEntity, Pose}
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.trading.Merchant
-import net.minecraft.world.entity.player.Player as PlayerEntity
-import net.minecraft.world.entity.player.Player.BedSleepingProblem as BedStatus
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
+import net.minecraft.world.entity.player.Player.{BedSleepingProblem => BedStatus}
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.item.Items
 import net.minecraft.world.Container
@@ -55,9 +55,9 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper
 import net.minecraftforge.eventbus.api.{Event, EventPriority, SubscribeEvent}
 import net.minecraftforge.items.IItemHandler
-import net.minecraftforge.items.wrapper.*
+import net.minecraftforge.items.wrapper._
 
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 import net.minecraft.core.NonNullList
 import net.minecraft.world.entity.Entity.RemovalReason
 

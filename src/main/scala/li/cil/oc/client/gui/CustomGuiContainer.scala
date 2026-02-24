@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.locale.Language
 
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 import net.minecraft.client.renderer.Sheets
 import com.mojang.blaze3d.vertex.Tesselator
 import net.minecraft.network.chat.TextComponent

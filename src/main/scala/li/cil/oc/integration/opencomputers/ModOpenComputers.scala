@@ -21,7 +21,7 @@ import li.cil.oc.common.EventHandler
 import li.cil.oc.common.Loot
 import li.cil.oc.common.SaveHandler
 import li.cil.oc.common.block.SimpleBlock
-import li.cil.oc.common.event.*
+import li.cil.oc.common.event._
 import li.cil.oc.common.item.Analyzer
 import li.cil.oc.common.item.RedstoneCard
 import li.cil.oc.common.item.Tablet
@@ -30,7 +30,7 @@ import li.cil.oc.common.nanomachines.provider.HungryProvider
 import li.cil.oc.common.nanomachines.provider.MagnetProvider
 import li.cil.oc.common.nanomachines.provider.ParticleProvider
 import li.cil.oc.common.nanomachines.provider.PotionProvider
-import li.cil.oc.common.template.*
+import li.cil.oc.common.template._
 import li.cil.oc.integration.ModProxy
 import li.cil.oc.integration.Mods
 import li.cil.oc.integration.util.BundledRedstone

@@ -2,11 +2,11 @@ package li.cil.oc.client.renderer
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import li.cil.oc.client.Textures
-import li.cil.oc.util.ExtendedLevel.*
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.{Constants, Settings, api}
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.*
+import net.minecraft.client.renderer._
 import net.minecraft.core.Direction
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.phys.shapes.CollisionContext

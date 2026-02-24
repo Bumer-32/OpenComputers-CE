@@ -41,9 +41,9 @@ public final class Recipes {
     public static final RecipeRegistration<ExtendedShapelessRecipe> SHAPELESS_EXTENDED = register("crafting_shapeless_extended", new ExtendedShapelessRecipe.Serializer());
 
     private static <R extends Recipe<?>> RecipeRegistration<R> register(String id, RecipeSerializer<R> serializer) {
-        RegistryObject<RecipeType<R>> recipeType = RECIPES.register("my_recipe", () -> new RecipeType<>() {
+        RegistryObject<RecipeType<R>> recipeType = RECIPES.register(id, () -> new RecipeType<>() {
             @Override
-            public String toString() { return "my_recipe"; }
+            public String toString() { return id; }
         });
         RegistryObject<RecipeSerializer<R>> recipeSerializer = SERIALIZERS.register(id + "_serializer", () -> serializer);
         return new RecipeRegistration<>(

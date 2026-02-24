@@ -11,8 +11,8 @@ import li.cil.oc.common.entity
 import li.cil.oc.server.agent.ActivationType
 import li.cil.oc.server.agent.Player
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedArguments.*
-import li.cil.oc.util.ExtendedLevel.*
+import li.cil.oc.util.ExtendedArguments._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.InventoryUtils
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
@@ -23,7 +23,7 @@ import net.minecraft.world.phys.{BlockHitResult, EntityHitResult, HitResult, Vec
 import net.minecraft.world.level.ClipContext
 import net.minecraftforge.common.MinecraftForge
 
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToScala._
 import net.minecraft.world.entity.player
 import net.minecraft.world.entity.vehicle.Minecart
 import net.minecraft.world.level.block.state.BlockState

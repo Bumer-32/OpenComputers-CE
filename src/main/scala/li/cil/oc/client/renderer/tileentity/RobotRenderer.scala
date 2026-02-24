@@ -17,13 +17,13 @@ import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer._
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer as TileEntityRenderer
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer => TileEntityRenderer}
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction, Vec3i}
 import net.minecraft.world.phys.Vec3
 import com.mojang.math.Vector3f
 import com.mojang.math.Matrix3f
@@ -276,7 +276,7 @@ class RobotRenderer extends TileEntityRenderer[tileentity.RobotProxy] {
 
     if (robot.isAnimatingMove) {
       val remaining = (robot.animationTicksLeft - f) / robot.animationTicksTotal.toDouble
-      val delta     = robot.moveFrom.get.subtract(robot.getBlockPos)
+      val delta = robot.moveFrom.get.subtract(robot.getBlockPos)
       matrix.translate(delta.getX * remaining, delta.getY * remaining, delta.getZ * remaining)
     }
 

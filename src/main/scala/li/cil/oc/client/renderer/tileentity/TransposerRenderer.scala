@@ -7,7 +7,7 @@ import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer as TileEntityRenderer
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer => TileEntityRenderer}
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 
 // 1.18.2: BlockEntityRendererProvider[T] に変更

@@ -2,21 +2,18 @@ package li.cil.oc.client.gui
 
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
-import li.cil.oc.client.Textures
+import li.cil.oc.client.{PacketSender => ClientPacketSender, Textures}
 import li.cil.oc.client.gui.widget.ProgressBar
-import li.cil.oc.client.PacketSender as ClientPacketSender
 import li.cil.oc.common.menu
 import li.cil.oc.common.menu.ComponentSlot
 import li.cil.oc.common.template.AssemblerTemplates
 import li.cil.oc.util.RenderState
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.network.chat.Component
-
-import scala.collection.convert.ImplicitConversionsToJava.*
-import scala.collection.convert.ImplicitConversionsToScala.*
 import net.minecraft.world.inventory.Slot
 import net.minecraft.client.gui.components.Button
 import com.mojang.blaze3d.vertex.PoseStack
+import scala.jdk.CollectionConverters._
 
 class Assembler(val state: menu.Assembler, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
@@ -24,7 +21,7 @@ class Assembler(val state: menu.Assembler, playerInventory: Inventory, name: Com
   imageWidth = 176
   imageHeight = 192
 
-  for (slot <- menu.slots) slot match {
+  for (slot <- menu.slots.asScala) slot match {
     case component: ComponentSlot => component.changeListener = Option(onSlotChanged)
     case _ =>
   }
@@ -79,7 +76,7 @@ class Assembler(val state: menu.Assembler, playerInventory: Inventory, name: Com
         tooltip.add(Localization.Assembler.Run)
         info.foreach {
           case (valid, _, warnings) => if (valid && warnings.length > 0) {
-            tooltip.addAll(warnings.map(_.getString).toList)
+            tooltip.addAll(warnings.map(_.getString).toList.asJava)
           }
         }
         copiedDrawHoveringText(stack, tooltip, mouseX - leftPos, mouseY - topPos, font)

@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.math.Vector3f                 
 import li.cil.oc.Constants
 import li.cil.oc.api
-import li.cil.oc.api.driver.item.UpgradeRenderer as DriverUpgradeRenderer
+import li.cil.oc.api.driver.item.{UpgradeRenderer => DriverUpgradeRenderer}
 import li.cil.oc.api.event.RobotRenderEvent.MountPoint
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.integration.opencomputers.Item

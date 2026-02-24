@@ -6,20 +6,20 @@ import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.Tooltip
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.network.chat.{Component as ITextComponent, TextComponent as StringTextComponent}
-import net.minecraft.server.level.ServerPlayer as ServerPlayerEntity
-import net.minecraft.world.InteractionHand as Hand
-import net.minecraft.world.entity.player.Player as PlayerEntity
-import net.minecraft.world.item.{ItemStack, TooltipFlag as ITooltipFlag}
-import net.minecraft.world.level.{BlockGetter as IBlockReader, Level as World}
+import net.minecraft.network.chat.{Component => ITextComponent, TextComponent => StringTextComponent}
+import net.minecraft.server.level.{ServerPlayer => ServerPlayerEntity}
+import net.minecraft.world.{InteractionHand => Hand}
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
+import net.minecraft.world.item.{ItemStack, TooltipFlag => ITooltipFlag}
+import net.minecraft.world.level.{BlockGetter => IBlockReader, Level => World}
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.state.{BlockState, StateDefinition as StateContainer}
+import net.minecraft.world.level.block.state.{BlockState, StateDefinition => StateContainer}
 import net.minecraft.world.level.material.FluidState
 import net.minecraftforge.common.extensions.IForgeBlock
 
 import java.util
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToScala._
 
 class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI {
   protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]): Unit =

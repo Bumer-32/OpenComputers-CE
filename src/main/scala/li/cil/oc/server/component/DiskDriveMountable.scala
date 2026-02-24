@@ -20,18 +20,18 @@ import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.common.{Slot, Sound}
 import li.cil.oc.common.menu.MenuTypes
-import li.cil.oc.common.menu.DiskDrive as DiskDriveContainer
+import li.cil.oc.common.menu.{DiskDrive => DiskDriveContainer}
 import li.cil.oc.common.inventory.ComponentInventory
 import li.cil.oc.common.inventory.ItemStackInventory
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.InventoryUtils
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
 import net.minecraft.world.MenuProvider
 
-import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToJava._
 import net.minecraft.world.entity.player.Player
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand

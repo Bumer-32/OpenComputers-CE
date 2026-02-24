@@ -3,15 +3,14 @@ import li.cil.oc.Settings
 import li.cil.oc.server.component.InternetCard
 import org.junit.runner.RunWith
 import org.scalatest.funspec.AnyFunSpec
-import org.scalatest.matchers.should.Matchers.{be, convertToAnyShouldWrapper}
+import org.scalatest.matchers.should.Matchers.{be, should}
 import org.scalatestplus.junit.JUnitRunner
-import org.scalatestplus.mockito.MockitoSugar
 
 import java.net.InetAddress
 import scala.io.{Codec, Source}
 
 @RunWith(classOf[JUnitRunner])
-class InternetFilteringRuleTest extends AnyFunSpec with MockitoSugar {
+class InternetFilteringRuleTest extends AnyFunSpec {
   val config = autoClose(classOf[Settings].getResourceAsStream("/application.conf")) { in =>
     val eol = System.lineSeparator()
     val configStr = Source.fromInputStream(in)(Codec.UTF8).getLines().mkString("", eol, eol)

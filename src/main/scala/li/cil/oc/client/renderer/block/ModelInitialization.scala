@@ -2,7 +2,6 @@ package li.cil.oc.client.renderer.block
 
 import java.util.Random
 import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.common.item.CustomModel
@@ -17,14 +16,12 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ItemLike
 import net.minecraft.core.Direction
 import net.minecraft.core.Registry
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.world.level.block.state.properties.Property as McProperty
+
 import net.minecraftforge.client.event.ModelBakeEvent
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.client.model.data.IModelData
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
-import scala.collection.convert.ImplicitConversionsToScala.*
 import scala.collection.mutable
 
 object ModelInitialization {
@@ -90,7 +87,7 @@ object ModelInitialization {
     }
     if (blockLocation != null) {
       val block = descriptor.block()
-      block.getStateDefinition.getPossibleStates.foreach { state =>
+      block.getStateDefinition.getPossibleStates.forEach { state =>
         modelRemappings += stateToModelLocation(state) -> blockLocation
       }
     }

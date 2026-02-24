@@ -123,7 +123,7 @@ class Manual extends screens.Screen(TextComponent.EMPTY) with traits.Window {
 
     currentSegment = Document.render(stack, document, leftPos + 8, topPos + 8, documentMaxWidth, documentMaxHeight, offset, font, mouseX, mouseY)
     def localizeAndWrap(text: String): java.util.List[Component] = {
-      Localization.localizeImmediately(text).linesIterator.map(new TextComponent(_)).toList.asJava
+      Localization.localizeImmediately(text).linesIterator.map(new TextComponent(_)).toList.asInstanceOf[List[Component]].asJava
     }
 
     if (!isScrolling) currentSegment match {

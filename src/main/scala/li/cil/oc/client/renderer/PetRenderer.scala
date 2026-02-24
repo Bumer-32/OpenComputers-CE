@@ -4,7 +4,7 @@ import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
 
 import com.google.common.cache.CacheBuilder
-import com.mojang.blaze3d.vertex.PoseStack as MatrixStack
+import com.mojang.blaze3d.vertex.{PoseStack => MatrixStack}
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.api.event.RobotRenderEvent
 import li.cil.oc.client.renderer.tileentity.RobotRenderer

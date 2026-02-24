@@ -7,7 +7,7 @@ import net.minecraft.world.item.Item
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceLocation
 
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToScala._
 
 object Color {
   val rgbValues = Map(

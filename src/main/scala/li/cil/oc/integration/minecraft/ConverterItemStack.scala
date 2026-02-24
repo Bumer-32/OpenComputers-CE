@@ -4,7 +4,7 @@ import java.util
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.integration.Mods
-import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ItemUtils
 import net.minecraft.nbt.{CompoundTag, ListTag, StringTag, Tag}
 import net.minecraft.world.item
@@ -12,9 +12,9 @@ import net.minecraft.world.item.Item
 import net.minecraft.tags.ItemTags
 import net.minecraft.world.item.enchantment.EnchantmentHelper
 
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
 object ConverterItemStack extends api.driver.Converter {
   def getTagValue(tag: CompoundTag, key: String): AnyRef = tag.getTagType(key) match {

@@ -5,7 +5,7 @@ import li.cil.oc.api.network
 import li.cil.oc.api.network.Connector
 import li.cil.oc.api.network.SidedEnvironment
 import li.cil.oc.common.EventHandler
-import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
 import net.minecraft.world.level.Level

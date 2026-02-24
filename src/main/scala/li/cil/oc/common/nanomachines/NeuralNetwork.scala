@@ -7,7 +7,7 @@ import li.cil.oc.api.Persistable
 import li.cil.oc.api.nanomachines.Behavior
 import li.cil.oc.api.nanomachines.BehaviorProvider
 import li.cil.oc.server.PacketSender
-import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.TextComponent
@@ -15,7 +15,7 @@ import net.minecraft.{ChatFormatting, Util}
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random

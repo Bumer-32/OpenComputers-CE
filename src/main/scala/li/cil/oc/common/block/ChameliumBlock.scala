@@ -4,16 +4,16 @@ import java.util.List
 
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties as Properties
-import net.minecraft.world.item.context.BlockPlaceContext as BlockItemUseContext
+import net.minecraft.world.level.block.state.BlockBehaviour.{Properties => Properties}
+import net.minecraft.world.item.context.{BlockPlaceContext => BlockItemUseContext}
 import net.minecraft.world.item.DyeColor
-import net.minecraft.world.item.CreativeModeTab as ItemGroup
+import net.minecraft.world.item.{CreativeModeTab => ItemGroup}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.state.properties.EnumProperty
-import net.minecraft.world.level.block.state.StateDefinition as StateContainer
+import net.minecraft.world.level.block.state.{StateDefinition => StateContainer}
 import net.minecraft.core.NonNullList
 import net.minecraft.core.BlockPos
-import net.minecraft.world.level.BlockGetter as IBlockReader
+import net.minecraft.world.level.{BlockGetter => IBlockReader}
 
 object ChameliumBlock {
   final val Color = EnumProperty.create("color", classOf[DyeColor])

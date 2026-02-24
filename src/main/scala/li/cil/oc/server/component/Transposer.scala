@@ -13,12 +13,12 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.common.tileentity
-import li.cil.oc.server.PacketSender as ServerPacketSender
+import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.server.network.{Component, Connector}
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedArguments.*
+import li.cil.oc.util.ExtendedArguments._
 
-import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToJava._
 import scala.language.existentials
 
 object Transposer {

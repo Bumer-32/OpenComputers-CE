@@ -27,7 +27,7 @@ import net.minecraft.world.inventory.CraftingContainer
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.registries.ForgeRegistries
 
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
 object ItemUtils {

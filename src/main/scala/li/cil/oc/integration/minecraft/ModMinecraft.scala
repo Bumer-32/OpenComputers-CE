@@ -7,7 +7,7 @@ import li.cil.oc.integration.Mods
 import li.cil.oc.integration.util.BundledRedstone
 import li.cil.oc.integration.util.BundledRedstone.RedstoneProvider
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedLevel.*
+import li.cil.oc.util.ExtendedLevel._
 import net.minecraft.world.level.block.{Blocks, RedStoneWireBlock}
 import net.minecraft.core.Direction
 import net.minecraftforge.common.MinecraftForge

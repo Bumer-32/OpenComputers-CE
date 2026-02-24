@@ -8,7 +8,7 @@ import net.minecraft.core.Registry
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
-import net.minecraft.tags.*
+import net.minecraft.tags._
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.registries.ForgeRegistries
 

@@ -21,8 +21,8 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.{Player => MinecraftPlayer}
 
-import scala.collection.convert.ImplicitConversionsToJava.*
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToJava._
+import scala.collection.convert.ImplicitConversionsToScala._
 
 object UpgradeTractorBeam {
 

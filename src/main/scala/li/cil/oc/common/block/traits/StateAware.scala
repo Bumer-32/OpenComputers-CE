@@ -4,7 +4,7 @@ import li.cil.oc.api
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.core.BlockPos
-import net.minecraft.world.level.Level as World
+import net.minecraft.world.level.{Level => World}
 
 trait StateAware extends Block {
   override def hasAnalogOutputSignal(state: BlockState): Boolean = true

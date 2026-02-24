@@ -4,19 +4,19 @@ import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.{Constants, api}
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
-import li.cil.oc.util.ExtendedEnumFacing.*
+import li.cil.oc.util.ExtendedEnumFacing._
 import li.cil.oc.util.{BlockPosition, InventoryUtils, RotationHelper}
-import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.server.level.ServerLevel as ServerWorld
-import net.minecraft.world.InteractionHand as Hand
-import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.core.{BlockPos, Direction, Vec3i}
+import net.minecraft.server.level.{ServerLevel => ServerWorld}
+import net.minecraft.world.{InteractionHand => Hand}
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.context.BlockPlaceContext as BlockItemUseContext
-import net.minecraft.world.level.{BlockGetter as IBlockReader, Level as World, LevelReader as IWorldReader}
+import net.minecraft.world.item.context.{BlockPlaceContext => BlockItemUseContext}
+import net.minecraft.world.level.{BlockGetter => IBlockReader, Level => World, LevelReader => IWorldReader}
 import net.minecraft.world.level.block.{Block, Blocks}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.state.{BlockState, StateDefinition as StateContainer}
-import net.minecraft.world.phys.shapes.{VoxelShape, CollisionContext as ISelectionContext, Shapes as VoxelShapes}
+import net.minecraft.world.level.block.state.{BlockState, StateDefinition => StateContainer}
+import net.minecraft.world.phys.shapes.{VoxelShape, CollisionContext => ISelectionContext, Shapes => VoxelShapes}
 import net.minecraft.world.ticks.ScheduledTick
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
@@ -99,11 +99,11 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
 
   override def localOnBlockActivated(world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float) =
     adjacencyInfo(world, pos) match {
-      case Some((keyboard, screen, blockPos, facing)) => screen.rightClick(world, blockPos, player, hand, heldItem, facing, 0, 0, 0, force = true)
+      case Some((_, screen, blockPos, facing)) => screen.rightClick(world, blockPos, player, hand, heldItem, facing, 0, 0, 0, force = true)
       case _ => false
     }
 
-  def adjacencyInfo(world: World, pos: BlockPos) =
+  def adjacencyInfo(world: World, pos: BlockPos): Option[(tileentity.Keyboard, Screen, BlockPos, Direction)] =
     world.getBlockEntity(pos) match {
       case keyboard: tileentity.Keyboard =>
         val blockPos = pos.relative(keyboard.facing.getOpposite)

@@ -13,9 +13,9 @@ import li.cil.oc.api.util.StateAware
 import li.cil.oc.common.menu
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.template.DisassemblerTemplates
-import li.cil.oc.server.PacketSender as ServerPacketSender
+import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.ItemUtils
 import net.minecraft.world.entity.player.Player
@@ -31,7 +31,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 

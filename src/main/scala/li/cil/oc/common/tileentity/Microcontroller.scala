@@ -12,14 +12,14 @@ import li.cil.oc.api.internal
 import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.*
+import li.cil.oc.api.network._
 import li.cil.oc.common.Tier
 import li.cil.oc.common.item.data.MicrocontrollerData
-import li.cil.oc.util.ExtendedArguments.*
-import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.util.ExtendedArguments._
+import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
-import li.cil.oc.util.StackOption.*
-import net.minecraft.world.entity.player.Player as PlayerEntity
+import li.cil.oc.util.StackOption._
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.WorldlyContainer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
@@ -32,7 +32,7 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.JavaConverters.asJavaIterable
-import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToJava._
 
 class Microcontroller(pos: BlockPos, state: BlockState)
   extends BlockEntity(TileEntityTypes.MICROCONTROLLER.get(), pos, state) with traits.PowerAcceptor with traits.Hub with traits.Computer with WorldlyContainer with internal.Microcontroller with DeviceInfo {

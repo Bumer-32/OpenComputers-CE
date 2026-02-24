@@ -17,13 +17,13 @@ import li.cil.oc.common.component
 import li.cil.oc.common.menu
 import li.cil.oc.common.item.{Tablet, TabletWrapper}
 import li.cil.oc.common.nanomachines.ControllerImpl
-import li.cil.oc.common.tileentity.*
-import li.cil.oc.common.tileentity.traits.*
-import li.cil.oc.common.PacketHandler as CommonPacketHandler
+import li.cil.oc.common.tileentity._
+import li.cil.oc.common.tileentity.traits._
+import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
 import li.cil.oc.integration.Mods
-import li.cil.oc.integration.jei.ModJEI
+//import li.cil.oc.integration.jei.ModJEI
 import li.cil.oc.util.Audio
-import li.cil.oc.util.ExtendedLevel.*
+import li.cil.oc.util.ExtendedLevel._
 import net.minecraft.client.Minecraft
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Level
@@ -338,7 +338,7 @@ object PacketHandler extends CommonPacketHandler {
       Loot.disksForClient += stack
     }
     if(Mods.JustEnoughItems.isModAvailable) {
-      ModJEI.addDiskAtRuntime(stack)
+      //ModJEI.addDiskAtRuntime(stack)
     }
   }
 
@@ -412,7 +412,7 @@ object PacketHandler extends CommonPacketHandler {
         val velocity = p.readDouble()
         val direction = p.readDirection()
         val particleType = p.readRegistryEntry(ForgeRegistries.PARTICLE_TYPES)
-        particleType match
+        particleType match {
           case particle: ParticleOptions =>
             val count = p.readUnsignedByte() / (1 << Minecraft.getInstance.options.particles.getId())
 
@@ -438,6 +438,7 @@ object PacketHandler extends CommonPacketHandler {
               }
             }
           case _ =>
+        }
       case _ => // Invalid packet.
     }
   }

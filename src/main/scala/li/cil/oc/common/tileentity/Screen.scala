@@ -2,13 +2,13 @@ package li.cil.oc.common.tileentity
 
 import li.cil.oc.Settings
 import li.cil.oc.api.network.Analyzable
-import li.cil.oc.api.network.*
+import li.cil.oc.api.network._
 import li.cil.oc.client.gui
 import li.cil.oc.common.component.TextBuffer
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.Color
-import li.cil.oc.util.ExtendedLevel.*
+import li.cil.oc.util.ExtendedLevel._
 import net.minecraft.client.Minecraft
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.CompoundTag

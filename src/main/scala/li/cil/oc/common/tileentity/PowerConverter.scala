@@ -7,15 +7,15 @@ import li.cil.oc.api.driver.DeviceInfo.DeviceClass
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.network.*
-import net.minecraft.world.level.block.entity.BlockEntity as TileEntity
-import net.minecraft.world.level.block.entity.BlockEntityType as TileEntityType
+import li.cil.oc.api.network._
+import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
+import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToJava._
 
 class PowerConverter(pos: BlockPos, state: BlockState)
   extends TileEntity(TileEntityTypes.POWER_CONVERTER.get(), pos, state) with traits.PowerAcceptor with traits.Environment with traits.NotAnalyzable with DeviceInfo {

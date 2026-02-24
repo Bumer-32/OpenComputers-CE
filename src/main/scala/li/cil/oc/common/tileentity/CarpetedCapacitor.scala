@@ -14,8 +14,8 @@ import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.state.BlockState
 
-import scala.collection.convert.ImplicitConversionsToJava.*
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToJava._
+import scala.collection.convert.ImplicitConversionsToScala._
 
 class CarpetedCapacitor(pos: BlockPos, state: BlockState) 
   extends Capacitor(pos, state) with traits.Tickable {

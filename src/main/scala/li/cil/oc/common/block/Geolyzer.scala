@@ -1,9 +1,9 @@
 package li.cil.oc.common.block
 
 import li.cil.oc.common.tileentity
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties as Properties
-import net.minecraft.world.level.BlockGetter as IBlockReader
-import net.minecraft.world.level.Level as World
+import net.minecraft.world.level.block.state.BlockBehaviour.{Properties => Properties}
+import net.minecraft.world.level.{BlockGetter => IBlockReader}
+import net.minecraft.world.level.{Level => World}
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
 

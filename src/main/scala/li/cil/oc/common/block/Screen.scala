@@ -13,24 +13,24 @@ import li.cil.oc.integration.util.Wrench
 import li.cil.oc.util.PackedColor
 import li.cil.oc.util.RotationHelper
 import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties as Properties
+import net.minecraft.world.level.block.state.BlockBehaviour.{Properties => Properties}
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
-import net.minecraft.world.item.TooltipFlag as ITooltipFlag
+import net.minecraft.world.item.{TooltipFlag => ITooltipFlag}
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.entity.player.Player as PlayerEntity
-import net.minecraft.world.entity.projectile.Arrow as ArrowEntity
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
+import net.minecraft.world.entity.projectile.{Arrow => ArrowEntity}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.block.state.StateDefinition as StateContainer
+import net.minecraft.world.level.block.state.{StateDefinition => StateContainer}
 import net.minecraft.core.Direction
-import net.minecraft.world.InteractionHand as Hand
+import net.minecraft.world.{InteractionHand => Hand}
 import net.minecraft.core.BlockPos
-import net.minecraft.network.chat.Component as ITextComponent
-import net.minecraft.network.chat.TextComponent as StringTextComponent
-import net.minecraft.world.level.BlockGetter as IBlockReader
-import net.minecraft.world.level.Level as World
+import net.minecraft.network.chat.{Component => ITextComponent}
+import net.minecraft.network.chat.{TextComponent => StringTextComponent}
+import net.minecraft.world.level.{BlockGetter => IBlockReader}
+import net.minecraft.world.level.{Level => World}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 

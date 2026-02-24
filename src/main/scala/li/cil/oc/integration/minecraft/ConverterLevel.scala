@@ -8,7 +8,7 @@ import li.cil.oc.api
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
 
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToScala._
 
 object ConverterLevel extends api.driver.Converter {
   override def convert(value: AnyRef, output: util.Map[AnyRef, AnyRef]): Unit = {

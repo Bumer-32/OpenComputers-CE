@@ -10,17 +10,17 @@ import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.*
+import li.cil.oc.api.network._
 import li.cil.oc.api.util.StateAware
 import li.cil.oc.common.menu
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.item.data.PrintData
-import li.cil.oc.server.PacketSender as ServerPacketSender
-import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.server.{PacketSender => ServerPacketSender}
+import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
-import li.cil.oc.util.StackOption.*
-import net.minecraft.world.entity.player.Player as PlayerEntity
-import net.minecraft.world.entity.player.Inventory as PlayerInventory
+import li.cil.oc.util.StackOption._
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
+import net.minecraft.world.entity.player.{Inventory => PlayerInventory}
 import net.minecraft.world.WorldlyContainer
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
@@ -32,7 +32,7 @@ import net.minecraft.world.phys.AABB
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToJava._
 
 class Printer(pos: BlockPos, state: BlockState) 
   extends BlockEntity(TileEntityTypes.PRINTER.get(), pos, state) with traits.Environment with traits.Inventory with traits.Rotatable

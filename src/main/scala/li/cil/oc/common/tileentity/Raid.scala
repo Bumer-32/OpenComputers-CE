@@ -14,8 +14,8 @@ import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.item.data.DriveData
 import li.cil.oc.common.item.data.NodeData
 import li.cil.oc.server.component.FileSystem
-import li.cil.oc.server.PacketSender as ServerPacketSender
-import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.server.{PacketSender => ServerPacketSender}
+import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction

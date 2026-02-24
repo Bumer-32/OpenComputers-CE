@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
 class NetSplitter(pos: BlockPos, state: BlockState) 

@@ -5,10 +5,10 @@ import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common
 import li.cil.oc.common.InventorySlots.InventorySlot
 import li.cil.oc.common.Tier
-import li.cil.oc.server.PacketSender as ServerPacketSender
+import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.SideTracker
 
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.MenuType

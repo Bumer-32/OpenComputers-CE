@@ -3,6 +3,7 @@ package li.cil.oc
 import java.nio.file.Paths
 import li.cil.oc.common.IMC
 import li.cil.oc.common.Proxy
+import li.cil.oc.common.capabilities.Capabilities
 import li.cil.oc.common.init.Blocks
 import li.cil.oc.common.init.Items
 import li.cil.oc.integration.Mods
@@ -20,14 +21,13 @@ import net.minecraftforge.fml.loading.FMLPaths
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToScala._
 import net.minecraftforge.network.simple.SimpleChannel
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.item.Item
 import net.minecraftforge.fml.common.Mod
 
-@Mod(OpenComputers.ID)
 object OpenComputers {
   final val ID = "opencomputers"
 
@@ -57,11 +57,13 @@ object OpenComputers {
   }
 }
 
+@Mod(OpenComputers.ID)
 class OpenComputers {
   val modContainer: ModContainer = ModLoadingContext.get.getActiveContainer
   val modBus = FMLJavaModLoadingContext.get.getModEventBus
 
   modBus.register(this)
+  modBus.register(classOf[Capabilities])
   OpenComputers.instance = Some(this)
 
   MinecraftForge.EVENT_BUS.register(OpenComputers.proxy)

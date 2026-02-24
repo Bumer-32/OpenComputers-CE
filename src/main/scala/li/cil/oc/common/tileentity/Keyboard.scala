@@ -5,8 +5,8 @@ import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.network.Analyzable
 import li.cil.oc.api.network.SidedEnvironment
-import li.cil.oc.util.ExtendedNBT.*
-import net.minecraft.world.entity.player.Player as PlayerEntity
+import li.cil.oc.util.ExtendedNBT._
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType

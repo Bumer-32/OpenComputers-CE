@@ -1,45 +1,37 @@
 package li.cil.oc.common.block
 
 import java.util
-import li.cil.oc.CreativeTab
 import li.cil.oc.common.tileentity
 import li.cil.oc.common.tileentity.traits.Colored
 import li.cil.oc.common.tileentity.traits.Inventory
 import li.cil.oc.common.tileentity.traits.Rotatable
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Color
-import li.cil.oc.util.ExtendedLevel.*
 import li.cil.oc.util.Tooltip
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.level.block.RenderShape as BlockRenderType
-import net.minecraft.world.level.block.BaseEntityBlock as ContainerBlock
-import net.minecraft.world.level.material.Material
-import net.minecraft.world.item.TooltipFlag as ITooltipFlag
+import net.minecraft.world.level.block.{RenderShape => BlockRenderType}
+import net.minecraft.world.level.block.{BaseEntityBlock => ContainerBlock}
+import net.minecraft.world.item.{TooltipFlag => ITooltipFlag}
 import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.EntityType
-import net.minecraft.world.entity.player.Player as PlayerEntity
-import net.minecraft.world.item.DyeColor
-import net.minecraft.world.item.CreativeModeTab as ItemGroup
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.storage.loot.LootContext
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams as LootParameters
-import net.minecraft.world.level.block.entity.BlockEntity as TileEntity
-import net.minecraft.world.InteractionResult as ActionResultType
+import net.minecraft.world.level.storage.loot.parameters.{LootContextParams => LootParameters}
+import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
 import net.minecraft.core.Direction
-import net.minecraft.world.InteractionHand as Hand
+import net.minecraft.world.{InteractionHand => Hand, InteractionResult => ActionResultType}
 import net.minecraft.core.BlockPos
-import net.minecraft.world.phys.BlockHitResult as BlockRayTraceResult
-import net.minecraft.network.chat.Component as ITextComponent
-import net.minecraft.network.chat.TextComponent as StringTextComponent
+import net.minecraft.world.phys.{BlockHitResult => BlockRayTraceResult}
+import net.minecraft.network.chat.{Component => ITextComponent}
+import net.minecraft.network.chat.{TextComponent => StringTextComponent}
 import net.minecraft.world.item.context.BlockPlaceContext
-import net.minecraft.world.level.BlockGetter as IBlockReader
-import net.minecraft.world.level.LevelReader as IWorldReader
-import net.minecraft.world.level.Level as World
+import net.minecraft.world.level.{BlockGetter => IBlockReader}
+import net.minecraft.world.level.{Level => World}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToScala._
 
 abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
   @Deprecated

@@ -12,7 +12,6 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.concurrent.Callable;
 
-@Mod.EventBusSubscriber(modid = "opencomputers", bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class Capabilities {
     public static Capability<Colored> ColoredCapability = CapabilityManager.get(new CapabilityToken<>(){});
 

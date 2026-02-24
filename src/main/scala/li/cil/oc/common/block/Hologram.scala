@@ -5,18 +5,18 @@ import java.util
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.Rarity
 import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties as Properties
+import net.minecraft.world.level.block.state.BlockBehaviour.{Properties => Properties}
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.item.TooltipFlag as ITooltipFlag
-import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.world.item.{TooltipFlag => ITooltipFlag}
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.BlockPos
-import net.minecraft.world.phys.shapes.CollisionContext as ISelectionContext
+import net.minecraft.world.phys.shapes.{CollisionContext => ISelectionContext}
 import net.minecraft.world.phys.shapes.VoxelShape
-import net.minecraft.world.phys.shapes.Shapes as VoxelShapes
-import net.minecraft.network.chat.Component as ITextComponent
-import net.minecraft.network.chat.TextComponent as StringTextComponent
-import net.minecraft.world.level.BlockGetter as IBlockReader
+import net.minecraft.world.phys.shapes.{Shapes => VoxelShapes}
+import net.minecraft.network.chat.{Component => ITextComponent}
+import net.minecraft.network.chat.{TextComponent => StringTextComponent}
+import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 

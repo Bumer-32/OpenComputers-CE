@@ -13,10 +13,10 @@ import li.cil.oc.client.renderer.WirelessNetworkDebugRenderer
 import li.cil.oc.client.renderer.block.ModelInitialization
 import li.cil.oc.client.renderer.block.NetSplitterModel
 import li.cil.oc.client.renderer.entity.DroneRenderer
-import li.cil.oc.client.renderer.tileentity.*
+import li.cil.oc.client.renderer.tileentity._
 import li.cil.oc.common
-import li.cil.oc.common.PacketHandler as CommonPacketHandler
-import li.cil.oc.common.Proxy as CommonProxy
+import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
+import li.cil.oc.common.{Proxy => CommonProxy}
 import li.cil.oc.common.component.TextBuffer
 import li.cil.oc.common.entity.Drone
 import li.cil.oc.common.entity.EntityTypes

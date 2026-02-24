@@ -9,7 +9,7 @@ import li.cil.oc.api.Network
 import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.*
+import li.cil.oc.api.network._
 import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
@@ -17,8 +17,8 @@ import li.cil.oc.common.Tier
 import li.cil.oc.server.network.{Connector, QuantumNetwork}
 import net.minecraft.nbt.CompoundTag
 
-import scala.collection.convert.ImplicitConversionsToJava.*
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToJava._
+import scala.collection.convert.ImplicitConversionsToScala._
 
 class LinkedCard extends AbstractManagedEnvironment with QuantumNetwork.QuantumNode with DeviceInfo with traits.WakeMessageAware {
   override val node = Network.newNode(this, Visibility.Network).

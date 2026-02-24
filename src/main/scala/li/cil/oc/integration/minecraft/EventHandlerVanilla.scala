@@ -3,14 +3,14 @@ package li.cil.oc.integration.minecraft
 import li.cil.oc.Settings
 import li.cil.oc.api.event.GeolyzerEvent
 import li.cil.oc.util.{BlockPosition, ItemUtils}
-import li.cil.oc.util.ExtendedLevel.*
+import li.cil.oc.util.ExtendedLevel._
 import net.minecraft.world.level.block.{Block, Blocks, CropBlock, LiquidBlock, StemBlock}
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.properties.IntegerProperty
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fluids.IFluidBlock
 
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToScala._
 
 object EventHandlerVanilla {
   @SubscribeEvent

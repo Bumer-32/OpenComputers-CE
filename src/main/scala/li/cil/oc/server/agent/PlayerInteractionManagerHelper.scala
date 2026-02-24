@@ -11,7 +11,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent
 import net.minecraftforge.event.world.BlockEvent
 import net.minecraftforge.eventbus.api.{EventPriority, SubscribeEvent}
 
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToScala._
 
 object PlayerInteractionManagerHelper {
   private def isDestroyingBlock(player: Player): Boolean = {

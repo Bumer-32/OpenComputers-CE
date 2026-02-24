@@ -1,16 +1,17 @@
 package li.cil.oc.client.renderer.tileentity
 
 import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.math.Vector3f
 import li.cil.oc.client.Textures
 import li.cil.oc.common.tileentity.Printer
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.block.model.ItemTransforms // 1.18.2: ItemCameraTransforms → ItemTransforms
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer as TileEntityRenderer
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
-import com.mojang.math.Vector3f
+import net.minecraft.client.renderer.block.model.ItemTransforms
+import net.minecraft.client.renderer.blockentity.{
+  BlockEntityRenderer,
+  BlockEntityRendererProvider
+}
 
 // 1.18.2: BlockEntityRendererProvider[T] に変更
 object PrinterRenderer extends BlockEntityRendererProvider[Printer] {
@@ -19,7 +20,7 @@ object PrinterRenderer extends BlockEntityRendererProvider[Printer] {
 }
 
 // 1.18.2: コンストラクタ引数なし
-class PrinterRenderer extends TileEntityRenderer[Printer] {
+class PrinterRenderer extends BlockEntityRenderer[Printer] {
   override def render(
                        printer: Printer,
                        dt: Float,

@@ -37,7 +37,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity
-import net.minecraft.network.chat.Component as MCComponent
+import net.minecraft.network.chat.{Component => MCComponent}
 
 class RobotProxy(pos: BlockPos, state: BlockState, val robot: Robot)
   extends BlockEntity(TileEntityTypes.ROBOT.get(), pos, state)

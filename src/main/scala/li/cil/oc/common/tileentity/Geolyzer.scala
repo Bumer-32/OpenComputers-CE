@@ -2,9 +2,9 @@ package li.cil.oc.common.tileentity
 
 import li.cil.oc.server.component
 import net.minecraft.core.BlockPos
-import net.minecraft.nbt.CompoundTag as CompoundNBT
-import net.minecraft.world.level.block.entity.BlockEntity as TileEntity
-import net.minecraft.world.level.block.entity.BlockEntityType as TileEntityType
+import net.minecraft.nbt.{CompoundTag => CompoundNBT}
+import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
+import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
 import net.minecraft.world.level.block.state.BlockState
 
 class Geolyzer(pos: BlockPos, state: BlockState) 

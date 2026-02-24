@@ -7,7 +7,7 @@ import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import net.minecraft.client.Minecraft
 import net.minecraft.util.Mth
-import org.lwjgl.opengl.*
+import org.lwjgl.opengl._
 
 // This class has evolved into a wrapper for RenderSystem that basically does
 // nothing but call the corresponding RenderSystem methods and then also

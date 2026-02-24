@@ -2,7 +2,7 @@ package li.cil.oc.server.component
 
 import java.util.UUID
 import li.cil.oc.Settings
-import li.cil.oc.api.machine.*
+import li.cil.oc.api.machine._
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.api.prefab.AbstractValue
 import li.cil.oc.common.EventHandler
@@ -16,7 +16,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.item.trading.Merchant
 import net.minecraftforge.server.ServerLifecycleHooks
 
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToScala._
 import scala.ref.WeakReference
 import net.minecraft.world.Container
 import net.minecraft.world.level.block.entity.BlockEntity

@@ -25,7 +25,7 @@ public final class SetColor extends LootItemConditionalFunction {
 
     @Override
     public @NotNull LootItemFunctionType getType() {
-        return LootFunctions.SET_COLOR;
+        return LootFunctions.SET_COLOR.get();
     }
 
     @Override

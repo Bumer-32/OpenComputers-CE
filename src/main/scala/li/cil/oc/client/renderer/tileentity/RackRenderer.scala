@@ -7,7 +7,7 @@ import li.cil.oc.common.tileentity.Rack
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.LevelRenderer // 1.18.2: WorldRenderer → LevelRenderer
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer as TileEntityRenderer
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer => TileEntityRenderer}
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 import net.minecraft.core.Direction
 import com.mojang.math.Vector3f

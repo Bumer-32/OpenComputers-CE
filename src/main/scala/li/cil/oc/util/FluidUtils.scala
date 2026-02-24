@@ -1,7 +1,7 @@
 package li.cil.oc.util
 
-import li.cil.oc.util.ExtendedBlock.*
-import li.cil.oc.util.ExtendedLevel.*
+import li.cil.oc.util.ExtendedBlock._
+import li.cil.oc.util.ExtendedLevel._
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction

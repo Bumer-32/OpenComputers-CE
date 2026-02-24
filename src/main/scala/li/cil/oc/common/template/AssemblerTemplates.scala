@@ -8,7 +8,7 @@ import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common.IMC
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
-import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.network.chat.Component

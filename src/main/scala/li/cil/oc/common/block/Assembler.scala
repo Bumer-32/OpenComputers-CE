@@ -6,13 +6,13 @@ import li.cil.oc.common.tileentity
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.server.level.ServerPlayer as ServerPlayerEntity
+import net.minecraft.server.level.{ServerPlayer => ServerPlayerEntity}
 import net.minecraft.core.BlockPos
-import net.minecraft.world.phys.shapes.CollisionContext as ISelectionContext
+import net.minecraft.world.phys.shapes.{CollisionContext => ISelectionContext}
 import net.minecraft.world.phys.shapes.VoxelShape
-import net.minecraft.world.phys.shapes.Shapes as VoxelShapes
-import net.minecraft.world.level.BlockGetter as IBlockReader
-import net.minecraft.world.level.Level as World
+import net.minecraft.world.phys.shapes.{Shapes => VoxelShapes}
+import net.minecraft.world.level.{BlockGetter => IBlockReader}
+import net.minecraft.world.level.{Level => World}
 
 class Assembler(props: Properties) extends SimpleBlock(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI {
   override def energyThroughput = Settings.get.assemblerRate

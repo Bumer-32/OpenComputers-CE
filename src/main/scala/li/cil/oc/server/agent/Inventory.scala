@@ -8,7 +8,7 @@ import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.player.Inventory as PlayerInventory
+import net.minecraft.world.entity.player.{Inventory => PlayerInventory}
 import net.minecraft.world.Container
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag

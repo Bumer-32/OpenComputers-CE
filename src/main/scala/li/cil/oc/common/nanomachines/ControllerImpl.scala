@@ -17,7 +17,7 @@ import li.cil.oc.common.Tier
 import li.cil.oc.integration.util.DamageSourceWithRandomCause
 import li.cil.oc.server.PacketSender
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.PlayerUtils
 import net.minecraft.core.particles.ParticleTypes
@@ -28,8 +28,8 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.effect.{MobEffectInstance, MobEffects}
 import net.minecraft.world.level.Level
 
-import scala.collection.convert.ImplicitConversionsToJava.*
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToJava._
+import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
 class ControllerImpl(val player: Player) extends Controller with WirelessEndpoint {

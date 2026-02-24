@@ -4,7 +4,7 @@ import li.cil.oc.common.tileentity
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.BlockGetter as IBlockReader
+import net.minecraft.world.level.{BlockGetter => IBlockReader}
 
 class CarpetedCapacitor(props: Properties) extends Capacitor(props) {
   override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.CarpetedCapacitor(pos, state)

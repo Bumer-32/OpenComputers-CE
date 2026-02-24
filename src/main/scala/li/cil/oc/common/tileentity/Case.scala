@@ -29,7 +29,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToJava._
 
 class Case(pos: BlockPos, state: BlockState, var tier: Int)
   extends BlockEntity(TileEntityTypes.CASE.get(), pos, state) with traits.PowerAcceptor with traits.Computer with traits.Colored with internal.Case with DeviceInfo with MenuProvider {

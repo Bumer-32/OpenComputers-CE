@@ -12,7 +12,7 @@ import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.item.data.RobotData
 import li.cil.oc.common.item.data.TabletData
 import li.cil.oc.server.machine.luac.LuaStateFactory
-import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.SideTracker
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.item.DyeColor
@@ -25,8 +25,8 @@ import net.minecraft.tags.ItemTags
 import net.minecraft.world.inventory.CraftingContainer
 import net.minecraft.world.item.crafting.Recipe
 
-import scala.collection.convert.ImplicitConversionsToScala.*
-import scala.util.control.Breaks.*
+import scala.collection.convert.ImplicitConversionsToScala._
+import scala.util.control.Breaks._
 
 object ExtendedRecipe {
   private lazy val drone = api.Items.get(Constants.ItemName.Drone)

@@ -7,7 +7,7 @@ import li.cil.oc.util.RenderState
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer as TileEntityRenderer
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer => TileEntityRenderer}
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 
 // 1.18.2: BlockEntityRendererProvider[T] に変更

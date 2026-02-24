@@ -19,10 +19,10 @@ import li.cil.oc.common.Slot
 import li.cil.oc.common.Sound
 import li.cil.oc.common.menu
 import li.cil.oc.common.menu.MenuTypes
-import li.cil.oc.server.PacketSender as ServerPacketSender
-import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.server.{PacketSender => ServerPacketSender}
+import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
@@ -34,7 +34,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToJava._
 
 class DiskDrive(pos: BlockPos, state: BlockState) 
   extends BlockEntity(TileEntityTypes.DISK_DRIVE.get(), pos, state) with traits.Environment

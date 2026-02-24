@@ -15,7 +15,7 @@ import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
 
-import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToJava._
 
 class Capacitor( pos: BlockPos, state: BlockState)
   extends BlockEntity(TileEntityTypes.CAPACITOR.get(), pos, state) with traits.Environment with DeviceInfo {

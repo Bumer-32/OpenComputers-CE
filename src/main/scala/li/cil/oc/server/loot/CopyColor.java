@@ -20,7 +20,7 @@ public final class CopyColor extends LootItemConditionalFunction {
 
     @Override
     public LootItemFunctionType getType() {
-        return LootFunctions.COPY_COLOR;
+        return LootFunctions.COPY_COLOR.get();
     }
 
     public static LootItemConditionalFunction.Builder<?> copyColor() {

@@ -1,6 +1,6 @@
 package li.cil.oc.server.component
 
-import java.security.*
+import java.security._
 import java.security.interfaces.ECPublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
@@ -27,7 +27,7 @@ import net.minecraft.nbt.CompoundTag
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.io.output.ByteArrayOutputStream
 
-import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToJava._
 
 abstract class DataCard extends prefab.AbstractManagedEnvironment with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Neighbors).

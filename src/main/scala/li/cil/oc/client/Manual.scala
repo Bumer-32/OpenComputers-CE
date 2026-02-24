@@ -16,8 +16,8 @@ import net.minecraft.world.level.Level
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.asJavaIterable
-import scala.collection.convert.ImplicitConversionsToJava.*
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToJava._
+import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
 object Manual extends ManualAPI {

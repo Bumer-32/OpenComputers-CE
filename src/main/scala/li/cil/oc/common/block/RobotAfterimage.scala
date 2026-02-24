@@ -1,23 +1,22 @@
 package li.cil.oc.common.block
 
-import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.common.tileentity
+import li.cil.oc.{Constants, Settings, api}
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.server.level.ServerLevel as ServerWorld
-import net.minecraft.world.{InteractionHand as Hand, InteractionResult as ActionResultType}
-import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.server.level.{ServerLevel => ServerWorld}
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.{BlockGetter as IBlockReader, Level as World}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.{Block, Blocks}
 import net.minecraft.world.level.material.FluidState
-import net.minecraft.world.phys.{BlockHitResult as BlockRayTraceResult, HitResult as RayTraceResult}
-import net.minecraft.world.phys.shapes.{VoxelShape, CollisionContext as ISelectionContext}
+import net.minecraft.world.level.{BlockGetter => IBlockReader, Level => World}
+import net.minecraft.world.phys.shapes.{VoxelShape, CollisionContext => ISelectionContext}
+import net.minecraft.world.phys.{BlockHitResult => BlockRayTraceResult, HitResult => RayTraceResult}
 import net.minecraft.world.ticks.ScheduledTick
+import net.minecraft.world.{InteractionHand, InteractionResult => ActionResultType}
 
 import java.util.Random
-import net.minecraftforge.common.extensions.IForgeBlock
 
 class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
   override def getCloneItemStack(state: BlockState, target: RayTraceResult, world: IBlockReader, pos: BlockPos, player: PlayerEntity): ItemStack =
@@ -80,7 +79,7 @@ class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
   }
 
   @Deprecated
-  override def use(state: BlockState, world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, trace: BlockRayTraceResult): ActionResultType = {
+  override def use(state: BlockState, world: World, pos: BlockPos, player: PlayerEntity, hand: InteractionHand, trace: BlockRayTraceResult): ActionResultType = {
     findMovingRobot(world, pos) match {
       case Some(robot) => api.Items.get(Constants.BlockName.Robot).block.use(world.getBlockState(robot.getBlockPos), world, robot.getBlockPos, player, hand, trace)
       case _ => if (world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState)) ActionResultType.sidedSuccess(world.isClientSide) else ActionResultType.PASS

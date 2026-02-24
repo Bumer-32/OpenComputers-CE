@@ -9,23 +9,23 @@ import li.cil.oc.common.item.data.RaidData
 import li.cil.oc.common.tileentity
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties as Properties
+import net.minecraft.world.level.block.state.BlockBehaviour.{Properties => Properties}
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.item.TooltipFlag as ITooltipFlag
+import net.minecraft.world.item.{TooltipFlag => ITooltipFlag}
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.entity.player.Player as PlayerEntity
-import net.minecraft.server.level.ServerPlayer as ServerPlayerEntity
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
+import net.minecraft.server.level.{ServerPlayer => ServerPlayerEntity}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.block.state.StateDefinition as StateContainer
+import net.minecraft.world.level.block.state.{StateDefinition => StateContainer}
 import net.minecraft.world.level.storage.loot.LootContext
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams as LootParameters
+import net.minecraft.world.level.storage.loot.parameters.{LootContextParams => LootParameters}
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
-import net.minecraft.network.chat.Component as ITextComponent
-import net.minecraft.network.chat.TextComponent as StringTextComponent
-import net.minecraft.world.level.BlockGetter as IBlockReader
-import net.minecraft.world.level.Level as World
+import net.minecraft.network.chat.{Component => ITextComponent}
+import net.minecraft.network.chat.{TextComponent => StringTextComponent}
+import net.minecraft.world.level.{BlockGetter => IBlockReader}
+import net.minecraft.world.level.{Level => World}
 import net.minecraftforge.common.extensions.IForgeBlock
 
 import scala.reflect.ClassTag

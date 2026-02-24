@@ -6,8 +6,8 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
-import net.minecraft.world.level.BlockGetter as IBlockReader
-import net.minecraft.world.level.Level as World
+import net.minecraft.world.level.{BlockGetter => IBlockReader}
+import net.minecraft.world.level.{Level => World}
 
 abstract class RedstoneAware(props: Properties) extends SimpleBlock(props) {
   override def isSignalSource(state: BlockState): Boolean = true

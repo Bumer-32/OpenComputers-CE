@@ -5,9 +5,9 @@ import li.cil.oc.api
 import li.cil.oc.api.nanomachines.DisableReason
 import li.cil.oc.api.prefab.AbstractBehavior
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedLevel.*
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.StackOption
-import li.cil.oc.util.StackOption.*
+import li.cil.oc.util.StackOption._
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.entity.player.Player

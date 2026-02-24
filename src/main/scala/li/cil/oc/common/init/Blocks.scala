@@ -4,7 +4,7 @@ import li.cil.oc.Constants
 import li.cil.oc.CreativeTab
 import li.cil.oc.Settings
 import li.cil.oc.common.Tier
-import li.cil.oc.common.block.*
+import li.cil.oc.common.block._
 import net.minecraft.world.item.Rarity
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties

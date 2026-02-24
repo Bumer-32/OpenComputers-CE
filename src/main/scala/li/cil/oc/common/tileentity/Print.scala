@@ -5,12 +5,12 @@ import com.google.common.base.Strings
 import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api
-import li.cil.oc.common.block.Print as PrintBlock
+import li.cil.oc.common.block.{Print => PrintBlock}
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.util.ExtendedAABB
-import li.cil.oc.util.ExtendedAABB.*
-import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.util.ExtendedAABB._
+import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.nbt.CompoundTag 
 import net.minecraft.world.level.block.entity.BlockEntity
@@ -32,7 +32,7 @@ import net.minecraftforge.client.model.data.IModelData
 import net.minecraftforge.client.model.data.ModelProperty
 
 import scala.collection.Iterable
-import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToJava._
 
 class Print(pos: BlockPos, blockState: BlockState, val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int => Unit], val onStateChange: Option[() => Unit])
   extends BlockEntity(TileEntityTypes.PRINT.get(), pos, blockState) with traits.TileEntity with traits.RedstoneAware with traits.RotatableTile with IModelData {

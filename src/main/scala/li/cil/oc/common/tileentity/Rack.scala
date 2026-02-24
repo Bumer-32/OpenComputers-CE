@@ -19,9 +19,9 @@ import li.cil.oc.common.menu
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.integration.opencomputers.DriverRedstoneCard
-import li.cil.oc.server.PacketSender as ServerPacketSender
-import li.cil.oc.util.ExtendedInventory.*
-import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.server.{PacketSender => ServerPacketSender}
+import li.cil.oc.util.ExtendedInventory._
+import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.RotationHelper
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction

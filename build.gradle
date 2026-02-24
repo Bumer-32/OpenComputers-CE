@@ -26,10 +26,6 @@ base {
     archivesName = mod_id
 }
 
-scala {
-    version = "3.3.7"
-}
-
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
@@ -76,9 +72,10 @@ minecraft {
     }
 }
 
+// currently, mixin is unused
 mixin {
-    add sourceSets.main, "${mod_id}.refmap.json"
-    config "${mod_id}.mixins.json"
+    //add sourceSets.main, "${mod_id}.refmap.json"
+    //config "${mod_id}.mixins.json"
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
@@ -144,13 +141,12 @@ repositories {
         }
     }
     maven {
-        name = "kotori316"
-        url = uri("https://maven.kotori316.com")
+        name = "Azure-SLP"
+        url = uri("https://pkgs.dev.azure.com/Kotori316/minecraft/_packaging/mods/maven/v1")
         content {
-            includeModule("com.kotori316", "ScalableCatsForce".toLowerCase())
-            includeModule("org.typelevel", "cats-core_3")
-            includeModule("org.typelevel", "cats-kernel_3")
-            includeModule("org.typelevel", "cats-free_3")
+            it.includeModule("com.kotori316", "ScalableCatsForce".toLowerCase())
+            it.includeModule("org.typelevel", "cats-core_2.13")
+            it.includeModule("org.typelevel", "cats-kernel_2.13")
         }
     }
     maven {
@@ -163,9 +159,9 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    compileOnly "org.scala-lang:scala3-library_3:3.3.7"
-    compileOnly "org.typelevel:cats-core_3:2.9.2-kotori"
-    runtimeOnly(group: "com.kotori316", name: "scalablecatsforce", version: "3.3.3-build-15", classifier: "with-library") {
+    compileOnly(group: 'org.scala-lang', name: 'scala-library', version: "2.13.10")
+    compileOnly(group: 'org.typelevel', name: "cats-core_2.13", version: '2.8.1-kotori')
+    runtimeOnly(group: "com.kotori316", name: "ScalableCatsForce".toLowerCase(), version: "2.13.10-build-12", classifier: "with-library") {
         transitive(false)
     }
 
@@ -177,35 +173,31 @@ dependencies {
 
     def jeiSlug = "jei-${minecraft_version}"
 
-    compileOnly "curse.maven:tis-3d-238603:${tis3d_version}"
-    compileOnly "curse.maven:jade-324717:${jade_version}"
-    compileOnly "org.squiddev:cc-tweaked-${minecraft_version}:${cct_version}"
+    compileOnly fg.deobf("curse.maven:tis-3d-238603:${tis3d_version}")
+    compileOnly fg.deobf("curse.maven:jade-324717:${jade_version}")
+    compileOnly fg.deobf("org.squiddev:cc-tweaked-${minecraft_version}:${cct_version}")
 
-    runtimeOnly "maven.modrinth:modernfix:${modernfix_version}"
+    runtimeOnly fg.deobf("maven.modrinth:modernfix:${modernfix_version}")
     
     // CoFH Core & Thermal
-    implementation "curse.maven:cofh-core-69162:4801048"
+    implementation fg.deobf("curse.maven:cofh-core-69162:4801048")
     implementation fg.deobf("curse.maven:thermal-foundation-222880:4788649")
 
-    compileOnly("appeng:appliedenergistics2:${ae2_version}:api") { transitive = false }
-    compileOnly("mekanism:Mekanism:${mekanism_version}:api") { transitive = false }
-    compileOnly("codechicken:CBMultipart:${cbmultipart_version}:universal") {
-        exclude module: jeiSlug
-        exclude module: "CodeChickenLib"
-    }
-    compileOnly "codechicken:ChickenASM:${casm_version}"
-    runtimeOnly "mezz.jei:${jeiSlug}-forge:${jei_version}"
-    compileOnly "mezz.jei:${jeiSlug}-forge-api:${jei_version}"
-    compileOnly "codechicken:CodeChickenLib:${ccl_version}:universal"
-    compileOnly "codechicken:EnderStorage:${enderstorage_version}:universal"
-    compileOnly("mrtjp:ProjectRed:${projred_version}:core") {
-        exclude module: "CodeChickenLib"
-        exclude module: jeiSlug
-        exclude module: "CBMultipart"
-    }
+    compileOnly fg.deobf("appeng:appliedenergistics2:${ae2_version}:api")
+    compileOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:api")
+    compileOnly fg.deobf("codechicken:CBMultipart:${cbmultipart_version}:universal")
+    compileOnly fg.deobf("codechicken:ChickenASM:${casm_version}")
+    runtimeOnly fg.deobf("mezz.jei:${jeiSlug}-forge:${jei_version}")
+    compileOnly fg.deobf("mezz.jei:${jeiSlug}-forge-api:${jei_version}")
+    compileOnly fg.deobf("codechicken:CodeChickenLib:${ccl_version}:universal")
+    compileOnly fg.deobf("codechicken:EnderStorage:${enderstorage_version}:universal")
+    compileOnly fg.deobf("mrtjp:ProjectRed:${projred_version}:core")
 
     testImplementation "org.scala-lang:scala3-library_3:3.3.7"
+    testImplementation "org.scalatest:scalatest_3:3.2.18"
+    testImplementation "org.scalatestplus:junit-4-13_3:3.2.18.0"
     testImplementation "junit:junit:4.13.2"
+
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
@@ -224,6 +216,7 @@ tasks.named('processResources', ProcessResources).configure {
 }
 
 tasks.named('jar', Jar).configure {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes(["Specification-Title"     : mod_id,
                     "Specification-Vendor"    : mod_authors,
@@ -250,5 +243,4 @@ tasks.withType(JavaCompile).configureEach {
 tasks.withType(ScalaCompile).configureEach {
     scalaCompileOptions.forkOptions.memoryMaximumSize = '2g'
     scalaCompileOptions.forkOptions.jvmArgs = ['-Xss4m']
-    scalaCompileOptions.fork = false
 }

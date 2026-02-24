@@ -15,13 +15,13 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.DatabaseAccess
-import li.cil.oc.util.ExtendedArguments.*
+import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ItemUtils
 import li.cil.oc.util.StackOption
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.Container
 
-import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToJava._
 
 class UpgradeDatabase(val data: Container) extends AbstractManagedEnvironment with internal.Database with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).

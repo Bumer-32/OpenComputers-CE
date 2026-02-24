@@ -1,32 +1,22 @@
 package li.cil.oc.common
 
-import java.io.ByteArrayInputStream
-import java.io.DataInputStream
-import java.io.InputStream
-import java.util.zip.InflaterInputStream
-import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
-import li.cil.oc.api
+import li.cil.oc.{Constants, OpenComputers, api}
 import li.cil.oc.common.block.RobotAfterimage
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedLevel.*
-import li.cil.oc.util.RotationHelper
-import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.core.Direction
+import li.cil.oc.util.ExtendedLevel._
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.nbt.{CompoundTag, NbtIo}
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.core.BlockPos
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
-import net.minecraftforge.network.NetworkDirection
-import net.minecraftforge.server.ServerLifecycleHooks
-import net.minecraftforge.registries.*
-
-import scala.collection.mutable.ArrayBuffer
-import scala.reflect.ClassTag
-import scala.reflect.classTag
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
-import net.minecraft.nbt.NbtIo
+import net.minecraftforge.network.NetworkDirection
+import net.minecraftforge.registries._
+
+import java.io.{ByteArrayInputStream, DataInputStream, InputStream}
+import java.util.zip.InflaterInputStream
+import scala.reflect.{ClassTag, classTag}
 
 object PacketHandler {
   var clientHandler: PacketHandler = _

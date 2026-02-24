@@ -11,11 +11,11 @@ import li.cil.oc.api.driver.DeviceInfo.DeviceClass
 import li.cil.oc.api.driver.DriverBlock
 import li.cil.oc.api.internal
 import li.cil.oc.api.network.Analyzable
-import li.cil.oc.api.network.*
+import li.cil.oc.api.network._
 import li.cil.oc.common.Slot
 import li.cil.oc.common.menu
 import li.cil.oc.common.menu.MenuTypes
-import li.cil.oc.server.PacketSender as ServerPacketSender
+import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.MenuProvider
@@ -30,7 +30,7 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.nbt.Tag
 import net.minecraft.world.level.block.state.BlockState
 
-import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
 class Adapter(pos: BlockPos, state: BlockState)

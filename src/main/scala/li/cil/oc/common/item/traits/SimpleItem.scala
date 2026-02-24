@@ -7,7 +7,7 @@ import li.cil.oc.api.event.RobotRenderEvent.MountPoint
 import li.cil.oc.api.internal.Robot
 import li.cil.oc.client.renderer.item.ItemUpgradeRenderer
 import li.cil.oc.common.tileentity
-import li.cil.oc.integration.opencomputers.Item as OpenComputersItem
+import li.cil.oc.integration.opencomputers.{Item => OpenComputersItem}
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.Tooltip
 import net.minecraft.world.item.ItemStack
@@ -23,16 +23,16 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.InteractionResultHolder
 
 /*
-import net.minecraft.client.renderer.MultiBufferSource as IRenderTypeBuffer
-import net.minecraft.world.item.TooltipFlag as ITooltipFlag
-import net.minecraft.world.entity.player.Player as PlayerEntity
-import net.minecraft.world.item.context.BlockPlaceContext as BlockUseOnContext
-import net.minecraft.world.item.context.UseOnContext as UseOnContext
-import net.minecraft.world.InteractionResultHolder as ActionResult
-import net.minecraft.world.InteractionResult as InteractionResult
-import net.minecraft.network.chat.Component as ITextComponent
-import net.minecraft.network.chat.TextComponent as StringTextComponent
-import net.minecraft.world.level.LevelReader as IWorldReader
+import net.minecraft.client.renderer.{MultiBufferSource => IRenderTypeBuffer}
+import net.minecraft.world.item.{TooltipFlag => ITooltipFlag}
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
+import net.minecraft.world.item.context.{BlockPlaceContext => BlockUseOnContext}
+import net.minecraft.world.item.context.{UseOnContext => UseOnContext}
+import net.minecraft.world.{InteractionResultHolder => ActionResult}
+import net.minecraft.world.{InteractionResult => InteractionResult}
+import net.minecraft.network.chat.{Component => ITextComponent}
+import net.minecraft.network.chat.{TextComponent => StringTextComponent}
+import net.minecraft.world.level.{LevelReader => IWorldReader}
 */
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn

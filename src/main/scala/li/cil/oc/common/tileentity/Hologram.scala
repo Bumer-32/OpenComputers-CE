@@ -1,7 +1,7 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-import li.cil.oc.*
+import li.cil.oc._
 import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -9,10 +9,10 @@ import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
 import li.cil.oc.api.network.Analyzable
-import li.cil.oc.api.network.*
+import li.cil.oc.api.network._
 import li.cil.oc.common.SaveHandler
-import li.cil.oc.server.PacketSender as ServerPacketSender
-import net.minecraft.world.entity.player.Player as PlayerEntity
+import li.cil.oc.server.{PacketSender => ServerPacketSender}
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
@@ -23,7 +23,7 @@ import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
 class Hologram(pos: BlockPos, state: BlockState, var tier: Int) 

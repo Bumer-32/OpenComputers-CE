@@ -4,7 +4,7 @@ import li.cil.oc.Settings
 import li.cil.oc.common.tileentity
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.BlockGetter as IBlockReader
+import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraft.world.level.block.state.BlockState
 
 class PowerConverter(props: Properties) extends SimpleBlock(props) with traits.PowerAcceptor {

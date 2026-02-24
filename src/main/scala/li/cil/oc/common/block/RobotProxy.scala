@@ -9,24 +9,24 @@ import li.cil.oc.server.{PacketSender, agent}
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.{BlockPosition, InventoryUtils, Tooltip}
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.network.chat.{Component as ITextComponent, TextComponent as StringTextComponent}
-import net.minecraft.server.level.ServerPlayer as ServerPlayerEntity
-import net.minecraft.world.InteractionHand as Hand
+import net.minecraft.network.chat.{Component => ITextComponent, TextComponent => StringTextComponent}
+import net.minecraft.server.level.{ServerPlayer => ServerPlayerEntity}
+import net.minecraft.world.{InteractionHand => Hand}
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.entity.player.Player as PlayerEntity
-import net.minecraft.world.item.{ItemStack, TooltipFlag as ITooltipFlag}
-import net.minecraft.world.level.{BlockGetter as IBlockReader, Level as World}
+import net.minecraft.world.entity.player.{Player => PlayerEntity}
+import net.minecraft.world.item.{ItemStack, TooltipFlag => ITooltipFlag}
+import net.minecraft.world.level.{BlockGetter => IBlockReader, Level => World}
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.FluidState
 import net.minecraft.world.level.storage.loot.LootContext
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams as LootParameters
-import net.minecraft.world.phys.HitResult as RayTraceResult
-import net.minecraft.world.phys.shapes.{VoxelShape, CollisionContext as ISelectionContext, Shapes as VoxelShapes}
+import net.minecraft.world.level.storage.loot.parameters.{LootContextParams => LootParameters}
+import net.minecraft.world.phys.{HitResult => RayTraceResult}
+import net.minecraft.world.phys.shapes.{VoxelShape, CollisionContext => ISelectionContext, Shapes => VoxelShapes}
 
 import java.util
-import scala.collection.convert.ImplicitConversionsToScala.*
+import scala.collection.convert.ImplicitConversionsToScala._
 import net.minecraftforge.common.extensions.IForgeBlock
 
 class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.StateAware {

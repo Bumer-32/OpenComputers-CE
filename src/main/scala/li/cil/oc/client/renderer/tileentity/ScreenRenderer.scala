@@ -18,7 +18,7 @@ import net.minecraft.world.InteractionHand  // 1.18.2: Hand → InteractionHand
 import net.minecraft.core.Direction
 import com.mojang.math.Vector3f
 import com.mojang.blaze3d.vertex.PoseStack
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer as TileEntityRenderer
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer => TileEntityRenderer}
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 
 // 1.18.2: BlockEntityRendererProvider[T] に変更

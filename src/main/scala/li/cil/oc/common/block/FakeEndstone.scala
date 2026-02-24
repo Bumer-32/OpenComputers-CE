@@ -1,6 +1,6 @@
 package li.cil.oc.common.block
 
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties as Properties
+import net.minecraft.world.level.block.state.BlockBehaviour.{Properties => Properties}
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.Material
 

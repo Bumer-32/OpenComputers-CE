@@ -1,11 +1,11 @@
 package li.cil.oc.common.entity
 
 import com.mojang.math.Vector3d
-import li.cil.oc.*
+import li.cil.oc._
 import li.cil.oc.api.driver.item
 import li.cil.oc.api.internal.MultiTank
 import li.cil.oc.api.machine.{Context, MachineHost}
-import li.cil.oc.api.network.*
+import li.cil.oc.api.network._
 import li.cil.oc.api.{Driver, Machine, internal, machine}
 import li.cil.oc.common.inventory.{ComponentInventory, Inventory}
 import li.cil.oc.common.item.data.DroneData
@@ -14,8 +14,8 @@ import li.cil.oc.common.{EventHandler, menu}
 import li.cil.oc.integration.util.Wrench
 import li.cil.oc.server.{agent, component}
 import li.cil.oc.server.agent
-import li.cil.oc.util.ExtendedLevel.*
-import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.util.ExtendedLevel._
+import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.{BlockPosition, InventoryUtils}
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.CompoundTag
@@ -23,10 +23,10 @@ import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.network.syncher.{EntityDataAccessor, EntityDataSerializers, SynchedEntityData}
 import net.minecraft.server.level.{ServerLevel, ServerPlayer}
 import net.minecraft.tags.FluidTags
-import net.minecraft.world.entity.*
+import net.minecraft.world.entity._
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.player.Inventory as PlayerInventory
+import net.minecraft.world.entity.player.{Inventory => PlayerInventory}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.state.BlockState

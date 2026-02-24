@@ -10,14 +10,14 @@ import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.*
+import li.cil.oc.api.network._
 import li.cil.oc.common.menu
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.template.AssemblerTemplates
-import li.cil.oc.server.PacketSender as ServerPacketSender
-import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.server.{PacketSender => ServerPacketSender}
+import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
-import li.cil.oc.util.StackOption.*
+import li.cil.oc.util.StackOption._
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.MenuProvider
@@ -31,7 +31,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToJava._
 
 class Assembler(pos: BlockPos, state: BlockState) 
   extends BlockEntity(TileEntityTypes.ASSEMBLER.get(), pos, state) with traits.Environment with traits.PowerAcceptor

@@ -1,12 +1,10 @@
 package li.cil.oc.client.gui.widget
 
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.*
+import com.mojang.blaze3d.vertex._
 import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.client.Textures
-import net.minecraft.client.renderer.{GameRenderer, ShaderInstance}
-
-import java.util.function.Supplier
+import net.minecraft.client.renderer.GameRenderer
 
 class ProgressBar(val x: Int, val y: Int) extends Widget {
   override def width = 140
