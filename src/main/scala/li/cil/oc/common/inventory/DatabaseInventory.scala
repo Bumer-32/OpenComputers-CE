@@ -2,7 +2,7 @@ package li.cil.oc.common.inventory
 
 import li.cil.oc.Settings
 import li.cil.oc.common.menu.MenuTypes
-import li.cil.oc.common.menu.{Database => DatabaseContainer}
+import li.cil.oc.common.menu.Database as DatabaseContainer
 import li.cil.oc.integration.opencomputers.DriverUpgradeDatabase
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.Inventory
