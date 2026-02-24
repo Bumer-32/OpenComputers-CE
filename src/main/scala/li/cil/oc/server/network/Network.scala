@@ -12,9 +12,7 @@ import li.cil.oc.server.network.Component
 import li.cil.oc.server.network.ComponentConnector
 import li.cil.oc.server.network.Connector
 import li.cil.oc.server.network.{Node => MutableNode}
-import li.cil.oc.util.Color
-import li.cil.oc.util.ResultWrapper
-import li.cil.oc.util.SideTracker
+import li.cil.oc.util.{BlockPosHelper, Color, ResultWrapper, SideTracker}
 import net.minecraft.world.item.DyeColor
 import net.minecraft.nbt._
 import net.minecraft.core.Direction
@@ -453,7 +451,7 @@ object Network extends api.detail.NetworkAPI {
     val tileEntity = world.getBlockEntity(pos)
     if (tileEntity != null && !tileEntity.isRemoved && tileEntity.getLevel != null && !tileEntity.getLevel.isClientSide) {
       for (side <- Direction.values) {
-        val npos = tileEntity.getBlockPos.relative(side)
+        val npos = BlockPosHelper.relative(tileEntity.getBlockPos, side)
         if (tileEntity.getLevel.isLoaded(npos)) {
           val localNode = getNetworkNode(tileEntity, side)
           val neighborTileEntity = tileEntity.getLevel.getBlockEntity(npos)

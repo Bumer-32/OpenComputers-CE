@@ -34,8 +34,9 @@ class Proxy {
   protected val modBus: IEventBus = FMLJavaModLoadingContext.get.getModEventBus
   modBus.register(classOf[MenuTypes])
   modBus.register(classOf[EntityTypes])
-  modBus.register(classOf[TileEntityTypes])
+  TileEntityTypes.init(modBus)
   Recipes.init(modBus)
+
   LootFunctions.init(modBus)
 
   def preInit(): Unit = {

@@ -165,8 +165,12 @@ dependencies {
         transitive(false)
     }
 
-    implementation "com.typesafe:config:1.2.1"
-    embedded "com.typesafe:config:1.2.1"
+    //https://docs.minecraftforge.net/en/fg-6.x/dependencies/#non-minecraft-dependencies
+    minecraftLibrary "com.typesafe:config:1.4.5"
+    minecraftLibrary ":OC-LuaJ-20220907.1"
+    minecraftLibrary ":OC-JNLua-20230530.0"
+    minecraftLibrary ":OC-JNLua-Natives-20220928.1"
+    embedded "com.typesafe:config:1.4.5"
     embedded ":OC-LuaJ-20220907.1"
     embedded ":OC-JNLua-20230530.0"
     embedded ":OC-JNLua-Natives-20220928.1"

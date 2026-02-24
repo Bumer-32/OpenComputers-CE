@@ -52,8 +52,17 @@ class Cable(props: Properties) extends SimpleBlock(props) with IForgeBlock {
       Cable.updateState(state, null, color, fromSide, fromState, ctx.getLevel, fromPos)
     })
   }
-  
-  
+
+  override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]): Unit = {
+    builder.add(
+      PropertyCableConnection.DOWN,
+      PropertyCableConnection.UP,
+      PropertyCableConnection.NORTH,
+      PropertyCableConnection.SOUTH,
+      PropertyCableConnection.WEST,
+      PropertyCableConnection.EAST
+    )
+  }
 
   override def getCloneItemStack(state: BlockState, target: RayTraceResult, world: IBlockReader, pos: BlockPos, player: PlayerEntity) =
     world.getBlockEntity(pos) match {

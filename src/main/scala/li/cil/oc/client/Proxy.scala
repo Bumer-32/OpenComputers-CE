@@ -12,7 +12,7 @@ import li.cil.oc.client.renderer.TextBufferRenderCache
 import li.cil.oc.client.renderer.WirelessNetworkDebugRenderer
 import li.cil.oc.client.renderer.block.ModelInitialization
 import li.cil.oc.client.renderer.block.NetSplitterModel
-import li.cil.oc.client.renderer.entity.DroneRenderer
+import li.cil.oc.client.renderer.entity.{DroneRenderer, ModelQuadcopter}
 import li.cil.oc.client.renderer.tileentity._
 import li.cil.oc.common
 import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
@@ -75,6 +75,11 @@ private[oc] class Proxy extends CommonProxy {
     }): Runnable)
 
     RenderSystem.recordRenderCall(() => MinecraftForge.EVENT_BUS.register(TextBufferRenderCache))
+  }
+
+  @SubscribeEvent
+  def onRegisterLayerDefinitions(event: EntityRenderersEvent.RegisterLayerDefinitions): Unit = {
+    event.registerLayerDefinition(ModelQuadcopter.LAYER_LOCATION, () => ModelQuadcopter.createLayer())
   }
 
   @SubscribeEvent

@@ -5,7 +5,7 @@ import li.cil.oc.{Constants, api}
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.ExtendedEnumFacing._
-import li.cil.oc.util.{BlockPosition, InventoryUtils, RotationHelper}
+import li.cil.oc.util.{BlockPosHelper, BlockPosition, InventoryUtils, RotationHelper}
 import net.minecraft.core.{BlockPos, Direction, Vec3i}
 import net.minecraft.server.level.{ServerLevel => ServerWorld}
 import net.minecraft.world.{InteractionHand => Hand}
@@ -45,7 +45,14 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
     val y1 = up.getStepY * sizes(1) + side.getStepY * sizes(2) - forward.getStepY * 0.5f
     val z0 = -up.getStepZ * sizes(1) - side.getStepZ * sizes(2) - forward.getStepZ * sizes(0)
     val z1 = up.getStepZ * sizes(1) + side.getStepZ * sizes(2) - forward.getStepZ * 0.5f
-    VoxelShapes.box(0.5 + x0, 0.5 + y0, 0.5 + z0, 0.5 + x1, 0.5 + y1, 0.5 + z1)
+    VoxelShapes.box(
+      math.min(0.5 + x0, 0.5 + x1),
+      math.min(0.5 + y0, 0.5 + y1),
+      math.min(0.5 + z0, 0.5 + z1),
+      math.max(0.5 + x0, 0.5 + x1),
+      math.max(0.5 + y0, 0.5 + y1),
+      math.max(0.5 + z0, 0.5 + z1)
+    )
   }
 
   // ----------------------------------------------------------------------- //
@@ -82,9 +89,9 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
       case pitch@(Direction.UP | Direction.DOWN) => pitch
       case _ => state.getValue(PropertyRotatable.Yaw)
     }
-    val sidePos = pos.relative(side.getOpposite)
+    val sidePos = BlockPosHelper.relative(pos, side.getOpposite)
     world.getBlockState(sidePos).isFaceSturdy(world, sidePos, side) &&
-      (world.getBlockEntity(pos.relative(side.getOpposite)) match {
+      (world.getBlockEntity(BlockPosHelper.relative(pos, side.getOpposite)) match {
         case screen: tileentity.Screen => screen.facing != side
         case _ => true
       })
@@ -106,7 +113,7 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
   def adjacencyInfo(world: World, pos: BlockPos): Option[(tileentity.Keyboard, Screen, BlockPos, Direction)] =
     world.getBlockEntity(pos) match {
       case keyboard: tileentity.Keyboard =>
-        val blockPos = pos.relative(keyboard.facing.getOpposite)
+        val blockPos = BlockPosHelper.relative(pos, keyboard.facing.getOpposite)
         world.getBlockState(blockPos).getBlock match {
           case screen: Screen => Some((keyboard, screen, blockPos, keyboard.facing.getOpposite))
           case _ =>
@@ -115,12 +122,12 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
               case Direction.UP | Direction.DOWN => keyboard.yaw
               case _ => Direction.UP
             }
-            val blockPos = pos.relative(forward)
+            val blockPos = BlockPosHelper.relative(pos, forward)
             world.getBlockState(blockPos).getBlock match {
               case screen: Screen => Some((keyboard, screen, blockPos, forward))
               case _ if keyboard.facing != Direction.UP && keyboard.facing != Direction.DOWN =>
                 // Special case #2: check for screen below keyboards on walls.
-                val blockPos = pos.relative(forward.getOpposite)
+                val blockPos = BlockPosHelper.relative(pos, forward.getOpposite)
                 world.getBlockState(blockPos).getBlock match {
                   case screen: Screen => Some((keyboard, screen, blockPos, forward.getOpposite))
                   case _ => None

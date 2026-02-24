@@ -9,6 +9,7 @@ import li.cil.oc.api
 import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.network.Node
 import li.cil.oc.api.network.Visibility
+import li.cil.oc.util.BlockPosHelper
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.core.Direction
@@ -62,7 +63,7 @@ class Capacitor( pos: BlockPos, state: BlockState)
     node.setLocalBufferSize(
       Settings.get.bufferCapacitor +
         Settings.get.bufferCapacitorAdjacencyBonus * Direction.values.count(side => {
-          val blockPos = getBlockPos.relative(side)
+          val blockPos = BlockPosHelper.relative(getBlockPos, side)
           getLevel.isLoaded(blockPos) && (getLevel.getBlockEntity(blockPos) match {
             case capacitor: Capacitor => true
             case _ => false

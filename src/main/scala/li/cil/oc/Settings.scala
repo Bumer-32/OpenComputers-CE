@@ -3,7 +3,6 @@ package li.cil.oc
 import com.google.common.net.InetAddresses
 import com.mojang.authlib.GameProfile
 import com.typesafe.config._
-import com.typesafe.config.impl.OpenComputersConfigCommentManipulationHook
 import li.cil.oc.Settings.DebugCardAccess
 import li.cil.oc.common.Tier
 import li.cil.oc.server.component.DebugCard
@@ -672,13 +671,13 @@ object Settings {
               for (value <- patched.getStringList(prefix + key).asScala) {
                 comments += "\"" + value + "\""
               }
-              deprecatedValue = OpenComputersConfigCommentManipulationHook.setComments(deprecatedValue, comments.asJava)
+              //deprecatedValue = OpenComputersConfigCommentManipulationHook.setComments(deprecatedValue, comments.asJava)
               patched = patched.withValue(prefix + key, deprecatedValue)
             }
           }
-          patchedRules = OpenComputersConfigCommentManipulationHook.setComments(
-            patchedRules, defaults.getValue(prefix + "internet.filteringRules").origin().comments()
-          )
+          //patchedRules = OpenComputersConfigCommentManipulationHook.setComments(
+          //  patchedRules, defaults.getValue(prefix + "internet.filteringRules").origin().comments()
+          //)
         } catch {
           case _: Throwable => /* pass */
         }

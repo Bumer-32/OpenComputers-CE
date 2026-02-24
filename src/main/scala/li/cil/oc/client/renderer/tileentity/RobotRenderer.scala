@@ -276,7 +276,7 @@ class RobotRenderer extends TileEntityRenderer[tileentity.RobotProxy] {
 
     if (robot.isAnimatingMove) {
       val remaining = (robot.animationTicksLeft - f) / robot.animationTicksTotal.toDouble
-      val delta = robot.moveFrom.get.subtract(robot.getBlockPos)
+      val delta = (robot.moveFrom.get: Vec3i).subtract(robot.getBlockPos)
       matrix.translate(delta.getX * remaining, delta.getY * remaining, delta.getZ * remaining)
     }
 

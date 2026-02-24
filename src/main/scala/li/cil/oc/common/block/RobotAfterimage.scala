@@ -1,6 +1,7 @@
 package li.cil.oc.common.block
 
 import li.cil.oc.common.tileentity
+import li.cil.oc.util.BlockPosHelper
 import li.cil.oc.{Constants, Settings, api}
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.server.level.{ServerLevel => ServerWorld}
@@ -88,7 +89,7 @@ class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
 
   def findMovingRobot(world: IBlockReader, pos: BlockPos): Option[tileentity.Robot] = {
     for (side <- Direction.values) {
-      val tpos = pos.relative(side)
+      val tpos = BlockPosHelper.relative(pos, side)
       if (world match {
         case world: World => world.isLoaded(tpos)
         case _ => true

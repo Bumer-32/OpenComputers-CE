@@ -6,6 +6,7 @@ import li.cil.oc.common.Proxy
 import li.cil.oc.common.capabilities.Capabilities
 import li.cil.oc.common.init.Blocks
 import li.cil.oc.common.init.Items
+import li.cil.oc.common.recipe.Recipes
 import li.cil.oc.integration.Mods
 import li.cil.oc.util.ThreadPoolFactory
 import net.minecraftforge.event.RegistryEvent

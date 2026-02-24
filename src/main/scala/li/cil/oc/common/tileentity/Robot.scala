@@ -27,11 +27,9 @@ import li.cil.oc.server.agent
 import li.cil.oc.server.agent.Player
 import li.cil.oc.server.component
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import li.cil.oc.util.BlockPosition
+import li.cil.oc.util.{BlockPosHelper, BlockPosition, InventoryUtils, StackOption}
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ExtendedLevel._
-import li.cil.oc.util.InventoryUtils
-import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
 import net.minecraft.client.Minecraft
 import net.minecraft.world.item.ItemStack
@@ -220,7 +218,7 @@ class Robot(pos: BlockPos, state: BlockState)
 
   def move(direction: Direction): Boolean = {
     val oldPosition = getBlockPos
-    val newPosition = oldPosition.relative(direction)
+    val newPosition = BlockPosHelper.relative(oldPosition, direction)
     if (!getLevel.isLoaded(newPosition)) {
       return false // Don't fall off the earth.
     }

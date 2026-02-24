@@ -4,6 +4,7 @@ import li.cil.oc.OpenComputers;
 import li.cil.oc.Constants;
 import li.cil.oc.api.Items;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -179,6 +180,10 @@ public final class TileEntityTypes {
                     .of((pos, state) -> new Waypoint(pos, state),
                             Items.get(Constants.BlockName$.MODULE$.Waypoint()).block())
                     .build(null));
+
+    public static void init(IEventBus bus) {
+        BLOCK_ENTITY_TYPES.register(bus);
+    }
 
     private TileEntityTypes() {
         throw new Error();

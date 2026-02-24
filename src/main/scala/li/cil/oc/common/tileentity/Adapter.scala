@@ -16,6 +16,7 @@ import li.cil.oc.common.Slot
 import li.cil.oc.common.menu
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
+import li.cil.oc.util.BlockPosHelper
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.MenuProvider
@@ -94,7 +95,7 @@ class Adapter(pos: BlockPos, state: BlockState)
 
   def neighborChanged(d: Direction): Unit = {
     if (node != null && node.network != null) {
-      val blockPos = getBlockPos.relative(d)
+      val blockPos = BlockPosHelper.relative(getBlockPos, d)
       getLevel.getBlockEntity(blockPos) match {
         case _: traits.Environment =>
         // Don't provide adaption for our stuffs. This is mostly to avoid
