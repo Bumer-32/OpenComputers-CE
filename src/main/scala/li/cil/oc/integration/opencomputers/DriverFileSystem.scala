@@ -16,7 +16,7 @@ import li.cil.oc.server.fs.FileSystem.{ItemLabel, ReadOnlyLabel}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.resources.ResourceLocation
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraftforge.server.ServerLifecycleHooks
 
 object DriverFileSystem extends Item {
   val UUIDVerifier = """^([0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12})$""".r
@@ -29,7 +29,7 @@ object DriverFileSystem extends Item {
     (!stack.hasTag || !stack.getTag.contains(Settings.namespace + "lootPath"))
 
   override def createEnvironment(stack: ItemStack, host: EnvironmentHost) =
-    if (host.world != null && host.world.isClientSide) null
+    if (host.getEnvironmentLevel != null && host.getEnvironmentLevel.isClientSide) null
     else stack.getItem match {
       case hdd: HardDiskDrive => createEnvironment(stack, hdd.kiloBytes * 1024, hdd.platterCount, host, hdd.tier + 2)
       case disk: FloppyDisk => createEnvironment(stack, Settings.get.floppySize * 1024, 1, host, 1)

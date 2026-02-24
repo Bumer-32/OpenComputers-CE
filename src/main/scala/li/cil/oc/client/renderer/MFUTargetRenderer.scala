@@ -1,7 +1,8 @@
 package li.cil.oc.client.renderer
 
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.mojang.blaze3d.vertex.VertexConsumer
+import com.mojang.math.Matrix4f
 import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -9,14 +10,12 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.vector.Vector4f
-import net.minecraft.util.math.vector.Matrix4f
-import net.minecraftforge.client.event.RenderWorldLastEvent
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.InteractionHand
+import net.minecraftforge.client.event.RenderLevelStageEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraft.nbt.Tag
 
 object MFUTargetRenderer {
   private val (drawRed, drawGreen, drawBlue) = (0.0f, 1.0f, 0.0f)
@@ -24,14 +23,14 @@ object MFUTargetRenderer {
   private lazy val mfu = api.Items.get(Constants.ItemName.MFU)
 
   @SubscribeEvent
-  def onRenderWorldLastEvent(e: RenderWorldLastEvent): Unit = {
+  def onRenderWorldLastEvent(e: RenderLevelStageEvent): Unit = {
     val mc = Minecraft.getInstance
     val player = mc.player
     if (player == null) return
-    player.getItemInHand(Hand.MAIN_HAND) match {
+    player.getItemInHand(InteractionHand.MAIN_HAND) match {
       case stack: ItemStack if api.Items.get(stack) == mfu && stack.hasTag =>
         val data = stack.getTag
-        if (data.contains(Settings.namespace + "coord", NBT.TAG_INT_ARRAY)) {
+        if (data.contains(Settings.namespace + "coord", Tag.TAG_INT_ARRAY)) {
           val dimension = new ResourceLocation(data.getString(Settings.namespace + "dimension"))
           if (!player.level.dimension.location.equals(dimension)) return
           val Array(x, y, z, side) = data.getIntArray(Settings.namespace + "coord")
@@ -41,20 +40,20 @@ object MFUTargetRenderer {
 
           RenderState.checkError(getClass.getName + ".onRenderWorldLastEvent: entering (aka: wasntme)")
 
-          val matrix = e.getMatrixStack
-          matrix.pushPose()
+          val poseStack = e.getPoseStack
+          poseStack.pushPose()
           val camPos = Minecraft.getInstance.gameRenderer.getMainCamera.getPosition
-          matrix.translate(-camPos.x, -camPos.y, -camPos.z)
+          poseStack.translate(-camPos.x, -camPos.y, -camPos.z)
 
           RenderSystem.disableDepthTest() // Default state for depth test is disabled, but it's enabled here so we have to change it manually.
           val buffer = Minecraft.getInstance.renderBuffers.bufferSource
-          drawBox(matrix.last.pose, buffer.getBuffer(RenderTypes.MFU_LINES), bounds.minX.toFloat, bounds.minY.toFloat, bounds.minZ.toFloat,
+          drawBox(poseStack.last.pose, buffer.getBuffer(RenderTypes.MFU_LINES), bounds.minX.toFloat, bounds.minY.toFloat, bounds.minZ.toFloat,
             bounds.maxX.toFloat, bounds.maxY.toFloat, bounds.maxZ.toFloat, drawRed, drawGreen, drawBlue)
-          drawFace(matrix.last.pose, buffer.getBuffer(RenderTypes.MFU_QUADS), bounds.minX.toFloat, bounds.minY.toFloat, bounds.minZ.toFloat,
+          drawFace(poseStack.last.pose, buffer.getBuffer(RenderTypes.MFU_QUADS), bounds.minX.toFloat, bounds.minY.toFloat, bounds.minZ.toFloat,
             bounds.maxX.toFloat, bounds.maxY.toFloat, bounds.maxZ.toFloat, side, drawRed, drawGreen, drawBlue)
           buffer.endBatch()
 
-          matrix.popPose()
+          poseStack.popPose()
 
           RenderState.checkError(getClass.getName + ".onRenderWorldLastEvent: leaving")
         }
@@ -62,7 +61,7 @@ object MFUTargetRenderer {
     }
   }
 
-  def drawBox(matrix: Matrix4f, builder: IVertexBuilder, minX: Float, minY: Float, minZ: Float, maxX: Float, maxY: Float, maxZ: Float, r: Float, g: Float, b: Float) = {
+  def drawBox(matrix: Matrix4f, builder: VertexConsumer, minX: Float, minY: Float, minZ: Float, maxX: Float, maxY: Float, maxZ: Float, r: Float, g: Float, b: Float) = {
     // Bottom square.
     builder.vertex(matrix, minX, minY, minZ).color(r, g, b, 0.5f).endVertex()
     builder.vertex(matrix, minX, minY, maxZ).color(r, g, b, 0.5f).endVertex()
@@ -94,7 +93,7 @@ object MFUTargetRenderer {
     builder.vertex(matrix, maxX, maxY, minZ).color(r, g, b, 0.5f).endVertex()
   }
 
-  private def drawFace(matrix: Matrix4f, builder: IVertexBuilder, minX: Float, minY: Float, minZ: Float, maxX: Float, maxY: Float, maxZ: Float, side: Int, r: Float, g: Float, b: Float): Unit = {
+  private def drawFace(matrix: Matrix4f, builder: VertexConsumer, minX: Float, minY: Float, minZ: Float, maxX: Float, maxY: Float, maxZ: Float, side: Int, r: Float, g: Float, b: Float): Unit = {
     side match {
       case 0 => // Down
         builder.vertex(matrix, minX, minY, minZ).color(r, g, b, 0.25f).endVertex()

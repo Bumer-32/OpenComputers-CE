@@ -2,7 +2,6 @@ package li.cil.oc.common.tileentity
 
 import java.util
 import java.util.function.Consumer
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -13,28 +12,29 @@ import li.cil.oc.api.internal
 import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network._
+import li.cil.oc.api.network.*
 import li.cil.oc.common.Tier
 import li.cil.oc.common.item.data.MicrocontrollerData
-import li.cil.oc.util.ExtendedArguments._
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.util.ExtendedArguments.*
+import li.cil.oc.util.ExtendedNBT.*
 import li.cil.oc.util.StackOption
-import li.cil.oc.util.StackOption._
-import net.minecraft.world.entity.player.{Player => PlayerEntity}
-import net.minecraft.world.{WorldlyContainer => ISidedInventory}
+import li.cil.oc.util.StackOption.*
+import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.world.WorldlyContainer
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.{CompoundTag => CompoundNBT}
-import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
-import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
-import net.minecraft.core.Direction
-import net.minecraft.nbt.{Tag => NBT}
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.nbt.Tag
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.JavaConverters.asJavaIterable
-import scala.collection.convert.ImplicitConversionsToJava._
+import scala.collection.convert.ImplicitConversionsToJava.*
 
-class Microcontroller(selfType: TileEntityType[_ <: Microcontroller]) extends TileEntity(selfType) with traits.PowerAcceptor with traits.Hub with traits.Computer with ISidedInventory with internal.Microcontroller with DeviceInfo {
+class Microcontroller(selfType: BlockEntityType[_ <: Microcontroller], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.PowerAcceptor with traits.Hub with traits.Computer with WorldlyContainer with internal.Microcontroller with DeviceInfo {
   val info = new MicrocontrollerData()
 
   override def node = null
@@ -209,12 +209,12 @@ class Microcontroller(selfType: TileEntityType[_ <: Microcontroller]) extends Ti
   private final val ComponentNodesTag = Settings.namespace + "componentNodes"
   private final val SnooperTag = Settings.namespace + "snooper"
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     // Load info before inventory and such, to avoid initializing components
     // to empty inventory.
     info.loadData(nbt.getCompound(InfoTag))
     nbt.getBooleanArray(OutputsTag)
-    nbt.getList(ComponentNodesTag, NBT.TAG_COMPOUND).toTagArray[CompoundNBT].
+    nbt.getList(ComponentNodesTag, Tag.TAG_COMPOUND).toTagArray[CompoundTag].
       zipWithIndex.foreach {
       case (tag, index) => componentNodes(index).loadData(tag)
     }
@@ -224,27 +224,27 @@ class Microcontroller(selfType: TileEntityType[_ <: Microcontroller]) extends Ti
     machine.node.connect(snooperNode)
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
     nbt.setNewCompoundTag(InfoTag, info.saveData)
     nbt.setBooleanArray(OutputsTag, outputSides)
     nbt.setNewTagList(ComponentNodesTag, componentNodes.map {
       case node: Node =>
-        val tag = new CompoundNBT()
+        val tag = new CompoundTag()
         node.saveData(tag)
         tag
-      case _ => new CompoundNBT()
+      case _ => new CompoundTag()
     })
     nbt.setNewCompoundTag(SnooperTag, snooperNode.saveData)
   }
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT): Unit = {
+  def loadForClient(nbt: CompoundTag): Unit = {
     info.loadData(nbt.getCompound(InfoTag))
     super.loadForClient(nbt)
   }
 
-  override def saveForClient(nbt: CompoundNBT): Unit = {
+  override def saveForClient(nbt: CompoundTag): Unit = {
     super.saveForClient(nbt)
     nbt.setNewCompoundTag(InfoTag, info.saveData)
   }

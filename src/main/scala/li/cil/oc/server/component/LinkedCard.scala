@@ -1,7 +1,6 @@
 package li.cil.oc.server.component
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -10,16 +9,16 @@ import li.cil.oc.api.Network
 import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network._
+import li.cil.oc.api.network.*
 import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.common.Tier
-import li.cil.oc.server.network.QuantumNetwork
-import net.minecraft.nbt.CompoundNBT
+import li.cil.oc.server.network.{Connector, QuantumNetwork}
+import net.minecraft.nbt.CompoundTag
 
-import scala.collection.convert.ImplicitConversionsToJava._
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToScala.*
 
 class LinkedCard extends AbstractManagedEnvironment with QuantumNetwork.QuantumNode with DeviceInfo with traits.WakeMessageAware {
   override val node = Network.newNode(this, Visibility.Network).
@@ -49,7 +48,7 @@ class LinkedCard extends AbstractManagedEnvironment with QuantumNetwork.QuantumN
     val endpoints = QuantumNetwork.getEndpoints(tunnel).filter(_ != this)
     // Cast to iterable to use Scala's toArray instead of the Arguments' one (which converts byte arrays to Strings).
     val packet = Network.newPacket(node.address, null, 0, args.asInstanceOf[java.lang.Iterable[AnyRef]].toArray)
-    if (node.tryChangeBuffer(-(packet.size / 32.0 + Settings.get.wirelessCostPerRange(Tier.Two) * Settings.get.maxWirelessRange(Tier.Two) * 5))) {
+    if (node.asInstanceOf[Connector].tryChangeBuffer(-(packet.size / 32.0 + Settings.get.wirelessCostPerRange(Tier.Two) * Settings.get.maxWirelessRange(Tier.Two) * 5))) {
       for (endpoint <- endpoints) {
         endpoint.receivePacket(packet)
       }
@@ -88,7 +87,7 @@ class LinkedCard extends AbstractManagedEnvironment with QuantumNetwork.QuantumN
 
   private final val TunnelTag = Settings.namespace + "tunnel"
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     super.loadData(nbt)
     if (nbt.contains(TunnelTag)) {
       tunnel = nbt.getString(TunnelTag)
@@ -96,7 +95,7 @@ class LinkedCard extends AbstractManagedEnvironment with QuantumNetwork.QuantumN
     loadWakeMessage(nbt)
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     super.saveData(nbt)
     nbt.putString(TunnelTag, tunnel)
     saveWakeMessage(nbt)

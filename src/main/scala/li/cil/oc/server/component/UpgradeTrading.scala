@@ -25,7 +25,7 @@ import net.minecraft.world.phys.Vec3
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.trading.Merchant
 
-class UpgradeTrading(val host: EnvironmentHost) extends AbstractManagedEnvironment with traits.WorldAware with DeviceInfo {
+class UpgradeTrading(val host: EnvironmentHost) extends AbstractManagedEnvironment with traits.LevelAware with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
     withComponent("trading").
     create()

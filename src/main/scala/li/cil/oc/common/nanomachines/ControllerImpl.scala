@@ -2,7 +2,6 @@ package li.cil.oc.common.nanomachines
 
 import java.lang
 import java.util.UUID
-
 import com.google.common.base.Charsets
 import com.google.common.base.Strings
 import li.cil.oc.Constants
@@ -18,24 +17,22 @@ import li.cil.oc.common.Tier
 import li.cil.oc.integration.util.DamageSourceWithRandomCause
 import li.cil.oc.server.PacketSender
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.util.ExtendedNBT.*
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.PlayerUtils
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.particles.ParticleTypes
-import net.minecraft.potion.Effect
-import net.minecraft.potion.Effects
-import net.minecraft.potion.EffectInstance
-import net.minecraft.util.ResourceLocation
-import net.minecraft.world.World
+import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.world.entity.player.Player
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.effect.{MobEffectInstance, MobEffects}
+import net.minecraft.world.level.Level
 
-import scala.collection.convert.ImplicitConversionsToJava._
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToScala.*
 import scala.collection.mutable
 
-class ControllerImpl(val player: PlayerEntity) extends Controller with WirelessEndpoint {
+class ControllerImpl(val player: Player) extends Controller with WirelessEndpoint {
   if (isServer) api.Network.joinWirelessNetwork(this)
   var previousDimension = player.level.dimension
 
@@ -57,7 +54,7 @@ class ControllerImpl(val player: PlayerEntity) extends Controller with WirelessE
   var activeBehaviorsDirty = true
   var hasSentConfiguration = false
 
-  override def world: World = player.level
+  override def getWirelessLevel: Level = player.level
 
   override def x: Int = BlockPosition(player).x
 
@@ -172,10 +169,10 @@ class ControllerImpl(val player: PlayerEntity) extends Controller with WirelessE
       activeBehaviorsDirty = true
 
       player match {
-        case playerMP: ServerPlayerEntity if playerMP.connection != null =>
-          player.addEffect(new EffectInstance(Effects.BLINDNESS, 100))
-          player.addEffect(new EffectInstance(Effects.POISON, 150))
-          player.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 200))
+        case playerMP: ServerPlayer if playerMP.connection != null =>
+          player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 100))
+          player.addEffect(new MobEffectInstance(MobEffects.POISON, 150))
+          player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200))
           changeBuffer(-Settings.get.nanomachineReconfigureCost)
 
           hasSentConfiguration = false
@@ -341,14 +338,14 @@ class ControllerImpl(val player: PlayerEntity) extends Controller with WirelessE
 
   // ----------------------------------------------------------------------- //
 
-  def saveData(nbt: CompoundNBT): Unit = configuration.synchronized {
+  def saveData(nbt: CompoundTag): Unit = configuration.synchronized {
     nbt.putString("uuid", uuid)
     nbt.putInt("port", responsePort)
     nbt.putDouble("energy", storedEnergy)
     nbt.setNewCompoundTag("configuration", configuration.saveData)
   }
 
-  def loadData(nbt: CompoundNBT): Unit = configuration.synchronized {
+  def loadData(nbt: CompoundTag): Unit = configuration.synchronized {
     uuid = nbt.getString("uuid")
     responsePort = nbt.getInt("port")
     storedEnergy = nbt.getDouble("energy")
@@ -358,7 +355,7 @@ class ControllerImpl(val player: PlayerEntity) extends Controller with WirelessE
 
   // ----------------------------------------------------------------------- //
 
-  private def isClient = world.isClientSide
+  private def isClient = getWirelessLevel.isClientSide
 
   private def isServer = !isClient
 

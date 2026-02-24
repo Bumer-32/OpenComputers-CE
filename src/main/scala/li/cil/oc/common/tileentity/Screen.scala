@@ -379,7 +379,7 @@ class Screen(selfType: BlockEntityType[_ <: Screen], pos: BlockPos, state: Block
     val opos = project(origin)
     def tryMergeTowards(dx: Int, dy: Int) = {
       val npos = unproject(opos.x + dx, opos.y + dy, opos.z)
-      level.blockExists(npos) && (getLevel.getBlockEntity(npos) match {
+      getEnvironmentLevel.blockExists(npos) && (getLevel.getBlockEntity(npos) match {
         case s: Screen if s.tier == tier && s.pitch == pitch && s.getColor == getColor && s.yaw == yaw && !screens.contains(s) =>
           val spos = project(s.origin)
           val canMergeAlongX = spos.y == opos.y && s.height == height && s.width + width <= Settings.get.maxScreenWidth

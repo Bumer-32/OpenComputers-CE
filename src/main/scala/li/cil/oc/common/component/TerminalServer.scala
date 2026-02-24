@@ -79,7 +79,7 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
   def address: String = rack.getMountableData(slot).getString("terminalAddress")
 
   def sidedKeys = {
-    if (!rack.world.isClientSide) keys
+    if (!rack.getEnvironmentLevel.isClientSide) keys
     else rack.getMountableData(slot).getList("keys", Tag.TAG_STRING).map((tag: StringTag) => tag.getAsString)
   }
 
@@ -119,7 +119,7 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
   // ----------------------------------------------------------------------- //
   // EnvironmentHost
 
-  override def world = rack.world
+  override def getEnvironmentLevel = rack.getEnvironmentLevel
 
   override def xPosition = rack.xPosition
 
@@ -147,7 +147,7 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
 
   override def onActivate(player: Player, hand: InteractionHand, heldItem: ItemStack, hitX: Float, hitY: Float): Boolean = {
     if (api.Items.get(heldItem) == api.Items.get(Constants.ItemName.Terminal)) {
-      if (!world.isClientSide) {
+      if (!getEnvironmentLevel.isClientSide) {
         val key = UUID.randomUUID().toString
         keys -= heldItem.getOrCreateTag.getString(Settings.namespace + "key")
         val maxSize = Settings.get.terminalsPerServer
@@ -173,7 +173,7 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
   private final val KeysTag = Settings.namespace + "keys"
 
   override def loadData(nbt: CompoundTag): Unit = {
-    if (!rack.world.isClientSide) {
+    if (!rack.getEnvironmentLevel.isClientSide) {
       node.loadData(nbt)
     }
     buffer.loadData(nbt.getCompound(BufferTag))
@@ -195,7 +195,7 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
   override def canUpdate: Boolean = true
 
   override def update(): Unit = {
-    if (world.isClientSide || (node.address != null && node.network != null)) {
+    if (getEnvironmentLevel.isClientSide || (node.address != null && node.network != null)) {
       buffer.update()
     }
   }
@@ -215,7 +215,7 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
   // ----------------------------------------------------------------------- //
   // LifeCycle
 
-  override def onLifecycleStateChange(state: Lifecycle.LifecycleState): Unit = if (rack.world.isClientSide) state match {
+  override def onLifecycleStateChange(state: Lifecycle.LifecycleState): Unit = if (rack.getEnvironmentLevel.isClientSide) state match {
     case Lifecycle.LifecycleState.Initialized =>
       TerminalServer.loaded.add(this)
     case Lifecycle.LifecycleState.Disposed =>

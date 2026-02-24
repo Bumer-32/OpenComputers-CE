@@ -1,418 +1,216 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.nio.Buffer
-import java.nio.IntBuffer
-import java.util.ArrayDeque
-import java.util.function.Function
-import java.util.concurrent.Callable
-import java.util.concurrent.TimeUnit
-import com.google.common.cache.CacheBuilder
-import com.google.common.cache.RemovalListener
-import com.google.common.cache.RemovalNotification
-import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.{PoseStack, VertexConsumer}
+import com.mojang.math.{Matrix4f, Vector3f}
 import li.cil.oc.Settings
 import li.cil.oc.client.Textures
 import li.cil.oc.common.tileentity.Hologram
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer as TileEntityRenderer
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher as TileEntityRendererDispatcher
-import net.minecraft.world.level.block.entity.BlockEntity as TileEntity
+import net.minecraft.client.renderer.{MultiBufferSource, RenderType}
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 import net.minecraft.core.Direction
-import com.mojang.math.Vector3f
-import net.minecraftforge.client.event.RenderLevelStageEvent
-import net.minecraftforge.event.TickEvent.ClientTickEvent
-import net.minecraftforge.eventbus.api.SubscribeEvent
-import org.lwjgl.BufferUtils
-import org.lwjgl.opengl.GL11
-import org.lwjgl.opengl.GL15
 
-import java.util
 import scala.util.Random
 
-object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramRenderer]
-  with Callable[Int] with RemovalListener[TileEntity, Int] {
+object HologramRenderer extends BlockEntityRendererProvider[Hologram] {
+  override def create(ctx: BlockEntityRendererProvider.Context): BlockEntityRenderer[Hologram] =
+    new HologramRenderer()
+}
 
-  override def apply(dispatch: TileEntityRendererDispatcher) = new HologramRenderer(dispatch)
+class HologramRenderer extends BlockEntityRenderer[Hologram] {
 
   private val random = new Random()
 
-  /** We cache the VBOs for the projectors we render for performance. */
-  private val cache = com.google.common.cache.CacheBuilder.newBuilder().
-    expireAfterAccess(5, TimeUnit.SECONDS).
-    removalListener(this).
-    asInstanceOf[CacheBuilder[Hologram, Int]].
-    build[Hologram, Int]()
+  override def render(
+                       hologram: Hologram,
+                       partialTick: Float,
+                       stack: PoseStack,
+                       buffer: MultiBufferSource,
+                       packedLight: Int,
+                       packedOverlay: Int
+                     ): Unit = {
 
-  /**
-   * Common for all holograms. Holds the vertex positions, texture
-   * coordinates and normals information. Layout is: u v nx ny nz x y z
-   *
-   * WARNING: this optimization only works if all the holograms have the
-   * same dimensions (in voxels). If we ever need holograms of different
-   * sizes we could probably just fake that by making the outer layers
-   * immutable (i.e. always empty).
-   *
-   * NOTE: It already takes up 47.25 MiB of video memory and increasing
-   * hologram size to, for example, 64*64*64 will result in 168 MiB.
-   */
-  private var commonBuffer = 0
+    if (!hologram.hasPower) return
 
-  /**
-   * Also common for all holograms. Temporary buffer used to upload
-   * hologram data to GPU. First half stores colors for each vertex
-   * (0xAABBGGRR Int, alpha is used for alignment only) and second
-   * half stores (Int) indices of vertices that should be drawn.
-   */
-  private var dataBuffer: IntBuffer = null
+    RenderState.checkError(getClass.getName + ".render: entering")
 
-  /** Used to pass the current screen along to call(). */
-  private var hologram: Hologram = null
-
-  /**
-   * Whether initialization failed (e.g. due to an out of memory error) and we
-   * should render using the fallback renderer instead.
-   */
-  private var failed = false
-
-  private val renderQueue = new util.ArrayDeque[Hologram]
-
-  // Defer actual rendering until now so transparent things render correctly.
-  @SubscribeEvent
-  def onRenderWorldLast(e: RenderWorldLastEvent): Unit = {
-    RenderState.checkError(getClass.getName + ".onRenderWorldLastEvent: entering (aka: wasntme)")
-
-    val stack = e.getMatrixStack
-    val camPos = Minecraft.getInstance.gameRenderer.getMainCamera.getPosition
-    val buffer = Minecraft.getInstance.renderBuffers.bufferSource
-
-    while (!renderQueue.isEmpty) {
-      val holo = renderQueue.removeFirst()
-      val pos = holo.getBlockPos
-      stack.pushPose()
-      stack.translate(pos.getX + 0.5 - camPos.x, pos.getY + 0.5 - camPos.y, pos.getZ + 0.5 - camPos.z)
-      doRender(holo, e.getPartialTicks, stack)
-      stack.popPose()
-    }
-
-    RenderState.checkError(getClass.getName + ".onRenderWorldLastEvent: leaving")
-  }
-
-  private def doRender(hologram: Hologram, f: Float, stack: MatrixStack) = {
-    HologramRenderer.hologram = hologram
-    GL11.glPushClientAttrib(GL11.GL_CLIENT_ALL_ATTRIB_BITS)
     RenderState.makeItBlend()
-    RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE)
+    RenderSystem.blendFuncSeparate(
+      GlStateManager.SourceFactor.SRC_ALPHA,
+      GlStateManager.DestFactor.ONE,
+      GlStateManager.SourceFactor.ONE,
+      GlStateManager.DestFactor.ZERO
+    )
 
     val pos = hologram.getBlockPos
-    val relPos = Minecraft.getInstance.player.getEyePosition(f).
-      subtract(pos.getX + 0.5, pos.getY + 0.5, pos.getZ + 0.5)
-    val playerDistSq = relPos.dot(relPos)
-    val maxDistSq = hologram.getViewDistance * hologram.getViewDistance
-    val fadeDistSq = hologram.getFadeStartDistanceSquared
-    RenderState.setBlendAlpha(0.75f * (if (playerDistSq > fadeDistSq) math.max(0, 1 - ((playerDistSq - fadeDistSq) / (maxDistSq - fadeDistSq)).toFloat) else 1))
+    val relPos = Minecraft.getInstance.player.getEyePosition(partialTick)
+      .subtract(pos.getX + 0.5, pos.getY + 0.5, pos.getZ + 0.5)
 
+    val distSq = relPos.dot(relPos)
+    val fadeDistSq = hologram.getFadeStartDistanceSquared
+    val maxDistSq = hologram.getViewDistance * hologram.getViewDistance
+
+    val alpha =
+      0.75f * (if (distSq > fadeDistSq)
+        math.max(0, 1 - ((distSq - fadeDistSq) / (maxDistSq - fadeDistSq)).toFloat)
+      else 1f)
+
+    RenderSystem.setShaderColor(1f, 1f, 1f, alpha)
+
+    stack.pushPose()
+
+    // 位置合わせ
+    stack.translate(0.5, 0.5, 0.5)
+
+    // 向き
     hologram.yaw match {
-      case Direction.WEST => stack.mulPose(Vector3f.YP.rotationDegrees(-90))
+      case Direction.WEST  => stack.mulPose(Vector3f.YP.rotationDegrees(-90))
       case Direction.NORTH => stack.mulPose(Vector3f.YP.rotationDegrees(180))
-      case Direction.EAST => stack.mulPose(Vector3f.YP.rotationDegrees(90))
-      case _ => // No yaw.
+      case Direction.EAST  => stack.mulPose(Vector3f.YP.rotationDegrees(90))
+      case _ =>
     }
+
     hologram.pitch match {
       case Direction.DOWN => stack.mulPose(Vector3f.XP.rotationDegrees(90))
-      case Direction.UP => stack.mulPose(Vector3f.XP.rotationDegrees(-90))
-      case _ => // No pitch.
+      case Direction.UP   => stack.mulPose(Vector3f.XP.rotationDegrees(-90))
+      case _ =>
     }
 
-    stack.mulPose(new Vector3f(hologram.rotationX, hologram.rotationY, hologram.rotationZ).rotationDegrees(hologram.rotationAngle))
-    stack.mulPose(new Vector3f(hologram.rotationSpeedX, hologram.rotationSpeedY, hologram.rotationSpeedZ)
-      .rotationDegrees(hologram.rotationSpeed * (hologram.getLevel.getGameTime % (360 * 20 - 1) + f) / 20f))
+    // 自由回転
+    stack.mulPose(
+      new Vector3f(hologram.rotationX, hologram.rotationY, hologram.rotationZ)
+        .rotationDegrees(hologram.rotationAngle)
+    )
 
-    stack.scale(1.001f, 1.001f, 1.001f) // Avoid z-fighting with other blocks.
+    stack.mulPose(
+      new Vector3f(hologram.rotationSpeedX, hologram.rotationSpeedY, hologram.rotationSpeedZ)
+        .rotationDegrees(
+          hologram.rotationSpeed *
+            (hologram.getLevel.getGameTime % (360 * 20 - 1) + partialTick) / 20f
+        )
+    )
+
+    stack.scale(1.001f, 1.001f, 1.001f)
+
     stack.translate(
-      (hologram.translation.x * hologram.width / 16 - 1.5) * hologram.scale,
-      hologram.translation.y * hologram.height / 16 * hologram.scale,
-      (hologram.translation.z * hologram.width / 16 - 1.5) * hologram.scale)
+      (hologram.translation.x * hologram.width / 16.0 - 1.5) * hologram.scale,
+      hologram.translation.y * hologram.height / 16.0 * hologram.scale,
+      (hologram.translation.z * hologram.width / 16.0 - 1.5) * hologram.scale
+    )
 
-    // Do a bit of flickering, because that's what holograms do!
-    if (Settings.get.hologramFlickerFrequency > 0 && random.nextDouble() < Settings.get.hologramFlickerFrequency) {
-      stack.scale(Math.max(1f + (random.nextGaussian() * 0.01).toFloat, 0.001f),
+    // フリッカー
+    if (Settings.get.hologramFlickerFrequency > 0 &&
+      random.nextDouble() < Settings.get.hologramFlickerFrequency) {
+      stack.scale(
+        Math.max(1f + (random.nextGaussian() * 0.01).toFloat, 0.001f),
         Math.max(1f + (random.nextGaussian() * 0.001).toFloat, 0.001f),
-        Math.max(1f + (random.nextGaussian() * 0.01).toFloat, 0.001f))
-      stack.translate(random.nextGaussian() * 0.01, random.nextGaussian() * 0.01, random.nextGaussian() * 0.01)
+        Math.max(1f + (random.nextGaussian() * 0.01).toFloat, 0.001f)
+      )
     }
 
-    // After the below scaling, hologram is drawn inside a [0..48]x[0..32]x[0..48] box
-    RenderState.mirrorScale(stack, hologram.scale.toFloat / 16f, hologram.scale.toFloat / 16f, hologram.scale.toFloat / 16f)
+    RenderState.mirrorScale(
+      stack,
+      hologram.scale.toFloat / 16f,
+      hologram.scale.toFloat / 16f,
+      hologram.scale.toFloat / 16f
+    )
 
-    Textures.bind(Textures.Model.HologramEffect)
+    stack.translate(-0.5, -0.5, -0.5)
 
-    val sx = relPos.x * hologram.scale
-    val sy = relPos.y * hologram.scale
-    val sz = relPos.z * hologram.scale
-    if (sx >= -1.5 && sx <= 1.5 && sz >= -1.5 && sz <= 1.5 && sy >= 0 && sy <= 2) {
-      // Camera is inside the hologram.
-      RenderSystem.disableCull()
-    }
-    else {
-      // Camera is outside the hologram.
-      RenderSystem.enableCull()
-    }
+    val renderType = RenderType.entityTranslucent(Textures.Model.HologramEffect)
 
-    // We do two passes here to avoid weird transparency effects: in the first
-    // pass we find the front-most fragment, in the second we actually draw it.
-    // When we don't do this the hologram will look different from different
-    // angles (because some faces will shine through sometimes and sometimes
-    // they won't), so a more... consistent look is desirable.
-    RenderSystem.pushMatrix()
-    RenderSystem.multMatrix(stack.last.pose)
-    val glBuffer = cache.get(hologram, this)
-    GL11.glEnable(GL11.GL_DEPTH_TEST)
-    RenderSystem.colorMask(false, false, false, false)
-    RenderSystem.depthMask(true)
-    draw(glBuffer)
-    RenderSystem.colorMask(true, true, true, true)
-    RenderSystem.depthFunc(GL11.GL_EQUAL)
-    draw(glBuffer)
-    RenderSystem.depthFunc(GL11.GL_LEQUAL)
-    RenderSystem.popMatrix()
+    val vb = buffer.getBuffer(renderType)
+    val matrix = stack.last.pose
+
+    renderHologramGeometry(hologram, vb, matrix)
+
+    stack.popPose()
 
     RenderState.disableBlend()
-    GL11.glPopClientAttrib()
+    RenderSystem.defaultBlendFunc()
+
+    RenderState.checkError(getClass.getName + ".render: leaving")
   }
 
-  def draw(glBuffer: Int) = {
-    if (initialize()) {
-      validate(glBuffer)
-      publish(glBuffer)
+  // ======== 完全置換ジオメトリ生成 ========
+
+  private def renderHologramGeometry(
+                                      hologram: Hologram,
+                                      vb: VertexConsumer,
+                                      matrix: Matrix4f
+                                    ): Unit = {
+
+    def value(x: Int, y: Int, z: Int): Int =
+      if (x >= 0 && y >= 0 && z >= 0 &&
+        x < hologram.width &&
+        y < hologram.height &&
+        z < hologram.width)
+        hologram.getColor(x, y, z)
+      else 0
+
+    def solid(x: Int, y: Int, z: Int): Boolean =
+      value(x, y, z) != 0
+
+    def quad(
+              x: Float, y: Float, z: Float,
+              r: Int, g: Int, b: Int,
+              u: Float, v: Float
+            ): Unit =
+      vb.vertex(matrix, x, y, z)
+        .color(r, g, b, 255)
+        .uv(u, v)
+        .endVertex()
+
+    for {
+      x <- 0 until hologram.width
+      y <- 0 until hologram.height
+      z <- 0 until hologram.width
+      if solid(x, y, z)
+    } {
+      val c = hologram.colors(value(x, y, z) - 1)
+      val r =  c        & 0xFF
+      val g = (c >> 8) & 0xFF
+      val b = (c >>16) & 0xFF
+
+      if (!solid(x, y, z + 1)) {
+        quad(x+1,y+1,z+1,r,g,b,0,0)
+        quad(x,y+1,z+1,r,g,b,1,0)
+        quad(x,y,z+1,r,g,b,1,1)
+        quad(x+1,y,z+1,r,g,b,0,1)
+      }
+      if (!solid(x, y, z - 1)) {
+        quad(x+1,y,z,r,g,b,0,0)
+        quad(x,y,z,r,g,b,1,0)
+        quad(x,y+1,z,r,g,b,1,1)
+        quad(x+1,y+1,z,r,g,b,0,1)
+      }
+      if (!solid(x + 1, y, z)) {
+        quad(x+1,y+1,z+1,r,g,b,1,0)
+        quad(x+1,y,z+1,r,g,b,1,1)
+        quad(x+1,y,z,r,g,b,0,1)
+        quad(x+1,y+1,z,r,g,b,0,0)
+      }
+      if (!solid(x - 1, y, z)) {
+        quad(x,y,z+1,r,g,b,1,0)
+        quad(x,y+1,z+1,r,g,b,1,1)
+        quad(x,y+1,z,r,g,b,0,1)
+        quad(x,y,z,r,g,b,0,0)
+      }
+      if (!solid(x, y + 1, z)) {
+        quad(x+1,y+1,z,r,g,b,0,0)
+        quad(x,y+1,z,r,g,b,1,0)
+        quad(x,y+1,z+1,r,g,b,1,1)
+        quad(x+1,y+1,z+1,r,g,b,0,1)
+      }
+      if (!solid(x, y - 1, z)) {
+        quad(x+1,y,z+1,r,g,b,0,0)
+        quad(x,y,z+1,r,g,b,1,0)
+        quad(x,y,z,r,g,b,1,1)
+        quad(x+1,y,z,r,g,b,0,1)
+      }
     }
-  }
-
-  private def initialize(): Boolean = !failed && (try {
-    // First run only, create structure information.
-    if (commonBuffer == 0) {
-      dataBuffer = BufferUtils.createIntBuffer(hologram.width * hologram.width * hologram.height * 6 * 4 * 2)
-
-      commonBuffer = GL15.glGenBuffers()
-
-      val data = BufferUtils.createFloatBuffer(hologram.width * hologram.width * hologram.height * 24 * (2 + 3 + 3))
-      def addVertex(x: Int, y: Int, z: Int, u: Int, v: Int, nx: Int, ny: Int, nz: Int) = {
-        data.put(u)
-        data.put(v)
-        data.put(nx)
-        data.put(ny)
-        data.put(nz)
-        data.put(x)
-        data.put(y)
-        data.put(z)
-      }
-
-      for (x <- 0 until hologram.width) {
-        for (z <- 0 until hologram.width) {
-          for (y <- 0 until hologram.height) {
-            /*
-                  0---1
-                  | N |
-              0---3---2---1---0
-              | W | U | E | D |
-              5---6---7---4---5
-                  | S |
-                  5---4
-             */
-
-            // South
-            addVertex(x + 1, y + 1, z + 1, 0, 0, 0, 0, 1) // 5
-            addVertex(x + 0, y + 1, z + 1, 1, 0, 0, 0, 1) // 4
-            addVertex(x + 0, y + 0, z + 1, 1, 1, 0, 0, 1) // 7
-            addVertex(x + 1, y + 0, z + 1, 0, 1, 0, 0, 1) // 6
-            // North
-            addVertex(x + 1, y + 0, z + 0, 0, 0, 0, 0, -1) // 3
-            addVertex(x + 0, y + 0, z + 0, 1, 0, 0, 0, -1) // 2
-            addVertex(x + 0, y + 1, z + 0, 1, 1, 0, 0, -1) // 1
-            addVertex(x + 1, y + 1, z + 0, 0, 1, 0, 0, -1) // 0
-
-            // East
-            addVertex(x + 1, y + 1, z + 1, 1, 0, 1, 0, 0) // 5
-            addVertex(x + 1, y + 0, z + 1, 1, 1, 1, 0, 0) // 6
-            addVertex(x + 1, y + 0, z + 0, 0, 1, 1, 0, 0) // 3
-            addVertex(x + 1, y + 1, z + 0, 0, 0, 1, 0, 0) // 0
-            // West
-            addVertex(x + 0, y + 0, z + 1, 1, 0, -1, 0, 0) // 7
-            addVertex(x + 0, y + 1, z + 1, 1, 1, -1, 0, 0) // 4
-            addVertex(x + 0, y + 1, z + 0, 0, 1, -1, 0, 0) // 1
-            addVertex(x + 0, y + 0, z + 0, 0, 0, -1, 0, 0) // 2
-
-            // Up
-            addVertex(x + 1, y + 1, z + 0, 0, 0, 0, 1, 0) // 0
-            addVertex(x + 0, y + 1, z + 0, 1, 0, 0, 1, 0) // 1
-            addVertex(x + 0, y + 1, z + 1, 1, 1, 0, 1, 0) // 4
-            addVertex(x + 1, y + 1, z + 1, 0, 1, 0, 1, 0) // 5
-            // Down
-            addVertex(x + 1, y + 0, z + 1, 0, 0, 0, -1, 0) // 6
-            addVertex(x + 0, y + 0, z + 1, 1, 0, 0, -1, 0) // 7
-            addVertex(x + 0, y + 0, z + 0, 1, 1, 0, -1, 0) // 2
-            addVertex(x + 1, y + 0, z + 0, 0, 1, 0, -1, 0) // 3
-          }
-        }
-      }
-
-      // Important! OpenGL will start reading from the current buffer position.
-      data.asInstanceOf[Buffer].rewind()
-
-      // This buffer never ever changes, so static is the way to go.
-      GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, commonBuffer)
-      GL15.glBufferData(GL15.GL_ARRAY_BUFFER, data, GL15.GL_STATIC_DRAW)
-    }
-    true
-  }
-  catch {
-    case oom: OutOfMemoryError =>
-      HologramRendererFallback.text = "Not enough memory"
-      failed = true
-      false
-  })
-
-  private def validate(glBuffer: Int) = {
-    // Refresh indexes when the hologram's data changed.
-    if (hologram.needsRendering) {
-      def value(hx: Int, hy: Int, hz: Int) = if (hx >= 0 && hy >= 0 && hz >= 0 && hx < hologram.width && hy < hologram.height && hz < hologram.width) hologram.getColor(hx, hy, hz) else 0
-
-      def isSolid(hx: Int, hy: Int, hz: Int) = value(hx, hy, hz) != 0
-
-      def addFace(index: Int, color: Int) = {
-        dataBuffer.put(index)
-        dataBuffer.put(index + 1)
-        dataBuffer.put(index + 2)
-        dataBuffer.put(index + 3)
-
-        dataBuffer.put(index, color)
-        dataBuffer.put(index + 1, color)
-        dataBuffer.put(index + 2, color)
-        dataBuffer.put(index + 3, color)
-
-        hologram.visibleQuads += 1
-      }
-
-      // Copy color information, identify which quads to render and prepare data for glDrawElements
-      hologram.visibleQuads = 0
-      var index = 0
-      dataBuffer.asInstanceOf[Buffer].position(hologram.width * hologram.width * hologram.height * 6 * 4)
-      for (hx <- 0 until hologram.width) {
-        for (hz <- 0 until hologram.width) {
-          for (hy <- 0 until hologram.height) {
-            // Do we need to draw at least one face?
-            if (isSolid(hx, hy, hz)) {
-              // Yes, get the color of the voxel.
-              val color = hologram.colors(value(hx, hy, hz) - 1)
-
-              // South
-              if (!isSolid(hx, hy, hz + 1)) {
-                addFace(index, color)
-              }
-              index += 4
-              // North
-              if (!isSolid(hx, hy, hz - 1)) {
-                addFace(index, color)
-              }
-              index += 4
-
-              // East
-              if (!isSolid(hx + 1, hy, hz)) {
-                addFace(index, color)
-              }
-              index += 4
-              // West
-              if (!isSolid(hx - 1, hy, hz)) {
-                addFace(index, color)
-              }
-              index += 4
-
-              // Up
-              if (!isSolid(hx, hy + 1, hz)) {
-                addFace(index, color)
-              }
-              index += 4
-              // Down
-              if (!isSolid(hx, hy - 1, hz)) {
-                addFace(index, color)
-              }
-              index += 4
-            }
-            else {
-              // No, skip all associated indices.
-              index += 6 * 4
-            }
-          }
-        }
-      }
-
-      GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, glBuffer)
-      if (hologram.visibleQuads > 0) {
-        // Flip the buffer to only fill in as much data as necessary.
-        dataBuffer.asInstanceOf[Buffer].flip()
-
-        // This buffer can be updated quite frequently, so dynamic seems sensible.
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, dataBuffer, GL15.GL_DYNAMIC_DRAW)
-      }
-      else {
-        // Empty hologram.
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, 0L, GL15.GL_DYNAMIC_DRAW)
-      }
-
-      // Reset for the next operation.
-      dataBuffer.asInstanceOf[Buffer].clear()
-
-      hologram.needsRendering = false
-    }
-  }
-
-  private def publish(glBuffer: Int) = {
-    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, commonBuffer)
-    GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY)
-    GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY)
-    GL11.glEnableClientState(GL11.GL_NORMAL_ARRAY)
-    GL11.glInterleavedArrays(GL11.GL_T2F_N3F_V3F, 0, 0)
-
-    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, glBuffer)
-    GL11.glEnableClientState(GL11.GL_COLOR_ARRAY)
-    GL11.glColorPointer(3, GL11.GL_UNSIGNED_BYTE, 4, 0)
-
-    GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, glBuffer)
-    GL11.glDrawElements(GL11.GL_QUADS, hologram.visibleQuads * 4, GL11.GL_UNSIGNED_INT, hologram.width * hologram.width * hologram.height * 6 * 4 * 4)
-  }
-
-  // ----------------------------------------------------------------------- //
-  // Cache
-  // ----------------------------------------------------------------------- //
-
-  def call = {
-    val glBuffer = GL15.glGenBuffers()
-
-    // Force re-indexing.
-    hologram.needsRendering = true
-
-    glBuffer
-  }
-
-  def onRemoval(e: RemovalNotification[TileEntity, Int]) = {
-    val glBuffer = e.getValue
-    GL15.glDeleteBuffers(glBuffer)
-    dataBuffer.asInstanceOf[Buffer].clear()
-  }
-
-  @SubscribeEvent
-  def onTick(e: ClientTickEvent) = cache.cleanUp()
-}
-
-class HologramRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Hologram](dispatch) {
-  override def render(hologram: Hologram, f: Float, stack: MatrixStack, buffer: MultiBufferSource, light: Int, overlay: Int): Unit = {
-    if (HologramRenderer.failed) {
-      HologramRendererFallback.render(hologram, f, stack, buffer, light, overlay)
-      return
-    }
-
-    if (hologram.hasPower) HologramRenderer.renderQueue.addLast(hologram)
   }
 }

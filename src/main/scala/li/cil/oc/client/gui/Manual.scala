@@ -13,6 +13,7 @@ import net.minecraft.client.gui.screens
 import net.minecraft.client.gui.components.Button
 import org.lwjgl.glfw.GLFW
 
+import scala.jdk.CollectionConverters._
 import scala.collection.JavaConverters.{asJavaIterable, seqAsJavaList}
 import scala.collection.convert.ImplicitConversionsToScala._
 import net.minecraft.network.chat.TextComponent
@@ -62,7 +63,7 @@ class Manual extends screens.Screen(TextComponent.EMPTY) with traits.Window {
 
   def refreshPage(): Unit = {
     val content = Option(api.Manual.contentFor(ManualAPI.history.top.path)).
-      getOrElse(asJavaIterable(Iterable("Document not found: " + ManualAPI.history.top.path)))
+      getOrElse(Iterable("Document not found: " + ManualAPI.history.top.path).asJava)
     document = Document.parse(content)
     documentHeight = Document.height(document, documentMaxWidth, font)
     scrollTo(offset)
@@ -122,7 +123,7 @@ class Manual extends screens.Screen(TextComponent.EMPTY) with traits.Window {
 
     currentSegment = Document.render(stack, document, leftPos + 8, topPos + 8, documentMaxWidth, documentMaxHeight, offset, font, mouseX, mouseY)
     def localizeAndWrap(text: String): java.util.List[Component] = {
-      Localization.localizeImmediately(text).linesIterator.map(new TextComponent(_)).seqAsJavaList
+      Localization.localizeImmediately(text).linesIterator.map(new TextComponent(_)).toList.asJava
     }
 
     if (!isScrolling) currentSegment match {

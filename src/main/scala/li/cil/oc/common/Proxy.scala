@@ -1,10 +1,9 @@
 package li.cil.oc.common
 
 import java.util.function.Supplier
-
 import com.google.common.base.Strings
-import li.cil.oc._
-import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
+import li.cil.oc.*
+import li.cil.oc.common.PacketHandler as CommonPacketHandler
 import li.cil.oc.common.capabilities.Capabilities
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.entity.Drone
@@ -12,10 +11,10 @@ import li.cil.oc.common.entity.EntityTypes
 import li.cil.oc.common.init.Blocks
 import li.cil.oc.common.init.Items
 import li.cil.oc.common.tileentity.TileEntityTypes
-import li.cil.oc.common.recipe.RecipeSerializers
+import li.cil.oc.common.recipe.Recipes
 import li.cil.oc.integration.Mods
 import li.cil.oc.server
-import li.cil.oc.server._
+import li.cil.oc.server.*
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.server.machine.luac.{LuaStateFactory, NativeLua52Architecture, NativeLua53Architecture, NativeLua54Architecture}
 import li.cil.oc.server.machine.luaj.LuaJLuaArchitecture
@@ -26,25 +25,25 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayer
 import net.minecraftforge.event.RegistryEvent.MissingMappings
-import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.eventbus.api.{IEventBus, SubscribeEvent}
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
 import net.minecraftforge.network.NetworkEvent
 import net.minecraftforge.network.NetworkRegistry
 import net.minecraftforge.registries.ForgeRegistries
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.world.level.block.Block
 
 class Proxy {
-  protected val modBus = FMLJavaModLoadingContext.get.getModEventBus
+  protected val modBus: IEventBus = FMLJavaModLoadingContext.get.getModEventBus
   modBus.register(classOf[MenuTypes])
   modBus.register(classOf[EntityTypes])
   modBus.register(classOf[TileEntityTypes])
-  modBus.register(classOf[RecipeSerializers])
+  Recipes.init(modBus)
   LootFunctions.init()
 
   def preInit(): Unit = {

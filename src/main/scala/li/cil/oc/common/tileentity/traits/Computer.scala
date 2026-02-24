@@ -24,6 +24,7 @@ import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 import net.minecraft.nbt.Tag
 import net.minecraft.world.entity.player.Player
+import scala.jdk.CollectionConverters._
 
 trait Computer extends Environment with ComponentInventory with Rotatable with BundledRedstoneAware with api.network.Analyzable with api.machine.MachineHost with StateAware with Tickable {
   private lazy val _machine = if (isServer) api.Machine.create(this) else null
@@ -150,7 +151,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
     // This is required for loading auxiliary data (kernel state), because the
     // coordinates in the actual robot won't be set properly, otherwise.
     this match {
-      case proxy: RobotProxy => proxy.robot.setLevelAndPosition(getLevel, getBlockPos)
+      case proxy: RobotProxy => proxy.robot.setLevel(getLevel)
       case _ =>
     }
     machine.loadData(nbt.getCompound(ComputerTag))

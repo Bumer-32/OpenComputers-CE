@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.Driver
@@ -20,9 +19,9 @@ import li.cil.oc.common.menu
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.integration.opencomputers.DriverRedstoneCard
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import li.cil.oc.util.ExtendedInventory._
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.server.PacketSender as ServerPacketSender
+import li.cil.oc.util.ExtendedInventory.*
+import li.cil.oc.util.ExtendedNBT.*
 import li.cil.oc.util.RotationHelper
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
@@ -32,10 +31,11 @@ import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.MenuProvider
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.entity.player.Player
-import li.cil.tis3d.common.inventory.Inventory
+import net.minecraft.world.{Container, MenuProvider}
+import net.minecraft.nbt.{CompoundTag, IntArrayTag, Tag}
+import net.minecraft.world.entity.player.{Inventory, Player}
+
+import scala.collection.immutable.ArraySeq
 
 class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.PowerAcceptor with traits.Hub with traits.PowerBalancer
   with traits.ComponentInventory with traits.Rotatable with traits.BundledRedstoneAware with Analyzable with internal.Rack with traits.StateAware with MenuProvider {
@@ -423,11 +423,11 @@ class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockStat
   private final val LastDataTag = Settings.namespace + "lastData"
   private final val RackDataTag = Settings.namespace + "rackData"
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
 
     isRelayEnabled = nbt.getBoolean(IsRelayEnabledTag)
-    nbt.getList(NodeMappingTag, NBT.TAG_INT_ARRAY).map((buses: IntArrayNBT) =>
+    nbt.getList(NodeMappingTag, Tag.TAG_INT_ARRAY).map((buses: IntArrayTag) =>
       buses.getAsIntArray.map(id => if (id < 0 || id == Direction.SOUTH.ordinal()) None else Option(Direction.from3DDataValue(id)))).
       copyToArray(nodeMapping)
 
@@ -435,7 +435,7 @@ class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockStat
     _isOutputEnabled = hasRedstoneCard
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
 
     nbt.putBoolean(IsRelayEnabledTag, isRelayEnabled)
@@ -444,20 +444,20 @@ class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockStat
   }
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT): Unit = {
+  def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
 
-    val data = nbt.getList(LastDataTag, NBT.TAG_COMPOUND).
-      toTagArray[CompoundNBT]
+    val data = nbt.getList(LastDataTag, Tag.TAG_COMPOUND).
+      toTagArray[CompoundTag]
     data.copyToArray(lastData)
     loadData(nbt.getCompound(RackDataTag))
     connectComponents()
   }
 
-  override def saveForClient(nbt: CompoundNBT): Unit = {
+  override def saveForClient(nbt: CompoundTag): Unit = {
     super.saveForClient(nbt)
 
-    val data = lastData.map(tag => if (tag == null) new CompoundNBT() else tag)
+    val data = lastData.map(tag => if (tag == null) new CompoundTag() else tag)
     nbt.setNewTagList(LastDataTag, data)
     nbt.setNewCompoundTag(RackDataTag, saveData)
   }
@@ -478,7 +478,7 @@ class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockStat
   def isWorking(mountable: RackMountable): Boolean = mountable.getCurrentState.contains(api.util.StateAware.State.IsWorking)
 
   def hasRedstoneCard: Boolean = components.exists {
-    case Some(mountable: EnvironmentHost with RackMountable with IInventory) if isWorking(mountable) =>
+    case Some(mountable: EnvironmentHost with RackMountable with Container) if isWorking(mountable) =>
       mountable.exists(stack => DriverRedstoneCard.worksWith(stack, mountable.getClass))
     case _ => false
   }

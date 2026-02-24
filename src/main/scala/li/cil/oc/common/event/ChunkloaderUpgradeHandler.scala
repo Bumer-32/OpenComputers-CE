@@ -114,7 +114,7 @@ object ChunkloaderUpgradeHandler extends LoadingValidationCallback {
   }
 
   def updateLoadedChunk(loader: UpgradeChunkloader): Unit = {
-    (loader.host.world, parseAddress(loader.node.address)) match {
+    (loader.host.getEnvironmentLevel, parseAddress(loader.node.address)) match {
       // If loader.ticket is None that means we shouldn't load anything (as did the old ticketing system).
       case (level: ServerLevel, Some(owner)) if loader.ticket.isDefined => {
         val blockPos = BlockPosition(loader.host)

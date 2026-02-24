@@ -4,27 +4,32 @@ import li.cil.oc.api.manual.ImageProvider
 import li.cil.oc.api.manual.ImageRenderer
 import li.cil.oc.api.manual.InteractiveImageRenderer
 import li.cil.oc.client.Textures
-import net.minecraft.block.Block
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.tags._
-import net.minecraft.util.ResourceLocation
+import net.minecraft.core.Registry
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.tags.*
+import net.minecraft.resources.ResourceLocation
+import net.minecraftforge.registries.ForgeRegistries
 
 import scala.collection.mutable
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.jdk.CollectionConverters._
 
 object OreDictImageProvider extends ImageProvider {
   override def getImage(data: String): ImageRenderer = {
     val desired = new ResourceLocation(data.toLowerCase)
     val stacks = mutable.ArrayBuffer.empty[ItemStack]
-    ItemTags.getAllTags.getTag(desired) match {
-      case tag: ITag[Item] => stacks ++= tag.getValues.map(new ItemStack(_))
-      case _ =>
+    val itemTagKey = TagKey.create(Registry.ITEM_REGISTRY, desired)
+    val itemTag = ForgeRegistries.ITEMS.tags().getTag(itemTagKey)
+    if (!itemTag.isEmpty) {
+      stacks ++= itemTag.asScala.map(new ItemStack(_))
     }
     if (stacks.isEmpty) {
-      BlockTags.getAllTags.getTag(desired) match {
-        case tag: ITag[Block] => stacks ++= tag.getValues.map(new ItemStack(_))
-        case _ =>
+      val blockTagKey = TagKey.create(Registry.BLOCK_REGISTRY, desired)
+      val blockTag = ForgeRegistries.BLOCKS.tags().getTag(blockTagKey)
+
+      if (!blockTag.isEmpty) {
+        stacks ++= blockTag.asScala.map(new ItemStack(_))
       }
     }
     if (stacks.nonEmpty) new ItemStackImageRenderer(stacks.toArray)

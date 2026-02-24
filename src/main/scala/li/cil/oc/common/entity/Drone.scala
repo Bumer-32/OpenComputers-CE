@@ -1,5 +1,6 @@
 package li.cil.oc.common.entity
 
+import com.mojang.math.Vector3d
 import li.cil.oc.*
 import li.cil.oc.api.driver.item
 import li.cil.oc.api.internal.MultiTank
@@ -12,7 +13,7 @@ import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.{EventHandler, menu}
 import li.cil.oc.integration.util.Wrench
 import li.cil.oc.server.{agent, component}
-import li.cil.oc.server.agent.PlayerAgent
+import li.cil.oc.server.agent
 import li.cil.oc.util.ExtendedLevel.*
 import li.cil.oc.util.ExtendedNBT.*
 import li.cil.oc.util.{BlockPosition, InventoryUtils}
@@ -79,9 +80,9 @@ abstract class DroneInventory(val drone: Drone) extends Inventory
 // internal.Rotatable is also in internal.Drone, but it wasn't since the start
 // so this is to ensure it is implemented here, in the very unlikely case that
 // someone decides to ship that specific version of the API.
-class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, world) with MachineHost with internal.Drone with internal.Rotatable with Analyzable with Context {
-  override def level: Level = level
-
+class Drone(selfType: EntityType[Drone], level: Level) extends Entity(selfType, level) with MachineHost with internal.Drone with internal.Rotatable with Analyzable with Context {
+  override def getEnvironmentLevel: Level = level
+  
   // Some basic constants.
   val gravity = 0.05f
   // low for slow fall (float down)
@@ -101,12 +102,12 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
 
   // Logic stuff, components, machine and such.
   val info = new DroneData()
-  val machine: api.machine.Machine = if (!world.isClientSide) {
+  val machine: api.machine.Machine = if (!getEnvironmentLevel.isClientSide) {
     val m = Machine.create(this)
     m.node.asInstanceOf[Connector].setLocalBufferSize(0)
     m
   } else null
-  val control: component.Drone = if (!world.isClientSide) new component.Drone(this) else null
+  val control: component.Drone = if (!getEnvironmentLevel.isClientSide) new component.Drone(this) else null
   val components = new ComponentInventory {
     override def host: Drone = Drone.this
 
@@ -171,8 +172,8 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
   override def tier: Int = info.tier
 
   override def player(): Player = {
-    PlayerAgent.updatePositionAndRotation(player_, facing, facing)
-    PlayerAgent.setPlayerInventoryItems(player_)
+    agent.Player.updatePositionAndRotation(player_, facing, facing)
+    agent.Player.setPlayerInventoryItems(player_)
     player_
   }
 
@@ -184,7 +185,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
 
   var ownerUUID: UUID = Settings.get.fakePlayerProfile.getId
 
-  private lazy val player_ = new PlayerAgent(this)
+  private lazy val player_ = new agent.Player(this)
 
   // ----------------------------------------------------------------------- //
   // Forward context stuff to our machine. Interface needed for some components
@@ -197,7 +198,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
   override def isPaused: Boolean = machine.isPaused
 
   override def start(): Boolean = {
-    if (world.isClientSide || machine.isRunning) {
+    if (getEnvironmentLevel.isClientSide || machine.isRunning) {
       return false
     }
     preparePowerUp()
@@ -214,15 +215,18 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
 
   // ----------------------------------------------------------------------- //
 
-  override def getTarget = new Vec3(targetX.floatValue(), targetY.floatValue(), targetZ.floatValue())
+  override def getTarget = new Vector3d(targetX.floatValue(), targetY.floatValue(), targetZ.floatValue())
 
-  override def setTarget(value: Vec3): Unit = {
+  override def setTarget(value: Vector3d): Unit = {
     targetX = value.x.toFloat
     targetY = value.y.toFloat
     targetZ = value.z.toFloat
   }
 
-  override def getVelocity = getDeltaMovement
+  override def getVelocity: Vector3d = {
+    val v3d = getDeltaMovement
+    new Vector3d(v3d.x, v3d.y, v3d.z)
+  }
 
   // ----------------------------------------------------------------------- //
 
@@ -314,7 +318,10 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
     components.connectComponents()
   }
 
-  def isRunning: lang.Boolean = entityData.get(Drone.DataRunning)
+  def isRunning: Boolean = {
+    val value: lang.Boolean = entityData.get(Drone.DataRunning)
+    value: lang.Boolean
+  }
 
   def targetX: lang.Float = entityData.get(Drone.DataTargetX)
 
@@ -376,7 +383,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
   override def tick(): Unit = {
     super.tick()
 
-    if (!world.isClientSide) {
+    if (!getEnvironmentLevel.isClientSide) {
       if (isInWater || isInLava) {
         // We're not water-proof!
         machine.stop()
@@ -386,7 +393,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
       setRunning(machine.isRunning)
 
       val buffer = math.round(machine.node.asInstanceOf[Connector].globalBuffer).toInt
-      if (math.abs(lastEnergyUpdate - buffer) > 1 || world.getGameTime % 200 == 0) {
+      if (math.abs(lastEnergyUpdate - buffer) > 1 || getEnvironmentLevel.getGameTime % 200 == 0) {
         lastEnergyUpdate = buffer
         globalBuffer = buffer
         globalBufferSize = machine.node.asInstanceOf[Connector].globalBufferSize.toInt
@@ -396,7 +403,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
       if (isRunning) {
         // Client side update; occasionally update wing pitch and rotation to
         // make the drones look a bit more dynamic.
-        val rng = world.random
+        val rng = getEnvironmentLevel.random
         nextFlapChange -= 1
         nextAngularVelocityChange -= 1
 
@@ -434,7 +441,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
     xo = getX
     yo = getY
     zo = getZ
-    noPhysics = !level.noCollision(this)
+    noPhysics = !getEnvironmentLevel.noCollision(this)
     if (noPhysics) moveTowardsClosestSpace(getX, (getBoundingBox.minY + getBoundingBox.maxY) / 2, getZ)
 
     if (isRunning) {
@@ -467,7 +474,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
       setDeltaMovement(getDeltaMovement.scale(drag))
     }
     else {
-      val groundDrag = world.getBlock(BlockPosition(this: Entity).offset(Direction.DOWN)).getFriction * drag
+      val groundDrag = getEnvironmentLevel.getBlock(BlockPosition(this: Entity).offset(Direction.DOWN)).getFriction * drag
       setDeltaMovement(getDeltaMovement.multiply(groundDrag, drag * (if (isOnGround) -0.5 else 1), groundDrag))
     }
   }
@@ -475,7 +482,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
   override def skipAttackInteraction(entity: Entity): Boolean = {
     if (isRunning) {
       val direction = new Vec3(entity.getX - getX, entity.getY + entity.getEyeHeight - getY, entity.getZ - getZ).normalize()
-      if (!world.isClientSide) {
+      if (!getEnvironmentLevel.isClientSide) {
         if (Settings.get.inputUsername)
           machine.signal("hit", Double.box(direction.x), Double.box(direction.z), Double.box(direction.y), entity.getName.getString)
         else
@@ -498,19 +505,19 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
     if (!isAlive) return InteractionResult.PASS
     if (player.isCrouching) {
       if (Wrench.isWrench(player.getItemInHand(InteractionHand.MAIN_HAND))) {
-        if(!world.isClientSide) {
+        if(!getEnvironmentLevel.isClientSide) {
           outOfWorld()
         }
       }
-      else if (!world.isClientSide && !machine.isRunning) {
+      else if (!getEnvironmentLevel.isClientSide && !machine.isRunning) {
         start()
       }
     }
     else player match {
-      case srvPlr: ServerPlayer if !world.isClientSide => MenuTypes.openDroneGui(srvPlr, this)
+      case srvPlr: ServerPlayer if !getEnvironmentLevel.isClientSide => MenuTypes.openDroneGui(srvPlr, this)
       case _ =>
     }
-    InteractionResult.sidedSuccess(world.isClientSide)
+    InteractionResult.sidedSuccess(getEnvironmentLevel.isClientSide)
   }
 
   // No step sounds. Except on that one day.
@@ -558,7 +565,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
 
   override def remove(reason: Entity.RemovalReason): Unit = {
     super.remove(reason)
-    if (!world.isClientSide && !isChangingDimension) {
+    if (!getEnvironmentLevel.isClientSide && !isChangingDimension) {
       machine.stop()
       machine.node.remove()
       components.disconnectComponents()
@@ -569,25 +576,25 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
   override def outOfWorld(): Unit = {
     if (!isAlive) return
     super.outOfWorld()
-    if (!world.isClientSide) {
+    if (!getEnvironmentLevel.isClientSide) {
       val stack = api.Items.get(Constants.ItemName.Drone).createItemStack(1)
       info.storedEnergy = control.node.localBuffer.toInt
       info.saveData(stack)
-      val entity = new ItemEntity(world, getX, getY, getZ, stack)
+      val entity = new ItemEntity(getEnvironmentLevel, getX, getY, getZ, stack)
       entity.setPickUpDelay(15)
-      world.addFreshEntity(entity)
+      getEnvironmentLevel.addFreshEntity(entity)
       InventoryUtils.dropAllSlots(BlockPosition(this: Entity), mainInventory)
     }
   }
 
   override def getName: Component = Localization.localizeLater("entity.oc.Drone.name")
 
-  override protected def getAddEntityPacket = NetworkHooks.getEntitySpawningPacket(this)
+  override def getAddEntityPacket = NetworkHooks.getEntitySpawningPacket(this)
 
   override protected def readAdditionalSaveData(nbt: CompoundTag): Unit = {
     info.loadData(nbt.getCompound("info"))
     inventorySize = computeInventorySize()
-    if (!world.isClientSide) {
+    if (!getEnvironmentLevel.isClientSide) {
       machine.loadData(nbt.getCompound("machine"))
       control.loadData(nbt.getCompound("control"))
       components.loadData(nbt.getCompound("components"))
@@ -612,11 +619,11 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
   }
 
   override protected def addAdditionalSaveData(nbt: CompoundTag): Unit = {
-    if (world.isClientSide) return
+    if (getEnvironmentLevel.isClientSide) return
     components.saveComponents()
     info.storedEnergy = globalBuffer.toInt
     nbt.setNewCompoundTag("info", info.saveData)
-    if (!world.isClientSide) {
+    if (!getEnvironmentLevel.isClientSide) {
       nbt.setNewCompoundTag("machine", machine.saveData)
       nbt.setNewCompoundTag("control", control.saveData)
       nbt.setNewCompoundTag("components", components.saveData)

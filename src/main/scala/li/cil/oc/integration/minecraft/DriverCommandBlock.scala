@@ -9,8 +9,8 @@ import li.cil.oc.api.network.ManagedEnvironment
 import li.cil.oc.api.prefab.DriverSidedTileEntity
 import li.cil.oc.integration.ManagedTileEntityEnvironment
 import li.cil.oc.util.ResultWrapper.result
-import net.minecraft.world.block.Block
-import net.minecraft.world.block.Blocks
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos

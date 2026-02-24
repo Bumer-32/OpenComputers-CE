@@ -13,7 +13,7 @@ import li.cil.oc.common.tileentity.traits.RedstoneAware
 import li.cil.oc.integration.util.BundledRedstone
 import li.cil.oc.integration.util.WirelessRedstone
 import li.cil.oc.server.component
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 object DriverRedstoneCard extends Item with HostAware {
   override def worksWith(stack: ItemStack) = isOneOf(stack,
@@ -21,7 +21,7 @@ object DriverRedstoneCard extends Item with HostAware {
     api.Items.get(Constants.ItemName.RedstoneCardTier2))
 
   override def createEnvironment(stack: ItemStack, host: EnvironmentHost) =
-    if (host.world != null && host.world.isClientSide) null
+    if (host.getEnvironmentLevel != null && host.getEnvironmentLevel.isClientSide) null
     else {
       val isAdvanced = tier(stack) == Tier.Two
       val hasBundled = BundledRedstone.isAvailable && isAdvanced

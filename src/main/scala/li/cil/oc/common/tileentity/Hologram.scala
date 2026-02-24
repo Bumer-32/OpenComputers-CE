@@ -1,8 +1,7 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
-import li.cil.oc._
+import li.cil.oc.*
 import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -10,24 +9,26 @@ import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
 import li.cil.oc.api.network.Analyzable
-import li.cil.oc.api.network._
+import li.cil.oc.api.network.*
 import li.cil.oc.common.SaveHandler
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import net.minecraft.world.entity.player.{Player => PlayerEntity}
-import net.minecraft.nbt.{CompoundTag => CompoundNBT}
-import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
-import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
-import net.minecraft.core.Direction
-import net.minecraft.world.phys.{AABB => AxisAlignedBB}
-import net.minecraft.world.phys.{Vec3 => Vector3d}
+import li.cil.oc.server.PacketSender as ServerPacketSender
+import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.AABB
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-import scala.collection.convert.ImplicitConversionsToJava._
+import scala.collection.convert.ImplicitConversionsToJava.*
 import scala.collection.mutable
 
-class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends TileEntity(selfType) with traits.Environment with SidedEnvironment with Analyzable with traits.RotatableTile with traits.Tickable with DeviceInfo {
-  def this(selfType: TileEntityType[_ <: Hologram]) = this(selfType, 0)
+class Hologram(selfType: BlockEntityType[_ <: Hologram], pos: BlockPos, state: BlockState, var tier: Int) 
+  extends BlockEntity(selfType, pos, state) with traits.Environment with SidedEnvironment with Analyzable with traits.RotatableTile with traits.Tickable with DeviceInfo {
+  def this(selfType: BlockEntityType[_ <: Hologram], pos: BlockPos, state: BlockState) = this(selfType, pos, state, 0)
 
   val node = api.Network.newNode(this, Visibility.Network).
     withComponent("hologram").
@@ -59,7 +60,7 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
   var scale = 1.0
 
   // Projection Y position offset - consider adding X,Z later perhaps
-  var translation = new Vector3d(0, 0, 0)
+  var translation = new Vec3(0, 0, 0)
 
   // Relative number of lit columns (for energy cost).
   var litRatio = -1.0
@@ -291,7 +292,7 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
     val ty = math.max(0, math.min(maxTranslation * 2, args.checkDouble(1)))
     val tz = math.max(-maxTranslation, math.min(maxTranslation, args.checkDouble(2)))
 
-    translation = new Vector3d(tx, ty, tz)
+    translation = new Vec3(tx, ty, tz)
 
     ServerPacketSender.sendHologramOffset(this)
     null
@@ -433,7 +434,8 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
 
   // ----------------------------------------------------------------------- //
 
-  override def getViewDistance = scale / Settings.get.hologramMaxScaleByTier.max * Settings.get.hologramRenderDistance
+  //this method removed in 1.18, but this method required by rendering so remove override
+  def getViewDistance = scale / Settings.get.hologramMaxScaleByTier.max * Settings.get.hologramRenderDistance
 
   def getFadeStartDistanceSquared = scale / Settings.get.hologramMaxScaleByTier.max * Settings.get.hologramFadeStartDistance * Settings.get.hologramFadeStartDistance
 
@@ -446,7 +448,7 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
     val sh = width / 16 * scale * Sqrt2
     // overscale to take into account 45 degree rotation
     val sv = height / 16 * scale * Sqrt2
-    new AxisAlignedBB(
+    new AABB(
       cx + (-0.5 + translation.x) * sh,
       cy + translation.y * sv,
       cz + (-0.5 + translation.z) * sh,
@@ -476,7 +478,7 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
   private final val RotationSpeedZTag = Settings.namespace + "rotationSpeedZ"
   private final val HasPowerTag = Settings.namespace + "hasPower"
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     tier = nbt.getByte(TierTag) max 0 min 1
     super.loadForServer(nbt)
     val tag = SaveHandler.loadNBT(nbt, dataPath)
@@ -486,7 +488,7 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
     val tx = nbt.getDouble(OffsetXTag)
     val ty = nbt.getDouble(OffsetYTag)
     val tz = nbt.getDouble(OffsetZTag)
-    translation = new Vector3d(tx, ty, tz)
+    translation = new Vec3(tx, ty, tz)
     rotationAngle = nbt.getFloat(RotationAngleTag)
     rotationX = nbt.getFloat(RotationXTag)
     rotationY = nbt.getFloat(RotationYTag)
@@ -497,7 +499,7 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
     rotationSpeedZ = nbt.getFloat(RotationSpeedZTag)
   }
 
-  override def saveForServer(nbt: CompoundNBT) = this.synchronized {
+  override def saveForServer(nbt: CompoundTag) = this.synchronized {
     nbt.putByte(TierTag, tier.toByte)
     super.saveForServer(nbt)
     SaveHandler.scheduleSave(getLevel, x, z, nbt, dataPath, tag => {
@@ -519,7 +521,7 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT): Unit = {
+  override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     nbt.getIntArray(VolumeTag).copyToArray(volume)
     nbt.getIntArray(ColorsTag).copyToArray(colors)
@@ -528,7 +530,7 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
     val tx = nbt.getDouble(OffsetXTag)
     val ty = nbt.getDouble(OffsetYTag)
     val tz = nbt.getDouble(OffsetZTag)
-    translation = new Vector3d(tx, ty, tz)
+    translation = new Vec3(tx, ty, tz)
     rotationAngle = nbt.getFloat(RotationAngleTag)
     rotationX = nbt.getFloat(RotationXTag)
     rotationY = nbt.getFloat(RotationYTag)
@@ -539,7 +541,7 @@ class Hologram(selfType: TileEntityType[_ <: Hologram], var tier: Int) extends T
     rotationSpeedZ = nbt.getFloat(RotationSpeedZTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT): Unit = {
+  override def saveForClient(nbt: CompoundTag): Unit = {
     super.saveForClient(nbt)
     nbt.putIntArray(VolumeTag, volume)
     nbt.putIntArray(ColorsTag, colors)

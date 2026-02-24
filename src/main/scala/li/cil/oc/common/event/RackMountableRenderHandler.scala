@@ -60,7 +60,7 @@ object RackMountableRenderHandler {
         }
       }
 
-      if (System.currentTimeMillis() - e.data.getLong("lastAccess") < 400 && e.rack.world.random.nextDouble() > 0.1) {
+      if (System.currentTimeMillis() - e.data.getLong("lastAccess") < 400 && e.rack.getEnvironmentLevel.random.nextDouble() > 0.1) {
         renderOverlayFromAtlas(e, Textures.Block.RackDiskDriveActivity)
       }
     }
@@ -72,7 +72,7 @@ object RackMountableRenderHandler {
       if (e.data.getBoolean("hasErrored") && RenderUtil.shouldShowErrorLight(e.rack.hashCode * (e.mountable + 1))) {
         renderOverlayFromAtlas(e, Textures.Block.RackServerError)
       }
-      if (System.currentTimeMillis() - e.data.getLong("lastFileSystemAccess") < 400 && e.rack.world.random.nextDouble() > 0.1) {
+      if (System.currentTimeMillis() - e.data.getLong("lastFileSystemAccess") < 400 && e.rack.getEnvironmentLevel.random.nextDouble() > 0.1) {
         renderOverlayFromAtlas(e, Textures.Block.RackServerActivity)
       }
       if ((System.currentTimeMillis() - e.data.getLong("lastNetworkActivity") < 300 && System.currentTimeMillis() % 200 > 100) && e.data.getBoolean("isRunning")) {

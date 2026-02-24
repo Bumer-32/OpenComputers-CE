@@ -9,7 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 
 public final class PropertyCableConnection {
-    public static enum Shape implements StringRepresentable {
+    public enum Shape implements StringRepresentable {
         NONE("none"),
         CABLE("cable"),
         DEVICE("device");

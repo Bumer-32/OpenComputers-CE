@@ -2,11 +2,13 @@ package li.cil.oc.common.tileentity
 
 import li.cil.oc.api.network.Node
 import li.cil.oc.server.component
-import net.minecraft.nbt.{CompoundTag => CompoundNBT}
-import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
-import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
+import net.minecraft.core.BlockPos
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.world.level.block.state.BlockState
 
-class MotionSensor(selfType: TileEntityType[_ <: MotionSensor]) extends TileEntity(selfType) with traits.Environment with traits.Tickable {
+class MotionSensor(selfType: BlockEntityType[_ <: MotionSensor], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.Tickable {
   val motionSensor = new component.MotionSensor(this)
 
   def node: Node = motionSensor.node
@@ -18,12 +20,12 @@ class MotionSensor(selfType: TileEntityType[_ <: MotionSensor]) extends TileEnti
     }
   }
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
     motionSensor.loadData(nbt)
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
     motionSensor.saveData(nbt)
   }

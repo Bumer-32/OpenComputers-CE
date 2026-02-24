@@ -14,6 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import scala.collection.mutable
 import net.minecraft.nbt.Tag
 import java.util.function.Consumer
+import scala.jdk.CollectionConverters._
 
 trait Hub extends traits.Environment with SidedEnvironment with Tickable {
   override def node: Node = null

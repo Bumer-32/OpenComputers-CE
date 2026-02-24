@@ -7,10 +7,10 @@ import li.cil.oc.api.machine.Context
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.ResultWrapper.result
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraftforge.items.IItemHandler
 
-trait ItemInventoryControl extends InventoryAware {
+trait ItemContainerControl extends ContainerAware {
   @Callback(doc = "function(slot:number):number -- The size of an item inventory in the specified slot.")
   def getItemInventorySize(context: Context, args: Arguments): Array[AnyRef] = {
     withItemInventory(args.checkSlot(inventory, 0), itemInventory => result(itemInventory.getSlots))

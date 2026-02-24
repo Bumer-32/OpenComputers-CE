@@ -16,13 +16,12 @@ import li.cil.oc.api.network.*
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.common.event.ChunkloaderUpgradeHandler
-import net.minecraft.entity.Entity
 import net.minecraft.world.level.ChunkPos
-import net.minecraft.world.server.ServerLevel
 
 import scala.collection.convert.ImplicitConversionsToJava.*
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
+import net.minecraft.world.entity.Entity
 
 class UpgradeChunkloader(val host: EnvironmentHost) extends AbstractManagedEnvironment with DeviceInfo {
   override val node = api.Network.newNode(this, Visibility.Network).
@@ -45,9 +44,9 @@ class UpgradeChunkloader(val host: EnvironmentHost) extends AbstractManagedEnvir
 
   override def update(): Unit = {
     super.update()
-    if (host.world.getGameTime % Settings.get.tickFrequency == 0 && ticket.isDefined) {
+    if (host.getEnvironmentLevel.getGameTime % Settings.get.tickFrequency == 0 && ticket.isDefined) {
       if (!node.tryChangeBuffer(-Settings.get.chunkloaderCost * Settings.get.tickFrequency)) {
-        host.world match {
+        host.getEnvironmentLevel match {
           case world: ServerLevel => {
             ticket.foreach(pos => ChunkloaderUpgradeHandler.releaseTicket(world, node.address, pos))
           }
@@ -71,12 +70,12 @@ class UpgradeChunkloader(val host: EnvironmentHost) extends AbstractManagedEnvir
       val restoredTicket = ChunkloaderUpgradeHandler.claimTicket(node.address)
       if (restoredTicket.isDefined) {
         if (!isDimensionAllowed) {
-          host.world match {
+          host.getEnvironmentLevel match {
             case world: ServerLevel => ChunkloaderUpgradeHandler.releaseTicket(world, node.address, restoredTicket.get)
           }
-          OpenComputers.log.info(s"Releasing chunk loader ticket at (${host.xPosition()}, ${host.yPosition()}, ${host.zPosition()}) in blacklisted dimension ${host.world().dimension}.")
+          OpenComputers.log.info(s"Releasing chunk loader ticket at (${host.xPosition()}, ${host.yPosition()}, ${host.zPosition()}) in blacklisted dimension ${host.getEnvironmentLevel().dimension}.")
         } else {
-          OpenComputers.log.info(s"Reclaiming chunk loader ticket at (${host.xPosition()}, ${host.yPosition()}, ${host.zPosition()}) in dimension ${host.world().dimension}.")
+          OpenComputers.log.info(s"Reclaiming chunk loader ticket at (${host.xPosition()}, ${host.yPosition()}, ${host.zPosition()}) in dimension ${host.getEnvironmentLevel().dimension}.")
           ticket = restoredTicket
           ChunkloaderUpgradeHandler.updateLoadedChunk(this)
         }
@@ -90,7 +89,7 @@ class UpgradeChunkloader(val host: EnvironmentHost) extends AbstractManagedEnvir
   override def onDisconnect(node: Node): Unit = {
     super.onDisconnect(node)
     if (node == this.node) {
-      ticket.foreach(pos => host.world match {
+      ticket.foreach(pos => host.getEnvironmentLevel match {
         case world: ServerLevel => ChunkloaderUpgradeHandler.releaseTicket(world, node.address, pos)
       })
       ticket = None
@@ -113,7 +112,7 @@ class UpgradeChunkloader(val host: EnvironmentHost) extends AbstractManagedEnvir
       ticket.isDefined
     }
     else if (!enabled && ticket.isDefined) {
-      ticket.foreach(pos => host.world match {
+      ticket.foreach(pos => host.getEnvironmentLevel match {
         case world: ServerLevel => ChunkloaderUpgradeHandler.releaseTicket(world, node.address, pos)
       })
       ticket = None
@@ -125,7 +124,7 @@ class UpgradeChunkloader(val host: EnvironmentHost) extends AbstractManagedEnvir
 
   @Deprecated
   private def isDimensionAllowed: Boolean = {
-    val id: Int = host.world().dimension match {
+    val id: Int = host.getEnvironmentLevel().dimension match {
       case Level.OVERWORLD => 0
       case Level.NETHER => -1
       case Level.END => 1

@@ -1,7 +1,6 @@
 package li.cil.oc.server.component
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -14,16 +13,17 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.common.tileentity
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
+import li.cil.oc.server.PacketSender as ServerPacketSender
+import li.cil.oc.server.network.{Component, Connector}
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedArguments._
+import li.cil.oc.util.ExtendedArguments.*
 
-import scala.collection.convert.ImplicitConversionsToJava._
+import scala.collection.convert.ImplicitConversionsToJava.*
 import scala.language.existentials
 
 object Transposer {
 
-  abstract class Common extends AbstractManagedEnvironment with traits.WorldInventoryAnalytics with traits.WorldTankAnalytics with traits.InventoryTransfer with DeviceInfo {
+  abstract class Common extends AbstractManagedEnvironment with traits.LevelInventoryAnalytics with traits.LevelTankAnalytics with traits.InventoryTransfer with DeviceInfo {
     override val node = api.Network.newNode(this, Visibility.Network).
       withComponent("transposer").
       withConnector().
@@ -42,7 +42,7 @@ object Transposer {
       args.checkSideAny(n)
 
     override def onTransferContents(): Option[String] = {
-      if (node.tryChangeBuffer(-Settings.get.transposerCost)) None
+      if (node.asInstanceOf[Connector].tryChangeBuffer(-Settings.get.transposerCost)) None
       else Option("not enough energy")
     }
   }
@@ -58,7 +58,7 @@ object Transposer {
   }
 
   class Upgrade(val host: EnvironmentHost) extends Common {
-    node.setVisibility(Visibility.Neighbors)
+    node.asInstanceOf[Component].setVisibility(Visibility.Neighbors)
 
     override def position = BlockPosition(host)
   }

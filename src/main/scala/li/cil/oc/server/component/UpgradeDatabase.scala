@@ -18,7 +18,7 @@ import li.cil.oc.util.DatabaseAccess
 import li.cil.oc.util.ExtendedArguments.*
 import li.cil.oc.util.ItemUtils
 import li.cil.oc.util.StackOption
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.Container
 
 import scala.collection.convert.ImplicitConversionsToJava.*

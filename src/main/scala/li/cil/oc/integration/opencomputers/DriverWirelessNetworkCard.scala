@@ -8,7 +8,7 @@ import li.cil.oc.common
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.server.component
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 object DriverWirelessNetworkCard extends Item {
   override def worksWith(stack: ItemStack) = isOneOf(stack,
@@ -16,7 +16,7 @@ object DriverWirelessNetworkCard extends Item {
     api.Items.get(Constants.ItemName.WirelessNetworkCardTier2))
     
   override def createEnvironment(stack: ItemStack, host: EnvironmentHost) =
-    if (host.world != null && host.world.isClientSide) null
+    if (host.getEnvironmentLevel != null && host.getEnvironmentLevel.isClientSide) null
     else tier(stack) match {
       case Tier.One => new component.WirelessNetworkCard.Tier1(host)
       case Tier.Two => new component.WirelessNetworkCard.Tier2(host)

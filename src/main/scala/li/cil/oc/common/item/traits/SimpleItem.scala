@@ -5,7 +5,7 @@ import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.event.RobotRenderEvent.MountPoint
 import li.cil.oc.api.internal.Robot
-import li.cil.oc.client.renderer.item.UpgradeRenderer
+import li.cil.oc.client.renderer.item.ItemUpgradeRenderer
 import li.cil.oc.common.tileentity
 import li.cil.oc.integration.opencomputers.Item as OpenComputersItem
 import li.cil.oc.util.BlockPosition
@@ -138,7 +138,7 @@ trait SimpleItem extends Item with api.driver.item.UpgradeRenderer {
 
   // ----------------------------------------------------------------------- //
 
-  override def computePreferredMountPoint(stack: ItemStack, robot: Robot, availableMountPoints: util.Set[String]): String = UpgradeRenderer.preferredMountPoint(stack, availableMountPoints)
+  override def computePreferredMountPoint(stack: ItemStack, robot: Robot, availableMountPoints: util.Set[String]): String = ItemUpgradeRenderer.preferredMountPoint(stack, availableMountPoints)
 
-  override def render(matrix: PoseStack, buffer: MultiBufferSource, light: Int, stack: ItemStack, mountPoint: MountPoint, robot: Robot, pt: Float): Unit = UpgradeRenderer.render(matrix, buffer, light, stack, mountPoint)
+  override def render(matrix: PoseStack, buffer: MultiBufferSource, light: Int, stack: ItemStack, mountPoint: MountPoint, robot: Robot, pt: Float): Unit = ItemUpgradeRenderer.render(matrix, buffer, light, stack, mountPoint)
 }

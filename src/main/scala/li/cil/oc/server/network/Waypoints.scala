@@ -45,11 +45,11 @@ object Waypoints {
     }
   }
 
-  def add(waypoint: Waypoint): Unit = if (!waypoint.isRemoved && waypoint.world != null && !waypoint.world.isClientSide) {
+  def add(waypoint: Waypoint): Unit = if (!waypoint.isRemoved && waypoint.getEnvironmentLevel != null && !waypoint.getEnvironmentLevel.isClientSide) {
     dimensions.getOrElseUpdate(dimension(waypoint), new RTree[Waypoint](Settings.get.rTreeMaxEntries)((waypoint) => (waypoint.x + 0.5, waypoint.y + 0.5, waypoint.z + 0.5))).add(waypoint)
   }
 
-  def remove(waypoint: Waypoint): Unit = if (waypoint.world != null && !waypoint.world.isClientSide) {
+  def remove(waypoint: Waypoint): Unit = if (waypoint.getEnvironmentLevel != null && !waypoint.getEnvironmentLevel.isClientSide) {
     dimensions.get(dimension(waypoint)) match {
       case Some(set) => set.remove(waypoint)
       case _ =>
@@ -65,5 +65,5 @@ object Waypoints {
     }
   }
 
-  private def dimension(waypoint: Waypoint) = waypoint.world.dimension
+  private def dimension(waypoint: Waypoint) = waypoint.getEnvironmentLevel.dimension
 }

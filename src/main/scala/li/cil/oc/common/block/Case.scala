@@ -22,7 +22,7 @@ import java.util
 import scala.collection.convert.ImplicitConversionsToScala.*
 
 class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI {
-  protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]) =
+  protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]): Unit =
     builder.add(PropertyRotatable.Facing, property.PropertyRunning.Running)
 
   // ----------------------------------------------------------------------- //
@@ -49,7 +49,7 @@ class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with t
     case _ =>
   }
 
-  override def newBlockEntity(world: IBlockReader) = new tileentity.Case(tileentity.TileEntityTypes.CASE, tier)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Case(tileentity.TileEntityTypes.CASE, pos, state, tier)
 
   // ----------------------------------------------------------------------- //
 
@@ -64,7 +64,7 @@ class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with t
     else super.localOnBlockActivated(world, pos, player, hand, heldItem, side, hitX, hitY, hitZ)
   }
 
-  override def removedByPlayer(state: BlockState,
+  override def onDestroyedByPlayer(state: BlockState,
                                world: World,
                                pos: BlockPos,
                                player: PlayerEntity,

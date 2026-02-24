@@ -32,7 +32,7 @@ object RobotCommonHandler {
   def onRobotMove(e: RobotMoveEvent.Pre): Unit = {
     if (Settings.get.limitFlightHeight >= 0) e.agent match {
       case robot: Robot =>
-        val world = robot.world
+        val world = robot.getEnvironmentLevel
         var maxFlyingHeight = Settings.get.limitFlightHeight
 
         (0 until robot.equipmentInventory.getContainerSize).

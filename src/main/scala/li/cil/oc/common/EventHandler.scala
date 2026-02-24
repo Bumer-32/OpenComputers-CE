@@ -1,5 +1,10 @@
 package li.cil.oc.common
 
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.chunk.{ChunkAccess, LevelChunk}
+import net.minecraft.world.phys.AABB
+
 import java.util.Calendar
 
 //import appeng.api.networking.IGridBlock
@@ -54,10 +59,10 @@ import net.minecraftforge.event.world.BlockEvent
 import net.minecraftforge.event.world.ChunkEvent
 import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.common.ObfuscationReflectionHelper
 import net.minecraftforge.server.ServerLifecycleHooks
 
 import scala.collection.convert.ImplicitConversionsToScala._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -204,7 +209,7 @@ object EventHandler {
     val invalid = mutable.ArrayBuffer.empty[Robot]
     runningRobots.foreach(robot => {
       if (robot.isRemoved) invalid += robot
-      else if (robot.world != null) robot.machine.update()
+      else if (robot.getEnvironmentLevel != null) robot.machine.update()
     })
     runningRobots --= invalid
   }
@@ -213,7 +218,7 @@ object EventHandler {
     val closed = mutable.ArrayBuffer.empty[Machine]
     machines.foreach(machine => if (machine.tryClose()) {
       closed += machine
-      if (machine.host.world == null || !machine.host.world.blockExists(BlockPosition(machine.host))) {
+      if (machine.host.getEnvironmentLevel == null || !machine.host.getEnvironmentLevel.blockExists(BlockPosition(machine.host))) {
         if (machine.node != null) machine.node.remove()
       }
     })
@@ -221,7 +226,7 @@ object EventHandler {
   }
 
   @SubscribeEvent
-  def onClientTick(e: ClientTickEvent) = if (e.phase == TickEvent.Phase.START) {
+  def onClientTick(e: ClientTickEvent): Unit = if (e.phase == TickEvent.Phase.START) {
     pendingClient.synchronized {
       val adds = pendingClient.toArray
       pendingClient.clear()
@@ -318,15 +323,15 @@ object EventHandler {
     }
   }
 
-  lazy val drone = api.Items.get(Constants.ItemName.Drone)
-  lazy val eeprom = api.Items.get(Constants.ItemName.EEPROM)
-  lazy val mcu = api.Items.get(Constants.BlockName.Microcontroller)
-  lazy val navigationUpgrade = api.Items.get(Constants.ItemName.NavigationUpgrade)
-  lazy val robot = api.Items.get(Constants.BlockName.Robot)
-  lazy val tablet = api.Items.get(Constants.ItemName.Tablet)
+  lazy val drone: ItemInfo = api.Items.get(Constants.ItemName.Drone)
+  lazy val eeprom: ItemInfo = api.Items.get(Constants.ItemName.EEPROM)
+  lazy val mcu: ItemInfo = api.Items.get(Constants.BlockName.Microcontroller)
+  lazy val navigationUpgrade: ItemInfo = api.Items.get(Constants.ItemName.NavigationUpgrade)
+  lazy val robot: ItemInfo = api.Items.get(Constants.BlockName.Robot)
+  lazy val tablet: ItemInfo = api.Items.get(Constants.ItemName.Tablet)
 
   @SubscribeEvent
-  def onCrafting(e: ItemCraftedEvent) = {
+  def onCrafting(e: ItemCraftedEvent): Unit = {
     var didRecraft = false
 
     didRecraft = recraft(e, navigationUpgrade, stack => {
@@ -399,7 +404,7 @@ object EventHandler {
       (month == Calendar.DECEMBER && dayOfMonth == 14)
   }
 
-  def isItTime = {
+  def isItTime: Boolean = {
     val now = Calendar.getInstance()
     val month = now.get(Calendar.MONTH)
     val dayOfMonth = now.get(Calendar.DAY_OF_MONTH)
@@ -424,55 +429,77 @@ object EventHandler {
     world.getChunkSource.chunkMap.getChunks.asScala
   }
 
-  catch {
-    case e: Throwable =>
-      throw new Error("Could not access server chunk list", e)
-  }
-
   // This is called from the ServerThread *and* the ClientShutdownThread, which
   // can potentially happen at the same time... for whatever reason. So let's
   // synchronize what we're doing here to avoid race conditions (e.g. when
   // disposing networks, where this actually triggered an assert).
   @SubscribeEvent
   def onWorldUnload(e: WorldEvent.Unload): Unit = this.synchronized {
-    if (!e.getWorld.isClientSide) {
-      val world = e.getWorld.asInstanceOf[ServerWorld]
-      world.blockEntityList.collect {
-        case te: tileentity.traits.BlockEntity => te.dispose()
-      }
+    val level = e.getWorld
 
-      getChunks(world).foreach(holder => {
+    if (!level.isClientSide) {
+      val serverLevel = level.asInstanceOf[ServerLevel]
+
+      val chunkMap = serverLevel.getChunkSource.chunkMap
+      chunkMap.getChunks.asScala.foreach { holder =>
         val chunk = holder.getTickingChunk
-        if (chunk != null) chunk.getEntitySections.foreach {
-          _.iterator.collect {
-            case host: MachineHost => host.machine.stop()
+        if (chunk != null) {
+          chunk.getBlockEntities.values().asScala.foreach {
+            case te: tileentity.traits.BlockEntity => te.dispose()
+            case _ =>
           }
         }
-      })
+      }
+
+      serverLevel.getAllEntities.asScala.foreach {
+        case host: MachineHost => host.machine.stop()
+        case _ =>
+      }
 
       Callbacks.clear()
-    }
-    else {
+    } else {
       TerminalServer.loaded.clear()
     }
   }
 
   @SubscribeEvent
   def onChunkUnloaded(e: ChunkEvent.Unload): Unit = {
-    if (!e.getWorld.isClientSide) e.getChunk match {
-      case chunk: Chunk => {
-        chunk.getEntitySections.foreach(_.collect {
-          case host: MachineHost => host.machine match {
-            case machine: Machine => scheduleClose(machine)
-            case _ => // Dafuq?
+    val levelAccessor = e.getWorld
+
+    if (!levelAccessor.isClientSide && levelAccessor.isInstanceOf[Level]) {
+      val level = levelAccessor.asInstanceOf[Level]
+
+      e.getChunk match {
+        case chunk: LevelChunk =>
+          chunk.getBlockEntities.values().asScala.foreach {
+            case host: MachineHost => host.machine match {
+              case machine: Machine => scheduleClose(machine)
+              case _ =>
+            }
+            case rack: Rack =>
+              (0 until rack.getContainerSize)
+                .map(rack.getMountable)
+                .foreach {
+                  case server: Server if server.machine != null => server.machine.stop()
+                  case _ =>
+                }
+            case _ =>
           }
-          case rack: Rack =>
-            (0 until rack.getContainerSize).
-              map(rack.getMountable).
-              collect { case server: Server if server.machine != null => server.machine.stop() }
-        })
+          val chunkPos = chunk.getPos
+          val aabb = new AABB(
+            chunkPos.getMinBlockX, level.getMinBuildHeight, chunkPos.getMinBlockZ,
+            chunkPos.getMaxBlockX, level.getMaxBuildHeight, chunkPos.getMaxBlockZ
+          )
+          level.getEntitiesOfClass(classOf[Entity], aabb).asScala.foreach {
+            case host: MachineHost => host.machine match {
+              case machine: Machine => scheduleClose(machine)
+              case _ =>
+            }
+            case _ =>
+          }
+
+        case _ =>
       }
-      case _ =>
     }
   }
 }

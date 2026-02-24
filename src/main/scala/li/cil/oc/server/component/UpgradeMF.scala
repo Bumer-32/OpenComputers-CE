@@ -17,12 +17,12 @@ import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.driver.DriverBlock
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
-import net.minecraft.util.math.vector.Vector3d
 
 import scala.collection.convert.ImplicitConversionsToJava._
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.phys.Vec3
 
 /**
   * Mostly stolen from {@link li.cil.oc.common.tileentity.Adapter}
@@ -49,7 +49,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
 
   override def getDeviceInfo: util.Map[String, String] = deviceInfo
 
-  private def otherNode(tile: TileEntity, f: (Node) => Unit): Unit = {
+  private def otherNode(tile: BlockEntity, f: (Node) => Unit): Unit = {
     network.Network.getNetworkNode(tile, dir) match {
       case Some(otherNode) => f(otherNode)
       case _ => // Nothing to do here
@@ -57,12 +57,12 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
   }
 
   private def updateBoundState(): Unit = {
-    if (node != null && node.network != null && coord.world.exists(_.dimension == host.world.dimension)
-      && coord.toVec3.distanceTo(new Vector3d(host.xPosition, host.yPosition, host.zPosition)) <= Settings.get.mfuRange) {
-      host.world.getBlockEntity(coord) match {
-        case env: TileEntity with api.network.Environment =>
+    if (node != null && node.network != null && coord.world.exists(_.dimension == host.getEnvironmentLevel.dimension)
+      && coord.toVec3.distanceTo(new Vec3(host.xPosition, host.yPosition, host.zPosition)) <= Settings.get.mfuRange) {
+      host.getEnvironmentLevel.getBlockEntity(coord) match {
+        case env: BlockEntity with api.network.Environment =>
           otherEnv match {
-            case Some(environment: TileEntity) =>
+            case Some(environment: BlockEntity) =>
               otherNode(environment, node.disconnect)
               otherEnv = None
             case _ => // Nothing to do here.
@@ -81,7 +81,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
         case _ =>
           // Remove any environment that might have been there.
           otherEnv match {
-            case Some(environment: TileEntity) =>
+            case Some(environment: BlockEntity) =>
               otherNode(environment, node.disconnect)
               otherEnv = None
             case _ => // Nothing to do here.
@@ -101,7 +101,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
                     val environment = newDriver.createEnvironment(world, coord.toBlockPos, dir)
                     if (environment != null) {
                       otherDrv = Some((environment, newDriver))
-                      blockData = Some(new BlockData(environment.getClass.getName, new CompoundNBT()))
+                      blockData = Some(new BlockData(environment.getClass.getName, new CompoundTag()))
                       node.connect(environment.node)
                     }
                   } // else: the more things change, the more they stay the same.
@@ -115,7 +115,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
                         environment.loadData(data.data)
                       case _ =>
                     }
-                    blockData = Some(new BlockData(environment.getClass.getName, new CompoundNBT()))
+                    blockData = Some(new BlockData(environment.getClass.getName, new CompoundTag()))
                     node.connect(environment.node)
                   }
               }
@@ -135,7 +135,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
 
   private def disconnect(): Unit = {
     otherEnv match {
-      case Some(environment: TileEntity) =>
+      case Some(environment: BlockEntity) =>
         otherNode(environment, node.disconnect)
         otherEnv = None
       case _ => // Nothing to do here.
@@ -158,9 +158,9 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
       case Some((env, drv)) if env.canUpdate => env.update()
       case _ => // No driver
     }
-    if (host.world.getGameTime % Settings.get.tickFrequency == 0) {
+    if (host.getEnvironmentLevel.getGameTime % Settings.get.tickFrequency == 0) {
       if (!node.tryChangeBuffer(-Settings.get.mfuCost * Settings.get.tickFrequency
-        * coord.toVec3.distanceTo(new Vector3d(host.xPosition, host.yPosition, host.zPosition)))) {
+        * coord.toVec3.distanceTo(new Vec3(host.xPosition, host.yPosition, host.zPosition)))) {
         disconnect()
       }
     }
@@ -179,7 +179,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
   override def onDisconnect(node: Node): Unit = {
     super.onDisconnect(node)
     otherEnv match {
-      case Some(env: TileEntity) => otherNode(env, (otherNode) => if (node == otherNode) otherEnv = None)
+      case Some(env: BlockEntity) => otherNode(env, (otherNode) => if (node == otherNode) otherEnv = None)
       case _ => // No environment
     }
     otherDrv match {
@@ -191,10 +191,10 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
     }
   }
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     super.loadData(nbt)
     Option(nbt.getCompound(Settings.namespace + "adapter.block")) match {
-      case Some(blockNbt: CompoundNBT) =>
+      case Some(blockNbt: CompoundTag) =>
         if (blockNbt.contains("name") && blockNbt.contains("data")) {
           blockData = Some(new BlockData(blockNbt.getString("name"), blockNbt.getCompound("data")))
         }
@@ -202,9 +202,9 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
     }
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     super.saveData(nbt)
-    val blockNbt = new CompoundNBT()
+    val blockNbt = new CompoundTag()
     blockData.foreach({ data =>
       otherDrv.foreach(_._1.saveData(data.data))
       blockNbt.putString("name", data.name)
@@ -215,6 +215,6 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
 
   // ----------------------------------------------------------------------- //
 
-  private class BlockData(val name: String, val data: CompoundNBT)
+  private class BlockData(val name: String, val data: CompoundTag)
 
 }

@@ -5,26 +5,27 @@ import li.cil.oc.api.network
 import li.cil.oc.api.network.Connector
 import li.cil.oc.api.network.SidedEnvironment
 import li.cil.oc.common.EventHandler
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.util.ExtendedNBT.*
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
+import net.minecraft.world.level.Level
 import net.minecraftforge.client.model.data.IModelData
 import net.minecraftforge.client.model.data.ModelProperty
 
 trait Environment extends BlockEntity with network.Environment with network.EnvironmentHost with IModelData {
   protected var isChangeScheduled = false
 
-  override def world = getLevel
+  override def getEnvironmentLevel: Level = getLevel
 
-  override def xPosition = x + 0.5
+  override def xPosition: Double = x + 0.5
 
-  override def yPosition = y + 0.5
+  override def yPosition: Double = y + 0.5
 
-  override def zPosition = z + 0.5
+  override def zPosition: Double = z + 0.5
 
-  override def markChanged() = if (this.isInstanceOf[Tickable]) isChangeScheduled = true else getLevel.blockEntityChanged(getBlockPos, this)
+  override def markChanged(): Unit = if (this.isInstanceOf[Tickable]) isChangeScheduled = true else this.setChanged()
 
-  protected def isConnected = node != null && node.address != null && node.network != null
+  protected def isConnected: Boolean = node != null && node.address != null && node.network != null
 
   // ----------------------------------------------------------------------- //
 
@@ -38,7 +39,7 @@ trait Environment extends BlockEntity with network.Environment with network.Envi
   override def updateEntity(): Unit = {
     super.updateEntity()
     if (isChangeScheduled) {
-      getLevel.blockEntityChanged(getBlockPos, this)
+      this.setChanged()
       isChangeScheduled = false
     }
   }

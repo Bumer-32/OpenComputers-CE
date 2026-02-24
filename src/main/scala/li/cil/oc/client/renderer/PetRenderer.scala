@@ -51,7 +51,7 @@ object PetRenderer {
   private var rendering: Option[(Double, Double, Double)] = None
 
   @SubscribeEvent
-  def onPlayerRender(e: RenderPlayerEvent.Pre) = {
+  def onPlayerRender(e: RenderPlayerEvent.Pre): Unit = {
     val uuid = e.getPlayer.getUUID.toString
     if (hidden.contains(uuid) || !entitledPlayers.contains(uuid)) return
     rendering = Some(entitledPlayers(uuid))
@@ -59,27 +59,27 @@ object PetRenderer {
     val worldTime = e.getPlayer.level.getGameTime
     val timeJitter = e.getPlayer.hashCode ^ 0xFF
     val offset = timeJitter + worldTime / 20.0
-    val hover = (math.sin(timeJitter + (worldTime + e.getPartialRenderTick) / 20.0) * 0.03).toFloat
+    val hover = (math.sin(timeJitter + (worldTime + e.getPartialTick) / 20.0) * 0.03).toFloat
 
     val location = petLocations.get(e.getPlayer, new Callable[PetLocation] {
       override def call() = new PetLocation(e.getPlayer)
     })
 
-    val stack = e.getMatrixStack
+    val stack = e.getPoseStack
     stack.pushPose()
     val self = Minecraft.getInstance.player
     val other = e.getPlayer
-    val px = other.xOld + (other.getX - other.xOld) * e.getPartialRenderTick
-    val py = other.yOld + (other.getY - other.yOld) * e.getPartialRenderTick + other.getEyeHeight(other.getPose)
-    val pz = other.zOld + (other.getZ - other.zOld) * e.getPartialRenderTick
+    val px = other.xOld + (other.getX - other.xOld) * e.getPartialTick
+    val py = other.yOld + (other.getY - other.yOld) * e.getPartialTick + other.getEyeHeight(other.getPose)
+    val pz = other.zOld + (other.getZ - other.zOld) * e.getPartialTick
     stack.translate(px - self.getX, py - self.getY, pz - self.getZ)
 
-    location.applyInterpolatedTransformations(stack, e.getPartialRenderTick)
+    location.applyInterpolatedTransformations(stack, e.getPartialTick)
 
     stack.scale(0.3f, 0.3f, 0.3f)
     stack.translate(0, hover, 0)
 
-    RobotRenderer.renderChassis(stack, e.getBuffers, e.getLight, offset, isRunningOverride = true)
+    RobotRenderer.renderChassis(stack, e.getMultiBufferSource, e.getPackedLight, offset, isRunningOverride = true)
 
     stack.popPose()
 
@@ -101,7 +101,7 @@ object PetRenderer {
     var x = 0.0
     var y = 0.0
     var z = 0.0
-    var yaw = owner.yRot
+    var yaw = owner.getYRot
 
     var lastX = x
     var lastY = y
@@ -112,7 +112,7 @@ object PetRenderer {
       val dx = owner.xOld - owner.getX
       val dy = owner.yOld - owner.getY
       val dz = owner.zOld - owner.getZ
-      val dYaw = owner.yRot - yaw
+      val dYaw = owner.getYRot - yaw
       lastX = x
       lastY = y
       lastZ = z
@@ -137,7 +137,7 @@ object PetRenderer {
         stack.mulPose(Vector3f.YP.rotationDegrees(-iYaw))
       }
       else {
-        stack.mulPose(Vector3f.YP.rotationDegrees(-owner.yRot))
+        stack.mulPose(Vector3f.YP.rotationDegrees(-owner.getYRot))
       }
       stack.translate(0.3, -0.1, -0.2)
     }

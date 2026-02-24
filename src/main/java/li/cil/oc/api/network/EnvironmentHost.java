@@ -19,7 +19,7 @@ public interface EnvironmentHost {
     /**
      * The world the container lives in.
      */
-    Level world();
+    Level getEnvironmentLevel();
 
     /**
      * The container's X position in the world.

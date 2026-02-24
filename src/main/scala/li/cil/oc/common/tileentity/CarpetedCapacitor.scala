@@ -1,22 +1,24 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
 import li.cil.oc.Settings
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.entity.animal.{Ocelot => OcelotEntity}
-import net.minecraft.world.entity.animal.{Sheep => SheepEntity}
-import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
+import net.minecraft.world.entity.animal.Ocelot
+import net.minecraft.world.entity.animal.Sheep
+import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.damagesource.DamageSource
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.state.BlockState
 
-import scala.collection.convert.ImplicitConversionsToJava._
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToScala.*
 
-class CarpetedCapacitor(selfType: TileEntityType[_ <: CarpetedCapacitor]) extends Capacitor(selfType) with traits.Tickable {
+class CarpetedCapacitor(selfType: BlockEntityType[_ <: CarpetedCapacitor], pos: BlockPos, state: BlockState) 
+  extends Capacitor(selfType, pos, state) with traits.Tickable {
   private final lazy val deviceInfo = Map(
     DeviceAttribute.Class -> DeviceClass.Power,
     DeviceAttribute.Description -> "Battery",
@@ -27,7 +29,7 @@ class CarpetedCapacitor(selfType: TileEntityType[_ <: CarpetedCapacitor]) extend
 
   override def getDeviceInfo: util.Map[String, String] = deviceInfo
 
-  private def _world: net.minecraft.world.World = getLevel
+  private def _level: Level = getLevel
   private val rng = scala.util.Random
   private val chance: Double = Settings.get.carpetDamageChance
   private var nextChanceTime: Long = 0
@@ -41,24 +43,24 @@ class CarpetedCapacitor(selfType: TileEntityType[_ <: CarpetedCapacitor]) extend
           ent.setLastHurtByMob(ent) // panic
           ent.knockback(0, .25, 0)
           // wait a minute before the next possible shock
-          nextChanceTime = _world.getGameTime + (20 * 60)
+          nextChanceTime = _level.getGameTime + (20 * 60)
           return
         }
       }
     }
-    if (chance > 0 && nextChanceTime < _world.getGameTime) {
+    if (chance > 0 && nextChanceTime < _level.getGameTime) {
       tryDamageOne()
     }
     power
   }
 
   override def updateEntity(): Unit = {
-    if (node != null && (_world.getGameTime + hashCode) % 20 == 0) {
-      val entities = _world.getEntitiesOfClass(classOf[LivingEntity], capacitorPowerBounds)
+    if (node != null && (_level.getGameTime + hashCode) % 20 == 0) {
+      val entities = _level.getEntitiesOfClass(classOf[LivingEntity], capacitorPowerBounds)
         .filter(entity => entity.isAlive)
         .toSet
-      val sheepPower = energyFromGroup(entities.filter(_.isInstanceOf[SheepEntity]), Settings.get.sheepPower)
-      val ocelotPower = energyFromGroup(entities.filter(_.isInstanceOf[OcelotEntity]), Settings.get.ocelotPower)
+      val sheepPower = energyFromGroup(entities.filter(_.isInstanceOf[Sheep]), Settings.get.sheepPower)
+      val ocelotPower = energyFromGroup(entities.filter(_.isInstanceOf[Ocelot]), Settings.get.ocelotPower)
       val totalPower = sheepPower + ocelotPower
       if (totalPower > 0) {
         node.changeBuffer(totalPower)

@@ -55,7 +55,7 @@ class Drone(props: Properties) extends Item(props) with IForgeItem with traits.S
     if (!world.isClientSide) {
       val drone = entity.EntityTypes.DRONE.create(world)
       player match {
-        case fakePlayer: agent.PlayerAgent =>
+        case fakePlayer: agent.Player =>
           drone.ownerName = fakePlayer.agent.ownerName
           drone.ownerUUID = fakePlayer.agent.ownerUUID
         case _ =>

@@ -11,9 +11,9 @@ import li.cil.oc.api.machine.Context;
 import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.prefab.DriverSidedTileEntity;
 import li.cil.oc.integration.ManagedTileEntityEnvironment;
-import net.minecraft.world.World;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 import java.util.Map;
 
@@ -24,8 +24,8 @@ public final class DriverFrequencyOwner extends DriverSidedTileEntity {
     }
 
     @Override
-    public ManagedEnvironment createEnvironment(final World world, final BlockPos pos, final Direction side) {
-        return new Environment((TileFrequencyOwner) world.getBlockEntity(pos));
+    public ManagedEnvironment createEnvironment(final Level level, final BlockPos pos, final Direction side) {
+        return new Environment((TileFrequencyOwner) level.getBlockEntity(pos));
     }
 
     public static final class Environment extends ManagedTileEntityEnvironment<TileFrequencyOwner> implements NamedBlock {

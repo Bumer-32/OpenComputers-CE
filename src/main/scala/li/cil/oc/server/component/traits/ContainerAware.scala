@@ -3,15 +3,15 @@ package li.cil.oc.server.component.traits
 import li.cil.oc.api.machine.Arguments
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.StackOption
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory.IInventory
 
 import scala.collection.immutable
+import net.minecraft.world.Container
+import net.minecraft.world.entity.player.Player
 
-trait InventoryAware {
-  def fakePlayer: PlayerEntity
-
-  def inventory: IInventory
+trait ContainerAware {
+  def fakePlayer: Player
+  
+  def inventory: Container
 
   def selectedSlot: Int
 

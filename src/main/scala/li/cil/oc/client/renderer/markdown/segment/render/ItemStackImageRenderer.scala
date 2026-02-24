@@ -15,17 +15,24 @@ private[markdown] class ItemStackImageRenderer(val stacks: Array[ItemStack]) ext
   override def getHeight = 32
 
   override def render(matrix: PoseStack, mouseX: Int, mouseY: Int): Unit = {
-    val mc = Minecraft.getInstance
-    val index = (System.currentTimeMillis() % (cycleSpeed * stacks.length)).toInt / cycleSpeed
+    val mc = Minecraft.getInstance()
+    val index = ((System.currentTimeMillis() % (cycleSpeed * stacks.length)) / cycleSpeed).toInt
     val stack = stacks(index)
 
-    matrix.scale(getWidth / 16, getHeight / 16, getWidth / 16)
-    // Translate manually because ItemRenderer generally can't take a MatrixStack.
-    RenderSystem.pushMatrix()
-    RenderSystem.multMatrix(matrix.last().pose())
-    RenderSystem.enableRescaleNormal()
-    RenderSystem.glMultiTexCoord2f(GL13.GL_TEXTURE1, 240, 240)
+    matrix.pushPose()
+
+    matrix.scale(getWidth / 16.0f, getHeight / 16.0f, getWidth / 16.0f)
+
+    val modelViewStack = RenderSystem.getModelViewStack
+    modelViewStack.pushPose()
+    modelViewStack.mulPoseMatrix(matrix.last.pose)
+    RenderSystem.applyModelViewMatrix()
+
     mc.getItemRenderer.renderAndDecorateItem(stack, 0, 0)
-    RenderSystem.popMatrix()
+
+    modelViewStack.popPose()
+    RenderSystem.applyModelViewMatrix()
+
+    matrix.popPose()
   }
 }

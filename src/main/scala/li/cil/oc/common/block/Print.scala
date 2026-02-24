@@ -35,7 +35,7 @@ import net.minecraftforge.common.extensions.IForgeBlock
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.reflect.ClassTag
 
-class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
+class Print(props: Properties) extends RedstoneAware(props) {
   @Deprecated
   override def propagatesSkylightDown(state: BlockState, world: IBlockReader, pos: BlockPos) = false
 
@@ -80,7 +80,7 @@ class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
       case _ => super.getLightBlock(state, world, pos)
     }
 
-  override def getPickBlock(state: BlockState, target: RayTraceResult, world: IBlockReader, pos: BlockPos, player: PlayerEntity): ItemStack = {
+  override def getCloneItemStack(state: BlockState, target: RayTraceResult, world: IBlockReader, pos: BlockPos, player: PlayerEntity): ItemStack = {
     world.getBlockEntity(pos) match {
       case print: tileentity.Print => print.data.createItemStack()
       case _ => ItemStack.EMPTY
@@ -114,7 +114,7 @@ class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(worldIn: IBlockReader) = new tileentity.Print(tileentity.TileEntityTypes.PRINT)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Print(tileentity.TileEntityTypes.PRINT, pos, state)
 
   // ----------------------------------------------------------------------- //
 

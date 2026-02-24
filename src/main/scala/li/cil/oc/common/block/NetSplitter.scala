@@ -15,7 +15,7 @@ import net.minecraft.world.level.BlockGetter as IBlockReader
 import net.minecraft.world.level.Level as World
 
 class NetSplitter(props: Properties) extends RedstoneAware(props) {
-  override def newBlockEntity(world: IBlockReader) = new tileentity.NetSplitter(tileentity.TileEntityTypes.NET_SPLITTER)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.NetSplitter(tileentity.TileEntityTypes.NET_SPLITTER, pos, state)
 
   // ----------------------------------------------------------------------- //
 

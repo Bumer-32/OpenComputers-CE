@@ -20,7 +20,7 @@ import java.util.Random
 import net.minecraftforge.common.extensions.IForgeBlock
 
 class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
-  override def getPickBlock(state: BlockState, target: RayTraceResult, world: IBlockReader, pos: BlockPos, player: PlayerEntity): ItemStack =
+  override def getCloneItemStack(state: BlockState, target: RayTraceResult, world: IBlockReader, pos: BlockPos, player: PlayerEntity): ItemStack =
     findMovingRobot(world, pos) match {
       case Some(robot) => robot.info.createItemStack()
       case _ => ItemStack.EMPTY
@@ -63,7 +63,7 @@ class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
     world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState)
   }
 
-  override def removedByPlayer(
+  override def onDestroyedByPlayer(
                                 state: BlockState,
                                 world: World,
                                 pos: BlockPos,

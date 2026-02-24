@@ -94,11 +94,12 @@ class HoverBoots(props: Properties) extends ArmorItem(ArmorMaterials.DIAMOND, Eq
     super.onEntityItemUpdate(stack, entity)
   }
 
-  override def showDurabilityBar(stack: ItemStack): Boolean = true
-
-  override def getDurabilityForDisplay(stack: ItemStack): Double = {
+  override def isBarVisible(stack: ItemStack): Boolean = true
+  
+  override def getBarWidth(stack: ItemStack): Int = {
     val data = new HoverBootsData(stack)
-    1 - data.charge / Settings.get.bufferHoverBoots
+    val ratio = data.charge / Settings.get.bufferHoverBoots
+    Math.round(ratio * 13.0f).toInt
   }
 
   override def getMaxDamage(stack: ItemStack): Int = Settings.get.bufferHoverBoots.toInt

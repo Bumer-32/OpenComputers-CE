@@ -2,24 +2,20 @@ package li.cil.oc.integration.minecraft
 
 import li.cil.oc.Settings
 import li.cil.oc.api.event.GeolyzerEvent
-import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedLevel._
-import net.minecraft.block.Block
-import net.minecraft.block.CropsBlock
-import net.minecraft.block.FlowingFluidBlock
-import net.minecraft.block.StemBlock
-import net.minecraft.state.IntegerProperty
-import net.minecraft.block.BlockState
-import net.minecraft.block.Blocks
+import li.cil.oc.util.{BlockPosition, ItemUtils}
+import li.cil.oc.util.ExtendedLevel.*
+import net.minecraft.world.level.block.{Block, Blocks, CropBlock, LiquidBlock, StemBlock}
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.properties.IntegerProperty
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fluids.IFluidBlock
 
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.collection.convert.ImplicitConversionsToScala.*
 
 object EventHandlerVanilla {
   @SubscribeEvent
   def onGeolyzerScan(e: GeolyzerEvent.Scan): Unit = {
-    val world = e.host.world
+    val world = e.host.getEnvironmentLevel
     val blockPos = BlockPosition(e.host)
     val includeReplaceable = e.options.get("includeReplaceable") match {
       case value: java.lang.Boolean => value.booleanValue()
@@ -39,8 +35,8 @@ object EventHandlerVanilla {
       if (world.isLoaded(pos) && !world.isEmptyBlock(pos)) {
         val blockState = world.getBlockState(pos)
         val block = blockState.getBlock
-        val isFluid = block.isInstanceOf[FlowingFluidBlock] || block.isInstanceOf[IFluidBlock]
-        if (!blockState.getBlock.isAir(blockState, world, pos) && (includeReplaceable || isFluid || !blockState.getMaterial.isReplaceable)) {
+        val isFluid = block.isInstanceOf[LiquidBlock] || block.isInstanceOf[IFluidBlock]
+        if (!blockState.isAir() && (includeReplaceable || isFluid || !blockState.getMaterial.isReplaceable)) {
           val distance = math.sqrt(rx * rx + ry * ry + rz * rz).toFloat
           e.data(index) = e.data(index) * distance * Settings.get.geolyzerNoise + blockState.getDestroySpeed(world, pos)
         }
@@ -52,24 +48,23 @@ object EventHandlerVanilla {
 
   private def getGrowth(blockState: BlockState) = {
     blockState.getProperties().find(prop => {prop.isInstanceOf[IntegerProperty] && prop.getName() == "age"}) match {
-      case Some(prop) => {
+      case Some(prop) =>
         val propAge = prop.asInstanceOf[IntegerProperty]
         Some((blockState.getValue(propAge).toFloat / propAge.getPossibleValues().max) max 0 min 1)
-      }
       case None => None
     }
   }
 
   @SubscribeEvent
   def onGeolyzerAnalyze(e: GeolyzerEvent.Analyze): Unit = {
-    val world = e.host.world
+    val world = e.host.getEnvironmentLevel
     val blockState = world.getBlockState(e.pos)
     val block = blockState.getBlock
 
     e.data += "name" -> block.getRegistryName
     e.data += "hardness" -> Float.box(blockState.getDestroySpeed(world, e.pos))
-    e.data += "harvestLevel" -> Int.box(block.getHarvestLevel(blockState))
-    e.data += "harvestTool" -> Option(block.getHarvestTool(blockState)).map(_.getName).orNull
+    e.data += "harvestLevel" -> Int.box(ItemUtils.getHarvestLevel(blockState))
+    e.data += "harvestTool" -> ItemUtils.getHarvestTool(blockState)
     e.data += "color" -> Int.box(blockState.getMapColor(world, e.pos).col)
 
     // backward compatibility
@@ -88,7 +83,7 @@ object EventHandlerVanilla {
     }
 
     {
-      if (block.isInstanceOf[CropsBlock] || block.isInstanceOf[StemBlock] || block == Blocks.COCOA || block == Blocks.NETHER_WART || block == Blocks.CHORUS_FLOWER) {
+      if (block.isInstanceOf[CropBlock] || block.isInstanceOf[StemBlock] || block == Blocks.COCOA || block == Blocks.NETHER_WART || block == Blocks.CHORUS_FLOWER) {
         getGrowth(blockState)
       } else if (block == Blocks.MELON || block == Blocks.PUMPKIN || block == Blocks.CACTUS || block == Blocks.SUGAR_CANE || block == Blocks.CHORUS_PLANT) {
         Some(1f)

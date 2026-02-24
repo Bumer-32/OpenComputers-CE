@@ -8,13 +8,11 @@ import li.cil.oc.server.component
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.RotationHelper
 import li.cil.oc.{Constants, Settings, api}
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.util.RegistryKey
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.registry.Registry
-import net.minecraft.world.server.ServerWorld
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.{Direction, Registry}
+import net.minecraft.resources.{ResourceKey, ResourceLocation}
+import net.minecraft.server.level.ServerLevel
+import net.minecraftforge.server.ServerLifecycleHooks
 
 /**
   * @author Vexatos
@@ -31,16 +29,15 @@ object DriverUpgradeMF extends Item with HostAware {
   override def tier(stack: ItemStack) = Tier.Three
 
   override def createEnvironment(stack: ItemStack, host: EnvironmentHost): ManagedEnvironment = {
-    if (host.world != null && !host.world.isClientSide) {
+    if (host.getEnvironmentLevel != null && !host.getEnvironmentLevel.isClientSide) {
       if (stack.hasTag) {
         stack.getTag.getIntArray(Settings.namespace + "coord") match {
-          case Array(x, y, z, side) => {
+          case Array(x, y, z, side) =>
             val dimension = new ResourceLocation(stack.getTag.getString(Settings.namespace + "dimension"))
-            ServerLifecycleHooks.getCurrentServer.getLevel(RegistryKey.create(Registry.DIMENSION_REGISTRY, dimension)) match {
-              case world: ServerWorld => return new component.UpgradeMF(host, BlockPosition(x, y, z, world), Direction.from3DDataValue(side))
+            ServerLifecycleHooks.getCurrentServer.getLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, dimension)) match {
+              case world: ServerLevel => return new component.UpgradeMF(host, BlockPosition(x, y, z, world), Direction.from3DDataValue(side))
               case _ => // Invalid dimension ID
             }
-          }
           case _ => // Invalid tag
         }
       }

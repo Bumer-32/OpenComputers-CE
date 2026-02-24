@@ -17,7 +17,7 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedBlock._
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.RotationHelper
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 
 import scala.collection.convert.ImplicitConversionsToJava._
 
@@ -77,9 +77,9 @@ trait RedstoneVanilla extends RedstoneSignaller with DeviceInfo {
   def getComparatorInput(context: Context, args: Arguments): Array[AnyRef] = {
     val side = checkSide(args, 0)
     val blockPos = BlockPosition(redstone).offset(side)
-    if (redstone.world.blockExists(blockPos)) {
-      val block = redstone.world.getBlock(blockPos)
-      if (redstone.world.getBlockState(blockPos.toBlockPos).hasAnalogOutputSignal) {
+    if (redstone.getEnvironmentLevel.blockExists(blockPos)) {
+      val block = redstone.getEnvironmentLevel.getBlock(blockPos)
+      if (redstone.getEnvironmentLevel.getBlockState(blockPos.toBlockPos).hasAnalogOutputSignal) {
         val comparatorOverride = block.getComparatorInputOverride(blockPos, side.getOpposite)
         return result(comparatorOverride)
       }

@@ -146,7 +146,7 @@ object PacketSender {
       if (lastHostTimeout == null || lastHostTimeout <= System.currentTimeMillis()) {
         val event = host match {
           case t: BlockEntity => new FileSystemAccessEvent.Server(name, t, node)
-          case _ => new FileSystemAccessEvent.Server(name, host.world, host.xPosition, host.yPosition, host.zPosition, node)
+          case _ => new FileSystemAccessEvent.Server(name, host.getEnvironmentLevel, host.xPosition, host.yPosition, host.zPosition, node)
         }
         MinecraftForge.EVENT_BUS.post(event)
         if (!event.isCanceled) {
@@ -178,7 +178,7 @@ object PacketSender {
 
     val event = host match {
       case t: BlockEntity => new NetworkActivityEvent.Server(t, node)
-      case _ => new NetworkActivityEvent.Server(host.world, host.xPosition, host.yPosition, host.zPosition, node)
+      case _ => new NetworkActivityEvent.Server(host.getEnvironmentLevel, host.xPosition, host.yPosition, host.zPosition, node)
     }
     MinecraftForge.EVENT_BUS.post(event)
     if (!event.isCanceled) {
@@ -518,7 +518,7 @@ object PacketSender {
     val pb = new SimplePacketBuilder(PacketType.RobotMove)
 
     // Custom pb.writeTileEntity() with fake coordinates (valid for the client).
-    pb.writeUTF(t.world.dimension.location.toString)
+    pb.writeUTF(t.getEnvironmentLevel.dimension.location.toString)
     pb.writeInt(position.getX)
     pb.writeInt(position.getY)
     pb.writeInt(position.getZ)

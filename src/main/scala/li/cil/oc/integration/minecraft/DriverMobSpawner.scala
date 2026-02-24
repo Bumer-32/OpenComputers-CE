@@ -14,7 +14,8 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
-import net.minecraft.world.level.Level
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.{BaseSpawner, Level}
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity
 
 object DriverMobSpawner extends DriverSidedTileEntity {
@@ -30,7 +31,9 @@ object DriverMobSpawner extends DriverSidedTileEntity {
 
     @Callback(doc = "function():string -- Get the name of the entity that is being spawned by this spawner.")
     def getSpawningMobName(context: Context, args: Arguments): Array[AnyRef] = {
-      result(tileEntity.getSpawner.getEntityId)
+      val tag = new CompoundTag()
+      tileEntity.asInstanceOf[BaseSpawner].save(tag) 
+      result(tag.getCompound("SpawnData").getCompound("entity").getString("id"))
     }
   }
 

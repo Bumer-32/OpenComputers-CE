@@ -9,7 +9,7 @@ import li.cil.oc.common
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.server.component
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 object DriverGraphicsCard extends Item with HostAware {
   override def worksWith(stack: ItemStack) = isOneOf(stack,
@@ -18,7 +18,7 @@ object DriverGraphicsCard extends Item with HostAware {
     api.Items.get(Constants.ItemName.GraphicsCardTier3))
 
   override def createEnvironment(stack: ItemStack, host: EnvironmentHost) =
-    if (host.world != null && host.world.isClientSide) null
+    if (host.getEnvironmentLevel != null && host.getEnvironmentLevel.isClientSide) null
     else tier(stack) match {
       case Tier.One => new component.GraphicsCard(Tier.One)
       case Tier.Two => new component.GraphicsCard(Tier.Two)

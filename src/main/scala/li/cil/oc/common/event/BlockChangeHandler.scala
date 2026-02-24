@@ -15,11 +15,17 @@ import scala.collection.mutable
 object BlockChangeHandler {
 
   def addListener(listener: ChangeListener, coord: BlockPosition) = {
-    EventHandler.scheduleServer(() => changeListeners.put(listener, coord))
+    EventHandler.scheduleServer(() => {
+      changeListeners.put(listener, coord)
+      ()
+    })
   }
 
   def removeListener(listener: ChangeListener) = {
-    EventHandler.scheduleServer(() => changeListeners.remove(listener))
+    EventHandler.scheduleServer(() => {
+      changeListeners.remove(listener)
+      ()
+    })
   }
 
   private val changeListeners = mutable.WeakHashMap.empty[ChangeListener, BlockPosition]

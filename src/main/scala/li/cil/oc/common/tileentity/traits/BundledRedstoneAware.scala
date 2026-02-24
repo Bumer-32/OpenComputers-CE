@@ -11,6 +11,7 @@ import java.util
 import net.minecraft.nbt.Tag
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.IntArrayTag
+import scala.jdk.CollectionConverters._
 
 trait BundledRedstoneAware extends RedstoneAware {
 
@@ -55,7 +56,7 @@ trait BundledRedstoneAware extends RedstoneAware {
     val bundled = _bundledInput(sideIndex)
     val rednet = _rednetInput(sideIndex)
     val seq = scala.collection.immutable.ArraySeq.unsafeWrapArray(bundled)
-    seq.lazyZip(rednet).map((a, b) => a max b max 0)
+    seq.lazyZip(rednet).map((a, b) => a max b max 0).toArray
   }
 
   def getBundledInput(side: Direction, color: Int): Int = {

@@ -4,39 +4,38 @@ import java.util
 import java.util.Collections
 
 import li.cil.oc.client.Textures
-import net.minecraft.block.BlockState
-import net.minecraft.client.world.ClientWorld
-import net.minecraft.client.renderer.model.BakedQuad
-import net.minecraft.client.renderer.model.IBakedModel
-import net.minecraft.client.renderer.model.ItemOverrideList
-import net.minecraft.entity.LivingEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
+import net.minecraft.world.level.block.state.BlockState                 // 1.18.2: net.minecraft.block → world.level.block.state
+import net.minecraft.client.renderer.block.model.BakedQuad              // 1.18.2
+import net.minecraft.client.resources.model.BakedModel                  // 1.18.2: IBakedModel → BakedModel
+import net.minecraft.client.renderer.block.model.ItemOverrides           // 1.18.2: ItemOverrideList → ItemOverrides
+import net.minecraft.client.multiplayer.ClientLevel                      // 1.18.2: ClientWorld → ClientLevel
+import net.minecraft.world.entity.LivingEntity                           // 1.18.2
+import net.minecraft.world.item.ItemStack                                // 1.18.2
+import net.minecraft.core.Direction                                      // 1.18.2
 
 import scala.collection.JavaConverters.bufferAsJavaList
 import scala.collection.mutable
 
 object RobotModel extends SmartBlockModelBase {
-  override def getOverrides: ItemOverrideList = ItemOverride
+  override def getOverrides: ItemOverrides = ItemOverride
 
   object ItemModel extends SmartBlockModelBase {
     private val size = 0.4f
-    private val l = 0.5f - size
-    private val h = 0.5f + size
+    private val l    = 0.5f - size
+    private val h    = 0.5f + size
 
-    private val top = (0.5f, 1f, 0.5f, 0.25f, 0.25f)
-    private val top1 = (l, 0.5f, h, 0f, 0f)
-    private val top2 = (h, 0.5f, h, 0f, 0.5f)
-    private val top3 = (h, 0.5f, l, 0.5f, 0.5f)
-    private val top4 = (l, 0.5f, l, 0.5f, 0f)
+    private val top     = (0.5f, 1f,   0.5f, 0.25f, 0.25f)
+    private val top1    = (l,    0.5f,  h,   0f,    0f)
+    private val top2    = (h,    0.5f,  h,   0f,    0.5f)
+    private val top3    = (h,    0.5f,  l,   0.5f,  0.5f)
+    private val top4    = (l,    0.5f,  l,   0.5f,  0f)
 
-    private val bottom = (0.5f, 0f, 0.5f, 0.75f, 0.25f)
-    private val bottom1 = (l, 0.5f, l, 0.5f, 0.5f)
-    private val bottom2 = (h, 0.5f, l, 0.5f, 0f)
-    private val bottom3 = (h, 0.5f, h, 1f, 0f)
-    private val bottom4 = (l, 0.5f, h, 1f, 0.5f)
+    private val bottom  = (0.5f, 0f,   0.5f, 0.75f, 0.25f)
+    private val bottom1 = (l,    0.5f,  l,   0.5f,  0.5f)
+    private val bottom2 = (h,    0.5f,  l,   0.5f,  0f)
+    private val bottom3 = (h,    0.5f,  h,   1f,    0f)
+    private val bottom4 = (l,    0.5f,  h,   1f,    0.5f)
 
-    // I don't know why this is super-bright when using 0xFF888888 :/
     private val tint = 0xFF555555
 
     protected def robotTexture = Textures.getSprite(Textures.Item.Robot)
@@ -51,11 +50,12 @@ object RobotModel extends SmartBlockModelBase {
     private def quad(verts: (Float, Float, Float, Float, Float)*) = {
       val added = interpolate(verts.last, verts.head)
       (verts :+ added).flatMap {
-        case ((x, y, z, u, v)) => rawData(
+        case (x, y, z, u, v) => rawData(
           (x - 0.5f) * 1.4f + 0.5f,
           (y - 0.5f) * 1.4f + 0.5f,
           (z - 0.5f) * 1.4f + 0.5f,
-          Direction.UP, robotTexture, robotTexture.getU(u * 16), robotTexture.getV(v * 16),
+          Direction.UP, robotTexture,
+          robotTexture.getU(u * 16), robotTexture.getV(v * 16),
           White)
       }.toArray
     }
@@ -63,22 +63,21 @@ object RobotModel extends SmartBlockModelBase {
     override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] = {
       val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
-      faces += new BakedQuad(quad(top, top1, top2), tint, Direction.NORTH, robotTexture, true)
-      faces += new BakedQuad(quad(top, top2, top3), tint, Direction.EAST, robotTexture, true)
-      faces += new BakedQuad(quad(top, top3, top4), tint, Direction.SOUTH, robotTexture, true)
-      faces += new BakedQuad(quad(top, top4, top1), tint, Direction.WEST, robotTexture, true)
+      faces += new BakedQuad(quad(top, top1, top2),    tint, Direction.NORTH, robotTexture, true)
+      faces += new BakedQuad(quad(top, top2, top3),    tint, Direction.EAST,  robotTexture, true)
+      faces += new BakedQuad(quad(top, top3, top4),    tint, Direction.SOUTH, robotTexture, true)
+      faces += new BakedQuad(quad(top, top4, top1),    tint, Direction.WEST,  robotTexture, true)
 
       faces += new BakedQuad(quad(bottom, bottom1, bottom2), tint, Direction.NORTH, robotTexture, true)
-      faces += new BakedQuad(quad(bottom, bottom2, bottom3), tint, Direction.EAST, robotTexture, true)
+      faces += new BakedQuad(quad(bottom, bottom2, bottom3), tint, Direction.EAST,  robotTexture, true)
       faces += new BakedQuad(quad(bottom, bottom3, bottom4), tint, Direction.SOUTH, robotTexture, true)
-      faces += new BakedQuad(quad(bottom, bottom4, bottom1), tint, Direction.WEST, robotTexture, true)
+      faces += new BakedQuad(quad(bottom, bottom4, bottom1), tint, Direction.WEST,  robotTexture, true)
 
       bufferAsJavaList(faces)
     }
   }
 
-  object ItemOverride extends ItemOverrideList {
-    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientWorld, entity: LivingEntity): IBakedModel = ItemModel
+  object ItemOverride extends ItemOverrides {
+    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, seed: Int): BakedModel = ItemModel
   }
-
 }

@@ -1,54 +1,61 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.util.function.Function
-
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.api.event.RackMountableRenderEvent
 import li.cil.oc.common.tileentity.Rack
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.LevelRenderer
+import net.minecraft.client.renderer.LevelRenderer // 1.18.2: WorldRenderer → LevelRenderer
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer as TileEntityRenderer
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher as TileEntityRendererDispatcher
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 import net.minecraft.core.Direction
 import com.mojang.math.Vector3f
 import net.minecraftforge.common.MinecraftForge
-import org.lwjgl.opengl.GL11
 
-object RackRenderer extends Function[TileEntityRendererDispatcher, RackRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new RackRenderer(dispatch)
+// 1.18.2: BlockEntityRendererProvider[T] に変更
+object RackRenderer extends BlockEntityRendererProvider[Rack] {
+  override def create(ctx: BlockEntityRendererProvider.Context): RackRenderer =
+    new RackRenderer()
 }
 
-class RackRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Rack](dispatch) {
+// 1.18.2: コンストラクタ引数なし
+class RackRenderer extends TileEntityRenderer[Rack] {
   private final val vOffset = 2 / 16f
-  private final val vSize = 3 / 16f
+  private final val vSize   = 3 / 16f
 
-  override def render(rack: Rack, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
+  override def render(
+                       rack: Rack,
+                       dt: Float,
+                       stack: PoseStack,          // 1.18.2: MatrixStack → PoseStack
+                       buffer: MultiBufferSource, // 1.18.2: IRenderTypeBuffer → MultiBufferSource
+                       light: Int,
+                       overlay: Int
+                     ): Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1) // 1.18.2: color4f → setShaderColor
 
     stack.pushPose()
 
     stack.translate(0.5, 0.5, 0.5)
 
     rack.yaw match {
-      case Direction.WEST => stack.mulPose(Vector3f.YP.rotationDegrees(-90))
+      case Direction.WEST  => stack.mulPose(Vector3f.YP.rotationDegrees(-90))
       case Direction.NORTH => stack.mulPose(Vector3f.YP.rotationDegrees(180))
-      case Direction.EAST => stack.mulPose(Vector3f.YP.rotationDegrees(90))
-      case _ => // No yaw.
+      case Direction.EAST  => stack.mulPose(Vector3f.YP.rotationDegrees(90))
+      case _               => // No yaw.
     }
 
     stack.translate(-0.5, 0.5, 0.505 - 0.5f / 16f)
     RenderState.mirrorScale(stack, 1, -1, 1)
 
-    // Note: we manually sync the rack inventory for this to work.
-    val rackLight = WorldRenderer.getLightColor(rack.getLevel, rack.getBlockPos.relative(rack.facing))
+    // 1.18.2: WorldRenderer.getLightColor → LevelRenderer.getLightColor
+    val rackLight = LevelRenderer.getLightColor(rack.getLevel, rack.getBlockPos.relative(rack.facing))
     for (i <- 0 until rack.getContainerSize) {
       if (!rack.getItem(i).isEmpty) {
-        val v0 = vOffset + i * vSize
-        val v1 = vOffset + (i + 1) * vSize
+        val v0    = vOffset + i * vSize
+        val v1    = vOffset + (i + 1) * vSize
         val event = new RackMountableRenderEvent.TileEntity(rack, i, rack.lastData(i), stack, buffer, rackLight, overlay, v0, v1)
         MinecraftForge.EVENT_BUS.post(event)
       }

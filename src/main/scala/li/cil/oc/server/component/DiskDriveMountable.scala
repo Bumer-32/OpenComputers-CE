@@ -19,21 +19,24 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.common.{Slot, Sound}
-import li.cil.oc.common.menu.ContainerTypes
+import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.menu.DiskDrive as DiskDriveContainer
 import li.cil.oc.common.inventory.ComponentInventory
 import li.cil.oc.common.inventory.ItemStackInventory
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedNBT.*
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.core.Direction
 import net.minecraft.world.MenuProvider
 
 import scala.collection.convert.ImplicitConversionsToJava.*
+import net.minecraft.world.entity.player.Player
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.network.chat.TextComponent
 
 class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) 
   extends AbstractManagedEnvironment with ItemStackInventory with ComponentInventory with RackMountable with Analyzable with DeviceInfo with MenuProvider {
@@ -97,7 +100,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int)
   // ----------------------------------------------------------------------- //
   // Analyzable
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = filesystemNode.fold(null: Array[Node])(Array(_))
+  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = filesystemNode.fold(null: Array[Node])(Array(_))
 
   // ----------------------------------------------------------------------- //
   // ItemStackInventory
@@ -114,7 +117,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int)
     case _ => false
   }
 
-  override def stillValid(player: PlayerEntity): Boolean = rack.stillValid(player)
+  override def stillValid(player: Player): Boolean = rack.stillValid(player)
 
   // ----------------------------------------------------------------------- //
   // ComponentInventory
@@ -129,7 +132,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int)
       }
       case _ =>
     }
-    if (!rack.world.isClientSide) {
+    if (!rack.getEnvironmentLevel.isClientSide) {
       rack.markChanged(this.slot)
       Sound.playDiskInsert(rack)
     }
@@ -137,7 +140,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int)
 
   override protected def onItemRemoved(slot: Int, stack: ItemStack): Unit = {
     super.onItemRemoved(slot, stack)
-    if (!rack.world.isClientSide) {
+    if (!rack.getEnvironmentLevel.isClientSide) {
       rack.markChanged(this.slot)
       Sound.playDiskEject(rack)
     }
@@ -151,13 +154,13 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int)
   // ----------------------------------------------------------------------- //
   // Persistable
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     super[AbstractManagedEnvironment].loadData(nbt)
     super[ComponentInventory].loadData(nbt)
     connectComponents()
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     super[AbstractManagedEnvironment].saveData(nbt)
     super[ComponentInventory].saveData(nbt)
   }
@@ -165,8 +168,8 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int)
   // ----------------------------------------------------------------------- //
   // RackMountable
 
-  override def getData: CompoundNBT = {
-    val nbt = new CompoundNBT()
+  override def getData: CompoundTag = {
+    val nbt = new CompoundTag()
     nbt.putLong("lastAccess", lastAccess)
     nbt.put("disk", toNbt(getItem(0)))
     nbt
@@ -176,12 +179,12 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int)
 
   override def getConnectableAt(index: Int): RackBusConnectable = null
 
-  override def onActivate(player: PlayerEntity, hand: Hand, heldItem: ItemStack, hitX: Float, hitY: Float): Boolean = {
+  override def onActivate(player: Player, hand: InteractionHand, heldItem: ItemStack, hitX: Float, hitY: Float): Boolean = {
     if (player.isCrouching) {
       val isDiskInDrive = !getItem(0).isEmpty
       val isHoldingDisk = canPlaceItem(0, heldItem)
       if (isDiskInDrive) {
-        if (!rack.world.isClientSide) {
+        if (!rack.getEnvironmentLevel.isClientSide) {
           InventoryUtils.dropSlot(BlockPosition(rack), this, 0, 1, Option(rack.facing))
         }
       }
@@ -192,7 +195,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int)
       isDiskInDrive || isHoldingDisk
     }
     else player match {
-      case srvPlr: ServerPlayerEntity => {
+      case srvPlr: ServerPlayer => {
         srvPlr.openMenu(this)
         true
       }
@@ -203,10 +206,10 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int)
   // ----------------------------------------------------------------------- //
   // INamedContainerProvider
 
-  override def getDisplayName = StringTextComponent.EMPTY
+  override def getDisplayName = TextComponent.EMPTY
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new DiskDriveContainer(ContainerTypes.DISK_DRIVE, id, playerInventory, this)
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
+    new DiskDriveContainer(MenuTypes.DISK_DRIVE, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
   // StateAware

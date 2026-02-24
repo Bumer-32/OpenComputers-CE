@@ -1,29 +1,29 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.util.function.Function
-
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.VertexConsumer
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.RenderState
-import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.texture.TextureAtlas
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer as TileEntityRenderer
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher as TileEntityRendererDispatcher
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
+import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.core.Direction
 
-object AdapterRenderer extends Function[TileEntityRendererDispatcher, AdapterRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new AdapterRenderer(dispatch)
+object AdapterRenderer extends BlockEntityRendererProvider[tileentity.Adapter] {
+  override def create(ctx: BlockEntityRendererProvider.Context): AdapterRenderer =
+    new AdapterRenderer()
 }
 
-class AdapterRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[tileentity.Adapter](dispatch) {
-  override def render(adapter: tileentity.Adapter, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
-    RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
+class AdapterRenderer extends BlockEntityRenderer[tileentity.Adapter] {
 
-    RenderSystem.color4f(1, 1, 1, 1)
+  override def render(adapter: tileentity.Adapter, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int): Unit = {
+    RenderState.checkError(getClass.getName + ".render: entering")
+
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     if (adapter.openSides.contains(true)) {
       stack.pushPose()
@@ -32,50 +32,50 @@ class AdapterRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntity
       RenderState.mirrorScale(stack, 1.0025f, -1.0025f, 1.0025f)
       stack.translate(-0.5f, -0.5f, -0.5f)
 
-      val r = buffer.getBuffer(RenderTypes.BLOCK_OVERLAY)
-
+      val vBuffer = buffer.getBuffer(RenderTypes.BLOCK_OVERLAY)
       val sideActivity = Textures.getSprite(Textures.Block.AdapterOn)
+      val matrix = stack.last.pose
 
       if (adapter.isSideOpen(Direction.DOWN)) {
-        r.vertex(stack.last.pose, 0, 1, 0).uv(sideActivity.getU1, sideActivity.getV0).endVertex()
-        r.vertex(stack.last.pose, 1, 1, 0).uv(sideActivity.getU0, sideActivity.getV0).endVertex()
-        r.vertex(stack.last.pose, 1, 1, 1).uv(sideActivity.getU0, sideActivity.getV1).endVertex()
-        r.vertex(stack.last.pose, 0, 1, 1).uv(sideActivity.getU1, sideActivity.getV1).endVertex()
+        vBuffer.vertex(matrix, 0, 1, 0).uv(sideActivity.getU1, sideActivity.getV0).endVertex()
+        vBuffer.vertex(matrix, 1, 1, 0).uv(sideActivity.getU0, sideActivity.getV0).endVertex()
+        vBuffer.vertex(matrix, 1, 1, 1).uv(sideActivity.getU0, sideActivity.getV1).endVertex()
+        vBuffer.vertex(matrix, 0, 1, 1).uv(sideActivity.getU1, sideActivity.getV1).endVertex()
       }
 
       if (adapter.isSideOpen(Direction.UP)) {
-        r.vertex(stack.last.pose, 0, 0, 0).uv(sideActivity.getU1, sideActivity.getV1).endVertex()
-        r.vertex(stack.last.pose, 0, 0, 1).uv(sideActivity.getU1, sideActivity.getV0).endVertex()
-        r.vertex(stack.last.pose, 1, 0, 1).uv(sideActivity.getU0, sideActivity.getV0).endVertex()
-        r.vertex(stack.last.pose, 1, 0, 0).uv(sideActivity.getU0, sideActivity.getV1).endVertex()
+        vBuffer.vertex(matrix, 0, 0, 0).uv(sideActivity.getU1, sideActivity.getV1).endVertex()
+        vBuffer.vertex(matrix, 0, 0, 1).uv(sideActivity.getU1, sideActivity.getV0).endVertex()
+        vBuffer.vertex(matrix, 1, 0, 1).uv(sideActivity.getU0, sideActivity.getV0).endVertex()
+        vBuffer.vertex(matrix, 1, 0, 0).uv(sideActivity.getU0, sideActivity.getV1).endVertex()
       }
 
       if (adapter.isSideOpen(Direction.NORTH)) {
-        r.vertex(stack.last.pose, 1, 1, 0).uv(sideActivity.getU0, sideActivity.getV1).endVertex()
-        r.vertex(stack.last.pose, 0, 1, 0).uv(sideActivity.getU1, sideActivity.getV1).endVertex()
-        r.vertex(stack.last.pose, 0, 0, 0).uv(sideActivity.getU1, sideActivity.getV0).endVertex()
-        r.vertex(stack.last.pose, 1, 0, 0).uv(sideActivity.getU0, sideActivity.getV0).endVertex()
+        vBuffer.vertex(matrix, 1, 1, 0).uv(sideActivity.getU0, sideActivity.getV1).endVertex()
+        vBuffer.vertex(matrix, 0, 1, 0).uv(sideActivity.getU1, sideActivity.getV1).endVertex()
+        vBuffer.vertex(matrix, 0, 0, 0).uv(sideActivity.getU1, sideActivity.getV0).endVertex()
+        vBuffer.vertex(matrix, 1, 0, 0).uv(sideActivity.getU0, sideActivity.getV0).endVertex()
       }
 
       if (adapter.isSideOpen(Direction.SOUTH)) {
-        r.vertex(stack.last.pose, 0, 1, 1).uv(sideActivity.getU0, sideActivity.getV1).endVertex()
-        r.vertex(stack.last.pose, 1, 1, 1).uv(sideActivity.getU1, sideActivity.getV1).endVertex()
-        r.vertex(stack.last.pose, 1, 0, 1).uv(sideActivity.getU1, sideActivity.getV0).endVertex()
-        r.vertex(stack.last.pose, 0, 0, 1).uv(sideActivity.getU0, sideActivity.getV0).endVertex()
+        vBuffer.vertex(matrix, 0, 1, 1).uv(sideActivity.getU0, sideActivity.getV1).endVertex()
+        vBuffer.vertex(matrix, 1, 1, 1).uv(sideActivity.getU1, sideActivity.getV1).endVertex()
+        vBuffer.vertex(matrix, 1, 0, 1).uv(sideActivity.getU1, sideActivity.getV0).endVertex()
+        vBuffer.vertex(matrix, 0, 0, 1).uv(sideActivity.getU0, sideActivity.getV0).endVertex()
       }
 
       if (adapter.isSideOpen(Direction.WEST)) {
-        r.vertex(stack.last.pose, 0, 1, 0).uv(sideActivity.getU0, sideActivity.getV1).endVertex()
-        r.vertex(stack.last.pose, 0, 1, 1).uv(sideActivity.getU1, sideActivity.getV1).endVertex()
-        r.vertex(stack.last.pose, 0, 0, 1).uv(sideActivity.getU1, sideActivity.getV0).endVertex()
-        r.vertex(stack.last.pose, 0, 0, 0).uv(sideActivity.getU0, sideActivity.getV0).endVertex()
+        vBuffer.vertex(matrix, 0, 1, 0).uv(sideActivity.getU0, sideActivity.getV1).endVertex()
+        vBuffer.vertex(matrix, 0, 1, 1).uv(sideActivity.getU1, sideActivity.getV1).endVertex()
+        vBuffer.vertex(matrix, 0, 0, 1).uv(sideActivity.getU1, sideActivity.getV0).endVertex()
+        vBuffer.vertex(matrix, 0, 0, 0).uv(sideActivity.getU0, sideActivity.getV0).endVertex()
       }
 
       if (adapter.isSideOpen(Direction.EAST)) {
-        r.vertex(stack.last.pose, 1, 1, 1).uv(sideActivity.getU0, sideActivity.getV1).endVertex()
-        r.vertex(stack.last.pose, 1, 1, 0).uv(sideActivity.getU1, sideActivity.getV1).endVertex()
-        r.vertex(stack.last.pose, 1, 0, 0).uv(sideActivity.getU1, sideActivity.getV0).endVertex()
-        r.vertex(stack.last.pose, 1, 0, 1).uv(sideActivity.getU0, sideActivity.getV0).endVertex()
+        vBuffer.vertex(matrix, 1, 1, 1).uv(sideActivity.getU0, sideActivity.getV1).endVertex()
+        vBuffer.vertex(matrix, 1, 1, 0).uv(sideActivity.getU1, sideActivity.getV1).endVertex()
+        vBuffer.vertex(matrix, 1, 0, 0).uv(sideActivity.getU1, sideActivity.getV0).endVertex()
+        vBuffer.vertex(matrix, 1, 0, 1).uv(sideActivity.getU0, sideActivity.getV0).endVertex()
       }
 
       stack.popPose()

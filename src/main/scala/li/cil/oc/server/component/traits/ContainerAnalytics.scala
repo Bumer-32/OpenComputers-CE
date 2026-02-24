@@ -9,11 +9,11 @@ import li.cil.oc.util.DatabaseAccess
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.StackOption._
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
-trait InventoryAnalytics extends InventoryAware with NetworkAware {
+trait ContainerAnalytics extends ContainerAware with NetworkAware {
   @Callback(doc = """function([slot:number]):table -- Get a description of the stack in the specified slot or the selected slot.""")
   def getStackInInternalSlot(context: Context, args: Arguments): Array[AnyRef] = if (Settings.get.allowItemStackInspection) {
     val slot = optSlot(args, 0)
@@ -25,7 +25,8 @@ trait InventoryAnalytics extends InventoryAware with NetworkAware {
   def isEquivalentTo(context: Context, args: Arguments): Array[AnyRef] = {
     val slot = args.checkSlot(inventory, 0)
     result((stackInSlot(selectedSlot), stackInSlot(slot)) match {
-      case (SomeStack(stackA), SomeStack(stackB)) => stackA.getItem.getTags.intersect(stackB.getItem.getTags).nonEmpty
+      case (SomeStack(stackA), SomeStack(stackB)) =>
+        result(stackA == stackB || InventoryUtils.haveSameItemType(stackA, stackB, args.optBoolean(3, false)))
       case (EmptyStack, EmptyStack) => true
       case _ => false
     })

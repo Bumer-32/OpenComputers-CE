@@ -15,14 +15,14 @@ import li.cil.oc.api.machine.Context
 import li.cil.oc.api.network._
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.item.crafting.IRecipeType
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory
-import net.minecraft.inventory.{CraftResultInventory, IInventory}
-import net.minecraft.inventory.container.Container
-import net.minecraft.inventory.container.CraftingResultSlot
-
 import scala.collection.convert.ImplicitConversionsToJava._
+import net.minecraft.world.inventory
+import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.inventory.ResultContainer
+import net.minecraft.world.inventory.ResultSlot
+import net.minecraft.world.item.crafting.RecipeType
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.Container
 
 class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends AbstractManagedEnvironment with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
@@ -41,27 +41,27 @@ class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends Abs
   @Callback(doc = """function([count:number]):number -- Tries to craft the specified number of items in the top left area of the inventory.""")
   def craft(context: Context, args: Arguments): Array[AnyRef] = {
     val count = args.optInteger(0, 64) max 0 min 64
-    result(CraftingInventory.craft(count): _*)
+    result(CraftingContainer.craft(count): _*)
   }
 
-  private object CraftingInventory extends inventory.CraftingInventory(new Container(null, 0) {
-    override def stillValid(player: PlayerEntity) = true
+  private object CraftingContainer extends inventory.CraftingContainer(new AbstractContainerMenu(null, 0) {
+    override def stillValid(player: Player) = true
   }, 3, 3) {
     def craft(wantedCount: Int): Seq[_] = {
       val player = host.player
       copyItemsFromHost(player.inventory)
       var countCrafted = 0
-      val manager = host.world.getRecipeManager
-      val initialCraft = manager.getRecipeFor(IRecipeType.CRAFTING, CraftingInventory: inventory.CraftingInventory, host.world)
+      val manager = host.getEnvironmentLevel.getRecipeManager
+      val initialCraft = manager.getRecipeFor(RecipeType.CRAFTING, CraftingContainer: inventory.CraftingContainer, host.getEnvironmentLevel)
       if (initialCraft.isPresent) {
         def tryCraft() : Boolean = {
-          val craft = manager.getRecipeFor(IRecipeType.CRAFTING, CraftingInventory: inventory.CraftingInventory, host.world)
+          val craft = manager.getRecipeFor(RecipeType.CRAFTING, CraftingContainer: inventory.CraftingContainer, host.getEnvironmentLevel)
           if (craft != initialCraft) {
             return false
           }
 
-          val craftResult = new CraftResultInventory
-          val craftingSlot = new CraftingResultSlot(player, CraftingInventory, craftResult, 0, 0, 0)
+          val craftResult = new ResultContainer
+          val craftingSlot = new ResultSlot(player, CraftingContainer, craftResult, 0, 0, 0)
           val craftedResult = craft.get.assemble(this)
           craftResult.setItem(0, craftedResult)
           if (!craftingSlot.hasItem)
@@ -69,7 +69,8 @@ class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends Abs
 
           val stack = craftingSlot.remove(1)
           countCrafted += stack.getCount max 1
-          val taken = craftingSlot.onTake(player, stack)
+          craftingSlot.onTake(player, stack)
+          val taken = stack
           copyItemsToHost(player.inventory)
           if (taken.getCount > 0) {
             InventoryUtils.addToPlayerInventory(taken, player)
@@ -84,14 +85,14 @@ class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends Abs
       Seq(countCrafted > 0, countCrafted)
     }
 
-    def copyItemsFromHost(inventory: IInventory): Unit = {
+    def copyItemsFromHost(inventory: Container): Unit = {
       for (slot <- 0 until getContainerSize) {
         val stack = inventory.getItem(toParentSlot(slot))
         setItem(slot, stack)
       }
     }
 
-    def copyItemsToHost(inventory: IInventory): Unit = {
+    def copyItemsToHost(inventory: Container): Unit = {
       for (slot <- 0 until getContainerSize) {
         inventory.setItem(toParentSlot(slot), getItem(slot))
       }

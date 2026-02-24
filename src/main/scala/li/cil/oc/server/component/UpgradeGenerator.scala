@@ -18,13 +18,12 @@ import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.entity.item.ItemEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.text.ITextComponent
 import net.minecraftforge.common.ForgeHooks
 
 import scala.collection.convert.ImplicitConversionsToJava._
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.nbt.CompoundTag
 
 class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends AbstractManagedEnvironment with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
@@ -83,7 +82,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
     // add empty containers to inventory
     if (!container.isEmpty) {
       container.grow(fuelToInsert.getCount - 1)
-      if (!host.player.inventory.add(container)) {
+      if (!host.player.getInventory.add(container)) {
         // no containers could be placed in inventory, give back the fuel
         host.mainInventory.setItem(host.selectedSlot, previousSelectedFuel)
         return result(false, "no space in inventory for fuel containers")
@@ -146,7 +145,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
       }
     }
     // add splits the input stack by reference
-    if (!host.player.inventory.add(forUser)) {
+    if (!host.player.getInventory.add(forUser)) {
       // returns false if NO items were inserted
       host.mainInventory.setItem(host.selectedSlot, previousSelectedItem)
       inventory = StackOption(previousQueue)
@@ -198,7 +197,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
     if (node == this.node) {
       inventory match {
         case SomeStack(stack) =>
-          val world = host.world
+          val world = host.getEnvironmentLevel
           val entity = new ItemEntity(world, host.xPosition, host.yPosition, host.zPosition, stack.copy())
           entity.setDeltaMovement(entity.getDeltaMovement.add(0, 0.04, 0))
           entity.setPickUpDelay(5)
@@ -213,7 +212,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
   private final val InventoryTag = "inventory"
   private final val RemainingTicksTag = "remainingTicks"
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     super.loadData(nbt)
       inventory = StackOption(ItemStack.of(nbt.getCompound("inventory")))
     if (nbt.contains(InventoryTag)) {
@@ -222,7 +221,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
     remainingTicks = nbt.getInt(RemainingTicksTag)
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     super.saveData(nbt)
     inventory match {
       case SomeStack(stack) => nbt.setNewCompoundTag(InventoryTag, stack.save)

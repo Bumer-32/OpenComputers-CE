@@ -1,31 +1,37 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.util.function.Function
-
-import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.VertexConsumer
+import com.mojang.math.Vector3f
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.DiskDrive
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.LevelRenderer
+import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.block.model.ItemTransforms
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer as TileEntityRenderer
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher as TileEntityRendererDispatcher
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 import net.minecraft.core.Direction
-import com.mojang.math.Vector3f
 
-object DiskDriveRenderer extends Function[TileEntityRendererDispatcher, DiskDriveRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new DiskDriveRenderer(dispatch)
+object DiskDriveRenderer extends BlockEntityRendererProvider[DiskDrive] {
+  override def create(ctx: BlockEntityRendererProvider.Context): DiskDriveRenderer =
+    new DiskDriveRenderer()
 }
 
-class DiskDriveRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[DiskDrive](dispatch) {
-  override def render(drive: DiskDrive, dt: Float, matrix: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
-    RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
+/**
+ * 1.18.2 Mojmap 完全移植版.
+ * Function インターフェースを削除し、Context 経由で ItemRenderer を取得する形に最適化。
+ */
+class DiskDriveRenderer extends BlockEntityRenderer[DiskDrive] {
+  private lazy val itemRenderer = Minecraft.getInstance().getItemRenderer
 
-    RenderSystem.color4f(1, 1, 1, 1)
+  override def render(drive: DiskDrive, dt: Float, matrix: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int): Unit = {
+    RenderState.checkError(getClass.getName + ".render: entering")
+
+    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F)
 
     matrix.pushPose()
 
@@ -41,27 +47,30 @@ class DiskDriveRenderer(dispatch: TileEntityRendererDispatcher) extends TileEnti
     drive.items(0) match {
       case stack if !stack.isEmpty =>
         matrix.pushPose()
-        matrix.translate(0, 3.5f / 16, 6 / 16f)
+        matrix.translate(0, 3.5 / 16.0, 6.0 / 16.0)
         matrix.mulPose(Vector3f.XN.rotationDegrees(90))
         matrix.scale(0.5f, 0.5f, 0.5f)
 
-        val itemLight = WorldRenderer.getLightColor(drive.getLevel, drive.getBlockPos.relative(drive.facing))
-        Minecraft.getInstance.getItemRenderer.renderStatic(stack, ItemCameraTransforms.TransformType.FIXED, itemLight, overlay, matrix, buffer)
+        val itemLight = LevelRenderer.getLightColor(drive.getLevel, drive.getBlockPos.relative(drive.facing))
+
+        itemRenderer.renderStatic(stack, ItemTransforms.TransformType.FIXED, itemLight, overlay, matrix, buffer, 0)
+
         matrix.popPose()
       case _ =>
     }
 
-    if (System.currentTimeMillis() - drive.lastAccess < 400 && drive.world.random.nextDouble() > 0.1) {
+    if (System.currentTimeMillis() - drive.lastAccess < 400 && drive.getLevel.random.nextDouble() > 0.1) {
       matrix.translate(-0.5, 0.5, 0.505)
-      RenderState.mirrorScale(matrix, 1, -1, 1)
+      RenderState.mirrorScale(matrix, 1.0f, -1.0f, 1.0f)
 
       val r = buffer.getBuffer(RenderTypes.BLOCK_OVERLAY)
-
       val icon = Textures.getSprite(Textures.Block.DiskDriveFrontActivity)
-      r.vertex(matrix.last.pose, 0, 1, 0).uv(icon.getU0, icon.getV1).endVertex()
-      r.vertex(matrix.last.pose, 1, 1, 0).uv(icon.getU1, icon.getV1).endVertex()
-      r.vertex(matrix.last.pose, 1, 0, 0).uv(icon.getU1, icon.getV0).endVertex()
-      r.vertex(matrix.last.pose, 0, 0, 0).uv(icon.getU0, icon.getV0).endVertex()
+      val pose = matrix.last.pose
+
+      r.vertex(pose, 0, 1, 0).uv(icon.getU0, icon.getV1).endVertex()
+      r.vertex(pose, 1, 1, 0).uv(icon.getU1, icon.getV1).endVertex()
+      r.vertex(pose, 1, 0, 0).uv(icon.getU1, icon.getV0).endVertex()
+      r.vertex(pose, 0, 0, 0).uv(icon.getU0, icon.getV0).endVertex()
     }
 
     matrix.popPose()

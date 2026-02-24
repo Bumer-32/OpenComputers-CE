@@ -1,26 +1,34 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.util.function.Function
-
-import com.mojang.blaze3d.vertex.PoseStack as MatrixStack
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer as TileEntityRenderer
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher as TileEntityRendererDispatcher
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.RenderState
-import net.minecraft.client.renderer.IRenderTypeBuffer
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer as TileEntityRenderer
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 
-object TransposerRenderer extends Function[TileEntityRendererDispatcher, TransposerRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new TransposerRenderer(dispatch)
+// 1.18.2: BlockEntityRendererProvider[T] に変更
+object TransposerRenderer extends BlockEntityRendererProvider[tileentity.Transposer] {
+  override def create(ctx: BlockEntityRendererProvider.Context): TransposerRenderer =
+    new TransposerRenderer()
 }
 
-class TransposerRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[tileentity.Transposer](dispatch) {
-  override def render(transposer: tileentity.Transposer, dt: Float, stack: MatrixStack, buffer: MultiBufferSource, light: Int, overlay: Int) = {
+// 1.18.2: コンストラクタ引数なし
+class TransposerRenderer extends TileEntityRenderer[tileentity.Transposer] {
+  override def render(
+                       transposer: tileentity.Transposer,
+                       dt: Float,
+                       stack: PoseStack,          // 1.18.2: MatrixStack → PoseStack
+                       buffer: MultiBufferSource, // 1.18.2: IRenderTypeBuffer → MultiBufferSource
+                       light: Int,
+                       overlay: Int
+                     ): Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1) // 1.18.2: color4f → setShaderColor
 
     val activity = math.max(0, 1 - (System.currentTimeMillis() - transposer.lastOperation) / 1000.0f)
     if (activity > 0) {
@@ -30,38 +38,46 @@ class TransposerRenderer(dispatch: TileEntityRendererDispatcher) extends TileEnt
       RenderState.mirrorScale(stack, 1.0025f, -1.0025f, 1.0025f)
       stack.translate(-0.5f, -0.5f, -0.5f)
 
+      // 1.18.2: BLOCK_OVERLAY_COLOR は透明度付きカラーをサポートするバッファ
       val r = buffer.getBuffer(RenderTypes.BLOCK_OVERLAY_COLOR)
 
       val icon = Textures.getSprite(Textures.Block.TransposerOn)
-      r.vertex(stack.last.pose, 0, 1, 0).color(1, 1, 1, activity).uv(icon.getU1, icon.getV0).endVertex()
-      r.vertex(stack.last.pose, 1, 1, 0).color(1, 1, 1, activity).uv(icon.getU0, icon.getV0).endVertex()
-      r.vertex(stack.last.pose, 1, 1, 1).color(1, 1, 1, activity).uv(icon.getU0, icon.getV1).endVertex()
-      r.vertex(stack.last.pose, 0, 1, 1).color(1, 1, 1, activity).uv(icon.getU1, icon.getV1).endVertex()
 
-      r.vertex(stack.last.pose, 0, 0, 0).color(1, 1, 1, activity).uv(icon.getU1, icon.getV1).endVertex()
-      r.vertex(stack.last.pose, 0, 0, 1).color(1, 1, 1, activity).uv(icon.getU1, icon.getV0).endVertex()
-      r.vertex(stack.last.pose, 1, 0, 1).color(1, 1, 1, activity).uv(icon.getU0, icon.getV0).endVertex()
-      r.vertex(stack.last.pose, 1, 0, 0).color(1, 1, 1, activity).uv(icon.getU0, icon.getV1).endVertex()
+      // 上面
+      r.vertex(stack.last.pose, 0, 1, 0).color(1f, 1f, 1f, activity).uv(icon.getU1, icon.getV0).endVertex()
+      r.vertex(stack.last.pose, 1, 1, 0).color(1f, 1f, 1f, activity).uv(icon.getU0, icon.getV0).endVertex()
+      r.vertex(stack.last.pose, 1, 1, 1).color(1f, 1f, 1f, activity).uv(icon.getU0, icon.getV1).endVertex()
+      r.vertex(stack.last.pose, 0, 1, 1).color(1f, 1f, 1f, activity).uv(icon.getU1, icon.getV1).endVertex()
 
-      r.vertex(stack.last.pose, 1, 1, 0).color(1, 1, 1, activity).uv(icon.getU0, icon.getV1).endVertex()
-      r.vertex(stack.last.pose, 0, 1, 0).color(1, 1, 1, activity).uv(icon.getU1, icon.getV1).endVertex()
-      r.vertex(stack.last.pose, 0, 0, 0).color(1, 1, 1, activity).uv(icon.getU1, icon.getV0).endVertex()
-      r.vertex(stack.last.pose, 1, 0, 0).color(1, 1, 1, activity).uv(icon.getU0, icon.getV0).endVertex()
+      // 下面
+      r.vertex(stack.last.pose, 0, 0, 0).color(1f, 1f, 1f, activity).uv(icon.getU1, icon.getV1).endVertex()
+      r.vertex(stack.last.pose, 0, 0, 1).color(1f, 1f, 1f, activity).uv(icon.getU1, icon.getV0).endVertex()
+      r.vertex(stack.last.pose, 1, 0, 1).color(1f, 1f, 1f, activity).uv(icon.getU0, icon.getV0).endVertex()
+      r.vertex(stack.last.pose, 1, 0, 0).color(1f, 1f, 1f, activity).uv(icon.getU0, icon.getV1).endVertex()
 
-      r.vertex(stack.last.pose, 0, 1, 1).color(1, 1, 1, activity).uv(icon.getU0, icon.getV1).endVertex()
-      r.vertex(stack.last.pose, 1, 1, 1).color(1, 1, 1, activity).uv(icon.getU1, icon.getV1).endVertex()
-      r.vertex(stack.last.pose, 1, 0, 1).color(1, 1, 1, activity).uv(icon.getU1, icon.getV0).endVertex()
-      r.vertex(stack.last.pose, 0, 0, 1).color(1, 1, 1, activity).uv(icon.getU0, icon.getV0).endVertex()
+      // 南面 (Z-)
+      r.vertex(stack.last.pose, 1, 1, 0).color(1f, 1f, 1f, activity).uv(icon.getU0, icon.getV1).endVertex()
+      r.vertex(stack.last.pose, 0, 1, 0).color(1f, 1f, 1f, activity).uv(icon.getU1, icon.getV1).endVertex()
+      r.vertex(stack.last.pose, 0, 0, 0).color(1f, 1f, 1f, activity).uv(icon.getU1, icon.getV0).endVertex()
+      r.vertex(stack.last.pose, 1, 0, 0).color(1f, 1f, 1f, activity).uv(icon.getU0, icon.getV0).endVertex()
 
-      r.vertex(stack.last.pose, 0, 1, 0).color(1, 1, 1, activity).uv(icon.getU0, icon.getV1).endVertex()
-      r.vertex(stack.last.pose, 0, 1, 1).color(1, 1, 1, activity).uv(icon.getU1, icon.getV1).endVertex()
-      r.vertex(stack.last.pose, 0, 0, 1).color(1, 1, 1, activity).uv(icon.getU1, icon.getV0).endVertex()
-      r.vertex(stack.last.pose, 0, 0, 0).color(1, 1, 1, activity).uv(icon.getU0, icon.getV0).endVertex()
+      // 北面 (Z+)
+      r.vertex(stack.last.pose, 0, 1, 1).color(1f, 1f, 1f, activity).uv(icon.getU0, icon.getV1).endVertex()
+      r.vertex(stack.last.pose, 1, 1, 1).color(1f, 1f, 1f, activity).uv(icon.getU1, icon.getV1).endVertex()
+      r.vertex(stack.last.pose, 1, 0, 1).color(1f, 1f, 1f, activity).uv(icon.getU1, icon.getV0).endVertex()
+      r.vertex(stack.last.pose, 0, 0, 1).color(1f, 1f, 1f, activity).uv(icon.getU0, icon.getV0).endVertex()
 
-      r.vertex(stack.last.pose, 1, 1, 1).color(1, 1, 1, activity).uv(icon.getU0, icon.getV1).endVertex()
-      r.vertex(stack.last.pose, 1, 1, 0).color(1, 1, 1, activity).uv(icon.getU1, icon.getV1).endVertex()
-      r.vertex(stack.last.pose, 1, 0, 0).color(1, 1, 1, activity).uv(icon.getU1, icon.getV0).endVertex()
-      r.vertex(stack.last.pose, 1, 0, 1).color(1, 1, 1, activity).uv(icon.getU0, icon.getV0).endVertex()
+      // 西面 (X-)
+      r.vertex(stack.last.pose, 0, 1, 0).color(1f, 1f, 1f, activity).uv(icon.getU0, icon.getV1).endVertex()
+      r.vertex(stack.last.pose, 0, 1, 1).color(1f, 1f, 1f, activity).uv(icon.getU1, icon.getV1).endVertex()
+      r.vertex(stack.last.pose, 0, 0, 1).color(1f, 1f, 1f, activity).uv(icon.getU1, icon.getV0).endVertex()
+      r.vertex(stack.last.pose, 0, 0, 0).color(1f, 1f, 1f, activity).uv(icon.getU0, icon.getV0).endVertex()
+
+      // 東面 (X+)
+      r.vertex(stack.last.pose, 1, 1, 1).color(1f, 1f, 1f, activity).uv(icon.getU0, icon.getV1).endVertex()
+      r.vertex(stack.last.pose, 1, 1, 0).color(1f, 1f, 1f, activity).uv(icon.getU1, icon.getV1).endVertex()
+      r.vertex(stack.last.pose, 1, 0, 0).color(1f, 1f, 1f, activity).uv(icon.getU1, icon.getV0).endVertex()
+      r.vertex(stack.last.pose, 1, 0, 1).color(1f, 1f, 1f, activity).uv(icon.getU0, icon.getV0).endVertex()
 
       stack.popPose()
     }

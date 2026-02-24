@@ -93,7 +93,12 @@ trait BlockEntity extends net.minecraft.world.level.block.entity.BlockEntity {
     }
   }
 
-  override def save(nbt: CompoundTag): CompoundTag = {
+  override def saveAdditional(nbt: CompoundTag): Unit = {
+    super[BlockEntity].saveAdditional(nbt)
+    save(nbt)
+  }
+
+  def save(nbt: CompoundTag): CompoundTag = {
     if (isServer) {
       saveForServer(nbt)
     }

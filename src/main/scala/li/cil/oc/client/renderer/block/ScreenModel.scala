@@ -95,7 +95,6 @@ object ScreenModel extends SmartBlockModelBase {
   }
 
   object ItemOverride extends ItemOverrides {
-    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity): BakedModel = new ItemModel(stack)
+    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, seed: Int): BakedModel = new ItemModel(stack)
   }
-
 }

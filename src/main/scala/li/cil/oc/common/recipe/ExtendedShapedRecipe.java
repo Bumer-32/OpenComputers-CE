@@ -1,20 +1,18 @@
 package li.cil.oc.common.recipe;
 
 import com.google.gson.JsonObject;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.ICraftingRecipe;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.ShapedRecipe;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.crafting.IShapedRecipe;
 import net.minecraftforge.registries.ForgeRegistryEntry;
+import org.jetbrains.annotations.NotNull;
 
-public class ExtendedShapedRecipe implements ICraftingRecipe, IShapedRecipe<CraftingInventory> {
+public class ExtendedShapedRecipe implements Recipe<CraftingContainer>, IShapedRecipe<CraftingContainer> {
     private ShapedRecipe wrapped;
 
     public ExtendedShapedRecipe(ShapedRecipe wrapped) {
@@ -22,12 +20,13 @@ public class ExtendedShapedRecipe implements ICraftingRecipe, IShapedRecipe<Craf
     }
 
     @Override
-    public boolean matches(CraftingInventory inv, World world) {
-        return wrapped.matches(inv, world);
+    public boolean matches(@NotNull CraftingContainer inv, @NotNull Level level) {
+        return wrapped.matches(inv, level);
     }
 
     @Override
-    public ItemStack assemble(CraftingInventory inv) {
+    @NotNull
+    public ItemStack assemble(@NotNull CraftingContainer inv) {
         return ExtendedRecipe.addNBTToResult(this, wrapped.assemble(inv), inv);
     }
 
@@ -42,7 +41,7 @@ public class ExtendedShapedRecipe implements ICraftingRecipe, IShapedRecipe<Craf
     }
 
     @Override
-    public NonNullList<ItemStack> getRemainingItems(CraftingInventory inv) {
+    public NonNullList<ItemStack> getRemainingItems(CraftingContainer inv) {
         return wrapped.getRemainingItems(inv);
     }
 
@@ -57,8 +56,15 @@ public class ExtendedShapedRecipe implements ICraftingRecipe, IShapedRecipe<Craf
     }
 
     @Override
-    public IRecipeSerializer<?> getSerializer() {
-        return RecipeSerializers.CRAFTING_SHAPED_EXTENDED;
+    @NotNull
+    public RecipeSerializer<?> getSerializer() {
+        return Recipes.SHAPED_EXTENDED.getSerializer();
+    }
+
+    @Override
+    @NotNull
+    public RecipeType<?> getType() {
+        return Recipes.SHAPED_EXTENDED.getRecipeType();
     }
 
     @Override
@@ -76,25 +82,25 @@ public class ExtendedShapedRecipe implements ICraftingRecipe, IShapedRecipe<Craf
         return wrapped.getRecipeHeight();
     }
 
-    public static final class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>>
-        implements IRecipeSerializer<ExtendedShapedRecipe> {
+    public static final class Serializer extends ForgeRegistryEntry<RecipeSerializer<?>>
+        implements RecipeSerializer<ExtendedShapedRecipe> {
 
         @Override
         public ExtendedShapedRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
-            ShapedRecipe wrapped = IRecipeSerializer.SHAPED_RECIPE.fromJson(recipeId, json);
+            ShapedRecipe wrapped = RecipeSerializer.SHAPED_RECIPE.fromJson(recipeId, json);
             return new ExtendedShapedRecipe(wrapped);
         }
 
         @Override
-        public ExtendedShapedRecipe fromNetwork(ResourceLocation recipeId, PacketBuffer buff) {
-            ShapedRecipe wrapped = IRecipeSerializer.SHAPED_RECIPE.fromNetwork(recipeId, buff);
+        public ExtendedShapedRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buff) {
+            ShapedRecipe wrapped = RecipeSerializer.SHAPED_RECIPE.fromNetwork(recipeId, buff);
             return new ExtendedShapedRecipe(wrapped);
         }
 
         @Override
-        public void toNetwork(PacketBuffer buff, ExtendedShapedRecipe recipe) {
-            IRecipeSerializer<ShapedRecipe> serializer =
-                (IRecipeSerializer<ShapedRecipe>) recipe.wrapped.getSerializer();
+        public void toNetwork(FriendlyByteBuf buff, ExtendedShapedRecipe recipe) {
+            RecipeSerializer<ShapedRecipe> serializer =
+                (RecipeSerializer<ShapedRecipe>) recipe.wrapped.getSerializer();
             serializer.toNetwork(buff, recipe.wrapped);
         }
     }

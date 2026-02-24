@@ -31,6 +31,11 @@ class Robot(state: menu.Robot, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name)
   with traits.InputBuffer with ContainerEventHandler {
 
+  override def containerTick(): Unit = {
+    super.containerTick()
+    this.containerTick()
+  }
+
   override protected val buffer: TextBuffer = inventoryContainer.info.screenBuffer
     .flatMap(ComponentTracker.get(Minecraft.getInstance.level, _))
     .collectFirst {

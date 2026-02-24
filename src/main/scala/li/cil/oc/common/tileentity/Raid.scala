@@ -2,7 +2,6 @@ package li.cil.oc.common.tileentity
 
 import java.util.UUID
 import java.util.function.Consumer
-
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.Driver
@@ -15,8 +14,8 @@ import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.item.data.DriveData
 import li.cil.oc.common.item.data.NodeData
 import li.cil.oc.server.component.FileSystem
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.server.PacketSender as ServerPacketSender
+import li.cil.oc.util.ExtendedNBT.*
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
@@ -27,8 +26,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.MenuProvider
-import li.cil.tis3d.common.inventory.Inventory
-import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.nbt.ByteArrayTag
 
 class Raid(selfType: BlockEntityType[_ <: Raid], pos: BlockPos, state: BlockState) 
@@ -128,7 +126,7 @@ class Raid(selfType: BlockEntityType[_ <: Raid], pos: BlockPos, state: BlockStat
           fs.fileSystem.close()
           fs.fileSystem.list("/").foreach(fs.fileSystem.delete)
           fs.saveData(nbt)
-          fs.fileSystem.spaceTotal.toInt
+          fs.fileSystem.spaceTotal
         case _ => 0L // Ignore.
       }
       case _ => 0L
@@ -174,7 +172,9 @@ class Raid(selfType: BlockEntityType[_ <: Raid], pos: BlockPos, state: BlockStat
 
   override def saveForClient(nbt: CompoundTag): Unit = {
     super.saveForClient(nbt)
-    val presenceArray = items.map(item => if (!item.isEmpty) 1.toByte else 0.toByte).toArray
+    val presenceArray = Array.tabulate[Byte](items.length) { i =>
+      if (items(i).isEmpty) 0.toByte else 1.toByte
+    }
     nbt.put(PresenceTag, new ByteArrayTag(presenceArray))
 
     if (label.getLabel != null) {

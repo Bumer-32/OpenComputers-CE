@@ -45,7 +45,7 @@ class Microcontroller(props: Properties)
 
   // ----------------------------------------------------------------------- //
 
-  override def getPickBlock(state: BlockState, target: RayTraceResult, world: IBlockReader, pos: BlockPos, player: PlayerEntity): ItemStack =
+  override def getCloneItemStack(state: BlockState, target: RayTraceResult, world: IBlockReader, pos: BlockPos, player: PlayerEntity): ItemStack =
     world.getBlockEntity(pos) match {
       case mcu: tileentity.Microcontroller => mcu.info.copyItemStack()
       case _ => ItemStack.EMPTY
@@ -67,7 +67,7 @@ class Microcontroller(props: Properties)
 
   override def energyThroughput: Double = Settings.get.caseRate(Tier.One)
 
-  override def newBlockEntity(world: IBlockReader) = new tileentity.Microcontroller(tileentity.TileEntityTypes.MICROCONTROLLER)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Microcontroller(tileentity.TileEntityTypes.MICROCONTROLLER, pos, state)
 
   // ----------------------------------------------------------------------- //
 

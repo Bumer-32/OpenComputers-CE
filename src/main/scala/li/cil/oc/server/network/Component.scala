@@ -18,6 +18,7 @@ import net.minecraft.nbt.CompoundTag
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
+import scala.jdk.CollectionConverters._
 
 trait Component extends network.Component with Node {
   def visibility = _visibility
@@ -99,7 +100,7 @@ trait Component extends network.Component with Node {
 
   // ----------------------------------------------------------------------- //
 
-  override def methods = callbacks.keySet
+  override def methods = callbacks.keySet.asJavaCollection
 
   override def annotation(method: String) =
     callbacks.get(method) match {

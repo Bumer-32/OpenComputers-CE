@@ -105,17 +105,18 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
     Rarity.byTier(data.tier)
   }
 
-  override def showDurabilityBar(stack: ItemStack) = true
+  override def isBarVisible(stack: ItemStack) = true
 
-  override def getDurabilityForDisplay(stack: ItemStack): Double = {
+  override def getBarWidth(stack: ItemStack): Int = {
     if (stack.hasTag) {
       val data = Tablet.Client.getWeak(stack) match {
         case Some(wrapper) => wrapper.data
         case _ => new TabletData(stack)
       }
-      1 - data.energy / data.maxEnergy
+      val ratio = data.energy / data.maxEnergy
+      Math.round(ratio * 13.0f).toInt
     }
-    else 1.0
+    else 13
   }
 
   // ----------------------------------------------------------------------- //
@@ -267,16 +268,16 @@ class TabletWrapper(var stack: ItemStack, var player: Player) extends ComponentI
   // Remember our *original* level, so we know which tablets to clear on dimension
   // changes of players holding tablets - since the player entity instance may be
   // kept the same and components are not required to properly handle level changes.
-  val level: Level = player.level
+  val getEnvironmentLevel: Level = player.level
 
-  lazy val machine: api.machine.Machine = if (level.isClientSide) null else Machine.create(this)
+  lazy val machine: api.machine.Machine = if (getEnvironmentLevel.isClientSide) null else Machine.create(this)
 
   val data = new TabletData()
 
-  val tablet: component.Tablet = if (level.isClientSide) null else new component.Tablet(this)
+  val tablet: component.Tablet = if (getEnvironmentLevel.isClientSide) null else new component.Tablet(this)
 
   //// Client side only
-  private var isInitialized = !level.isClientSide
+  private var isInitialized = !getEnvironmentLevel.isClientSide
 
   var timesChanged: Int = 0
 
@@ -305,7 +306,7 @@ class TabletWrapper(var stack: ItemStack, var player: Player) extends ComponentI
     if (stack.hasTag) {
       val data = stack.getTag
       loadData(data)
-      if (!level.isClientSide) {
+      if (!getEnvironmentLevel.isClientSide) {
         tablet.loadData(data.getCompound(Settings.namespace + "component"))
         machine.loadData(data.getCompound(Settings.namespace + "data"))
       }
@@ -314,7 +315,7 @@ class TabletWrapper(var stack: ItemStack, var player: Player) extends ComponentI
 
   def writeToNBT(clearState: Boolean = true): Unit = {
     val data = stack.getOrCreateTag
-    if (!level.isClientSide) {
+    if (!getEnvironmentLevel.isClientSide) {
       if (!data.contains(Settings.namespace + "data")) {
         data.put(Settings.namespace + "data", new CompoundTag())
       }
@@ -331,7 +332,7 @@ class TabletWrapper(var stack: ItemStack, var player: Player) extends ComponentI
   }
 
   readFromNBT()
-  if (!world.isClientSide) {
+  if (!getEnvironmentLevel.isClientSide) {
     api.Network.joinNewNetwork(machine.node)
     val charge = Math.max(0, this.data.energy - tablet.node.globalBuffer)
     tablet.node.changeBuffer(charge)
@@ -462,8 +463,8 @@ class TabletWrapper(var stack: ItemStack, var player: Player) extends ComponentI
 
       client.PacketSender.sendMachineItemStateRequest(stack)
     }
-    if (!world.isClientSide) {
-      if (isCreative && world.getGameTime % Settings.get.tickFrequency == 0) {
+    if (!level.isClientSide) {
+      if (isCreative && level.getGameTime % Settings.get.tickFrequency == 0) {
         machine.node.asInstanceOf[Connector].changeBuffer(Double.PositiveInfinity)
       }
       machine.update()
@@ -598,7 +599,7 @@ object Tablet {
 
         // Force re-load on world change, in case some components store a
         // reference to the world object.
-        if (holder.level != wrapper.world) {
+        if (holder.level != wrapper.getEnvironmentLevel) {
           wrapper.writeToNBT(clearState = false)
           wrapper.autoSave = false
           cache.invalidate(id)
@@ -635,7 +636,7 @@ object Tablet {
 
     def clear(level: Level): Unit = {
       cache.synchronized {
-        val tabletsInWorld = cache.asMap.filter(_._2.world == level)
+        val tabletsInWorld = cache.asMap.filter(_._2.getEnvironmentLevel == level)
         cache.invalidateAll(asJavaIterable(tabletsInWorld.keys))
         cache.cleanUp()
       }
@@ -676,7 +677,7 @@ object Tablet {
   object Server extends Cache {
     def saveAll(level: Level): Unit = {
       cache.synchronized {
-        for (tablet <- cache.asMap.values if tablet.world == level) {
+        for (tablet <- cache.asMap.values if tablet.getEnvironmentLevel == level) {
           tablet.writeToNBT()
         }
       }

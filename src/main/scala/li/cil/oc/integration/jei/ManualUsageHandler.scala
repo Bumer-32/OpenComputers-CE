@@ -1,7 +1,6 @@
 package li.cil.oc.integration.jei
 
 import java.util
-
 import com.mojang.blaze3d.vertex.PoseStack as MatrixStack
 import li.cil.oc.Localization
 import li.cil.oc.OpenComputers
@@ -15,13 +14,14 @@ import mezz.jei.api.ingredients.IIngredients
 import mezz.jei.api.recipe.category.IRecipeCategory
 import mezz.jei.api.registration.IRecipeRegistration
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.components.Button
+import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.item.ItemStack
-import net.minecraft.util.ResourceLocation
-import net.minecraft.client.gui.widget.button.Button
+import net.minecraft.resources.ResourceLocation
 import org.lwjgl.glfw.GLFW
 
-import scala.collection.convert.ImplicitConversionsToJava._
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToScala.*
 
 object ManualUsageHandler {
 
@@ -39,7 +39,7 @@ object ManualUsageHandler {
     val recipeHeight: Int = 125
     private var background: IDrawable = _
     private var icon: IDrawable = _
-    private val button = new Button((160 - 100) / 2, 10, 100, 20, Localization.localizeLater("nei.usage.oc.Manual"), new Button.IPressable {
+    private val button = new Button((160 - 100) / 2, 10, 100, 20, Localization.localizeLater("nei.usage.oc.Manual"), new Button.OnPress {
       override def onPress(b: Button) = ()
     })
 
@@ -76,8 +76,7 @@ object ManualUsageHandler {
       else false
     }
 
-    @Deprecated
-    override def getTitle = "OpenComputers Manual"
+    override def getTitle = new TextComponent("OpenComputers Manual")
 
     override def getUid = new ResourceLocation(OpenComputers.ID, "manual")
   }

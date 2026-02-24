@@ -22,7 +22,9 @@ import net.minecraft.world.item.crafting.ShapedRecipe
 import net.minecraft.world.item.crafting.ShapelessRecipe
 import net.minecraft.nbt.NbtIo
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.tags.BlockTags
 import net.minecraft.world.inventory.CraftingContainer
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.registries.ForgeRegistries
 
 import scala.collection.convert.ImplicitConversionsToScala.*
@@ -43,6 +45,21 @@ object ItemUtils {
       nbt.put("display", new CompoundTag())
     }
     nbt.getCompound("display").putString("Name", name)
+  }
+
+  def getHarvestLevel(state: BlockState): Int = {
+    if (state.is(BlockTags.NEEDS_DIAMOND_TOOL)) 3
+    else if (state.is(BlockTags.NEEDS_IRON_TOOL)) 2
+    else if (state.is(BlockTags.NEEDS_STONE_TOOL)) 1
+    else 0
+  }
+
+  def getHarvestTool(state: BlockState): String = {
+    if (state.is(BlockTags.MINEABLE_WITH_PICKAXE)) "pickaxe"
+    else if (state.is(BlockTags.MINEABLE_WITH_AXE)) "axe"
+    else if (state.is(BlockTags.MINEABLE_WITH_SHOVEL)) "shovel"
+    else if (state.is(BlockTags.MINEABLE_WITH_HOE)) "hoe"
+    else null
   }
 
   def caseTier(stack: ItemStack): Int = {

@@ -1,7 +1,7 @@
 package li.cil.oc.client.renderer.font
 
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.VertexConsumer
+import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.{PoseStack, Tesselator, VertexConsumer}
 import com.mojang.math.Matrix4f
 import li.cil.oc.util.{ExtendedUnicodeHelper, PackedColor, TextBuffer}
 import li.cil.oc.client.renderer.RenderTypes
@@ -65,6 +65,43 @@ abstract class TextureFontRenderer {
       }
     }
     stack.popPose()
+  }
+
+  def drawString(stack: PoseStack, s: String, x: Int, y: Int): Unit = {
+    val sLength = ExtendedUnicodeHelper.length(s)
+
+    stack.pushPose()
+
+    stack.translate(x, y, 0)
+    stack.scale(0.5f, 0.5f, 1)
+
+    RenderSystem.depthMask(false)
+
+    val bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder)
+
+    for (i <- 0 until textureCount) {
+      val renderType = selectType(i)
+      val builder = bufferSource.getBuffer(renderType)
+
+      var tx = 0f
+      var cx = 0
+      for (_ <- 0 until sLength) {
+        val ch = s.codePointAt(cx)
+        if (ch != ' ') {
+          drawChar(builder, stack.last.pose, 0xFFFFFF, tx, 0f, ch)
+        }
+        tx += charWidth
+        cx = s.offsetByCodePoints(cx, 1)
+      }
+      bufferSource.endBatch(renderType)
+    }
+
+    bufferSource.endBatch()
+
+    RenderSystem.depthMask(true)
+    stack.popPose()
+
+    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F)
   }
 
   protected def charWidth: Int

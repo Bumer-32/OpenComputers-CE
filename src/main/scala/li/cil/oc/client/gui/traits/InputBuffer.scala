@@ -103,7 +103,7 @@ trait InputBuffer extends DisplayBuffer {
     }
   }
 
-  override def tick(): Unit = {
+  def containerTick(): Unit = {
     super.tick()
     flushQueuedKey()
   }

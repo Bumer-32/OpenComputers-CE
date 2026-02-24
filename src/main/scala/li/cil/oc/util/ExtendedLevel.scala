@@ -38,7 +38,7 @@ object ExtendedLevel {
     }
   }
 
-  class ExtendedLevel(override val level: Level) extends ExtendedBlockAccess(level) {
+  class ExtendedLevel(val level: Level) extends ExtendedBlockAccess(level) {
     def blockExists(position: BlockPosition) = level.isLoaded(position.toBlockPos)
 
     def breakBlock(position: BlockPosition, drops: Boolean = true) = level.destroyBlock(position.toBlockPos, drops)

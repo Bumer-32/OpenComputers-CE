@@ -5,16 +5,17 @@ import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.network.Analyzable
 import li.cil.oc.api.network.SidedEnvironment
-import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.world.entity.player.{Player => PlayerEntity}
-import net.minecraft.nbt.{CompoundTag => CompoundNBT}
-import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
-import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
-import net.minecraft.core.Direction
+import li.cil.oc.util.ExtendedNBT.*
+import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-class Keyboard(selfType: TileEntityType[_ <: Keyboard]) extends TileEntity(selfType) with traits.Environment with traits.Rotatable with traits.ImmibisMicroblock with SidedEnvironment with Analyzable {
+class Keyboard(selfType: BlockEntityType[_ <: Keyboard], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.Rotatable with traits.ImmibisMicroblock with SidedEnvironment with Analyzable {
   override def validFacings = Direction.values
 
   val keyboard = {
@@ -43,14 +44,14 @@ class Keyboard(selfType: TileEntityType[_ <: Keyboard]) extends TileEntity(selfT
 
   private final val KeyboardTag = Settings.namespace + "keyboard"
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
     if (isServer) {
       keyboard.loadData(nbt.getCompound(KeyboardTag))
     }
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
     if (isServer) {
       nbt.setNewCompoundTag(KeyboardTag, keyboard.saveData)

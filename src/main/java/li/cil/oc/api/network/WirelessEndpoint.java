@@ -32,7 +32,7 @@ public interface WirelessEndpoint {
     /**
      * The world this endpoint lives in.
      */
-    Level world();
+    Level getWirelessLevel();
 
     /**
      * Makes the endpoint receive a single packet.

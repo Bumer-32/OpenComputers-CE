@@ -65,7 +65,7 @@ object BlockPosition {
 
   def apply(v: Vec3, world: Level) = new BlockPosition(v.x, v.y, v.z, Option(world))
 
-  def apply(host: EnvironmentHost): BlockPosition = BlockPosition(host.xPosition, host.yPosition, host.zPosition, host.world)
+  def apply(host: EnvironmentHost): BlockPosition = BlockPosition(host.xPosition, host.yPosition, host.zPosition, host.getEnvironmentLevel)
 
   def apply(entity: Entity): BlockPosition = BlockPosition(entity.getX, entity.getY, entity.getZ, entity.level)
 

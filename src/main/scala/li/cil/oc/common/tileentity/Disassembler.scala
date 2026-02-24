@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -12,31 +11,32 @@ import li.cil.oc.api.network.Connector
 import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.util.StateAware
 import li.cil.oc.common.menu
-import li.cil.oc.common.menu.ContainerTypes
+import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.template.DisassemblerTemplates
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
+import li.cil.oc.server.PacketSender as ServerPacketSender
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.util.ExtendedNBT.*
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.ItemUtils
-import net.minecraft.world.entity.player.{Player => PlayerEntity}
-import net.minecraft.world.entity.player.{Inventory => PlayerInventory}
-import net.minecraft.world.{MenuProvider => INamedContainerProvider}
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.{CompoundTag => CompoundNBT}
-import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
-import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
-import net.minecraft.core.Direction
-import net.minecraft.nbt.{Tag => NBT}
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.nbt.Tag
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-import scala.collection.convert.ImplicitConversionsToJava._
+import scala.collection.convert.ImplicitConversionsToJava.*
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEntity(selfType) with traits.Environment with traits.PowerAcceptor
-  with traits.Inventory with traits.StateAware with traits.PlayerInputAware with traits.Tickable with DeviceInfo with INamedContainerProvider {
+class Disassembler(selfType: BlockEntityType[_ <: Disassembler], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.PowerAcceptor
+  with traits.Inventory with traits.StateAware with traits.PlayerInputAware with traits.Tickable with DeviceInfo with MenuProvider {
 
   val node: Connector = api.Network.newNode(this, Visibility.None).
     withConnector(Settings.get.bufferConverter).
@@ -156,17 +156,17 @@ class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEnti
   private final val TotalTag = Settings.namespace + "total"
   private final val IsActiveTag = Settings.namespace + "isActive"
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
     queue.clear()
-    queue ++= nbt.getList(QueueTag, NBT.TAG_COMPOUND).
-      map((tag: CompoundNBT) => ItemStack.of(tag))
+    queue ++= nbt.getList(QueueTag, Tag.TAG_COMPOUND).
+      map((tag: CompoundTag) => ItemStack.of(tag))
     buffer = nbt.getDouble(BufferTag)
     totalRequiredEnergy = nbt.getDouble(TotalTag)
     isActive = queue.nonEmpty
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
     nbt.setNewTagList(QueueTag, queue)
     nbt.putDouble(BufferTag, buffer)
@@ -174,12 +174,12 @@ class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEnti
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT): Unit = {
+  override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     isActive = nbt.getBoolean(IsActiveTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT): Unit = {
+  override def saveForClient(nbt: CompoundTag): Unit = {
     super.saveForClient(nbt)
     nbt.putBoolean(IsActiveTag, isActive)
   }
@@ -202,7 +202,7 @@ class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEnti
     }
   }
 
-  override def onSetInventorySlotContents(player: PlayerEntity, slot: Int, stack: ItemStack): Unit = {
+  override def onSetInventorySlotContents(player: Player, slot: Int, stack: ItemStack): Unit = {
     if (!getLevel.isClientSide) {
       disassembleNextInstantly = !stack.isEmpty && slot == 0 && player.isCreative
     }
@@ -210,6 +210,6 @@ class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEnti
 
   // ----------------------------------------------------------------------- //
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new menu.Disassembler(ContainerTypes.DISASSEMBLER, id, playerInventory, this)
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
+    new menu.Disassembler(MenuTypes.DISASSEMBLER, id, playerInventory, this)
 }

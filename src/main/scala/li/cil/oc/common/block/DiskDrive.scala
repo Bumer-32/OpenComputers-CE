@@ -45,7 +45,7 @@ class DiskDrive(props: Properties) extends SimpleBlock(props) with traits.GUI {
     case _ =>
   }
 
-  override def newBlockEntity(world: IBlockReader) = new tileentity.DiskDrive(tileentity.TileEntityTypes.DISK_DRIVE)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.DiskDrive(tileentity.TileEntityTypes.DISK_DRIVE, pos, state)
 
   // ----------------------------------------------------------------------- //
 

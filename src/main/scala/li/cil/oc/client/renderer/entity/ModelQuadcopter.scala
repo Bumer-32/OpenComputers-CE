@@ -5,14 +5,16 @@ import com.mojang.blaze3d.vertex.VertexConsumer
 import li.cil.oc.common.entity.Drone
 import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.model.EntityModel
-import net.minecraft.client.model.geom.ModelPart
-import net.minecraft.client.model.geom.PartPose
+import net.minecraft.client.model.geom.{ModelLayerLocation, ModelPart, PartPose}
 import net.minecraft.client.model.geom.builders.{CubeListBuilder, LayerDefinition, MeshDefinition}
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.world.phys.Vec3
 import com.mojang.math.Vector3f
+import net.minecraft.resources.ResourceLocation
 
 object ModelQuadcopter {
+  val LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("opencomputers", "drone"), "main")
+  
   def createLayer(): LayerDefinition = {
     val mesh = new MeshDefinition()
     val root = mesh.getRoot
@@ -64,7 +66,7 @@ final class ModelQuadcopter(root: ModelPart) extends EntityModel[Drone] {
     stack.pushPose()
     if (drone.isRunning) {
       val timeJitter = drone.hashCode() ^ 0xFF
-      stack.translate(0, (math.sin(timeJitter + (drone.level.getGameTime + dt) / 20.0) * (1 / 16f)).toFloat, 0)
+      stack.translate(0, (math.sin(timeJitter + (drone.getEnvironmentLevel.getGameTime + dt) / 20.0) * (1 / 16f)).toFloat, 0)
     }
 
     val direction = drone.getDeltaMovement.normalize()

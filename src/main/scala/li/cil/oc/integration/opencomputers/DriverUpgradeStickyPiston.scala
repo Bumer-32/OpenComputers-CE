@@ -8,14 +8,14 @@ import li.cil.oc.api.internal
 import li.cil.oc.api.network.{EnvironmentHost, ManagedEnvironment}
 import li.cil.oc.common.Slot
 import li.cil.oc.server.component
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 object DriverUpgradeStickyPiston extends Item with HostAware {
   override def worksWith(stack: ItemStack): Boolean = isOneOf(stack,
     api.Items.get(Constants.ItemName.StickyPistonUpgrade))
 
   override def createEnvironment(stack: ItemStack, host: EnvironmentHost): ManagedEnvironment =
-    if (host.world != null && host.world.isClientSide) null
+    if (host.getEnvironmentLevel != null && host.getEnvironmentLevel.isClientSide) null
     else host match {
       case host: internal.Drone => new component.UpgradeStickyPiston.Drone(host)
       case host: internal.Tablet => new component.UpgradeStickyPiston.Tablet(host)

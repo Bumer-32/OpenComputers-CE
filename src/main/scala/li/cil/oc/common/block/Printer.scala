@@ -2,7 +2,7 @@ package li.cil.oc.common.block
 
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.tileentity
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties as Properties
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.server.level.ServerPlayer as ServerPlayerEntity
@@ -13,6 +13,7 @@ import net.minecraft.world.phys.shapes.VoxelShape
 import net.minecraft.world.phys.shapes.Shapes as VoxelShapes
 import net.minecraft.world.level.BlockGetter as IBlockReader
 import net.minecraft.world.level.Level as World
+import net.minecraft.world.level.block.entity.BlockEntity
 
 class Printer(props: Properties) extends SimpleBlock(props) with traits.StateAware with traits.GUI {
   val blockShape = {
@@ -31,5 +32,5 @@ class Printer(props: Properties) extends SimpleBlock(props) with traits.StateAwa
     case _ =>
   }
 
-  override def newBlockEntity(world: IBlockReader) = new tileentity.Printer(tileentity.TileEntityTypes.PRINTER)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Printer(tileentity.TileEntityTypes.PRINTER, pos, state)
 }

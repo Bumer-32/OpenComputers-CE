@@ -12,14 +12,13 @@ import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedLevel._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
-import net.minecraft.util.Direction
-import net.minecraft.world.server.ServerWorld
 
 import scala.collection.convert.ImplicitConversionsToJava._
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.core.Direction
 
 class UpgradeBarcodeReader(val host: EnvironmentHost) extends AbstractManagedEnvironment with DeviceInfo {
   override val node = api.Network.newNode(this, Visibility.Network).
@@ -40,8 +39,8 @@ class UpgradeBarcodeReader(val host: EnvironmentHost) extends AbstractManagedEnv
     super.onMessage(message)
     if (message.name == "tablet.use") message.source.host match {
       case machine: api.machine.Machine => (machine.host, message.data) match {
-        case (tablet: internal.Tablet, Array(nbt: CompoundNBT, stack: ItemStack, player: PlayerEntity, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
-          host.world.getBlockEntity(blockPos) match {
+        case (tablet: internal.Tablet, Array(nbt: CompoundTag, stack: ItemStack, player: Player, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
+          host.getEnvironmentLevel.getBlockEntity(blockPos) match {
             case analyzable: Analyzable =>
               processNodes(analyzable.onAnalyze(player, side, hitX.toFloat, hitY.toFloat, hitZ.toFloat), nbt)
             case host: SidedEnvironment =>
@@ -56,11 +55,11 @@ class UpgradeBarcodeReader(val host: EnvironmentHost) extends AbstractManagedEnv
     }
   }
 
-  private def processNodes(nodes: Array[Node], nbt: CompoundNBT): Unit = if (nodes != null) {
-    val readerNBT = new ListNBT()
+  private def processNodes(nodes: Array[Node], nbt: CompoundTag): Unit = if (nodes != null) {
+    val readerNBT = new ListTag()
 
     for (node <- nodes if node != null) {
-      val nodeNBT = new CompoundNBT()
+      val nodeNBT = new CompoundTag()
       node match {
         case component: Component =>
           nodeNBT.putString("type", component.name)

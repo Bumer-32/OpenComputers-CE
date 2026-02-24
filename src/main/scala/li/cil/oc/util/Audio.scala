@@ -2,7 +2,6 @@ package li.cil.oc.util
 
 import java.nio.Buffer
 import java.nio.ByteBuffer
-
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import net.minecraft.client.Minecraft
@@ -13,7 +12,7 @@ import org.lwjgl.BufferUtils
 import org.lwjgl.openal.AL10
 
 import scala.collection.mutable
-import net.minecraft.sounds.SoundSource
+import net.minecraft.sounds.{SoundEvents, SoundSource}
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.world.phys.Vec3
 
@@ -57,7 +56,7 @@ object Audio {
       val clampedFrequency = ((frequencyInHz - 20) max 0 min 1980) / 1980f + 0.5f
       var delay = 0
       for (ch <- pattern) {
-        val record = new SimpleSoundInstance(SoundEvents.NOTE_BLOCK_HARP, SoundCategory.BLOCKS, gain, clampedFrequency, new BlockPos(x, y, z))
+        val record = new SimpleSoundInstance(SoundEvents.NOTE_BLOCK_HARP, SoundSource.BLOCKS, gain, clampedFrequency, new BlockPos(x, y, z))
         if (delay == 0) mc.getSoundManager.play(record)
         else mc.getSoundManager.playDelayed(record, delay)
         delay += ((if (ch == '.') durationInMilliseconds else 2 * durationInMilliseconds) * 20 / 1000) max 1

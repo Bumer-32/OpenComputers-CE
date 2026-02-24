@@ -7,10 +7,9 @@ import li.cil.oc.integration.Mods
 import li.cil.oc.integration.util.BundledRedstone
 import li.cil.oc.integration.util.BundledRedstone.RedstoneProvider
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedLevel._
-import net.minecraft.block.Blocks
-import net.minecraft.block.RedstoneWireBlock
-import net.minecraft.util.Direction
+import li.cil.oc.util.ExtendedLevel.*
+import net.minecraft.world.level.block.{Blocks, RedStoneWireBlock}
+import net.minecraft.core.Direction
 import net.minecraftforge.common.MinecraftForge
 
 object ModMinecraft extends ModProxy with RedstoneProvider {
@@ -50,7 +49,7 @@ object ModMinecraft extends ModProxy with RedstoneProvider {
     Driver.add(ConverterFluidTankProperties)
     Driver.add(ConverterItemStack)
     Driver.add(ConverterNBT)
-    Driver.add(ConverterWorld)
+    Driver.add(ConverterLevel)
 
     BundledRedstone.addProvider(this)
 
@@ -60,7 +59,7 @@ object ModMinecraft extends ModProxy with RedstoneProvider {
   override def computeInput(pos: BlockPosition, side: Direction): Int = {
     val world = pos.world.get
     math.max(world.computeRedstoneSignal(pos, side),
-      if (world.getBlock(pos.offset(side)) == Blocks.REDSTONE_WIRE) world.getBlockState(pos.offset(side).toBlockPos).getValue(RedstoneWireBlock.POWER).intValue() else 0)
+      if (world.getBlock(pos.offset(side)) == Blocks.REDSTONE_WIRE) world.getBlockState(pos.offset(side).toBlockPos).getValue(RedStoneWireBlock.POWER).intValue() else 0)
   }
 
   override def computeBundledInput(pos: BlockPosition, side: Direction): Array[Int] = null

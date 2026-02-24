@@ -78,7 +78,7 @@ public final class SetColor extends LootItemConditionalFunction {
 
         @Override
         @NotNull
-        public SetColor deserialize(JsonObject src, @NotNull JsonDeserializationContext ctx, LootItemCondition @NotNull [] conditions) {
+        public SetColor deserialize(JsonObject src, @NotNull JsonDeserializationContext ctx, LootItemCondition[] conditions) {
             if (src.has("color")) {
                 int color = GsonHelper.getAsInt(src, "color");
                 if (color < 0 || color > 0xFFFFFF) throw new JsonParseException("Invalid RGB color: " + color);

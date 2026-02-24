@@ -1,29 +1,29 @@
 package li.cil.oc.integration.cofh.foundation;
 
-import cofh.thermal.lib.tileentity.ThermalTileAugmentable;
+import cofh.thermal.lib.block.entity.AugmentableBlockEntity;
 import li.cil.oc.api.machine.Arguments;
 import li.cil.oc.api.machine.Callback;
 import li.cil.oc.api.machine.Context;
 import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.prefab.DriverSidedTileEntity;
 import li.cil.oc.integration.ManagedTileEntityEnvironment;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 public final class DriverEnergyInfo extends DriverSidedTileEntity {
     @Override
     public Class<?> getTileEntityClass() {
-        return ThermalTileAugmentable.class;
+        return AugmentableBlockEntity.class;
     }
 
     @Override
-    public ManagedEnvironment createEnvironment(final World world, final BlockPos pos, final Direction side) {
-        return new Environment((ThermalTileAugmentable) world.getBlockEntity(pos));
+    public ManagedEnvironment createEnvironment(final Level world, final BlockPos pos, final Direction side) {
+        return new Environment((AugmentableBlockEntity) world.getBlockEntity(pos));
     }
 
-    public static final class Environment extends ManagedTileEntityEnvironment<ThermalTileAugmentable> {
-        public Environment(final ThermalTileAugmentable tileEntity) {
+    public static final class Environment extends ManagedTileEntityEnvironment<AugmentableBlockEntity> {
+        public Environment(final AugmentableBlockEntity tileEntity) {
             super(tileEntity, "energy_info");
         }
 

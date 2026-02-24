@@ -15,17 +15,18 @@ import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.util.SideTracker
-import net.minecraft.entity.LivingEntity
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.potion.Effect
-import net.minecraft.potion.Effects
-import net.minecraft.util.math.{AxisAlignedBB, BlockPos, RayTraceContext, RayTraceResult}
-import net.minecraft.util.math.vector.Vector3d
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.phys.AABB
+import net.minecraft.world.phys.Vec3
+import net.minecraft.world.level.ClipContext
+import net.minecraft.world.phys.HitResult
+import net.minecraft.world.effect.MobEffects
 
 class MotionSensor(val host: EnvironmentHost) extends prefab.AbstractManagedEnvironment with DeviceInfo {
   override val node = api.Network.newNode(this, Visibility.Network).
@@ -51,7 +52,7 @@ class MotionSensor(val host: EnvironmentHost) extends prefab.AbstractManagedEnvi
 
   // ----------------------------------------------------------------------- //
 
-  private def world = host.world
+  private def world = host.getEnvironmentLevel
 
   private def x = host.xPosition
 
@@ -93,22 +94,22 @@ class MotionSensor(val host: EnvironmentHost) extends prefab.AbstractManagedEnvi
     }
   }
 
-  private def sensorBounds = new AxisAlignedBB(
+  private def sensorBounds = new AABB(
     x + 0.5 - radius, y + 0.5 - radius, z + 0.5 - radius,
     x + 0.5 + radius, y + 0.5 + radius, z + 0.5 + radius)
 
   private def isInRange(entity: LivingEntity) = entity.distanceToSqr(x + 0.5, y + 0.5, z + 0.5) <= radius * radius
 
-  private def isClearPath(target: Vector3d): Boolean = {
-    val origin = new Vector3d(x, y, z)
+  private def isClearPath(target: Vec3): Boolean = {
+    val origin = new Vec3(x, y, z)
     val path = target.subtract(origin).normalize()
     val eye = origin.add(path)
-    val trace = world.clip(new RayTraceContext(eye, target, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, null))
-    trace.getType == RayTraceResult.Type.MISS
+    val trace = world.clip(new ClipContext(eye, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, null))
+    trace.getType == HitResult.Type.MISS
   }
 
   private def isVisible(entity: LivingEntity) =
-    entity.getEffect(Effects.INVISIBILITY) == null &&
+    entity.getEffect(MobEffects.INVISIBILITY) == null &&
       // Note: it only working in lit conditions works and is neat, but this
       // is pseudo-infrared driven (it only works for *living* entities, after
       // all), so I think it makes more sense for it to work in the dark, too.

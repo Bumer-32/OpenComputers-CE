@@ -50,7 +50,7 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(world: IBlockReader) = new tileentity.Keyboard(tileentity.TileEntityTypes.KEYBOARD)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Keyboard(tileentity.TileEntityTypes.KEYBOARD, pos, state)
 
   // ----------------------------------------------------------------------- //
 

@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -11,30 +10,32 @@ import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network._
+import li.cil.oc.api.network.*
 import li.cil.oc.common.menu
-import li.cil.oc.common.menu.ContainerTypes
+import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.template.AssemblerTemplates
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.server.PacketSender as ServerPacketSender
+import li.cil.oc.util.ExtendedNBT.*
 import li.cil.oc.util.StackOption
-import li.cil.oc.util.StackOption._
-import net.minecraft.world.entity.player.{Player => PlayerEntity}
-import net.minecraft.world.entity.player.{Inventory => PlayerInventory}
-import net.minecraft.world.{MenuProvider => INamedContainerProvider}
+import li.cil.oc.util.StackOption.*
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.{CompoundTag => CompoundNBT}
-import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
-import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
-import net.minecraft.core.Direction
-import net.minecraft.network.chat.{TextComponent => StringTextComponent}
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-import scala.collection.convert.ImplicitConversionsToJava._
+import scala.collection.convert.ImplicitConversionsToJava.*
 
-class Assembler(selfType: TileEntityType[_ <: Assembler]) extends TileEntity(selfType) with traits.Environment with traits.PowerAcceptor
-  with traits.Inventory with SidedEnvironment with traits.StateAware with traits.Tickable with DeviceInfo with INamedContainerProvider {
+class Assembler(selfType: BlockEntityType[_ <: Assembler], pos: BlockPos, state: BlockState) 
+  extends BlockEntity(selfType, pos, state) with traits.Environment with traits.PowerAcceptor
+  with traits.Inventory with SidedEnvironment with traits.StateAware with traits.Tickable with DeviceInfo with MenuProvider {
 
   val node = api.Network.newNode(this, Visibility.Network).
     withComponent("assembler").
@@ -155,7 +156,7 @@ class Assembler(selfType: TileEntityType[_ <: Assembler]) extends TileEntity(sel
   private final val TotalTag = Settings.namespace + "total"
   private final val RemainingTag = Settings.namespace + "remaining"
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
     if (nbt.contains(OutputTag)) {
       output = StackOption(ItemStack.of(nbt.getCompound(OutputTag)))
@@ -167,7 +168,7 @@ class Assembler(selfType: TileEntityType[_ <: Assembler]) extends TileEntity(sel
     requiredEnergy = nbt.getDouble(RemainingTag)
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
     nbt.setNewCompoundTag(OutputTag, output.get.save)
     nbt.putDouble(TotalTag, totalRequiredEnergy)
@@ -175,12 +176,12 @@ class Assembler(selfType: TileEntityType[_ <: Assembler]) extends TileEntity(sel
   }
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT): Unit = {
+  def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     requiredEnergy = nbt.getDouble(RemainingTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT): Unit = {
+  override def saveForClient(nbt: CompoundTag): Unit = {
     super.saveForClient(nbt)
     nbt.putDouble(RemainingTag, requiredEnergy)
   }
@@ -208,8 +209,8 @@ class Assembler(selfType: TileEntityType[_ <: Assembler]) extends TileEntity(sel
 
   // ----------------------------------------------------------------------- //
 
-  override def getDisplayName = StringTextComponent.EMPTY
+  override def getDisplayName = TextComponent.EMPTY
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new menu.Assembler(ContainerTypes.ASSEMBLER, id, playerInventory, this)
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
+    new menu.Assembler(MenuTypes.ASSEMBLER, id, playerInventory, this)
 }

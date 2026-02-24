@@ -4,11 +4,11 @@ import li.cil.oc.Constants
 import li.cil.oc.CreativeTab
 import li.cil.oc.Settings
 import li.cil.oc.common.Tier
-import li.cil.oc.common.block._
-import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.material.Material
-import net.minecraft.item.Rarity
-import net.minecraft.item.Item
+import li.cil.oc.common.block.*
+import net.minecraft.world.item.Rarity
+import net.minecraft.world.item.Item
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.material.Material
 
 object Blocks {
   def init(): Unit = {

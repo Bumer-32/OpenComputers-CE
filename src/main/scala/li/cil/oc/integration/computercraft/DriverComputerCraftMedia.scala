@@ -16,9 +16,9 @@ import net.minecraft.nbt.CompoundTag
 object DriverComputerCraftMedia extends Item {
   override def worksWith(stack: ItemStack) = stack.getItem.isInstanceOf[IMedia]
 
-  override def createEnvironment(stack: ItemStack, host: EnvironmentHost) = if (!host.world.isClientSide) {
+  override def createEnvironment(stack: ItemStack, host: EnvironmentHost) = if (!host.getEnvironmentLevel.isClientSide) {
     val address = addressFromTag(dataTag(stack))
-    val mount = fromComputerCraft(stack.getItem.asInstanceOf[IMedia].createDataMount(stack, host.world))
+    val mount = fromComputerCraft(stack.getItem.asInstanceOf[IMedia].createDataMount(stack, host.getEnvironmentLevel))
     Option(oc.api.FileSystem.asManagedEnvironment(mount, new ComputerCraftLabel(stack), host, Settings.resourceDomain + ":floppy_access")) match {
       case Some(environment) =>
         environment.node.asInstanceOf[oc.server.network.Node].address = address

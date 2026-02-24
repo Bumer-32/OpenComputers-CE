@@ -1,6 +1,6 @@
 package li.cil.oc.server.component
 
-import java.security._
+import java.security.*
 import java.security.interfaces.ECPublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
@@ -12,7 +12,6 @@ import javax.crypto.KeyAgreement
 import javax.crypto.Mac
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
-
 import com.google.common.hash.Hashing
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -24,11 +23,11 @@ import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
 import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.io.output.ByteArrayOutputStream
 
-import scala.collection.convert.ImplicitConversionsToJava._
+import scala.collection.convert.ImplicitConversionsToJava.*
 
 abstract class DataCard extends prefab.AbstractManagedEnvironment with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Neighbors).
@@ -324,13 +323,13 @@ object DataCard {
 
     // ----------------------------------------------------------------------- //
 
-    override def loadData(nbt: CompoundNBT): Unit = {
+    override def loadData(nbt: CompoundTag): Unit = {
       val keyType = nbt.getString("Type")
       val data = nbt.getByteArray("Data")
       value = ECUserdata.deserializeKey(keyType, data)
     }
 
-    override def saveData(nbt: CompoundNBT): Unit = {
+    override def saveData(nbt: CompoundTag): Unit = {
       nbt.putString("Type", keyType)
       nbt.putByteArray("Data", value.getEncoded)
     }

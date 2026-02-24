@@ -1,7 +1,6 @@
 package li.cil.oc.server.component
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api.Network
@@ -15,15 +14,16 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.common.entity
-import li.cil.oc.util.ExtendedArguments._
+import li.cil.oc.util.ExtendedArguments.*
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.entity.item.ItemEntity
-import net.minecraft.util.SoundEvents
-import net.minecraft.util.Direction
-import net.minecraft.util.SoundCategory
+import net.minecraft.core.Direction
 
-import scala.collection.convert.ImplicitConversionsToJava._
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToScala.*
+import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.sounds.SoundSource
+import net.minecraft.world.phys.Vec3
 
 class Drone(val agent: entity.Drone) extends AbstractManagedEnvironment with Agent with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
@@ -48,7 +48,7 @@ class Drone(val agent: entity.Drone) extends AbstractManagedEnvironment with Age
 
   override protected def onSuckCollect(entity: ItemEntity) = {
     if (InventoryUtils.insertIntoInventory(entity.getItem, InventoryUtils.asItemHandler(inventory), slots = Option(insertionSlots))) {
-      world.playSound(agent.player, agent.getX, agent.getY, agent.getZ, SoundEvents.ITEM_PICKUP, SoundCategory.NEUTRAL, 0.2f, ((world.random.nextFloat - world.random.nextFloat) * 0.7f + 1) * 2)
+      world.playSound(agent.player, agent.getX, agent.getY, agent.getZ, SoundEvents.ITEM_PICKUP, SoundSource.NEUTRAL, 0.2f, ((world.random.nextFloat - world.random.nextFloat) * 0.7f + 1) * 2)
     }
   }
 
@@ -93,7 +93,8 @@ class Drone(val agent: entity.Drone) extends AbstractManagedEnvironment with Age
 
   @Callback(doc = "function():number -- Get the current distance to the target position.")
   def getOffset(context: Context, args: Arguments): Array[AnyRef] =
-    result(agent.position.distanceTo(agent.getTarget()))
+    val v3d = agent.getTarget()
+    result(agent.position.distanceTo(new Vec3(v3d.x, v3d.y, v3d.z)))
 
   @Callback(doc = "function():number -- Get the current velocity in m/s.")
   def getVelocity(context: Context, args: Arguments): Array[AnyRef] =

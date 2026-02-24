@@ -92,7 +92,7 @@ class ServerRackModel(val parent: BakedModel) extends SmartBlockModelBase {
   )
 
   object ItemOverride extends ItemOverrides {
-    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity): BakedModel = parent
+    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, seed: Int): BakedModel = parent
   }
 
 }

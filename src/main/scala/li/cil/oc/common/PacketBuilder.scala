@@ -79,7 +79,7 @@ abstract class PacketBuilder(stream: OutputStream) extends DataOutputStream(stre
   def sendToPlayersNearHost(host: EnvironmentHost, range: Option[Double] = None): Unit = {
     host match {
       case t: BlockEntity => sendToPlayersNearTileEntity(t, range)
-      case _ => sendToNearbyPlayers(host.world, host.xPosition, host.yPosition, host.zPosition, range)
+      case _ => sendToNearbyPlayers(host.getEnvironmentLevel, host.xPosition, host.yPosition, host.zPosition, range)
     }
   }
 

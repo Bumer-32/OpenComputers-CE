@@ -22,7 +22,7 @@ class Adapter(props: Properties) extends SimpleBlock(props) with traits.GUI {
     case _ =>
   }
 
-  override def newBlockEntity(world: IBlockReader) = new tileentity.Adapter(tileentity.TileEntityTypes.ADAPTER)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Adapter(tileentity.TileEntityTypes.ADAPTER, pos, state)
 
   // ----------------------------------------------------------------------- //
 

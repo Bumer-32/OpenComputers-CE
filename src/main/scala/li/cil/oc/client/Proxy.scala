@@ -1,6 +1,5 @@
 package li.cil.oc.client
 
-import com.mojang.blaze3d.systems.IRenderCall
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.OpenComputers
 import li.cil.oc.api
@@ -14,27 +13,30 @@ import li.cil.oc.client.renderer.WirelessNetworkDebugRenderer
 import li.cil.oc.client.renderer.block.ModelInitialization
 import li.cil.oc.client.renderer.block.NetSplitterModel
 import li.cil.oc.client.renderer.entity.DroneRenderer
-import li.cil.oc.client.renderer.tileentity._
+import li.cil.oc.client.renderer.tileentity.*
 import li.cil.oc.common
-import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
-import li.cil.oc.common.{Proxy => CommonProxy}
+import li.cil.oc.common.PacketHandler as CommonPacketHandler
+import li.cil.oc.common.Proxy as CommonProxy
 import li.cil.oc.common.component.TextBuffer
 import li.cil.oc.common.entity.Drone
 import li.cil.oc.common.entity.EntityTypes
 import li.cil.oc.common.event.NanomachinesHandler
 import li.cil.oc.common.event.RackMountableRenderHandler
 import li.cil.oc.common.tileentity
+import li.cil.oc.common.tileentity.TileEntityTypes
 import li.cil.oc.util.Audio
-import net.minecraft.block.Block
-import net.minecraft.client.renderer.entity.{EntityRenderer, EntityRendererManager}
-import net.minecraft.item.Item
-import net.minecraft.world.World
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers
+import net.minecraft.world.level.block.Block
+import net.minecraft.client.renderer.entity.{DrownedRenderer, EntityRenderDispatcher, EntityRenderer}
+import net.minecraft.world.item.Item
+import net.minecraftforge.client.ClientRegistry
+import net.minecraftforge.client.event.EntityRenderersEvent
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.fml.client.registry.{ClientRegistry, IRenderFactory, RenderingRegistry}
+import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
-import net.minecraftforge.fml.network.NetworkRegistry
 
 private[oc] class Proxy extends CommonProxy {
+  modBus.register(this)
   modBus.register(classOf[GuiTypes])
   modBus.register(ModelInitialization)
   modBus.register(NetSplitterModel)
@@ -56,29 +58,6 @@ private[oc] class Proxy extends CommonProxy {
 
       ColorHandler.init()
 
-      RenderingRegistry.registerEntityRenderingHandler(EntityTypes.DRONE, new IRenderFactory[Drone] {
-        override def createRenderFor(manager: EntityRendererManager): EntityRenderer[_ >: Drone] = new DroneRenderer(manager)
-      })
-
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.ADAPTER, AdapterRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.ASSEMBLER, AssemblerRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.CASE, CaseRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.CHARGER, ChargerRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.DISASSEMBLER, DisassemblerRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.DISK_DRIVE, DiskDriveRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.GEOLYZER, GeolyzerRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.HOLOGRAM, HologramRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.MICROCONTROLLER, MicrocontrollerRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.NET_SPLITTER, NetSplitterRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.POWER_DISTRIBUTOR, PowerDistributorRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.PRINTER, PrinterRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.RAID, RaidRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.RACK, RackRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.RELAY, RelayRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.ROBOT, RobotRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.SCREEN, ScreenRenderer)
-      ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.TRANSPOSER, TransposerRenderer)
-
       ClientRegistry.registerKeyBinding(KeyBindings.extendedTooltip)
       ClientRegistry.registerKeyBinding(KeyBindings.analyzeCopyAddr)
       ClientRegistry.registerKeyBinding(KeyBindings.clipboardPaste)
@@ -96,6 +75,30 @@ private[oc] class Proxy extends CommonProxy {
     }): Runnable)
 
     RenderSystem.recordRenderCall(() => MinecraftForge.EVENT_BUS.register(TextBufferRenderCache))
+  }
+
+  @SubscribeEvent
+  def onRegisterRenderers(e: EntityRenderersEvent.RegisterRenderers): Unit = {
+    e.registerEntityRenderer(EntityTypes.DRONE, ctx => new DroneRenderer(ctx))
+
+    BlockEntityRenderers.register(TileEntityTypes.ADAPTER, AdapterRenderer)
+    BlockEntityRenderers.register(TileEntityTypes.ASSEMBLER, AssemblerRenderer)
+    BlockEntityRenderers.register(TileEntityTypes.CASE, CaseRenderer)
+    BlockEntityRenderers.register(TileEntityTypes.CHARGER, ChargerRenderer)
+    BlockEntityRenderers.register(TileEntityTypes.DISASSEMBLER, DisassemblerRenderer)
+    BlockEntityRenderers.register(TileEntityTypes.DISK_DRIVE, DiskDriveRenderer)
+    BlockEntityRenderers.register(TileEntityTypes.GEOLYZER, GeolyzerRenderer)
+    BlockEntityRenderers.register(TileEntityTypes.HOLOGRAM, HologramRenderer)
+    BlockEntityRenderers.register(TileEntityTypes.MICROCONTROLLER, ctx => new MicrocontrollerRenderer(ctx))
+    BlockEntityRenderers.register(TileEntityTypes.NET_SPLITTER, ctx => new NetSplitterRenderer(ctx))
+    BlockEntityRenderers.register(TileEntityTypes.POWER_DISTRIBUTOR, PowerDistributorRenderer)
+    BlockEntityRenderers.register(TileEntityTypes.PRINTER, PrinterRenderer)
+    BlockEntityRenderers.register(TileEntityTypes.RAID, RaidRenderer)
+    BlockEntityRenderers.register(TileEntityTypes.RACK, RackRenderer)
+    BlockEntityRenderers.register(TileEntityTypes.RELAY, RelayRenderer)
+    BlockEntityRenderers.register(TileEntityTypes.ROBOT, RobotRenderer)
+    BlockEntityRenderers.register(TileEntityTypes.SCREEN, ScreenRenderer)
+    BlockEntityRenderers.register(TileEntityTypes.TRANSPOSER, TransposerRenderer)
   }
 
   override def registerModel(instance: Item, id: String): Unit = ModelInitialization.registerModel(instance, id)

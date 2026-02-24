@@ -22,30 +22,30 @@ import li.cil.oc.api.network.Node
 import li.cil.oc.common.InventorySlots
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
-import li.cil.oc.common.menu.ContainerTypes
+import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.inventory.ComponentInventory
 import li.cil.oc.common.inventory.ServerInventory
 import li.cil.oc.common.item
 import li.cil.oc.server.network.Connector
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.world.World
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.core.Direction
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.LazyOptional
 
 import scala.collection.convert.ImplicitConversionsToJava._
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.level.Level
 
 class Server(val rack: api.internal.Rack, val slot: Int) extends Environment with MachineHost with ServerInventory with ComponentInventory with Analyzable with internal.Server with ICapabilityProvider with DeviceInfo {
   lazy val machine: api.machine.Machine = Machine.create(this)
 
-  val node: Node = if (!rack.world.isClientSide) machine.node else null
+  val node: Node = if (!rack.getEnvironmentLevel.isClientSide) machine.node else null
 
   var wasRunning = false
   var hadErrored = false
@@ -82,16 +82,16 @@ class Server(val rack: api.internal.Rack, val slot: Int) extends Environment wit
 
   private final val MachineTag = "machine"
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     super.loadData(nbt)
-    if (!rack.world.isClientSide) {
+    if (!rack.getEnvironmentLevel.isClientSide) {
       machine.loadData(nbt.getCompound(MachineTag))
     }
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     super.saveData(nbt)
-    if (!rack.world.isClientSide) {
+    if (!rack.getEnvironmentLevel.isClientSide) {
       nbt.setNewCompoundTag(MachineTag, machine.saveData)
     }
   }
@@ -118,7 +118,7 @@ class Server(val rack: api.internal.Rack, val slot: Int) extends Environment wit
 
   override def zPosition: Double = rack.zPosition
 
-  override def world: World = rack.world
+  override def getEnvironmentLevel: Level = rack.getEnvironmentLevel
 
   override def markChanged(): Unit = rack.markChanged()
 
@@ -132,7 +132,7 @@ class Server(val rack: api.internal.Rack, val slot: Int) extends Environment wit
     case _ => 0
   }
 
-  override def stillValid(player: PlayerEntity): Boolean = rack.stillValid(player) && rack.indexOfMountable(this) >= 0
+  override def stillValid(player: Player): Boolean = rack.stillValid(player) && rack.indexOfMountable(this) >= 0
 
   // ----------------------------------------------------------------------- //
   // ItemStackInventory
@@ -153,7 +153,7 @@ class Server(val rack: api.internal.Rack, val slot: Int) extends Environment wit
 
   override protected def onItemRemoved(slot: Int, stack: ItemStack): Unit = {
     super.onItemRemoved(slot, stack)
-    if (!rack.world.isClientSide) {
+    if (!rack.getEnvironmentLevel.isClientSide) {
       val slotType = InventorySlots.server(tier)(slot).slot
       if (slotType == Slot.CPU) {
         machine.stop()
@@ -164,8 +164,8 @@ class Server(val rack: api.internal.Rack, val slot: Int) extends Environment wit
   // ----------------------------------------------------------------------- //
   // RackMountable
 
-  override def getData: CompoundNBT = {
-    val nbt = new CompoundNBT()
+  override def getData: CompoundTag = {
+    val nbt = new CompoundTag()
     nbt.putBoolean("isRunning", wasRunning)
     nbt.putBoolean("hasErrored", hadErrored)
     nbt.putLong("lastFileSystemAccess", lastFileSystemAccess)
@@ -182,7 +182,7 @@ class Server(val rack: api.internal.Rack, val slot: Int) extends Environment wit
     case Some(busConnectable: RackBusConnectable) => busConnectable
   }.apply(index)
 
-  override def onActivate(player: PlayerEntity, hand: Hand, heldItem: ItemStack, hitX: Float, hitY: Float): Boolean = {
+  override def onActivate(player: Player, hand: InteractionHand, heldItem: ItemStack, hitX: Float, hitY: Float): Boolean = {
     if (!player.level.isClientSide) {
       if (player.isCrouching) {
         if (!machine.isRunning && stillValid(player)) {
@@ -193,7 +193,7 @@ class Server(val rack: api.internal.Rack, val slot: Int) extends Environment wit
       }
       else {
         player match {
-          case srvPlr: ServerPlayerEntity => ContainerTypes.openServerGui(srvPlr, this, slot)
+          case srvPlr: ServerPlayer => MenuTypes.openServerGui(srvPlr, this, slot)
           case _ =>
         }
       }
@@ -207,7 +207,7 @@ class Server(val rack: api.internal.Rack, val slot: Int) extends Environment wit
   override def canUpdate: Boolean = true
 
   override def update(): Unit = {
-    if (!rack.world.isClientSide) {
+    if (!rack.getEnvironmentLevel.isClientSide) {
       machine.update()
 
       val isRunning = machine.isRunning
@@ -234,7 +234,7 @@ class Server(val rack: api.internal.Rack, val slot: Int) extends Environment wit
   // ----------------------------------------------------------------------- //
   // Analyzable
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = Array(machine.node)
+  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = Array(machine.node)
 
   // ----------------------------------------------------------------------- //
   // ICapabilityProvider

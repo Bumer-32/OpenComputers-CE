@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.level.material.PushReaction
 import net.minecraft.world.level.block.piston.PistonBaseBlock
+import net.minecraft.sounds.SoundSource
 
 protected object PistonTraits {
   trait ExtendAware {
@@ -81,7 +82,7 @@ abstract class UpgradePiston(val host: EnvironmentHost) extends AbstractManagedE
       }
       // make sure that any obstruction block has breaking mobility
       val innerBlockPos = hostPos.relative(side): BlockPos
-      val innerBlockState = host.world.getBlockState(innerBlockPos)
+      val innerBlockState = host.getEnvironmentLevel.getBlockState(innerBlockPos)
       if (innerBlockState != null) {
         if (!innerBlockState.isAir()) {
           if (innerBlockState.getPistonPushReaction != PushReaction.DESTROY) {
@@ -91,11 +92,11 @@ abstract class UpgradePiston(val host: EnvironmentHost) extends AbstractManagedE
       }
     }
 
-    if (piston.moveBlocks(host.world, hostPos, side, extending)) {
+    if (piston.moveBlocks(host.getEnvironmentLevel, hostPos, side, extending)) {
       // send piston extend sound to clients
       host.synchronized(ServerPacketSender.sendSound(
-        host.world, hostPos.getX, hostPos.getY, hostPos.getZ,
-        sound, SoundCategory.BLOCKS, range = 15.0))
+        host.getEnvironmentLevel, hostPos.getX, hostPos.getY, hostPos.getZ,
+        sound, SoundSource.BLOCKS, range = 15.0))
       context.pause(1.0 / 20.0)
       result(true)
     } else {

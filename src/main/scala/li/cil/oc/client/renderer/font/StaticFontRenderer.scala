@@ -41,8 +41,9 @@ class StaticFontRenderer extends TextureFontRenderer {
   override protected def textureCount = 1
 
   override protected def selectType(index: Int): RenderType = {
-    val location = if (Settings.get.textAntiAlias) Textures.Font.AntiAliased else Textures.Font.Aliased
-    RenderTypes.createFontTex(location)
+    val isAntiAlias = Settings.get.textAntiAlias
+    val location = if (isAntiAlias) Textures.Font.AntiAliased else Textures.Font.Aliased
+    RenderTypes.createFontTex(location.getPath, location, isAntiAlias)
   }
 
   override protected def generateChar(char: Int): Unit = {}

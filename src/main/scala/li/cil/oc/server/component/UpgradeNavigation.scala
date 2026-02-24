@@ -22,12 +22,12 @@ import li.cil.oc.common.item.data.NavigationUpgradeData
 import li.cil.oc.common.Tier
 import li.cil.oc.server.network.Waypoints
 import li.cil.oc.util.BlockPosition
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.core.Direction
 
 import scala.collection.convert.ImplicitConversionsToJava._
+import net.minecraft.world.entity.player.Player
 
 class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends AbstractManagedEnvironment with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
@@ -42,7 +42,7 @@ class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends Abstra
     DeviceAttribute.Description -> "Navigation upgrade",
     DeviceAttribute.Vendor -> Constants.DeviceInfo.DefaultVendor,
     DeviceAttribute.Product -> "PathFinder v3",
-    DeviceAttribute.Capacity -> data.getSize(host.world).toString
+    DeviceAttribute.Capacity -> data.getSize(host.getEnvironmentLevel).toString
   )
 
   override def getDeviceInfo: util.Map[String, String] = deviceInfo
@@ -51,8 +51,8 @@ class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends Abstra
 
   @Callback(doc = """function():number, number, number -- Get the current relative position of the robot.""")
   def getPosition(context: Context, args: Arguments): Array[AnyRef] = {
-    val info = data.mapData(host.world)
-    val size = data.getSize(host.world)
+    val info = data.mapData(host.getEnvironmentLevel)
+    val size = data.getSize(host.getEnvironmentLevel)
     val relativeX = host.xPosition - info.x
     val relativeZ = host.zPosition - info.z
 
@@ -66,12 +66,12 @@ class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends Abstra
   def getFacing(context: Context, args: Arguments): Array[AnyRef] = result(host.facing.ordinal)
 
   @Callback(doc = """function():number -- Get the operational range of the navigation upgrade.""")
-  def getRange(context: Context, args: Arguments): Array[AnyRef] = result(data.getSize(host.world) / 2)
+  def getRange(context: Context, args: Arguments): Array[AnyRef] = result(data.getSize(host.getEnvironmentLevel) / 2)
 
   @Callback(doc = """function(range:number):table -- Find waypoints in the specified range.""")
   def findWaypoints(context: Context, args: Arguments): Array[AnyRef] = {
     val range = args.checkDouble(0) max 0 min Settings.get.maxWirelessRange(Tier.Two)
-    if (range <= 0) return result(Array.empty)
+    if (range <= 0) return result(Array.empty[AnyRef])
     if (!node.tryChangeBuffer(-range * Settings.get.wirelessCostPerRange(Tier.Two) * 0.25)) return result((), "not enough energy")
     context.pause(0.5)
     val position = BlockPosition(host)
@@ -94,8 +94,8 @@ class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends Abstra
     super.onMessage(message)
     if (message.name == "tablet.use") message.source.host match {
       case machine: api.machine.Machine => (machine.host, message.data) match {
-        case (tablet: internal.Tablet, Array(nbt: CompoundNBT, stack: ItemStack, player: PlayerEntity, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
-          val info = data.mapData(host.world)
+        case (tablet: internal.Tablet, Array(nbt: CompoundTag, stack: ItemStack, player: Player, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
+          val info = data.mapData(host.getEnvironmentLevel)
           nbt.putInt("posX", blockPos.x - info.x)
           nbt.putInt("posY", blockPos.y)
           nbt.putInt("posZ", blockPos.z - info.z)
@@ -107,12 +107,12 @@ class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends Abstra
 
   // ----------------------------------------------------------------------- //
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     super.loadData(nbt)
     data.loadData(nbt)
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     super.saveData(nbt)
     data.saveData(nbt)
   }

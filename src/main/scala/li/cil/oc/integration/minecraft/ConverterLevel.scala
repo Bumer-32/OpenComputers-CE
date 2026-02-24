@@ -3,18 +3,17 @@ package li.cil.oc.integration.minecraft
 import java.nio.charset.StandardCharsets
 import java.util
 import java.util.UUID
-
 import com.google.common.hash.Hashing
 import li.cil.oc.api
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.Level
 
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.collection.convert.ImplicitConversionsToScala.*
 
-object ConverterWorld extends api.driver.Converter {
-  override def convert(value: AnyRef, output: util.Map[AnyRef, AnyRef]) = {
+object ConverterLevel extends api.driver.Converter {
+  override def convert(value: AnyRef, output: util.Map[AnyRef, AnyRef]): Unit = {
     value match {
-      case world: ServerWorld =>
+      case world: ServerLevel =>
         output += "id" -> UUID.nameUUIDFromBytes(Hashing.md5().newHasher().
           putLong(world.getSeed).
           putString(world.dimension.location.toString, StandardCharsets.UTF_8).
@@ -23,7 +22,7 @@ object ConverterWorld extends api.driver.Converter {
     }
 
     value match {
-      case world: World =>
+      case world: Level =>
         output += "name" -> world.dimension.location.toString
       case _ =>
     }

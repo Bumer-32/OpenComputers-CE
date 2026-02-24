@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -16,24 +15,26 @@ import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.common.block.property.PropertyRunning
 import li.cil.oc.common.menu
-import li.cil.oc.common.menu.ContainerTypes
+import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.util.Color
-import net.minecraft.world.entity.player.{Player => PlayerEntity}
-import net.minecraft.world.entity.player.{Inventory => PlayerInventory}
-import net.minecraft.world.{MenuProvider => INamedContainerProvider}
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.{CompoundTag => CompoundNBT}
-import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
-import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
-import net.minecraft.core.Direction
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-import scala.collection.convert.ImplicitConversionsToJava._
+import scala.collection.convert.ImplicitConversionsToJava.*
 
-class Case(selfType: TileEntityType[_ <: Case], var tier: Int) extends TileEntity(selfType) with traits.PowerAcceptor with traits.Computer with traits.Colored with internal.Case with DeviceInfo with INamedContainerProvider {
-  def this(selfType: TileEntityType[_ <: Case]) = {
-    this(selfType, 0)
+class Case(selfType: BlockEntityType[_ <: Case], pos: BlockPos, state: BlockState, var tier: Int) 
+  extends BlockEntity(selfType, pos, state) with traits.PowerAcceptor with traits.Computer with traits.Colored with internal.Case with DeviceInfo with MenuProvider {
+  def this(selfType: BlockEntityType[_ <: Case], pos: BlockPos, state: BlockState) = {
+    this(selfType, pos, state, 0)
     // If no tier was defined when constructing this case, then we don't yet know the inventory size
     // this is set back to true when the nbt data is loaded
     isSizeInventoryReady = false
@@ -100,14 +101,14 @@ class Case(selfType: TileEntityType[_ <: Case], var tier: Int) extends TileEntit
 
   private final val TierTag = Settings.namespace + "tier"
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     tier = nbt.getByte(TierTag) max 0 min 3
     setColor(Color.rgbValues(Color.byTier(tier)))
     super.loadForServer(nbt)
     isSizeInventoryReady = true
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     nbt.putByte(TierTag, tier.toByte)
     super.saveForServer(nbt)
   }
@@ -138,7 +139,7 @@ class Case(selfType: TileEntityType[_ <: Case], var tier: Int) extends TileEntit
 
   override def getContainerSize = if (tier < 0 || tier >= InventorySlots.computer.length) 0 else InventorySlots.computer(tier).length
 
-  override def stillValid(player: PlayerEntity) =
+  override def stillValid(player: Player) =
     super.stillValid(player) && (!isCreative || player.isCreative)
 
   override def canPlaceItem(slot: Int, stack: ItemStack) =
@@ -149,6 +150,6 @@ class Case(selfType: TileEntityType[_ <: Case], var tier: Int) extends TileEntit
 
   // ----------------------------------------------------------------------- //
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new menu.Case(ContainerTypes.CASE, id, playerInventory, this, tier)
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
+    new menu.Case(MenuTypes.CASE, id, playerInventory, this, tier)
 }

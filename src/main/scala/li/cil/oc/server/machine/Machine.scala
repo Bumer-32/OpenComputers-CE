@@ -300,11 +300,11 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
   }
 
   override def beep(frequency: Short, duration: Short): Unit = {
-    PacketSender.sendSound(host.world, host.xPosition, host.yPosition, host.zPosition, frequency, duration)
+    PacketSender.sendSound(host.getEnvironmentLevel, host.xPosition, host.yPosition, host.zPosition, frequency, duration)
   }
 
   override def beep(pattern: String): Unit = {
-    PacketSender.sendSound(host.world, host.xPosition, host.yPosition, host.zPosition, pattern)
+    PacketSender.sendSound(host.getEnvironmentLevel, host.xPosition, host.yPosition, host.zPosition, pattern)
   }
 
   override def crash(message: String): Boolean = {
@@ -521,7 +521,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     }
 
     // Update world time for time() and uptime().
-    worldTime = host.world.getDayTime
+    worldTime = host.getEnvironmentLevel.getDayTime
     uptime += 1
 
     if (remainIdle > 0) {
@@ -532,7 +532,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     callBudget = maxCallBudget
 
     // Make sure we have enough power.
-    if (host.world.getGameTime % Settings.get.tickFrequency == 0) {
+    if (host.getEnvironmentLevel.getGameTime % Settings.get.tickFrequency == 0) {
       state.synchronized(state.top match {
         case Machine.State.Paused |
              Machine.State.Restarting |
@@ -550,7 +550,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     }
 
     // Avoid spamming user list across the network.
-    if (host.world.getGameTime % 20 == 0 && usersChanged) {
+    if (host.getEnvironmentLevel.getGameTime % 20 == 0 && usersChanged) {
       val list = _users.synchronized {
         usersChanged = false
         users

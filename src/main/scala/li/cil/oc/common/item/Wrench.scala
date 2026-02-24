@@ -6,7 +6,7 @@ import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.{Item, ItemStack}
 import net.minecraft.world.level.block.Rotation
-import net.minecraft.world.level.{BlockGetter, Level}
+import net.minecraft.world.level.{BlockGetter, Level, LevelReader}
 import net.minecraft.world.{InteractionHand, InteractionResult}
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
@@ -14,7 +14,7 @@ import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.level.block.Blocks
 
 class Wrench(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with api.internal.Wrench {
-  override def doesSneakBypassUse(stack: ItemStack, world: BlockGetter, pos: BlockPos, player: Player): Boolean = true
+  override def doesSneakBypassUse(stack: ItemStack, world: LevelReader, pos: BlockPos, player: Player): Boolean = true
 
   override def onItemUseFirst(stack: ItemStack, player: Player, world: Level, pos: BlockPos, side: Direction, hitX: Float, hitY: Float, hitZ: Float, hand: InteractionHand): InteractionResult = {
     if (world.isLoaded(pos) && world.mayInteract(player, pos)) {

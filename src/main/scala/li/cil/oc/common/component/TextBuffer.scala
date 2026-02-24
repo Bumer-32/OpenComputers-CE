@@ -126,7 +126,7 @@ class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment w
 
   override def update(): Unit = {
     super.update()
-    if (isDisplaying && host.world.getGameTime % Settings.get.tickFrequency == 0) {
+    if (isDisplaying && host.getEnvironmentLevel.getGameTime % Settings.get.tickFrequency == 0) {
       if (relativeLitArea < 0) {
         // The relative lit area is the number of pixels that are not blank
         // versus the number of pixels in the *current* resolution. This is
@@ -410,14 +410,14 @@ class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment w
   override def onConnect(node: Node): Unit = {
     super.onConnect(node)
     if (node == this.node) {
-      ServerComponentTracker.add(host.world, node.address, this)
+      ServerComponentTracker.add(host.getEnvironmentLevel, node.address, this)
     }
   }
 
   override def onDisconnect(node: Node): Unit = {
     super.onDisconnect(node)
     if (node == this.node) {
-      ServerComponentTracker.remove(host.world, this)
+      ServerComponentTracker.remove(host.getEnvironmentLevel, this)
     }
   }
 
@@ -510,9 +510,9 @@ object TextBuffer {
     clientBuffers = clientBuffers.filter(t => {
       val blockPos = BlockPosition(t.host)
       val chunkPos = chunk.getPos
-      val keep = t.host.world != e.getWorld || ((blockPos.x >> 4) != chunkPos.x || (blockPos.z >> 4) != chunkPos.z)
+      val keep = t.host.getEnvironmentLevel != e.getWorld || ((blockPos.x >> 4) != chunkPos.x || (blockPos.z >> 4) != chunkPos.z)
       if (!keep) {
-        ClientComponentTracker.remove(t.host.world, t)
+        ClientComponentTracker.remove(t.host.getEnvironmentLevel, t)
       }
       keep
     })
@@ -521,9 +521,9 @@ object TextBuffer {
   @SubscribeEvent
   def onWorldUnload(e: WorldEvent.Unload): Unit = {
     clientBuffers = clientBuffers.filter(t => {
-      val keep = t.host.world != e.getWorld
+      val keep = t.host.getEnvironmentLevel != e.getWorld
       if (!keep) {
-        ClientComponentTracker.remove(t.host.world, t)
+        ClientComponentTracker.remove(t.host.getEnvironmentLevel, t)
       }
       keep
     })
@@ -531,7 +531,7 @@ object TextBuffer {
 
   def registerClientBuffer(t: TextBuffer): Unit = {
     ClientPacketSender.sendTextBufferInit(t.proxy.nodeAddress)
-    ClientComponentTracker.add(t.host.world, t.proxy.nodeAddress, t)
+    ClientComponentTracker.add(t.host.getEnvironmentLevel, t.proxy.nodeAddress, t)
     clientBuffers += t
   }
 

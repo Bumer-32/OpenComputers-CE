@@ -334,7 +334,7 @@ object PacketHandler extends CommonPacketHandler {
 
   def onRobotStateRequest(p: PacketParser): Unit = {
     p.readBlockEntity[RobotProxy]() match {
-      case Some(proxy) => proxy.world.sendBlockUpdated(proxy.getBlockPos, proxy.world.getBlockState(proxy.getBlockPos), proxy.world.getBlockState(proxy.getBlockPos), 3)
+      case Some(proxy) => proxy.getEnvironmentLevel.sendBlockUpdated(proxy.getBlockPos, proxy.getEnvironmentLevel.getBlockState(proxy.getBlockPos), proxy.getEnvironmentLevel.getBlockState(proxy.getBlockPos), 3)
       case _ => // Invalid packet.
     }
   }

@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -12,11 +11,11 @@ import li.cil.oc.api.driver.DeviceInfo.DeviceClass
 import li.cil.oc.api.driver.DriverBlock
 import li.cil.oc.api.internal
 import li.cil.oc.api.network.Analyzable
-import li.cil.oc.api.network._
+import li.cil.oc.api.network.*
 import li.cil.oc.common.Slot
 import li.cil.oc.common.menu
 import li.cil.oc.common.menu.MenuTypes
-import li.cil.oc.server.PacketSender
+import li.cil.oc.server.PacketSender as ServerPacketSender
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.MenuProvider
@@ -25,18 +24,20 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.sounds.SoundSource
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.nbt.Tag
+import net.minecraft.world.level.block.state.BlockState
 
-import scala.collection.convert.ImplicitConversionsToJava._
+import scala.collection.convert.ImplicitConversionsToJava.*
 import scala.collection.mutable
 
-class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfType) with traits.Environment with traits.ComponentInventory
-  with traits.Tickable with traits.OpenSides with Analyzable with internal.Adapter with DeviceInfo with INamedContainerProvider {
+class Adapter(selfType: BlockEntityType[_ <: Adapter], pos: BlockPos, state: BlockState)
+  extends BlockEntity(selfType, pos, state) with traits.Environment with traits.ComponentInventory
+  with traits.Tickable with traits.OpenSides with Analyzable with internal.Adapter with DeviceInfo with MenuProvider {
 
-  val node = api.Network.newNode(this, Visibility.Network).create()
+  val node: Node = api.Network.newNode(this, Visibility.Network).create()
 
   private val blocks = Array.fill[Option[(ManagedEnvironment, DriverBlock)]](6)(None)
 
@@ -61,7 +62,7 @@ class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfTyp
     super.setSideOpen(side, value)
     if (isServer) {
       ServerPacketSender.sendAdapterState(this)
-      getLevel.playSound(null, getBlockPos, SoundEvents.PISTON_EXTEND, SoundCategory.BLOCKS, 0.5f, getLevel.random.nextFloat() * 0.25f + 0.7f)
+      getLevel.playSound(null, getBlockPos, SoundEvents.PISTON_EXTEND, SoundSource.BLOCKS, 0.5f, getLevel.random.nextFloat() * 0.25f + 0.7f)
       getLevel.updateNeighborsAt(getBlockPos, getBlockState.getBlock)
       neighborChanged(side)
     } else {
@@ -71,7 +72,7 @@ class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfTyp
 
   // ----------------------------------------------------------------------- //
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
+  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
     (blocks collect {
       case Some((environment, _)) => environment.node
     }) ++
@@ -119,7 +120,7 @@ class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfTyp
                     if (environment.canUpdate) {
                       updatingBlocks += environment
                     }
-                    blocksData(d.ordinal()) = Some(new BlockData(environment.getClass.getName, new CompoundNBT()))
+                    blocksData(d.ordinal()) = Some(new BlockData(environment.getClass.getName, new CompoundTag()))
                     node.connect(environment.node)
                   }
                 } // else: the more things change, the more they stay the same.
@@ -139,7 +140,7 @@ class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfTyp
                       environment.loadData(data.data)
                     case _ =>
                   }
-                  blocksData(d.ordinal()) = Some(new BlockData(environment.getClass.getName, new CompoundNBT()))
+                  blocksData(d.ordinal()) = Some(new BlockData(environment.getClass.getName, new CompoundTag()))
                   node.connect(environment.node)
                 }
             }
@@ -193,8 +194,8 @@ class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfTyp
 
   // ----------------------------------------------------------------------- //
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new menu.Adapter(ContainerTypes.ADAPTER, id, playerInventory, this)
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
+    new menu.Adapter(MenuTypes.ADAPTER, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
 
@@ -202,10 +203,10 @@ class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfTyp
   private final val BlockNameTag = "name"
   private final val BlockDataTag = "data"
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
 
-    val blocksNbt = nbt.getList(BlocksTag, NBT.TAG_COMPOUND)
+    val blocksNbt = nbt.getList(BlocksTag, Tag.TAG_COMPOUND)
     (0 until (blocksNbt.size min blocksData.length)).
       map(blocksNbt.getCompound).
       zipWithIndex.
@@ -217,12 +218,12 @@ class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfTyp
       }
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
 
-    val blocksNbt = new ListNBT()
+    val blocksNbt = new ListTag()
     for (i <- blocks.indices) {
-      val blockNbt = new CompoundNBT()
+      val blockNbt = new CompoundTag()
       blocksData(i) match {
         case Some(data) =>
           blocks(i) match {
@@ -240,6 +241,6 @@ class Adapter(selfType: TileEntityType[_ <: Adapter]) extends TileEntity(selfTyp
 
   // ----------------------------------------------------------------------- //
 
-  private class BlockData(val name: String, val data: CompoundNBT)
+  private class BlockData(val name: String, val data: CompoundTag)
 
 }

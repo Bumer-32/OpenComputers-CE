@@ -1,7 +1,5 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.util.function.Function
-
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
@@ -10,17 +8,27 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer as TileEntityRenderer
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher as TileEntityRendererDispatcher
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 
-object PowerDistributorRenderer extends Function[TileEntityRendererDispatcher, PowerDistributorRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new PowerDistributorRenderer(dispatch)
+// 1.18.2: BlockEntityRendererProvider[T] に変更（Function[Dispatcher, T] は廃止）
+object PowerDistributorRenderer extends BlockEntityRendererProvider[tileentity.PowerDistributor] {
+  override def create(ctx: BlockEntityRendererProvider.Context): PowerDistributorRenderer =
+    new PowerDistributorRenderer()
 }
 
-class PowerDistributorRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[tileentity.PowerDistributor](dispatch) {
-  override def render(distributor: tileentity.PowerDistributor, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) = {
+// 1.18.2: BlockEntityRenderer はインターフェースになったためコンストラクタ引数不要
+class PowerDistributorRenderer extends TileEntityRenderer[tileentity.PowerDistributor] {
+  override def render(
+                       distributor: tileentity.PowerDistributor,
+                       dt: Float,
+                       stack: PoseStack,         // 1.18.2: MatrixStack → PoseStack
+                       buffer: MultiBufferSource, // 1.18.2: IRenderTypeBuffer → MultiBufferSource
+                       light: Int,
+                       overlay: Int
+                     ): Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1) // 1.18.2: color4f → setShaderColor
 
     if (distributor.globalBuffer > 0) {
       stack.pushPose()
@@ -67,5 +75,4 @@ class PowerDistributorRenderer(dispatch: TileEntityRendererDispatcher) extends T
 
     RenderState.checkError(getClass.getName + ".render: leaving")
   }
-
 }

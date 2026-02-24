@@ -2,15 +2,14 @@ package li.cil.oc.common.tileentity
 
 import java.util.UUID
 import java.util.function.Consumer
-
-import li.cil.oc._
+import li.cil.oc.*
 import li.cil.oc.api.Driver
 import li.cil.oc.api.driver.item
 import li.cil.oc.api.driver.item.Container
 import li.cil.oc.api.event.RobotAnalyzeEvent
 import li.cil.oc.api.event.RobotMoveEvent
 import li.cil.oc.api.internal
-import li.cil.oc.api.network._
+import li.cil.oc.api.network.*
 import li.cil.oc.client.gui
 import li.cil.oc.common.EventHandler
 import li.cil.oc.common.Slot
@@ -27,20 +26,20 @@ import li.cil.oc.integration.opencomputers.DriverScreen
 import li.cil.oc.server.agent
 import li.cil.oc.server.agent.Player
 import li.cil.oc.server.component
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
+import li.cil.oc.server.PacketSender as ServerPacketSender
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedNBT._
-import li.cil.oc.util.ExtendedLevel._
+import li.cil.oc.util.ExtendedNBT.*
+import li.cil.oc.util.ExtendedLevel.*
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.StackOption
-import li.cil.oc.util.StackOption._
+import li.cil.oc.util.StackOption.*
 import net.minecraft.client.Minecraft
 import net.minecraft.world.item.ItemStack
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.common.util.NonNullSupplier
-import net.minecraftforge.fluids._
+import net.minecraftforge.fluids.*
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction
@@ -54,6 +53,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.core.Direction
 import net.minecraft.world.entity
+import net.minecraft.world.entity.player.Player as PlayerEntity
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.material.FlowingFluid
 import net.minecraft.world.level.block.Block
@@ -63,6 +63,7 @@ import net.minecraft.Util
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.network.chat.TextComponent
+import net.minecraft.world.entity.EquipmentSlot
 
 // Implementation note: this tile entity is never directly added to the world.
 // It is always wrapped by a `RobotProxy` tile entity, which forwards any
@@ -358,7 +359,7 @@ class Robot(pos: BlockPos, state: BlockState) extends BlockEntity(TileEntityType
       if (!appliedToolEnchantments) {
         appliedToolEnchantments = true
         StackOption(getItem(0)) match {
-          case SomeStack(item) => player_.getAttributes.addTransientAttributeModifiers(item.getAttributeModifiers(EquipmentSlotType.MAINHAND))
+          case SomeStack(item) => player_.getAttributes.addTransientAttributeModifiers(item.getAttributeModifiers(EquipmentSlot.MAINHAND))
           case _ =>
         }
       }
@@ -553,7 +554,7 @@ class Robot(pos: BlockPos, state: BlockState) extends BlockEntity(TileEntityType
   override protected def onItemAdded(slot: Int, stack: ItemStack): Unit = {
     if (isServer) {
       if (isToolSlot(slot)) {
-        player_.getAttributes.addTransientAttributeModifiers(stack.getAttributeModifiers(EquipmentSlotType.MAINHAND))
+        player_.getAttributes.addTransientAttributeModifiers(stack.getAttributeModifiers(EquipmentSlot.MAINHAND))
         ServerPacketSender.sendRobotInventory(this, slot, stack)
       }
       if (isUpgradeSlot(slot)) {
@@ -577,7 +578,7 @@ class Robot(pos: BlockPos, state: BlockState) extends BlockEntity(TileEntityType
     super.onItemRemoved(slot, stack)
     if (isServer) {
       if (isToolSlot(slot)) {
-        player_.getAttributes.removeAttributeModifiers(stack.getAttributeModifiers(EquipmentSlotType.MAINHAND))
+        player_.getAttributes.removeAttributeModifiers(stack.getAttributeModifiers(EquipmentSlot.MAINHAND))
         ServerPacketSender.sendRobotInventory(this, slot, ItemStack.EMPTY)
       }
       if (isUpgradeSlot(slot)) {
@@ -773,7 +774,7 @@ class Robot(pos: BlockPos, state: BlockState) extends BlockEntity(TileEntityType
 
   override def getDisplayName = TextComponent.EMPTY
 
-  override def createMenu(id: Int, playerInventory: Inventory, player: entity.Entity) =
+  override def createMenu(id: Int, playerInventory: Inventory, player: PlayerEntity) =
     new menu.Robot(MenuTypes.ROBOT, id, playerInventory, this, new menu.RobotInfo(this))
 
   // ----------------------------------------------------------------------- //

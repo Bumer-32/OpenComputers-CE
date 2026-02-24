@@ -7,9 +7,9 @@ import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.ResultWrapper.result
 import li.cil.oc.util.StackOption._
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
-trait InventoryControl extends InventoryAware {
+trait ContainerControl extends ContainerAware {
   @Callback(doc = "function():number -- The size of this device's internal inventory.")
   def inventorySize(context: Context, args: Arguments): Array[AnyRef] = result(inventory.getContainerSize)
 

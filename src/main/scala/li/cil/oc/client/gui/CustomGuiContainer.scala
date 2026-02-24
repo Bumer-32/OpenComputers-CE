@@ -32,7 +32,11 @@ abstract class CustomGuiContainer[C <: AbstractContainerMenu](val inventoryConta
 
   protected def add[T](list: util.List[T], value: Any) = list.add(value.asInstanceOf[T])
 
-  override def renderTooltip(stack: PoseStack, text: util.List[Component], x: Int, y: Int): Unit = {
+  //override def renderTooltip(stack: PoseStack, text: util.List[Component], x: Int, y: Int): Unit = {
+  //  copiedDrawHoveringText0(stack, text, x, y, font)
+  //}
+
+  override def renderComponentTooltip(stack: PoseStack, text: util.List[Component], x: Int, y: Int): Unit = {
     copiedDrawHoveringText0(stack, text, x, y, font)
   }
 

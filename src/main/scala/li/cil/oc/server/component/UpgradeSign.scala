@@ -59,7 +59,7 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
       case Some(sign) =>
         val player = host match {
           case robot: internal.Robot => robot.player
-          case _ => FakePlayerFactory.get(host.world.asInstanceOf[ServerLevel], Settings.get.fakePlayerProfile)
+          case _ => FakePlayerFactory.get(host.getEnvironmentLevel.asInstanceOf[ServerLevel], Settings.get.fakePlayerProfile)
         }
 
         val lines = text.linesIterator.padTo(4, "").map(line => if (line.length > 15) line.substring(0, 15) else line).toArray
@@ -69,7 +69,7 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
         }
 
         lines.map(line => new TextComponent(line)).copyToArray(getAllMessages(sign).toArray)
-        host.world.notifyBlockUpdate(sign.getBlockPos)
+        host.getEnvironmentLevel.notifyBlockUpdate(sign.getBlockPos)
 
         MinecraftForge.EVENT_BUS.post(new SignChangeEvent.Post(sign, lines))
 
@@ -80,9 +80,9 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
 
   protected def findSign(side: Direction) = {
     val hostPos = BlockPosition(host)
-    host.world.getBlockEntity(hostPos) match {
+    host.getEnvironmentLevel.getBlockEntity(hostPos) match {
       case sign: SignBlockEntity => Option(sign)
-      case _ => host.world.getBlockEntity(hostPos.offset(side)) match {
+      case _ => host.getEnvironmentLevel.getBlockEntity(hostPos.offset(side)) match {
         case sign: SignBlockEntity => Option(sign)
         case _ => None
       }
@@ -90,10 +90,10 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
   }
 
   private def canChangeSign(player: Player, tileEntity: SignBlockEntity, lines: Array[String]): Boolean = {
-    if (!host.world.mayInteract(player, tileEntity.getBlockPos)) {
+    if (!host.getEnvironmentLevel.mayInteract(player, tileEntity.getBlockPos)) {
       return false
     }
-    val event = new BlockEvent.BreakEvent(host.world, tileEntity.getBlockPos, tileEntity.getLevel.getBlockState(tileEntity.getBlockPos), player)
+    val event = new BlockEvent.BreakEvent(host.getEnvironmentLevel, tileEntity.getBlockPos, tileEntity.getLevel.getBlockState(tileEntity.getBlockPos), player)
     MinecraftForge.EVENT_BUS.post(event)
     if (event.isCanceled || event.getResult == Event.Result.DENY) {
       return false
@@ -109,7 +109,7 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
     if (message.name == "tablet.use") message.source.host match {
       case machine: api.machine.Machine => (machine.host, message.data) match {
         case (tablet: internal.Tablet, Array(nbt: CompoundTag, stack: ItemStack, player: Player, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
-          host.world.getBlockEntity(blockPos) match {
+          host.getEnvironmentLevel.getBlockEntity(blockPos) match {
             case sign: SignBlockEntity =>
               nbt.putString("signText", getAllMessages(sign).map(_.getString).mkString("\n"))
             case _ =>

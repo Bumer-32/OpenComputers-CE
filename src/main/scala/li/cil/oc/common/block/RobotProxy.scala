@@ -40,7 +40,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
 
   // ----------------------------------------------------------------------- //
 
-  override def getPickBlock(state: BlockState, target: RayTraceResult, world: IBlockReader, pos: BlockPos, player: PlayerEntity): ItemStack =
+  override def getCloneItemStack(state: BlockState, target: RayTraceResult, world: IBlockReader, pos: BlockPos, player: PlayerEntity): ItemStack =
     world.getBlockEntity(pos) match {
       case proxy: tileentity.RobotProxy => proxy.robot.info.copyItemStack()
       case _ => ItemStack.EMPTY
@@ -198,7 +198,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
   override def setPlacedBy(world: World, pos: BlockPos, state: BlockState, entity: LivingEntity, stack: ItemStack): Unit = {
     super.setPlacedBy(world, pos, state, entity, stack)
     if (!world.isClientSide) ((entity, world.getBlockEntity(pos)) match {
-      case (player: agent.PlayerAgent, proxy: tileentity.RobotProxy) =>
+      case (player: agent.Player, proxy: tileentity.RobotProxy) =>
         Some((proxy.robot, player.agent.ownerName, player.agent.ownerUUID))
       case (player: PlayerEntity, proxy: tileentity.RobotProxy) =>
         Some((proxy.robot, player.getName.getString, player.getGameProfile.getId))
@@ -206,7 +206,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
     }) match {
       case Some((robot, owner, uuid)) =>
         robot.ownerName = owner
-        robot.ownerUUID = agent.PlayerAgent.determineUUID(Option(uuid))
+        robot.ownerUUID = agent.Player.determineUUID(Option(uuid))
         robot.info.loadData(stack)
         robot.bot.node.changeBuffer(robot.info.robotEnergy - robot.bot.node.localBuffer)
         robot.updateInventorySize()
@@ -214,7 +214,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
     }
   }
 
-  override def removedByPlayer(
+  override def onDestroyedByPlayer(
                                 state: BlockState,
                                 world: World,    
                                 pos: BlockPos,

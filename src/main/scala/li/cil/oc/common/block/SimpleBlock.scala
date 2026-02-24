@@ -1,7 +1,6 @@
 package li.cil.oc.common.block
 
 import java.util
-
 import li.cil.oc.CreativeTab
 import li.cil.oc.common.tileentity
 import li.cil.oc.common.tileentity.traits.Colored
@@ -9,7 +8,7 @@ import li.cil.oc.common.tileentity.traits.Inventory
 import li.cil.oc.common.tileentity.traits.Rotatable
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Color
-import li.cil.oc.util.ExtendedLevel._
+import li.cil.oc.util.ExtendedLevel.*
 import li.cil.oc.util.Tooltip
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
@@ -33,13 +32,14 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.BlockHitResult as BlockRayTraceResult
 import net.minecraft.network.chat.Component as ITextComponent
 import net.minecraft.network.chat.TextComponent as StringTextComponent
+import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.BlockGetter as IBlockReader
 import net.minecraft.world.level.LevelReader as IWorldReader
 import net.minecraft.world.level.Level as World
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.collection.convert.ImplicitConversionsToScala.*
 
 abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
   @Deprecated
@@ -55,7 +55,7 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
 
   def createItemStack(amount: Int = 1) = new ItemStack(this, amount)
 
-  override def newBlockEntity(world: IBlockReader): TileEntity = null
+  override def newBlockEntity(pos: BlockPos, state: BlockState): TileEntity = null
 
   override def getRenderShape(state: BlockState): BlockRenderType = BlockRenderType.MODEL
 
@@ -115,9 +115,9 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
   // ----------------------------------------------------------------------- //
 
   override def canHarvestBlock(state: BlockState, world: IBlockReader, pos: BlockPos, player: PlayerEntity) = true
-  
-  override def canBeReplacedByLeaves(state: BlockState, world: IWorldReader, pos: BlockPos): Boolean = false
 
+  override def canBeReplaced(state: BlockState, ctx: BlockPlaceContext): Boolean = false
+  
   def getValidRotations(world: World, pos: BlockPos): Array[Direction] = validRotations_
 
   override def getDrops(state: BlockState, ctx: LootContext.Builder): util.List[ItemStack] = {

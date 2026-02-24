@@ -9,8 +9,8 @@ import li.cil.oc.common.Tier
 import li.cil.oc.common.item
 import li.cil.oc.server.component
 import li.cil.oc.server.machine.luac.NativeLuaArchitecture
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -37,7 +37,7 @@ abstract class DriverCPU extends Item with api.driver.item.MutableProcessor with
 
   override def supportedComponents(stack: ItemStack) = Settings.get.cpuComponentSupport(cpuTier(stack))
 
-  override def allArchitectures = api.Machine.architectures.toList
+  override def allArchitectures = api.Machine.architectures
 
   override def architecture(stack: ItemStack): Class[_ <: api.machine.Architecture] = {
     if (stack.hasTag) {

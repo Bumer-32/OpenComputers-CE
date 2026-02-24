@@ -18,7 +18,7 @@ import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.renderer.block.model.BakedQuad
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.client.renderer.block.model.ItemOverrides
-import net.minecraft.client.renderer.texture.MissingTextureSprite
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite      // 1.18.2: MissingTextureSprite → MissingTextureAtlasSprite
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.DyeColor
@@ -37,24 +37,24 @@ object PrintModel extends SmartBlockModelBase {
     data match {
       case t: tileentity.Print =>
         val faces = mutable.ArrayBuffer.empty[BakedQuad]
-
         for (shape <- t.shapes if !Strings.isNullOrEmpty(shape.texture)) {
-          val bounds = shape.bounds.rotateTowards(t.facing)
+          val bounds  = shape.bounds.rotateTowards(t.facing)
           val texture = resolveTexture(shape.texture)
           faces ++= bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), shape.tint.getOrElse(White))
         }
-
         bufferAsJavaList(faces)
       case _ => super.getQuads(state, side, rand)
     }
 
   private def resolveTexture(name: String): TextureAtlasSprite = try {
     val texture = Textures.getSprite(new ResourceLocation(name))
-    if (texture.getName == MissingTextureSprite.getLocation) Textures.getSprite(new ResourceLocation("minecraft:blocks/" + name))
+    // 1.18.2: MissingTextureSprite.getLocation → MissingTextureAtlasSprite.getLocation
+    if (texture.getName == MissingTextureAtlasSprite.getLocation)
+      Textures.getSprite(new ResourceLocation("minecraft:blocks/" + name))
     else texture
-  }
-  catch {
-    case _: Throwable => Textures.getSprite(MissingTextureSprite.getLocation)
+  } catch {
+    // 1.18.2: MissingTextureAtlasSprite.getLocation
+    case _: Throwable => Textures.getSprite(MissingTextureAtlasSprite.getLocation)
   }
 
   class ItemModel(val stack: ItemStack) extends SmartBlockModelBase {
@@ -62,29 +62,26 @@ object PrintModel extends SmartBlockModelBase {
 
     override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] = {
       val faces = mutable.ArrayBuffer.empty[BakedQuad]
-
       val shapes =
-        if (data.hasActiveState && KeyBindings.showExtendedTooltips)
-          data.stateOn
-        else
-          data.stateOff
+        if (data.hasActiveState && KeyBindings.showExtendedTooltips) data.stateOn
+        else data.stateOff
       for (shape <- shapes) {
-        val bounds = shape.bounds
+        val bounds  = shape.bounds
         val texture = resolveTexture(shape.texture)
         faces ++= bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), shape.tint.getOrElse(White))
       }
       if (shapes.isEmpty) {
-        val bounds = ExtendedAABB.unitBounds
+        val bounds  = ExtendedAABB.unitBounds
         val texture = resolveTexture(Settings.resourceDomain + ":blocks/white")
         faces ++= bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), Color.rgbValues(DyeColor.LIME))
       }
-
       bufferAsJavaList(faces)
     }
   }
 
   object ItemOverride extends ItemOverrides {
-    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity): BakedModel = new ItemModel(stack)
+    // 1.18.2: resolve に seed: Int 引数が追加された
+    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, seed: Int): BakedModel =
+      new ItemModel(stack)
   }
-
 }

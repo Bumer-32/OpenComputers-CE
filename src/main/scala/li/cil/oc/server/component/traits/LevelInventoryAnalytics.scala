@@ -9,14 +9,15 @@ import li.cil.oc.server.component.result
 import li.cil.oc.util.{BlockInventorySource, BlockPosition, DatabaseAccess, EntityInventorySource, InventorySource, InventoryUtils, StackOption}
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.ExtendedArguments._
-import net.minecraft.block.Block
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
 import net.minecraftforge.items.IItemHandler
 
 import scala.collection.convert.ImplicitConversionsToScala._
+import scala.jdk.CollectionConverters._
 
-trait WorldInventoryAnalytics extends WorldAware with SideRestricted with NetworkAware {
+trait LevelInventoryAnalytics extends LevelAware with SideRestricted with NetworkAware {
   @Callback(doc = """function(side:number):number -- Get the number of slots in the inventory on the specified side of the device.""")
   def getInventorySize(context: Context, args: Arguments): Array[AnyRef] = {
     val facing = checkSideForAction(args, 0)
@@ -66,9 +67,10 @@ trait WorldInventoryAnalytics extends WorldAware with SideRestricted with Networ
     withInventory(facing, inventory => {
       val stackA = inventory.getStackInSlot(args.checkSlot(inventory, 1))
       val stackB = inventory.getStackInSlot(args.checkSlot(inventory, 2))
-      result(stackA == stackB ||
-        (!stackA.isEmpty && !stackB.isEmpty &&
-          stackA.getItem.getTags.intersect(stackB.getItem.getTags).nonEmpty))
+      result(stackA == stackB || (!stackA.isEmpty && !stackB.isEmpty && {
+        val tagsA = stackA.getTags.toList.asScala
+        tagsA.exists(tagKey => stackB.is(tagKey))
+      }))
     })
   }
 

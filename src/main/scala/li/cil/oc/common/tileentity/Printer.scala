@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -11,32 +10,32 @@ import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network._
+import li.cil.oc.api.network.*
 import li.cil.oc.api.util.StateAware
 import li.cil.oc.common.menu
-import li.cil.oc.common.menu.ContainerTypes
+import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.item.data.PrintData
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.server.PacketSender as ServerPacketSender
+import li.cil.oc.util.ExtendedNBT.*
 import li.cil.oc.util.StackOption
-import li.cil.oc.util.StackOption._
-import net.minecraft.world.entity.player.{Player => PlayerEntity}
-import net.minecraft.world.entity.player.{Inventory => PlayerInventory}
-import net.minecraft.world.{WorldlyContainer => ISidedInventory}
-import net.minecraft.world.{MenuProvider => INamedContainerProvider}
+import li.cil.oc.util.StackOption.*
+import net.minecraft.world.entity.player.Player as PlayerEntity
+import net.minecraft.world.entity.player.Inventory as PlayerInventory
+import net.minecraft.world.WorldlyContainer
+import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.{CompoundTag => CompoundNBT}
-import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
-import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType}
-import net.minecraft.core.Direction
-import net.minecraft.world.phys.{AABB => AxisAlignedBB}
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.AABB
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-import scala.collection.convert.ImplicitConversionsToJava._
+import scala.collection.convert.ImplicitConversionsToJava.*
 
-class Printer(selfType: TileEntityType[_ <: Printer]) extends TileEntity(selfType) with traits.Environment with traits.Inventory with traits.Rotatable
-  with SidedEnvironment with traits.StateAware with traits.Tickable with ISidedInventory with DeviceInfo with INamedContainerProvider {
+class Printer(selfType: BlockEntityType[_ <: Printer], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.Inventory with traits.Rotatable
+  with SidedEnvironment with traits.StateAware with traits.Tickable with WorldlyContainer with DeviceInfo with MenuProvider {
 
   val node: ComponentConnector = api.Network.newNode(this, Visibility.Network).
     withComponent("printer3d").
@@ -196,7 +195,7 @@ class Printer(selfType: TileEntityType[_ <: Printer]) extends TileEntity(selfTyp
     if (minZ == maxZ) throw new IllegalArgumentException("empty block")
 
     val list = if (state) data.stateOn else data.stateOff
-    list += new PrintData.Shape(new AxisAlignedBB(
+    list += new PrintData.Shape(new AABB(
       math.min(minX, maxX),
       math.min(minY, maxY),
       math.min(minZ, maxZ),
@@ -322,7 +321,7 @@ class Printer(selfType: TileEntityType[_ <: Printer]) extends TileEntity(selfTyp
   private final val TotalTag = Settings.namespace + "total"
   private final val RemainingTag = Settings.namespace + "remaining"
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
     amountMaterial = nbt.getInt(AmountMaterialTag)
     amountInk = nbt.getInt(AmountInkTag)
@@ -339,7 +338,7 @@ class Printer(selfType: TileEntityType[_ <: Printer]) extends TileEntity(selfTyp
     requiredEnergy = nbt.getDouble(RemainingTag)
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
     nbt.putInt(AmountMaterialTag, amountMaterial)
     nbt.putInt(AmountInkTag, amountInk)
@@ -352,13 +351,13 @@ class Printer(selfType: TileEntityType[_ <: Printer]) extends TileEntity(selfTyp
   }
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT): Unit = {
+  def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     data.loadData(nbt.getCompound(DataTag))
     requiredEnergy = nbt.getDouble(RemainingTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT): Unit = {
+  override def saveForClient(nbt: CompoundTag): Unit = {
     super.saveForClient(nbt)
     nbt.setNewCompoundTag(DataTag, data.saveData)
     nbt.putDouble(RemainingTag, requiredEnergy)
@@ -378,7 +377,7 @@ class Printer(selfType: TileEntityType[_ <: Printer]) extends TileEntity(selfTyp
   // ----------------------------------------------------------------------- //
 
   override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new menu.Printer(ContainerTypes.PRINTER, id, playerInventory, this)
+    new menu.Printer(MenuTypes.PRINTER, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
 

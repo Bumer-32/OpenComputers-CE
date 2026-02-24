@@ -16,13 +16,13 @@ import li.cil.oc.api.machine.Context
 import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.{UpgradeExperience => ExperienceUtil}
-import net.minecraft.enchantment.EnchantmentHelper
-import net.minecraft.entity.item.ExperienceOrbEntity
-import net.minecraft.item.Items
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
+import net.minecraft.world.entity.ExperienceOrb
+import net.minecraft.world.item.enchantment.EnchantmentHelper
+import net.minecraft.world.item.Items
 
 class UpgradeExperience(val host: EnvironmentHost with internal.Agent) extends AbstractManagedEnvironment with DeviceInfo {
   final val MaxLevel = 30
@@ -54,9 +54,9 @@ class UpgradeExperience(val host: EnvironmentHost with internal.Agent) extends A
       if (experience >= xpForNextLevel) {
         updateXpInfo()
       }
-      val world = this.host.world
+      val world = this.host.getEnvironmentLevel
       val pos = this.host.player.blockPosition
-      val orb = new ExperienceOrbEntity(world, pos.getX.toDouble + 0.5D, pos.getY.toDouble + 0.5D, pos.getZ.toDouble + 0.5D, value.toInt)
+      val orb = new ExperienceOrb(world, pos.getX.toDouble + 0.5D, pos.getY.toDouble + 0.5D, pos.getZ.toDouble + 0.5D, value.toInt)
       this.host.player.takeXpDelay = 0
       orb.playerTouch(this.host.player)
     }
@@ -90,7 +90,7 @@ class UpgradeExperience(val host: EnvironmentHost with internal.Agent) extends A
     }
     var xp = 0
     if (stack.getItem == Items.EXPERIENCE_BOTTLE) {
-      xp += 3 + host.world.random.nextInt(5) + host.world.random.nextInt(5)
+      xp += 3 + host.getEnvironmentLevel.random.nextInt(5) + host.getEnvironmentLevel.random.nextInt(5)
     }
     else {
       for ((enchantment, level) <- EnchantmentHelper.getEnchantments(stack)) {
@@ -115,12 +115,12 @@ class UpgradeExperience(val host: EnvironmentHost with internal.Agent) extends A
     case _ =>
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     super.saveData(nbt)
     ExperienceUtil.setExperience(nbt, experience)
   }
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     super.loadData(nbt)
     experience = ExperienceUtil.getExperience(nbt)
     updateXpInfo()

@@ -8,7 +8,7 @@ import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common
 import li.cil.oc.common.Tier
 import li.cil.oc.server.component
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 object DriverAPU extends DriverCPU with HostAware {
   override def worksWith(stack: ItemStack) = isOneOf(stack,
@@ -17,7 +17,7 @@ object DriverAPU extends DriverCPU with HostAware {
     api.Items.get(Constants.ItemName.APUCreative))
 
   override def createEnvironment(stack: ItemStack, host: EnvironmentHost) =
-    if (host.world != null && host.world.isClientSide) null
+    if (host.getEnvironmentLevel != null && host.getEnvironmentLevel.isClientSide) null
     else gpuTier(stack) match {
       case Tier.One => new component.APU(Tier.One)
       case Tier.Two => new component.APU(Tier.Two)

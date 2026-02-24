@@ -1,8 +1,8 @@
 package li.cil.oc.integration.jei
 
 import java.util
-
 import com.google.common.base.Strings
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -15,15 +15,15 @@ import mezz.jei.api.helpers.IGuiHelper
 import mezz.jei.api.ingredients.IIngredients
 import mezz.jei.api.recipe.category.IRecipeCategory
 import mezz.jei.api.registration.IRecipeRegistration
+import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
+import net.minecraft.network.chat.{Style, TextComponent}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.FormattedCharSink // ICharacterConsumer / ISliceAcceptor
-import net.minecraft.network.chat.Style
-import net.minecraft.ChatFormatting
+import net.minecraft.util.FormattedCharSink
 
-import scala.collection.convert.ImplicitConversionsToJava._
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.collection.convert.ImplicitConversionsToJava.*
+import scala.collection.convert.ImplicitConversionsToScala.*
 import scala.collection.mutable
 
 object CallbackDocHandler {
@@ -68,18 +68,18 @@ object CallbackDocHandler {
             case VexPattern(head, tail) => (name + head, tail)
             case _ => (name, doc)
           }
-          wrap(signature, 160).map(TextFormatting.BLACK.toString + _).mkString("\n") +
-            TextFormatting.RESET + "\n" +
+          wrap(signature, 160).map(ChatFormatting.BLACK.toString + _).mkString("\n") +
+            ChatFormatting.RESET + "\n" +
             wrap(documentation, 152).map("  " + _).mkString("\n")
         }
     }
   }
   else Seq.empty
 
-  protected def wrap(line: String, width: Int): java.util.List[String] = {
-    val list = new java.util.ArrayList[String]
-    Minecraft.getInstance.font.getSplitter.splitLines(line, width, Style.EMPTY, (style, contents) => {
-      list.add(contents)
+  protected def wrap(line: String, width: Int): util.List[String] = {
+    val list = new util.ArrayList[String]()
+    Minecraft.getInstance.font.getSplitter.splitLines(line, width, Style.EMPTY, true, (style: Style, start: Int, end: Int) => {
+      list.add(line.substring(start, end))
     })
     list
   }
@@ -92,33 +92,35 @@ object CallbackDocHandler {
     private var background: IDrawable = _
     private var icon: IDrawable = _
 
-    def initialize(guiHelper: IGuiHelper): Unit = {
+    def initialize(guiHelper: IGuiHelper) = {
       background = guiHelper.createBlankDrawable(recipeWidth, recipeHeight)
       icon = new DrawableAnimatedIcon(new ResourceLocation(Settings.resourceDomain, "textures/items/tablet_on.png"), 0, 0, 16, 16, 16, 32,
         guiHelper.createTickTimer(20, 1, true), 0, 16)
     }
 
+    override def getRecipeClass = classOf[CallbackDocRecipe]
+
     override def getIcon: IDrawable = icon
 
     override def getBackground: IDrawable = background
 
-    override def getRecipeType: RecipeType[CallbackDocRecipe] = RECIPE_TYPE
-    
-    override def setRecipe(builder: IRecipeLayoutBuilder, recipe: CallbackDocRecipe, focuses: IFocusGroup): Unit = {
-      builder.addSlot(RecipeIngredientRole.INPUT, 1, 1)
-        .addIngredient(VanillaTypes.ITEM_STACK, recipe.stack)
+    override def setIngredients(recipeWrapper: CallbackDocRecipe, ingredients: IIngredients): Unit = {
+      ingredients.setInput(VanillaTypes.ITEM, recipeWrapper.stack)
     }
 
-    override def draw(recipeWrapper: CallbackDocRecipe, stack: MatrixStack, mouseX: Double, mouseY: Double): Unit = {
+    override def setRecipe(recipeLayout: IRecipeLayout, recipeWrapper: CallbackDocRecipe, ingredients: IIngredients): Unit = {
+    }
+
+    override def draw(recipeWrapper: CallbackDocRecipe, stack: PoseStack, mouseX: Double, mouseY: Double): Unit = {
       val minecraft = Minecraft.getInstance
       for ((text, line) <- recipeWrapper.page.linesIterator.zipWithIndex) {
         minecraft.font.draw(stack, text, 4, 4 + line * (minecraft.font.lineHeight + 1), 0x333333)
       }
     }
 
-    @Deprecated
-    override def getTitle = "OpenComputers API"
+    override def getTitle = new TextComponent("OpenComputers API")
 
     override def getUid = new ResourceLocation(OpenComputers.ID, "part_api")
   }
+
 }

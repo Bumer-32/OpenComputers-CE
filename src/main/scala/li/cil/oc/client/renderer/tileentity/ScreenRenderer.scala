@@ -1,9 +1,7 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.util.function.Function
-
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.mojang.blaze3d.vertex.VertexConsumer  // 1.18.2: IVertexBuilder → VertexConsumer
 import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -16,22 +14,24 @@ import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.InteractionHand  // 1.18.2: Hand → InteractionHand
 import net.minecraft.core.Direction
 import com.mojang.math.Vector3f
-import com.mojang.blaze3d.vertex.PoseStack as MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer as TileEntityRenderer
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher as TileEntityRendererDispatcher
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 
-object ScreenRenderer extends Function[TileEntityRendererDispatcher, ScreenRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new ScreenRenderer(dispatch)
+// 1.18.2: BlockEntityRendererProvider[T] に変更
+object ScreenRenderer extends BlockEntityRendererProvider[Screen] {
+  override def create(ctx: BlockEntityRendererProvider.Context): ScreenRenderer =
+    new ScreenRenderer()
 }
 
-class ScreenRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Screen](dispatch) {
+// 1.18.2: コンストラクタ引数なし
+class ScreenRenderer extends TileEntityRenderer[Screen] {
   private val maxRenderDistanceSq = Settings.get.maxScreenTextRenderDistance * Settings.get.maxScreenTextRenderDistance
-
-  private val fadeDistanceSq = Settings.get.screenTextFadeStartDistance * Settings.get.screenTextFadeStartDistance
-
-  private val fadeRatio = 1.0 / (maxRenderDistanceSq - fadeDistanceSq)
+  private val fadeDistanceSq      = Settings.get.screenTextFadeStartDistance * Settings.get.screenTextFadeStartDistance
+  private val fadeRatio           = 1.0 / (maxRenderDistanceSq - fadeDistanceSq)
 
   private var screen: Screen = null
 
@@ -39,44 +39,45 @@ class ScreenRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityR
   // Rendering
   // ----------------------------------------------------------------------- //
 
-  override def render(screen: Screen, dt: Float, stack: MatrixStack, buffer: MultiBufferSource, light: Int, overlay: Int): Unit = {
+  override def render(
+                       screen: Screen,
+                       dt: Float,
+                       stack: PoseStack,          // 1.18.2: MatrixStack → PoseStack
+                       buffer: MultiBufferSource, // 1.18.2: IRenderTypeBuffer → MultiBufferSource
+                       light: Int,
+                       overlay: Int
+                     ): Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     this.screen = screen
-    if (!screen.isOrigin) {
-      return
-    }
+    if (!screen.isOrigin) return
 
     val distance = playerDistanceSq() / math.min(screen.width, screen.height)
-    if (distance > maxRenderDistanceSq) {
-      return
-    }
+    if (distance > maxRenderDistanceSq) return
 
-    val eye_pos = Minecraft.getInstance.player.getEyePosition(dt)
-    val eye_delta: Double = screen.getBlockPos.getY - eye_pos.y
+    val eye_pos   = Minecraft.getInstance.player.getEyePosition(dt)
+    val eye_delta = screen.getBlockPos.getY - eye_pos.y
 
-    // Crude check whether screen text can be seen by the local player based
-    // on the player's position -> angle relative to screen.
     val screenFacing = screen.facing.getOpposite
-    val x = screen.getBlockPos.getX - eye_pos.x
-    val z = screen.getBlockPos.getZ - eye_pos.z
-    if (screenFacing.getStepX * (x + 0.5) + screenFacing.getStepY * (eye_delta + 0.5) + screenFacing.getStepZ * (z + 0.5) < 0) {
-      return
-    }
+    val x            = screen.getBlockPos.getX - eye_pos.x
+    val z            = screen.getBlockPos.getZ - eye_pos.z
+    if (screenFacing.getStepX * (x + 0.5) + screenFacing.getStepY * (eye_delta + 0.5) + screenFacing.getStepZ * (z + 0.5) < 0) return
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1) // 1.18.2: color4f → setShaderColor
 
     stack.pushPose()
-
     stack.translate(0.5, 0.5, 0.5)
 
     RenderState.checkError(getClass.getName + ".render: setup")
 
+    // 1.18.2: getBuffer の戻り値は VertexConsumer
     drawOverlay(stack, buffer.getBuffer(RenderTypes.BLOCK_OVERLAY))
 
     RenderState.checkError(getClass.getName + ".render: overlay")
 
-    val alpha = if (distance > fadeDistanceSq) math.max(0, 1 - ((distance - fadeDistanceSq) * fadeRatio).toFloat) else 1f
+    val alpha = if (distance > fadeDistanceSq)
+      math.max(0, 1 - ((distance - fadeDistanceSq) * fadeRatio).toFloat)
+    else 1f
 
     RenderState.checkError(getClass.getName + ".render: fade")
 
@@ -92,56 +93,55 @@ class ScreenRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityR
     RenderState.checkError(getClass.getName + ".render: leaving")
   }
 
-  private def transform(stack: MatrixStack) = {
+  private def transform(stack: PoseStack): Unit = {
     screen.yaw match {
-      case Direction.WEST => stack.mulPose(Vector3f.YP.rotationDegrees(-90))
+      case Direction.WEST  => stack.mulPose(Vector3f.YP.rotationDegrees(-90))
       case Direction.NORTH => stack.mulPose(Vector3f.YP.rotationDegrees(180))
-      case Direction.EAST => stack.mulPose(Vector3f.YP.rotationDegrees(90))
-      case _ => // No yaw.
+      case Direction.EAST  => stack.mulPose(Vector3f.YP.rotationDegrees(90))
+      case _               => // No yaw.
     }
     screen.pitch match {
       case Direction.DOWN => stack.mulPose(Vector3f.XP.rotationDegrees(90))
-      case Direction.UP => stack.mulPose(Vector3f.XP.rotationDegrees(-90))
-      case _ => // No pitch.
+      case Direction.UP   => stack.mulPose(Vector3f.XP.rotationDegrees(-90))
+      case _              => // No pitch.
     }
 
-    // Fit area to screen (bottom left = bottom left).
     stack.translate(-0.5f, -0.5f, 0.5f)
     stack.translate(0, screen.height, 0)
-
-    // Flip text upside down.
     RenderState.mirrorScale(stack, 1, -1, 1)
   }
 
   private def isScreen(stack: ItemStack): Boolean = api.Items.get(stack) match {
     case i: ItemInfo => i.block() match {
       case _: li.cil.oc.common.block.Screen => true
-      case _ => false
+      case _                                => false
     }
     case _ => false
   }
 
-  private def drawOverlay(matrix: MatrixStack, r: IVertexBuilder) = if (screen.facing == Direction.UP || screen.facing == Direction.DOWN) {
-    // Show up vector overlay when holding same screen block.
-    val stack = Minecraft.getInstance.player.getItemInHand(Hand.MAIN_HAND)
-    if (!stack.isEmpty) {
-      if (Wrench.holdsApplicableWrench(Minecraft.getInstance.player, screen.getBlockPos) || isScreen(stack)) {
-        matrix.pushPose()
-        transform(matrix)
-        matrix.translate(screen.width / 2f - 0.5f, screen.height / 2f - 0.5f, 0.05f)
+  // 1.18.2: IVertexBuilder → VertexConsumer
+  private def drawOverlay(matrix: PoseStack, r: VertexConsumer): Unit =
+    if (screen.facing == Direction.UP || screen.facing == Direction.DOWN) {
+      // 1.18.2: Hand.MAIN_HAND → InteractionHand.MAIN_HAND
+      val stack = Minecraft.getInstance.player.getItemInHand(InteractionHand.MAIN_HAND)
+      if (!stack.isEmpty) {
+        if (Wrench.holdsApplicableWrench(Minecraft.getInstance.player, screen.getBlockPos) || isScreen(stack)) {
+          matrix.pushPose()
+          transform(matrix)
+          matrix.translate(screen.width / 2f - 0.5f, screen.height / 2f - 0.5f, 0.05f)
 
-        val icon = Textures.getSprite(Textures.Block.ScreenUpIndicator)
-        r.vertex(matrix.last.pose, 0, 1, 0).uv(icon.getU0, icon.getV1).endVertex()
-        r.vertex(matrix.last.pose, 1, 1, 0).uv(icon.getU1, icon.getV1).endVertex()
-        r.vertex(matrix.last.pose, 1, 0, 0).uv(icon.getU1, icon.getV0).endVertex()
-        r.vertex(matrix.last.pose, 0, 0, 0).uv(icon.getU0, icon.getV0).endVertex()
+          val icon = Textures.getSprite(Textures.Block.ScreenUpIndicator)
+          r.vertex(matrix.last.pose, 0, 1, 0).uv(icon.getU0, icon.getV1).endVertex()
+          r.vertex(matrix.last.pose, 1, 1, 0).uv(icon.getU1, icon.getV1).endVertex()
+          r.vertex(matrix.last.pose, 1, 0, 0).uv(icon.getU1, icon.getV0).endVertex()
+          r.vertex(matrix.last.pose, 0, 0, 0).uv(icon.getU0, icon.getV0).endVertex()
 
-        matrix.popPose()
+          matrix.popPose()
+        }
       }
     }
-  }
 
-  private def draw(stack: MatrixStack, alpha: Float, buffer: MultiBufferSource) = {
+  private def draw(stack: PoseStack, alpha: Float, buffer: MultiBufferSource): Unit = {
     RenderState.checkError(getClass.getName + ".draw: entering (aka: wasntme)")
 
     val sx = screen.width
@@ -151,45 +151,38 @@ class ScreenRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityR
 
     transform(stack)
 
-    // Offset from border.
     stack.translate(sx * 2.25f / tw, sy * 2.25f / th, 0)
 
-    // Inner size (minus borders).
     val isx = sx - (4.5f / 16)
     val isy = sy - (4.5f / 16)
 
-    // Scale based on actual buffer size.
-    val sizeX = screen.buffer.renderWidth
-    val sizeY = screen.buffer.renderHeight
+    val sizeX  = screen.buffer.renderWidth
+    val sizeY  = screen.buffer.renderHeight
     val scaleX = isx / sizeX
     val scaleY = isy / sizeY
+
     if (true) {
       if (scaleX > scaleY) {
         stack.translate(sizeX * 0.5f * (scaleX - scaleY), 0, 0)
         stack.scale(scaleY, scaleY, 1)
-      }
-      else {
+      } else {
         stack.translate(0, sizeY * 0.5f * (scaleY - scaleX), 0)
         stack.scale(scaleX, scaleX, 1)
       }
-    }
-    else {
-      // Stretch to fit.
+    } else {
       stack.scale(scaleX, scaleY, 1)
     }
 
-    // Slightly offset the text so it doesn't clip into the screen.
     stack.translate(0, 0, 0.01)
 
     RenderState.checkError(getClass.getName + ".draw: setup")
 
-    // Render the actual text.
     screen.buffer.renderText(stack)
 
     RenderState.checkError(getClass.getName + ".draw: text")
   }
 
-  private def playerDistanceSq() = {
+  private def playerDistanceSq(): Double = {
     val player = Minecraft.getInstance.player
     val bounds = screen.getRenderBoundingBox
 
@@ -207,30 +200,14 @@ class ScreenRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityR
     val dy = py - cy
     val dz = pz - cz
 
-    (if (dx < -ex) {
-      val d = dx + ex
-      d * d
-    }
-    else if (dx > ex) {
-      val d = dx - ex
-      d * d
-    }
-    else 0) + (if (dy < -ey) {
-      val d = dy + ey
-      d * d
-    }
-    else if (dy > ey) {
-      val d = dy - ey
-      d * d
-    }
-    else 0) + (if (dz < -ez) {
-      val d = dz + ez
-      d * d
-    }
-    else if (dz > ez) {
-      val d = dz - ez
-      d * d
-    }
-    else 0)
+    (if (dx < -ex) { val d = dx + ex; d * d }
+    else if (dx > ex) { val d = dx - ex; d * d }
+    else 0.0) +
+      (if (dy < -ey) { val d = dy + ey; d * d }
+      else if (dy > ey) { val d = dy - ey; d * d }
+      else 0.0) +
+      (if (dz < -ez) { val d = dz + ez; d * d }
+      else if (dz > ez) { val d = dz - ez; d * d }
+      else 0.0)
   }
 }
