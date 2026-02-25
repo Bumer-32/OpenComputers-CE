@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
@@ -37,6 +38,15 @@ public class RenderCache implements MultiBufferSource {
 
             this.type.setupRenderState();
             ShaderInstance shader = RenderSystem.getShader();
+
+            if (shader == null) {
+                if (this.type.format().getElements().contains(com.mojang.blaze3d.vertex.DefaultVertexFormat.ELEMENT_UV0)) {
+                    RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+                } else {
+                    RenderSystem.setShader(GameRenderer::getPositionColorShader);
+                }
+                shader = RenderSystem.getShader();
+            }
 
             if (shader != null) {
                 RenderSystem.polygonOffset(-1.0f, -10.0f);
@@ -104,7 +114,21 @@ public class RenderCache implements MultiBufferSource {
     public void render(PoseStack poseStack) {
         if (isEmpty()) return;
 
-        Matrix4f modelView = poseStack.last().pose();
+        // IMPORTANT: Combine RenderSystem's current model-view stack with the passed PoseStack.
+        //
+        // During GUI rendering, GameRenderer sets RenderSystem.getModelViewStack() to
+        // identity + translate(0, 0, -2000) before calling Screen.render(), and uses an
+        // orthographic projection with near=1000, far=3000.
+        //
+        // If we only use poseStack.last().pose() (which contains GUI screen-space transforms
+        // like translate/scale but NO Z offset), all vertices remain at Z=0 in view space,
+        // which is OUTSIDE the [1000, 3000] frustum -> clipped and invisible in GUI.
+        //
+        // During block-entity rendering, RenderSystem.getModelViewStack() is effectively
+        // identity, so multiplying by it is a no-op and existing behaviour is preserved.
+        Matrix4f modelView = RenderSystem.getModelViewStack().last().pose().copy();
+        modelView.multiply(poseStack.last().pose());
+
         Matrix4f projection = RenderSystem.getProjectionMatrix();
 
         Matrix3f identityNormal = new Matrix3f();

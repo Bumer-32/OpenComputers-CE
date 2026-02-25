@@ -184,8 +184,8 @@ dependencies {
     runtimeOnly fg.deobf("maven.modrinth:modernfix:${modernfix_version}")
     
     // CoFH Core & Thermal
-    implementation fg.deobf("curse.maven:cofh-core-69162:4801048")
-    implementation fg.deobf("curse.maven:thermal-foundation-222880:4788649")
+    compileOnly fg.deobf("curse.maven:cofh-core-69162:4801048")
+    compileOnly fg.deobf("curse.maven:thermal-foundation-222880:4788649")
 
     compileOnly fg.deobf("appeng:appliedenergistics2:${ae2_version}:api")
     compileOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:api")

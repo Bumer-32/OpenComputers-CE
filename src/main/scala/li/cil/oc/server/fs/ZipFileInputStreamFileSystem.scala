@@ -23,7 +23,7 @@ class ZipFileInputStreamFileSystem(private val archive: ArchiveDirectory) extend
   private lazy val spaceUsed_ = ZipFileInputStreamFileSystem.synchronized {
     def recurse(d: ArchiveDirectory): Long = d.children.foldLeft(0L)((acc, c) => acc + (c match {
       case directory: ArchiveDirectory => recurse(directory)
-      case file: ArchiveFile => file.size.toLong
+      case file: ArchiveFile => file.size
     }))
     recurse(archive)
   }
@@ -81,6 +81,7 @@ object ZipFileInputStreamFileSystem {
     build[String, ArchiveDirectory]()
 
   def fromFile(file: io.File, innerPath: String) = ZipFileInputStreamFileSystem.synchronized {
+    println("zip loading")
     try {
       Option(cache.get(file.getPath + ":" + innerPath, new Callable[ArchiveDirectory] {
         def call = {
@@ -151,7 +152,7 @@ object ZipFileInputStreamFileSystem {
     def find(path: Iterable[String]): Option[Archive]
   }
 
-  class ArchiveFile(zip: ZipFile, entry: ZipEntry, root: String) extends Archive(entry, root) {
+  private class ArchiveFile(zip: ZipFile, entry: ZipEntry, root: String) extends Archive(entry, root) {
     val data = {
       val in = zip.getInputStream(entry)
       Iterator.continually(in.read).takeWhile(-1 !=).map(_.toByte).toArray
@@ -168,7 +169,7 @@ object ZipFileInputStreamFileSystem {
       else None
   }
 
-  class ArchiveDirectory(entry: ZipEntry, root: String) extends Archive(entry, root) {
+  private class ArchiveDirectory(entry: ZipEntry, root: String) extends Archive(entry, root) {
     val children = mutable.Set.empty[Archive]
 
     val size = 0

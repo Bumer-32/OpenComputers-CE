@@ -181,8 +181,9 @@ class LuaJLuaArchitecture(val machine: api.machine.Machine) extends Architecture
         // that pcall goes bad.
         def isInnerError = results.`type`(2) == LuaValue.TBOOLEAN && (results.isstring(3) || results.isnoneornil(3))
         def isOuterError = results.isstring(2) || results.isnoneornil(2)
-        if (results.`type`(1) != LuaValue.TBOOLEAN || !isInnerError || !isOuterError) {
+        if (results.`type`(1) != LuaValue.TBOOLEAN || !(isInnerError || isOuterError)) {
           OpenComputers.log.warn("Kernel returned unexpected results.")
+          OpenComputers.log.warn("Returned: {}", results)
         }
         // The pcall *should* never return normally... but check for it nonetheless.
         if ((isOuterError && results.toboolean(1)) || (isInnerError && results.toboolean(2))) {

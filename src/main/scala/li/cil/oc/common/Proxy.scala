@@ -36,7 +36,6 @@ class Proxy {
   modBus.register(classOf[EntityTypes])
   TileEntityTypes.init(modBus)
   Recipes.init(modBus)
-
   LootFunctions.init(modBus)
 
   def preInit(): Unit = {

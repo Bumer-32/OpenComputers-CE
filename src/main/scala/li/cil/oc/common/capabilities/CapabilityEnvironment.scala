@@ -35,12 +35,16 @@ object CapabilityEnvironment {
 
     override def serializeNBT(): CompoundTag = {
       val nbt = new CompoundTag()
-      node.saveData(nbt)
+      if (node != null) {
+        node.saveData(nbt)
+      }
       nbt
     }
 
     override def deserializeNBT(nbt: CompoundTag): Unit = {
-      node.loadData(nbt)
+      if (node != null) {
+        node.loadData(nbt)
+      }
     }
   }
 

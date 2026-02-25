@@ -82,6 +82,11 @@ public class RenderTypes extends RenderType {
                     .setShaderState(POSITION_COLOR_SHADER)
                     .setWriteMaskState(COLOR_WRITE)
                     .setDepthTestState(NO_DEPTH_TEST)
+                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                    // NO_CULL required: block rendering works because ScreenRenderer.transform()
+                    // applies mirrorScale(1,-1,1) which flips Y and reverses winding to CCW (front-face).
+                    // GUI rendering has no Y-flip, so quads are CW (back-face) and get culled without this.
+                    //.setCullState(NO_CULL)
                     .createCompositeState(false));
 
     private static class CustomTextureState extends RenderStateShard.TexturingStateShard {
@@ -111,6 +116,8 @@ public class RenderTypes extends RenderType {
                         .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                         .setTexturingState(linear ? LINEAR : NEAR)
                         .setDepthTestState(NO_DEPTH_TEST)
+                        // NO_CULL required: see FONT_QUAD comment above.
+                        .setCullState(NO_CULL)
                         .createCompositeState(false));
     }
 
@@ -121,6 +128,8 @@ public class RenderTypes extends RenderType {
                         .setTexturingState(new CustomTextureState(id))
                         .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                         .setDepthTestState(NO_DEPTH_TEST)
+                        // NO_CULL required: see FONT_QUAD comment above.
+                        .setCullState(NO_CULL)
                         .createCompositeState(false));
     }
 

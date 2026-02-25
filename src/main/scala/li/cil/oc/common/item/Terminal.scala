@@ -1,7 +1,6 @@
 package li.cil.oc.common.item
 
 import java.util
-
 import com.google.common.base.Strings
 import li.cil.oc.Constants
 import li.cil.oc.Localization
@@ -27,6 +26,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.InteractionHand
+import net.minecraftforge.client.model.ForgeModelBakery
 
 class Terminal(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with CustomModel {
   def hasServer(stack: ItemStack) = stack.hasTag && stack.getTag.contains(Settings.namespace + "server")
@@ -50,13 +50,12 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
     modelLocationFromState(hasServer(stack))
   }
 
-  //@TODO replace to ModelEvent.RegisterAdditional
-  //@OnlyIn(Dist.CLIENT)
-  //override def registerModelLocations(): Unit = {
-  //  for (state <- Seq(true, false)) {
-  //    ModelLoader.addSpecialModel(modelLocationFromState(state))
-  //  }
-  //}
+  @OnlyIn(Dist.CLIENT)
+  override def registerModelLocations(): Unit = {
+    for (state <- Seq(true, false)) {
+      ForgeModelBakery.addSpecialModel(modelLocationFromState(state))
+    }
+  }
 
   override def use(stack: ItemStack, level: Level, player: Player): InteractionResultHolder[ItemStack] = {
     if (!player.isCrouching && stack.hasTag) {
