@@ -86,7 +86,7 @@ public class RenderTypes extends RenderType {
                     // NO_CULL required: block rendering works because ScreenRenderer.transform()
                     // applies mirrorScale(1,-1,1) which flips Y and reverses winding to CCW (front-face).
                     // GUI rendering has no Y-flip, so quads are CW (back-face) and get culled without this.
-                    //.setCullState(NO_CULL)
+                    .setCullState(NO_CULL)
                     .createCompositeState(false));
 
     private static class CustomTextureState extends RenderStateShard.TexturingStateShard {

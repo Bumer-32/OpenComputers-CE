@@ -65,6 +65,7 @@ object ExtendedNBT {
       case value: Array[Int] => nbt.put(key, value)
       case value: String => nbt.put(key, value)
       case value: ItemStack => nbt.put(key, value)
+      case value: Tag => nbt.put(key, value)
       case _ =>
     }
     nbt

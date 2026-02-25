@@ -77,9 +77,9 @@ object SaveHandler {
   val chunkDirs = new ConcurrentLinkedDeque[io.File]()
   val saving = mutable.HashMap.empty[String, Future[_]]
 
-  def savePath = ServerLifecycleHooks.getCurrentServer.getWorldPath(new LevelResource(Settings.savePath)).toFile
+  def savePath = ServerLifecycleHooks.getCurrentServer.getWorldPath(LevelResource.ROOT).resolve(Settings.savePath).toFile
 
-  def statePath = new io.File(savePath, "state")
+  def statePath: File = new io.File(savePath, "state")
 
   def scheduleSave(host: MachineHost, nbt: CompoundTag, name: String, data: Array[Byte]): Unit = {
     scheduleSave(BlockPosition(host), nbt, name, data)

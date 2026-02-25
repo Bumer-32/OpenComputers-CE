@@ -127,12 +127,21 @@ trait VirtualFileSystem extends OutputStreamFileSystem {
   // ----------------------------------------------------------------------- //
 
   override def loadData(nbt: CompoundTag): Unit = {
+    println(s"Loading file data, NBT contains root: ${nbt.contains("root")}")
+    if (nbt.contains("root", 10)) {
+      root.loadData(nbt.getCompound("root"))
+    }
     if (!this.isInstanceOf[Buffered]) root.loadData(nbt)
     super.loadData(nbt) // Last to ensure streams can be re-opened.
   }
 
   override def saveData(nbt: CompoundTag): Unit = {
     super.saveData(nbt) // First to allow flushing.
+    if (!this.isInstanceOf[Buffered]) {
+      val fsNbt = new CompoundTag()
+      root.saveData(fsNbt)
+      nbt.put("root", fsNbt)
+    }
     if (!this.isInstanceOf[Buffered]) root.saveData(nbt)
   }
 

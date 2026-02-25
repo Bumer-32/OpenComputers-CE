@@ -45,7 +45,7 @@ public final class Recipes {
             @Override
             public String toString() { return id; }
         });
-        RegistryObject<RecipeSerializer<R>> recipeSerializer = SERIALIZERS.register(id + "_serializer", () -> serializer);
+        RegistryObject<RecipeSerializer<R>> recipeSerializer = SERIALIZERS.register(id, () -> serializer);
         return new RecipeRegistration<>(
                 recipeType::get,
                 recipeSerializer::get

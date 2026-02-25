@@ -25,29 +25,6 @@ object TextBufferRenderCache {
   // ----------------------------------------------------------------------- //
 
   def render(stack: PoseStack, buffer: TextBufferRenderData): Unit = {
-    {
-      RenderSystem.setShader(() => GameRenderer.getPositionColorShader)
-      RenderSystem.disableTexture()
-      RenderSystem.enableBlend()
-      RenderSystem.defaultBlendFunc()
-
-      RenderSystem.disableDepthTest()
-
-      val tesselator = Tesselator.getInstance
-      val builder = tesselator.getBuilder
-      val matrix = stack.last.pose
-
-      builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR)
-      builder.vertex(matrix, 0f, 0f, 0f).color(255, 0, 0, 255).endVertex()
-      builder.vertex(matrix, 0f, 50f, 0f).color(0, 255, 0, 255).endVertex()
-      builder.vertex(matrix, 50f, 50f, 0f).color(0, 0, 255, 255).endVertex()
-      builder.vertex(matrix, 50f, 0f, 0f).color(255, 255, 255, 255).endVertex()
-      tesselator.end()
-
-      RenderSystem.enableDepthTest()
-      RenderSystem.enableTexture()
-    }
-
     RenderState.checkError(getClass.getName + ".render: entering")
 
     val cached = cache.get(buffer, () => new RenderCache)

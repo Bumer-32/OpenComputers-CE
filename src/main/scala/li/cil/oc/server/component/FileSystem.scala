@@ -198,7 +198,7 @@ class FileSystem(val fileSystem: IFileSystem, var label: Label, val host: Option
           result(bytes)
         }
         else {
-          result(())
+          result()
         }
       case _ => throw new IOException("bad file descriptor")
     }

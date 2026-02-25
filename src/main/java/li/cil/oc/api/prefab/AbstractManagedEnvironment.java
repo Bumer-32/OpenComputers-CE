@@ -4,6 +4,7 @@ import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 
 /**
  * Simple base implementation of the {@link ManagedEnvironment} interface, so
@@ -47,7 +48,7 @@ public abstract class AbstractManagedEnvironment implements ManagedEnvironment {
 
     @Override
     public void loadData(final CompoundTag nbt) {
-        if (node() != null) {
+        if (node() != null && nbt.contains(NODE_TAG, Tag.TAG_COMPOUND)) {
             node().loadData(nbt.getCompound(NODE_TAG));
         }
     }
