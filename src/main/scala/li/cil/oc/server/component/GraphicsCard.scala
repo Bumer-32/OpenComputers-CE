@@ -117,7 +117,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
     val previousIndex: Int = bufferIndex
     val newIndex: Int = args.checkInteger(0)
     if (newIndex != RESERVED_SCREEN_INDEX && getBuffer(newIndex).isEmpty) {
-      result((), "invalid buffer index")
+      result(null, "invalid buffer index")
     } else {
       bufferIndex = newIndex
       if (bufferIndex == RESERVED_SCREEN_INDEX) {
@@ -138,12 +138,12 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
     val height: Int = args.optInteger(1, maxResolution._2)
     val size: Int = width * height
     if (width <= 0 || height <= 0) {
-      result((), "invalid page dimensions: must be greater than zero")
+      result(null, "invalid page dimensions: must be greater than zero")
     }
     else if (size > (totalVRAM - calculateUsedMemory())) {
-      result((), "not enough video memory")
+      result(null, "not enough video memory")
     } else if (node == null) {
-      result((), "graphics card appears disconnected")
+      result(null, "graphics card appears disconnected")
     } else {
       val format: PackedColor.ColorFormat = PackedColor.Depth.format(Settings.screenDepthsByTier(tier))
       val buffer = new li.cil.oc.util.TextBuffer(width, height, format)
@@ -172,7 +172,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
   def freeBuffer(context: Context, args: Arguments): Array[AnyRef] = {
     val index: Int = args.optInteger(0, bufferIndex)
     if (removeBuffers(Array(index)) == 1) result(true)
-    else result((), "no buffer at index")
+    else result(null, "no buffer at index")
   }
 
   @Callback(direct = true, doc = """function(): number -- Closes all buffers and returns the count. If the active buffer is closed, index moves to 0""")
@@ -262,7 +262,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
             component.GpuTextBuffer.bitblt(dst, col, row, w, h, src, fromCol, fromRow)
             result(true)
           }
-        } else result((), "not enough energy")
+        } else result(null, "not enough energy")
       })
     })
   }
@@ -272,7 +272,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
     val address = args.checkString(0)
     val reset = args.optBoolean(1, true)
     node.network.node(address) match {
-      case null => result((), "invalid address")
+      case null => result(null, "invalid address")
       case node: Node if node.host.isInstanceOf[api.internal.TextBuffer] =>
         screenAddress = Option(address)
         screenInstance = Some(node.host.asInstanceOf[api.internal.TextBuffer])
@@ -293,7 +293,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
           else context.pause(0) // To discourage outputting "in realtime" to multiple screens using one GPU.
           result(true)
         })
-      case _ => result((), "not a screen")
+      case _ => result(null, "not a screen")
     }
   }
 
@@ -317,7 +317,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
           (s.getPaletteColor(oldValue), oldValue)
         }
         else {
-          (oldValue, ())
+          (oldValue, null)
         }
       s.setBackgroundColor(color, args.optBoolean(1, false))
       result(oldColor, oldIndex)
@@ -341,7 +341,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
           (s.getPaletteColor(oldValue), oldValue)
         }
         else {
-          (oldValue, ())
+          (oldValue, null)
         }
       s.setForegroundColor(color, args.optBoolean(1, false))
       result(oldColor, oldIndex)
@@ -463,7 +463,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
           (s.getPaletteColor(fgValue), fgValue)
         }
         else {
-          (fgValue, ())
+          (fgValue, null)
         }
 
       val bgValue = s.getBackgroundColor(x, y)
@@ -472,7 +472,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
           (s.getPaletteColor(bgValue), bgValue)
         }
         else {
-          (bgValue, ())
+          (bgValue, null)
         }
 
       result(new java.lang.StringBuilder().appendCodePoint(s.getCodePoint(x, y)).toString, fgColor, bgColor, fgIndex, bgIndex)
@@ -490,7 +490,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
       if (resolveInvokeCosts(bufferIndex, context, setCosts(tier), ExtendedUnicodeHelper.length(value), Settings.get.gpuSetCost)) {
         s.set(x, y, value, vertical)
         result(true)
-      } else result((), "not enough energy")
+      } else result(null, "not enough energy")
     })
   }
 
@@ -507,7 +507,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
         s.copy(x, y, w, h, tx, ty)
         result(true)
       }
-      else result((), "not enough energy")
+      else result(null, "not enough energy")
     })
   }
 
@@ -526,7 +526,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
         result(true)
       }
       else {
-        result((), "not enough energy")
+        result(null, "not enough energy")
       }
     })
     else throw new Exception("invalid fill value")

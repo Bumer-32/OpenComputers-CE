@@ -81,7 +81,7 @@ public class RenderTypes extends RenderType {
             DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 1024, false, false, CompositeState.builder()
                     .setShaderState(POSITION_COLOR_SHADER)
                     .setWriteMaskState(COLOR_WRITE)
-                    .setDepthTestState(NO_DEPTH_TEST)
+                    .setDepthTestState(LEQUAL_DEPTH_TEST)
                     .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                     // NO_CULL required: block rendering works because ScreenRenderer.transform()
                     // applies mirrorScale(1,-1,1) which flips Y and reverses winding to CCW (front-face).
@@ -115,7 +115,7 @@ public class RenderTypes extends RenderType {
                         .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
                         .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                         .setTexturingState(linear ? LINEAR : NEAR)
-                        .setDepthTestState(NO_DEPTH_TEST)
+                        .setDepthTestState(LEQUAL_DEPTH_TEST)
                         // NO_CULL required: see FONT_QUAD comment above.
                         .setCullState(NO_CULL)
                         .createCompositeState(false));
@@ -127,7 +127,7 @@ public class RenderTypes extends RenderType {
                         .setShaderState(POSITION_COLOR_TEX_SHADER)
                         .setTexturingState(new CustomTextureState(id))
                         .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                        .setDepthTestState(NO_DEPTH_TEST)
+                        .setDepthTestState(LEQUAL_DEPTH_TEST)
                         // NO_CULL required: see FONT_QUAD comment above.
                         .setCullState(NO_CULL)
                         .createCompositeState(false));

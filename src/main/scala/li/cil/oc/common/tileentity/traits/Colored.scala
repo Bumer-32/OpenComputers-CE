@@ -52,7 +52,9 @@ trait Colored extends TileEntity with internal.Colored {
   @OnlyIn(Dist.CLIENT)
   override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
-    _color = nbt.getInt(RenderColorTag)
+    if (nbt.contains(RenderColorTag)) {
+      _color = nbt.getInt(RenderColorTag)
+    }
   }
 
   override def saveForClient(nbt: CompoundTag): Unit = {

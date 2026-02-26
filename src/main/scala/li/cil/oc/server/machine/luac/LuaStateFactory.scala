@@ -181,7 +181,6 @@ abstract class LuaStateFactory {
   // shared libraries somewhere so that we can load them, because we cannot
   // load them directly from a JAR. Lastly, we need to handle library overrides in
   // case the user wants to use custom libraries, or are not on a supported platform.
-  /*
   def init(): Unit = {
     if (libraryName == null) {
       return
@@ -341,67 +340,6 @@ abstract class LuaStateFactory {
           OpenComputers.log.trace(s"Could not load native library '${tmpLibFile.getName}'.")
         }
         tmpLibFile.delete()
-    }
-  }
-  */
-
-  def init(): Unit = {
-    if (libraryName == null) return
-
-    var tmpLibFile: File = null
-
-    val libraryPath = s"assets/${Settings.resourceDomain}/lib/$libraryName"
-    val libraryUrl = {
-      val loaders = Seq(
-        Thread.currentThread().getContextClassLoader,
-        getClass.getClassLoader,
-        ClassLoader.getSystemClassLoader,
-        classOf[jnlua.LuaState].getClassLoader
-      )
-      loaders.iterator.flatMap(cl => Option(cl.getResource(libraryPath))).nextOption().orNull
-    }
-
-    if (libraryUrl == null) {
-      OpenComputers.log.error(s"Native library not found: $libraryPath")
-      return
-    }
-
-    try {
-      val prefix = s"ocr-jnlua$version-"
-      val suffix = if (SystemUtils.IS_OS_WINDOWS) ".dll" else if (SystemUtils.IS_OS_MAC) ".dylib" else ".so"
-
-      tmpLibFile = File.createTempFile(prefix, suffix)
-      tmpLibFile.deleteOnExit()
-
-      val in = libraryUrl.openStream()
-      val inChannel = java.nio.channels.Channels.newChannel(in)
-      val out = new FileOutputStream(tmpLibFile)
-      val outChannel = out.getChannel
-      try {
-        outChannel.transferFrom(inChannel, 0, Long.MaxValue)
-
-        tmpLibFile.setReadable(true, false)
-        tmpLibFile.setWritable(true, false)
-        tmpLibFile.setExecutable(true, false)
-      } finally {
-        out.close()
-        in.close()
-      }
-
-      currentLib = tmpLibFile.getAbsolutePath
-
-      LuaStateFactory.synchronized {
-        System.load(currentLib)
-        val test = create()
-        test.close()
-      }
-      haveNativeLibrary = true
-      OpenComputers.log.info(s"Successfully loaded JNLua natives from $currentLib")
-
-    } catch {
-      case t: Throwable =>
-        OpenComputers.log.error(s"Failed to extract or load native library $libraryName", t)
-        if (tmpLibFile != null) tmpLibFile.delete()
     }
   }
 

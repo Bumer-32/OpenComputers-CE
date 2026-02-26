@@ -122,13 +122,13 @@ abstract class TextureFontRenderer {
       val x1 = (x + width) * charWidth
       val y0 = y * charHeight
       val y1 = (y + 1) * charHeight
-      val r = ((color >> 16) & 0xFF) / 255f
-      val g = ((color >> 8) & 0xFF) / 255f
-      val b = (color & 0xFF) / 255f
-      builder.vertex(matrix, x0.toFloat, y1.toFloat, 0).color(r, g, b, 1f).endVertex()
-      builder.vertex(matrix, x1.toFloat, y1.toFloat, 0).color(r, g, b, 1f).endVertex()
-      builder.vertex(matrix, x1.toFloat, y0.toFloat, 0).color(r, g, b, 1f).endVertex()
-      builder.vertex(matrix, x0.toFloat, y0.toFloat, 0).color(r, g, b, 1f).endVertex()
+      val r = (color >> 16) & 0xFF
+      val g = (color >> 8) & 0xFF
+      val b = color & 0xFF
+      builder.vertex(matrix, x0.toFloat, y1.toFloat, 0).color(r, g, b, 255).endVertex()
+      builder.vertex(matrix, x1.toFloat, y1.toFloat, 0).color(r, g, b, 255).endVertex()
+      builder.vertex(matrix, x1.toFloat, y0.toFloat, 0).color(r, g, b, 255).endVertex()
+      builder.vertex(matrix, x0.toFloat, y0.toFloat, 0).color(r, g, b, 255).endVertex()
     }
   }
 }

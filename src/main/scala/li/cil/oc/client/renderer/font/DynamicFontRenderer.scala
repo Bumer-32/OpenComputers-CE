@@ -115,13 +115,12 @@ object DynamicFontRenderer {
 
   class CharIcon(val texture: CharTexture, val w: Int, val h: Int, val u1: Float, val v1: Float, val u2: Float, val v2: Float) {
     def draw(builder: VertexConsumer, matrix: Matrix4f, color: Int, tx: Float, ty: Float): Unit = {
-      val r = ((color >> 16) & 0xFF) / 255f
-      val g = ((color >> 8) & 0xFF) / 255f
-      val b = (color & 0xFF) / 255f
-      builder.vertex(matrix, tx, ty + h, 0).color(r, g, b, 1f).uv(u1, v2).endVertex()
-      builder.vertex(matrix, tx + w, ty + h, 0).color(r, g, b, 1f).uv(u2, v2).endVertex()
-      builder.vertex(matrix, tx + w, ty, 0).color(r, g, b, 1f).uv(u2, v1).endVertex()
-      builder.vertex(matrix, tx, ty, 0).color(r, g, b, 1f).uv(u1, v1).endVertex()
-    }
+      val r = (color >> 16) & 0xFF
+      val g = (color >> 8) & 0xFF
+      val b = color & 0xFF
+      builder.vertex(matrix, tx, ty + h, 0).color(r, g, b, 255).uv(u1, v2).endVertex()
+      builder.vertex(matrix, tx + w, ty + h, 0).color(r, g, b, 255).uv(u2, v2).endVertex()
+      builder.vertex(matrix, tx + w, ty, 0).color(r, g, b, 255).uv(u2, v1).endVertex()
+      builder.vertex(matrix, tx, ty, 0).color(r, g, b, 255).uv(u1, v1).endVertex()}
   }
 }
