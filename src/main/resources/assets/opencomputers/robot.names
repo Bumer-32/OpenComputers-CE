@@ -23,6 +23,8 @@ BB-8               # Star Wars
 Bender             # Futurama
 BMO                # Adventure Time
 BraitenBurg        # Simple intelligent agents.
+ChatGPT            # OpenAI LLM
+Claude             # Anthropic LLM
 C-3PO              # Star Wars
 Cairol             # Perry Rhodan
 Calculon           # Futurama
@@ -56,6 +58,7 @@ E.V.E              # Anno 2070
 Eve                # Wall-E
 Fact Core          # Portal
 Flexo              # Futurama
+Gemini             # Google LLM
 Gerty              # Moon
 Ghost              # I, Robot quote "There have always been ghosts in the machine"
 GLaDOS             # Portal

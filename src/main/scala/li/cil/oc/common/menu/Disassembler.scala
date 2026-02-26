@@ -13,8 +13,8 @@ import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 
-class Disassembler(selfType: MenuType[_ <: Disassembler], id: Int, playerInventory: Inventory, val disassembler: Container)
-  extends AbstractMenu(selfType, id, playerInventory, disassembler) {
+class Disassembler(id: Int, playerInventory: Inventory, val disassembler: Container)
+  extends AbstractMenu(MenuTypes.DISASSEMBLER.get(), id, playerInventory, disassembler) {
 
   private def allowDisassembling(stack: ItemStack) = !stack.isEmpty && (!stack.hasTag || !stack.getTag.getBoolean(Settings.namespace + "undisassemblable"))
 

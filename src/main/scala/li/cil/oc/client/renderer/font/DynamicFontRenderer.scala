@@ -18,6 +18,7 @@ class DynamicFontRenderer extends TextureFontRenderer with ResourceManagerReload
   private val glyphProvider: IGlyphProvider = new FontParserHex()
   private val textures = mutable.ArrayBuffer.empty[DynamicFontRenderer.CharTexture]
   private val charMap = mutable.Map.empty[Int, DynamicFontRenderer.CharIcon]
+  private var activeTextureIndex: Int = 0
 
   initialize()
 
@@ -40,14 +41,21 @@ class DynamicFontRenderer extends TextureFontRenderer with ResourceManagerReload
   override protected def charWidth = glyphProvider.getGlyphWidth
   override protected def charHeight = glyphProvider.getGlyphHeight
   override protected def textureCount = textures.length
-  override protected def selectType(index: Int): RenderType = textures(index).getType
+  override protected def selectType(index: Int): RenderType = {
+    activeTextureIndex = index
+    textures(index).getType
+  }
 
   override protected def generateChar(char: Int): Unit = {
     charMap.getOrElseUpdate(char, createCharIcon(char))
   }
 
   override protected def drawChar(builder: VertexConsumer, matrix: Matrix4f, color: Int, tx: Float, ty: Float, char: Int): Unit = {
-    charMap.get(char).foreach(_.draw(builder, matrix, color, tx, ty))
+    charMap.get(char).foreach { icon =>
+      if (icon.texture == textures(activeTextureIndex)) {
+        icon.draw(builder, matrix, color, tx, ty)
+      }
+    }
   }
 
   private def createCharIcon(char: Int): DynamicFontRenderer.CharIcon = {

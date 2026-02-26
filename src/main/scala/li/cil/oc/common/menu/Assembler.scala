@@ -13,8 +13,8 @@ import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 
-class Assembler(selfType: MenuType[_ <: Assembler], id: Int, playerInventory: Inventory, val assembler: Container)
-  extends AbstractMenu(selfType, id, playerInventory, assembler) {
+class Assembler(id: Int, playerInventory: Inventory, val assembler: Container)
+  extends AbstractMenu(MenuTypes.ASSEMBLER.get(), id, playerInventory, assembler) {
 
   override protected def getHostClass = classOf[tileentity.Assembler]
 

@@ -6,8 +6,8 @@ import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.Container
 import net.minecraft.world.inventory.MenuType
 
-class DiskDrive(selfType: MenuType[_ <: DiskDrive], id: Int, playerInventory: Inventory, drive: Container)
-  extends AbstractMenu(selfType, id, playerInventory, drive) {
+class DiskDrive(id: Int, playerInventory: Inventory, drive: Container)
+  extends AbstractMenu(MenuTypes.DISK_DRIVE.get(), id, playerInventory, drive) {
 
   override protected def getHostClass = classOf[tileentity.DiskDrive]
 

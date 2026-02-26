@@ -378,7 +378,7 @@ class Printer(pos: BlockPos, state: BlockState)
   // ----------------------------------------------------------------------- //
 
   override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
-    new menu.Printer(MenuTypes.PRINTER, id, playerInventory, this)
+    new menu.Printer(id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
 

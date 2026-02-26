@@ -8,8 +8,8 @@ import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.Container
 import net.minecraft.world.item.ItemStack
 
-class Charger(selfType: MenuType[_ <: Charger], id: Int, playerInventory: Inventory, charger: Container)
-  extends AbstractMenu(selfType, id, playerInventory, charger) {
+class Charger(id: Int, playerInventory: Inventory, charger: Container)
+  extends AbstractMenu(MenuTypes.CHARGER.get(), id, playerInventory, charger) {
 
   override protected def getHostClass = classOf[tileentity.Charger]
 

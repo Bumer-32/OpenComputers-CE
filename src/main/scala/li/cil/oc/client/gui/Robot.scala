@@ -33,7 +33,6 @@ class Robot(state: menu.Robot, playerInventory: Inventory, name: Component)
 
   override def containerTick(): Unit = {
     super.containerTick()
-    this.containerTick()
   }
 
   override protected val buffer: TextBuffer = inventoryContainer.info.screenBuffer

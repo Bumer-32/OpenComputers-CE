@@ -212,5 +212,5 @@ class Assembler(pos: BlockPos, state: BlockState)
   override def getDisplayName = TextComponent.EMPTY
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
-    new menu.Assembler(MenuTypes.ASSEMBLER, id, playerInventory, this)
+    new menu.Assembler(id, playerInventory, this)
 }

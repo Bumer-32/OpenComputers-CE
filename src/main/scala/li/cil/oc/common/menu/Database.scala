@@ -9,8 +9,8 @@ import net.minecraft.world.inventory.ClickType
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.inventory.MenuType
 
-class Database(selfType: MenuType[_ <: Database], id: Int, playerInventory: Inventory, val container: ItemStack, databaseInventory: Container, val tier: Int)
-  extends AbstractMenu(selfType, id, playerInventory, databaseInventory) {
+class Database(id: Int, playerInventory: Inventory, val container: ItemStack, databaseInventory: Container, val tier: Int)
+  extends AbstractMenu(MenuTypes.DATABASE.get(), id, playerInventory, databaseInventory) {
 
   override protected def getHostClass = null
 

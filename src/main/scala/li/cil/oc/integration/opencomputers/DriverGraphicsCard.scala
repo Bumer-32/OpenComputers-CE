@@ -28,11 +28,15 @@ object DriverGraphicsCard extends Item with HostAware {
 
   override def slot(stack: ItemStack) = Slot.Card
 
-  override def tier(stack: ItemStack) =
-    stack.getItem match {
-      case gpu: common.item.GraphicsCard => gpu.gpuTier
-      case _ => Tier.One
+  override def tier(stack: ItemStack) = {
+    if (isOneOf(stack, api.Items.get(Constants.ItemName.GraphicsCardTier3))) {
+      Tier.Three
+    } else if (isOneOf(stack, api.Items.get(Constants.ItemName.GraphicsCardTier2))) {
+      Tier.Two
+    } else {
+      Tier.One
     }
+  }
 
   object Provider extends EnvironmentProvider {
     override def getEnvironment(stack: ItemStack): Class[_] =

@@ -66,6 +66,7 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
     stack.pushPose()
     stack.translate(leftPos, topPos, 0)
     RenderSystem.disableDepthTest()
+    RenderSystem.setShader(() => GameRenderer.getPositionTexShader)
     for (slot <- 0 until menu.slots.size()) {
       drawSlotInventory(stack, menu.getSlot(slot))
     }
@@ -92,21 +93,19 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
         if (!isInPlayerInventory(slot)) {
           drawSlotBackground(stack, slot.x - 1, slot.y - 1)
         }
-        if (!slot.hasItem) {
-          slot match {
-            case component: ComponentSlot =>
-              if (component.tierIcon != null) {
-                Textures.bind(component.tierIcon)
-                GuiComponent.blit(stack, slot.x, slot.y, getBlitOffset, 0, 0, 16, 16, 16, 16)
-              }
-              if (component.hasBackground) {
-                Textures.bind(component.getBackgroundLocation)
-                GuiComponent.blit(stack, slot.x, slot.y, getBlitOffset, 0, 0, 16, 16, 16, 16)
-              }
-            case _ =>
-          }
-          setBlitOffset(getBlitOffset - 1)
+        slot match {
+          case component: ComponentSlot if !slot.hasItem =>
+            if (component.tierIcon != null) {
+              Textures.bind(component.tierIcon)
+              GuiComponent.blit(stack, slot.x, slot.y, getBlitOffset, 0, 0, 16, 16, 16, 16)
+            }
+            if (component.hasBackground) {
+              Textures.bind(component.getBackgroundLocation)
+              GuiComponent.blit(stack, slot.x, slot.y, getBlitOffset, 0, 0, 16, 16, 16, 16)
+            }
+          case _ =>
         }
+        setBlitOffset(getBlitOffset - 1)
     }
     RenderSystem.disableBlend()
   }

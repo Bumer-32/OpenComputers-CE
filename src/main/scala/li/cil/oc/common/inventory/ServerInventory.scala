@@ -31,5 +31,5 @@ trait ServerInventory extends ItemStackInventory with MenuProvider {
     })
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
-    new ServerContainer(MenuTypes.SERVER, id, playerInventory, container, this, tier, rackSlot)
+    new ServerContainer(id, playerInventory, container, this, tier, rackSlot)
 }

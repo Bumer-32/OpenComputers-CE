@@ -27,7 +27,9 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
                   val textColor: Int = 0xE0E0E0,
                   val textDisabledColor: Int = 0xA0A0A0,
                   val textHoverColor: Int = 0xFFFFA0,
-                  val textIndent: Int = -1) extends Button(xPos, yPos, w, h, text, handler) {
+                  val textIndent: Int = -1,
+                  val textureWidth: Int = -1,
+                  val textureHeight: Int = -1) extends Button(xPos, yPos, w, h, text, handler) {
 
   var toggled = false
   var hoverOverride = false
@@ -50,16 +52,31 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
       val t = Tesselator.getInstance
       val r = t.getBuilder
       if (image != null) {
-        val u0 = if (toggled) 0.5f else 0
-        val u1 = u0 + (if (canToggle) 0.5f else 1)
-        val v0 = if (drawHover) 0.5f else 0
+        val texW = if (textureWidth > 0) textureWidth else w * (if (canToggle) 2 else 1)
+        val texH = if (textureHeight > 0) textureHeight else h * 2
+
+        val u0 = if (toggled) 0.5f else 0f
+        val u1 = u0 + (if (canToggle) 0.5f else 1f)
+        val v0 = if (drawHover) 0.5f else 0f
         val v1 = v0 + 0.5f
 
+        val (ru0, ru1, rv0, rv1) = if (textureWidth > 0 && textureHeight > 0) {
+          val texW = textureWidth.toFloat
+          val texH = textureHeight.toFloat
+          val tu0 = if (toggled) w.toFloat / texW else 0f
+          val tu1 = tu0 + w.toFloat / texW
+          val tv0 = if (drawHover) h.toFloat / texH else 0f
+          val tv1 = tv0 + h.toFloat / texH
+          (tu0, tu1, tv0, tv1)
+        } else {
+          (u0, u1, v0, v1)
+        }
+
         r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
-        r.vertex(stack.last.pose, x0.toFloat, y1.toFloat, getBlitOffset.toFloat).uv(u0, v1).endVertex()
-        r.vertex(stack.last.pose, x1.toFloat, y1.toFloat, getBlitOffset.toFloat).uv(u1, v1).endVertex()
-        r.vertex(stack.last.pose, x1.toFloat, y0.toFloat, getBlitOffset.toFloat).uv(u1, v0).endVertex()
-        r.vertex(stack.last.pose, x0.toFloat, y0.toFloat, getBlitOffset.toFloat).uv(u0, v0).endVertex()
+        r.vertex(stack.last.pose, x0.toFloat, y1.toFloat, getBlitOffset.toFloat).uv(ru0, rv1).endVertex()
+        r.vertex(stack.last.pose, x1.toFloat, y1.toFloat, getBlitOffset.toFloat).uv(ru1, rv1).endVertex()
+        r.vertex(stack.last.pose, x1.toFloat, y0.toFloat, getBlitOffset.toFloat).uv(ru1, rv0).endVertex()
+        r.vertex(stack.last.pose, x0.toFloat, y0.toFloat, getBlitOffset.toFloat).uv(ru0, rv0).endVertex()
         t.end()
       }
       else {

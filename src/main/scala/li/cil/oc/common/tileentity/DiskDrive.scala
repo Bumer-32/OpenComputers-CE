@@ -113,7 +113,7 @@ class DiskDrive(pos: BlockPos, state: BlockState)
   // INamedContainerProvider
 
   override def createMenu(id: Int, playerInventory: Inventory, player: PlayerEntity) =
-    new menu.DiskDrive(MenuTypes.DISK_DRIVE, id, playerInventory, this)
+    new menu.DiskDrive(id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
   // ComponentInventory

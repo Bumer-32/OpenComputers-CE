@@ -774,7 +774,7 @@ class Robot(pos: BlockPos, state: BlockState)
   override def getDisplayName = TextComponent.EMPTY
 
   override def createMenu(id: Int, playerInventory: Inventory, player: PlayerEntity) =
-    new menu.Robot(MenuTypes.ROBOT, id, playerInventory, this, new menu.RobotInfo(this))
+    new menu.Robot(id, playerInventory, this, new menu.RobotInfo(this))
 
   // ----------------------------------------------------------------------- //
 

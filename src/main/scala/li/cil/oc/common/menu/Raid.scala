@@ -7,8 +7,8 @@ import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.Container
 import net.minecraft.world.inventory.MenuType
 
-class Raid(selfType: MenuType[_ <: Raid], id: Int, playerInventory: Inventory, raid: Container)
-  extends AbstractMenu(selfType, id, playerInventory, raid) {
+class Raid(id: Int, playerInventory: Inventory, raid: Container)
+  extends AbstractMenu(MenuTypes.RAID.get(), id, playerInventory, raid) {
 
   override protected def getHostClass = classOf[tileentity.Raid]
 

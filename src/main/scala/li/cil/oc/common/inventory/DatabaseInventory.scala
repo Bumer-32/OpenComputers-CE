@@ -27,5 +27,5 @@ trait DatabaseInventory extends ItemStackInventory with MenuProvider {
   override def getDisplayName = TextComponent.EMPTY
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
-    new DatabaseContainer(MenuTypes.DATABASE, id, playerInventory, container, this, tier)
+    new DatabaseContainer(id, playerInventory, container, this, tier)
 }

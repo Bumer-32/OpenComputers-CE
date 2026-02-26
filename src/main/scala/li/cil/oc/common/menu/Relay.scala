@@ -12,8 +12,8 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.Container
 
-class Relay(selfType: MenuType[_ <: Relay], id: Int, playerInventory: Inventory, relay: Container)
-  extends AbstractMenu(selfType, id, playerInventory, relay) {
+class Relay(id: Int, playerInventory: Inventory, relay: Container)
+  extends AbstractMenu(MenuTypes.RELAY.get(), id, playerInventory, relay) {
 
   lazy final val WirelessNetworkCardTier1: ItemInfo = api.Items.get(Constants.ItemName.WirelessNetworkCardTier1)
   lazy final val WirelessNetworkCardTier2: ItemInfo = api.Items.get(Constants.ItemName.WirelessNetworkCardTier2)

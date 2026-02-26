@@ -1,89 +1,100 @@
 package li.cil.oc.common.menu;
 
 import li.cil.oc.OpenComputers;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.extensions.IForgeMenuType;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.network.IContainerFactory;
 import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.ObjectHolder;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
-// @TODO replace to DeferredRegister
-@ObjectHolder("opencomputers")
 public final class MenuTypes {
-    public static final MenuType<Adapter> ADAPTER = null;
-    public static final MenuType<Assembler> ASSEMBLER = null;
-    public static final MenuType<Case> CASE = null;
-    public static final MenuType<Charger> CHARGER = null;
-    public static final MenuType<Database> DATABASE = null;
-    public static final MenuType<Disassembler> DISASSEMBLER = null;
-    public static final MenuType<DiskDrive> DISK_DRIVE = null;
-    public static final MenuType<Drone> DRONE = null;
-    public static final MenuType<Printer> PRINTER = null;
-    public static final MenuType<Rack> RACK = null;
-    public static final MenuType<Raid> RAID = null;
-    public static final MenuType<Relay> RELAY = null;
-    public static final MenuType<Robot> ROBOT = null;
-    public static final MenuType<Server> SERVER = null;
-    public static final MenuType<Tablet> TABLET = null;
+    public static final DeferredRegister<MenuType<?>> MENU_TYPES =
+            DeferredRegister.create(ForgeRegistries.CONTAINERS, OpenComputers.ID());
 
-    @SubscribeEvent
-    public static void registerContainers(RegistryEvent.Register<MenuType<?>> e) {
-        register(e.getRegistry(), "adapter", (id, plr, buff) -> new Adapter(ADAPTER, id, plr, new SimpleContainer(1)));
-        register(e.getRegistry(), "assembler", (id, plr, buff) -> new Assembler(ASSEMBLER, id, plr, new SimpleContainer(22)));
-        register(e.getRegistry(), "case", (id, plr, buff) -> {
-            int invSize = buff.readVarInt();
-            int tier = buff.readVarInt();
-            return new Case(CASE, id, plr, new SimpleContainer(invSize), tier);
-        });
-        register(e.getRegistry(), "charger", (id, plr, buff) -> new Charger(CHARGER, id, plr, new SimpleContainer(1)));
-        register(e.getRegistry(), "database", (id, plr, buff) -> {
-            ItemStack containerStack = buff.readItem();
-            int invSize = buff.readVarInt();
-            int tier = buff.readVarInt();
-            return new Database(DATABASE, id, plr, containerStack, new SimpleContainer(invSize), tier);
-        });
-        register(e.getRegistry(), "disassembler", (id, plr, buff) -> new Disassembler(DISASSEMBLER, id, plr, new SimpleContainer(1)));
-        register(e.getRegistry(), "disk_drive", (id, plr, buff) -> new DiskDrive(DISK_DRIVE, id, plr, new SimpleContainer(1)));
-        register(e.getRegistry(), "drone", (id, plr, buff) -> {
-            int invSize = buff.readVarInt();
-            return new Drone(DRONE, id, plr, new SimpleContainer(8), invSize);
-        });
-        register(e.getRegistry(), "printer", (id, plr, buff) -> new Printer(PRINTER, id, plr, new SimpleContainer(3)));
-        register(e.getRegistry(), "rack", (id, plr, buff) -> new Rack(RACK, id, plr, new SimpleContainer(4)));
-        register(e.getRegistry(), "raid", (id, plr, buff) -> new Raid(RAID, id, plr, new SimpleContainer(3)));
-        register(e.getRegistry(), "relay", (id, plr, buff) -> new Relay(RELAY, id, plr, new SimpleContainer(4)));
-        register(e.getRegistry(), "robot", (id, plr, buff) -> {
-            RobotInfo info = RobotInfo$.MODULE$.readRobotInfo(buff);
-            return new Robot(ROBOT, id, plr, new SimpleContainer(100), info);
-        });
-        register(e.getRegistry(), "server", (id, plr, buff) -> {
-            ItemStack containerStack = buff.readItem();
-            int invSize = buff.readVarInt();
-            int tier = buff.readVarInt();
-            int rackSlot = buff.readVarInt() - 1;
-            return new Server(SERVER, id, plr, containerStack, new SimpleContainer(invSize), tier, rackSlot);
-        });
-        register(e.getRegistry(), "tablet", (id, plr, buff) -> {
-            ItemStack containerStack = buff.readItem();
-            int invSize = buff.readVarInt();
-            String slot1 = buff.readUtf(32);
-            int tier1 = buff.readVarInt();
-            return new Tablet(TABLET, id, plr, containerStack, new SimpleContainer(invSize), slot1, tier1);
-        });
-    }
+    public static final RegistryObject<MenuType<Adapter>> ADAPTER =
+            MENU_TYPES.register("adapter", () -> IForgeMenuType.create(
+                    (id, plr, buff) -> new Adapter(id, plr, new SimpleContainer(1))));
 
-    private static void register(IForgeRegistry<MenuType<?>> registry, String name, IContainerFactory<?> factory) {
-        MenuType<?> type = IForgeMenuType.create(factory);
-        type.setRegistryName(new ResourceLocation(OpenComputers.ID(), name));
-        registry.register(type);
-    }
+    public static final RegistryObject<MenuType<Assembler>> ASSEMBLER =
+            MENU_TYPES.register("assembler", () -> IForgeMenuType.create(
+                    (id, plr, buff) -> new Assembler(id, plr, new SimpleContainer(22))));
+
+    public static final RegistryObject<MenuType<Case>> CASE =
+            MENU_TYPES.register("case", () -> IForgeMenuType.create((id, plr, buff) -> {
+                int invSize = buff.readVarInt();
+                int tier = buff.readVarInt();
+                return new Case(id, plr, new SimpleContainer(invSize), tier);
+            }));
+
+    public static final RegistryObject<MenuType<Charger>> CHARGER =
+            MENU_TYPES.register("charger", () -> IForgeMenuType.create(
+                    (id, plr, buff) -> new Charger(id, plr, new SimpleContainer(1))));
+
+    public static final RegistryObject<MenuType<Database>> DATABASE =
+            MENU_TYPES.register("database", () -> IForgeMenuType.create((id, plr, buff) -> {
+                ItemStack containerStack = buff.readItem();
+                int invSize = buff.readVarInt();
+                int tier = buff.readVarInt();
+                return new Database(id, plr, containerStack, new SimpleContainer(invSize), tier);
+            }));
+
+    public static final RegistryObject<MenuType<Disassembler>> DISASSEMBLER =
+            MENU_TYPES.register("disassembler", () -> IForgeMenuType.create(
+                    (id, plr, buff) -> new Disassembler(id, plr, new SimpleContainer(1))));
+
+    public static final RegistryObject<MenuType<DiskDrive>> DISK_DRIVE =
+            MENU_TYPES.register("disk_drive", () -> IForgeMenuType.create(
+                    (id, plr, buff) -> new DiskDrive(id, plr, new SimpleContainer(1))));
+
+    public static final RegistryObject<MenuType<Drone>> DRONE =
+            MENU_TYPES.register("drone", () -> IForgeMenuType.create((id, plr, buff) -> {
+                int invSize = buff.readVarInt();
+                return new Drone(id, plr, new SimpleContainer(8), invSize);
+            }));
+
+    public static final RegistryObject<MenuType<Printer>> PRINTER =
+            MENU_TYPES.register("printer", () -> IForgeMenuType.create(
+                    (id, plr, buff) -> new Printer(id, plr, new SimpleContainer(3))));
+
+    public static final RegistryObject<MenuType<Rack>> RACK =
+            MENU_TYPES.register("rack", () -> IForgeMenuType.create(
+                    (id, plr, buff) -> new Rack(id, plr, new SimpleContainer(4))));
+
+    public static final RegistryObject<MenuType<Raid>> RAID =
+            MENU_TYPES.register("raid", () -> IForgeMenuType.create(
+                    (id, plr, buff) -> new Raid(id, plr, new SimpleContainer(3))));
+
+    public static final RegistryObject<MenuType<Relay>> RELAY =
+            MENU_TYPES.register("relay", () -> IForgeMenuType.create(
+                    (id, plr, buff) -> new Relay(id, plr, new SimpleContainer(4))));
+
+    public static final RegistryObject<MenuType<Robot>> ROBOT =
+            MENU_TYPES.register("robot", () -> IForgeMenuType.create((id, plr, buff) -> {
+                RobotInfo info = RobotInfo$.MODULE$.readRobotInfo(buff);
+                return new Robot(id, plr, new SimpleContainer(100), info);
+            }));
+
+    public static final RegistryObject<MenuType<Server>> SERVER =
+            MENU_TYPES.register("server", () -> IForgeMenuType.create((id, plr, buff) -> {
+                ItemStack containerStack = buff.readItem();
+                int invSize = buff.readVarInt();
+                int tier = buff.readVarInt();
+                int rackSlot = buff.readVarInt() - 1;
+                return new Server(id, plr, containerStack, new SimpleContainer(invSize), tier, rackSlot);
+            }));
+
+    public static final RegistryObject<MenuType<Tablet>> TABLET =
+            MENU_TYPES.register("tablet", () -> IForgeMenuType.create((id, plr, buff) -> {
+                ItemStack containerStack = buff.readItem();
+                int invSize = buff.readVarInt();
+                String slot1 = buff.readUtf(32);
+                int tier1 = buff.readVarInt();
+                return new Tablet(id, plr, containerStack, new SimpleContainer(invSize), slot1, tier1);
+            }));
 
     public static void openAdapterGui(ServerPlayer player, li.cil.oc.common.tileentity.Adapter adapter) {
         NetworkHooks.openGui(player, adapter);

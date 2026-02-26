@@ -2,26 +2,28 @@ package li.cil.oc.client.renderer.block
 
 import java.util
 import java.util.Collections
-
 import li.cil.oc.client.Textures
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.block.model.BakedQuad
 import net.minecraft.client.renderer.block.model.ItemOverrides
 import net.minecraft.client.renderer.block.model.ItemTransforms
-import net.minecraft.client.renderer.block.model.ItemTransform  // 1.18.2: ItemTransformVec3f → ItemTransform
+import net.minecraft.client.renderer.block.model.ItemTransform
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.core.Direction
 import net.minecraft.world.phys.Vec3
 import com.mojang.math.Vector3f
+import net.minecraftforge.client.model.data.IModelData
 
 trait SmartBlockModelBase extends BakedModel {
   override def getOverrides: ItemOverrides = ItemOverrides.EMPTY
 
-  @Deprecated
   override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] =
     Collections.emptyList()
+
+  override def getQuads(state: BlockState, side: Direction, rand: util.Random, extraData: IModelData): util.List[BakedQuad] =
+    getQuads(state, side, rand)
 
   override def useAmbientOcclusion = true
 

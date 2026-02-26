@@ -151,5 +151,5 @@ class Case(pos: BlockPos, state: BlockState, var tier: Int)
   // ----------------------------------------------------------------------- //
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
-    new menu.Case(MenuTypes.CASE, id, playerInventory, this, tier)
+    new menu.Case(id, playerInventory, this, tier)
 }

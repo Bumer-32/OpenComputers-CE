@@ -8,8 +8,8 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Player
 
-class Tablet(selfType: MenuType[_ <: Tablet], id: Int, playerInventory: Inventory, val stack: ItemStack, tablet: Container, slot1: String, tier1: Int)
-  extends AbstractMenu(selfType, id, playerInventory, tablet) {
+class Tablet( id: Int, playerInventory: Inventory, val stack: ItemStack, tablet: Container, slot1: String, tier1: Int)
+  extends AbstractMenu(MenuTypes.TABLET.get(), id, playerInventory, tablet) {
 
   override protected def getHostClass = classOf[TabletWrapper]
 

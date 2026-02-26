@@ -298,7 +298,7 @@ class Relay(pos: BlockPos, state: BlockState)
   // ----------------------------------------------------------------------- //
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
-    new menu.Relay(MenuTypes.RELAY, id, playerInventory, this)
+    new menu.Relay(id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
 

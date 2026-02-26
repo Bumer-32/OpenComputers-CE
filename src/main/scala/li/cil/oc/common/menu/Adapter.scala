@@ -9,8 +9,8 @@ import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.Container
 import net.minecraft.world.inventory.AbstractContainerMenu
 
-class Adapter(selfType: MenuType[_ <: Adapter], id: Int, playerInventory: Inventory, adapter: Container)
-  extends AbstractMenu(selfType, id, playerInventory, adapter) {
+class Adapter(id: Int, playerInventory: Inventory, adapter: Container)
+  extends AbstractMenu(MenuTypes.ADAPTER.get(), id, playerInventory, adapter) {
 
   override protected def getHostClass = classOf[tileentity.Adapter]
 

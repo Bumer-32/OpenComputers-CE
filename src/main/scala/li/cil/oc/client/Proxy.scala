@@ -84,7 +84,7 @@ private[oc] class Proxy extends CommonProxy {
 
   @SubscribeEvent
   def onRegisterRenderers(e: EntityRenderersEvent.RegisterRenderers): Unit = {
-    e.registerEntityRenderer(EntityTypes.DRONE, ctx => new DroneRenderer(ctx))
+    e.registerEntityRenderer(EntityTypes.DRONE.get(), ctx => new DroneRenderer(ctx))
 
     BlockEntityRenderers.register(TileEntityTypes.ADAPTER.get(), AdapterRenderer)
     BlockEntityRenderers.register(TileEntityTypes.ASSEMBLER.get(), AssemblerRenderer)

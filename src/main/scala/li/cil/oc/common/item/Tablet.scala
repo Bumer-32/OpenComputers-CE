@@ -344,7 +344,7 @@ class TabletWrapper(var stack: ItemStack, var player: Player) extends ComponentI
   override def getDisplayName = getName
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
-    new menu.Tablet(MenuTypes.TABLET, id, playerInventory, stack, this, containerSlotType, containerSlotTier)
+    new menu.Tablet(id, playerInventory, stack, this, containerSlotType, containerSlotTier)
 
   // ----------------------------------------------------------------------- //
 

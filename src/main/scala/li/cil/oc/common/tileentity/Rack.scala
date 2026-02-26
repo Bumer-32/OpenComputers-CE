@@ -347,7 +347,7 @@ class Rack(pos: BlockPos, state: BlockState)
   // INamedContainerProvider
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
-    new menu.Rack(MenuTypes.RACK, id, playerInventory, this)
+    new menu.Rack(id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
   // ComponentInventory

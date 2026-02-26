@@ -307,7 +307,8 @@ object PacketHandler extends CommonPacketHandler {
       case rack: menu.Rack if rack.containerId == containerId => {
         (rack.otherInventory, p.player) match {
           case (t: Rack, player: ServerPlayer) if t.stillValid(player) =>
-          t.isRelayEnabled = enabled
+            t.isRelayEnabled = enabled
+            t.setChanged()
           case _ =>
         }
       }

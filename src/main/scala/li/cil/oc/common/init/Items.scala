@@ -1,7 +1,6 @@
 package li.cil.oc.common.init
 
 import java.util.concurrent.Callable
-
 import li.cil.oc.Constants
 import li.cil.oc.CreativeTab
 import li.cil.oc.OpenComputers
@@ -10,10 +9,8 @@ import li.cil.oc.api.detail.ItemAPI
 import li.cil.oc.api.detail.ItemInfo
 import li.cil.oc.api.fs.FileSystem
 import li.cil.oc.common
-import li.cil.oc.common.Loot
-import li.cil.oc.common.Tier
+import li.cil.oc.common.{EventHandler, Loot, Tier, item}
 import li.cil.oc.common.block.SimpleBlock
-import li.cil.oc.common.item
 import li.cil.oc.common.item.data.DroneData
 import li.cil.oc.common.item.data.HoverBootsData
 import li.cil.oc.common.item.data.MicrocontrollerData
@@ -31,12 +28,17 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Rarity
 import net.minecraft.core.NonNullList
 import net.minecraft.resources.ResourceLocation
-import net.minecraftforge.registries.GameData
+import net.minecraftforge.registries.DeferredRegister
+import net.minecraftforge.registries.ForgeRegistries
+import net.minecraftforge.registries.RegistryObject
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 object Items extends ItemAPI {
+  val ITEMS: DeferredRegister[Item] =
+    DeferredRegister.create(ForgeRegistries.ITEMS, Settings.resourceDomain)
+
   val descriptors = mutable.Map.empty[String, ItemInfo]
 
   val names = mutable.Map.empty[Any, String]
@@ -58,8 +60,6 @@ object Items extends ItemAPI {
       instance match {
         case simple: SimpleBlock =>
           simple.setUnlocalizedName("oc." + id)
-          simple.setRegistryName(OpenComputers.ID, id)
-          GameData.register_impl[Block](simple)
         case _ =>
       }
       descriptors += id -> new ItemInfo {
@@ -81,57 +81,61 @@ object Items extends ItemAPI {
 
   def registerBlock(instance: Block, id: String, itemProps: Properties): Block = {
     if (!descriptors.contains(id)) {
-      val itemInst = instance match {
+      instance match {
         case simple: SimpleBlock =>
           simple.setUnlocalizedName("oc." + id)
-          simple.setRegistryName(OpenComputers.ID, id)
-          GameData.register_impl[Block](simple)
 
-          val item : Item = new common.block.Item(simple, itemProps)
-          item.setRegistryName(OpenComputers.ID, id)
-          GameData.register_impl(item)
-          OpenComputers.proxy.registerModel(item, id)
-          item
-        case _ => null.asInstanceOf[Item]
+          val ro: RegistryObject[Item] = ITEMS.register(id, () => {
+            val itemInst: Item = new common.block.Item(simple, itemProps)
+            OpenComputers.proxy.registerModel(itemInst, id)
+            itemInst
+          })
+
+          descriptors += id -> new ItemInfo {
+            override def name: String = id
+
+            override def block = instance
+
+            override def item = ro.get()
+
+            override def createItemStack(size: Int): ItemStack = instance match {
+              case simple: SimpleBlock => simple.createItemStack(size)
+              case _ => new ItemStack(instance, size)
+            }
+          }
+          names += instance -> id
+        case _ =>
       }
-      descriptors += id -> new ItemInfo {
-        override def name: String = id
-
-        override def block = instance
-
-        override def item = itemInst
-
-        override def createItemStack(size: Int): ItemStack = instance match {
-          case simple: SimpleBlock => simple.createItemStack(size)
-          case _ => new ItemStack(instance, size)
-        }
-      }
-      names += instance -> id
     }
     instance
   }
 
   def registerItem(instance: Item, id: String): Item = {
     if (!descriptors.contains(id)) {
-      instance match {
+      val ro: RegistryObject[Item] = instance match {
         case simple: SimpleItem =>
-          GameData.register_impl(simple.setRegistryName(new ResourceLocation(Settings.resourceDomain, id)))
-          OpenComputers.proxy.registerModel(simple, id)
+          val registered: RegistryObject[Item] = ITEMS.register(id, () => {
+            OpenComputers.proxy.registerModel(simple, id)
+            simple
+          })
+          registered
         case _ =>
+          ITEMS.register(id, () => instance)
       }
       descriptors += id -> new ItemInfo {
         override def name: String = id
-
-        override def block = null
-
-        override def item: Item = instance
-
+        override def block: Block = null
+        override def item: Item = ro.get()
         override def createItemStack(size: Int): ItemStack = instance match {
           case simple: SimpleItem => simple.createItemStack(size)
-          case _ => new ItemStack(instance, size)
+          case _ => new ItemStack(ro.get(), size)
         }
       }
       names += instance -> id
+      EventHandler.scheduleServer(() => {
+        val registered = ro.get()
+        if (registered != instance) names += registered -> id
+      })
     }
     instance
   }
@@ -377,7 +381,7 @@ object Items extends ItemAPI {
     registerItem(new item.DroneCase(defaultProps.rarity(Rarity.EPIC), Tier.Four), Constants.ItemName.DroneCaseCreative)
 
     registerItem(new item.InkCartridgeEmpty(defaultProps.stacksTo(1)), Constants.ItemName.InkCartridgeEmpty)
-    registerItem(new item.InkCartridge(defaultProps.stacksTo(1).craftRemainder(get(Constants.ItemName.InkCartridgeEmpty).item)), Constants.ItemName.InkCartridge)
+    registerItem(new item.InkCartridge(defaultProps.stacksTo(1)), Constants.ItemName.InkCartridge)
     registerItem(new item.Chamelium(defaultProps), Constants.ItemName.Chamelium)
 
     registerItem(new item.DiamondChip(defaultProps), Constants.ItemName.DiamondChip)

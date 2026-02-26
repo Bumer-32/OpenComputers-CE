@@ -13,8 +13,8 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.IntArrayTag
 import net.minecraft.nbt.Tag
 
-class Rack(selfType: MenuType[_ <: Rack], id: Int, playerInventory: Inventory, val rack: Container)
-  extends AbstractMenu(selfType, id, playerInventory, rack) {
+class Rack(id: Int, playerInventory: Inventory, val rack: Container)
+  extends AbstractMenu(MenuTypes.RACK.get(), id, playerInventory, rack) {
 
   override protected def getHostClass = classOf[tileentity.Rack]
 

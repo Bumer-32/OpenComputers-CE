@@ -196,7 +196,7 @@ class Adapter(pos: BlockPos, state: BlockState)
   // ----------------------------------------------------------------------- //
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
-    new menu.Adapter(MenuTypes.ADAPTER, id, playerInventory, this)
+    new menu.Adapter(id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
 

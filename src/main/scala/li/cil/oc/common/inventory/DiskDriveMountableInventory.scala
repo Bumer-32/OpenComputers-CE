@@ -29,5 +29,5 @@ trait DiskDriveMountableInventory extends ItemStackInventory with MenuProvider {
   override def getDisplayName = TextComponent.EMPTY
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
-    new DiskDriveContainer(MenuTypes.DISK_DRIVE, id, playerInventory, this)
+    new DiskDriveContainer(id, playerInventory, this)
 }

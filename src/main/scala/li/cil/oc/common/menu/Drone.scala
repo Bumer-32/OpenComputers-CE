@@ -12,8 +12,8 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
 
-class Drone(selfType: MenuType[_ <: Drone], id: Int, playerInventory: Inventory, droneInv: Container, val mainInvSize: Int)
-  extends AbstractMenu(selfType, id, playerInventory, droneInv) {
+class Drone(id: Int, playerInventory: Inventory, droneInv: Container, val mainInvSize: Int)
+  extends AbstractMenu(MenuTypes.DRONE.get(), id, playerInventory, droneInv) {
 
   val deltaY = 0
 

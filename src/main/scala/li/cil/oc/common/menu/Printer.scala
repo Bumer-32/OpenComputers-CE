@@ -11,8 +11,8 @@ import net.minecraft.world.Container
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.item.ItemStack
 
-class Printer(selfType: MenuType[_ <: Printer], id: Int, playerInventory: Inventory, val printer: Container)
-  extends AbstractMenu(selfType, id, playerInventory, printer) {
+class Printer(id: Int, playerInventory: Inventory, val printer: Container)
+  extends AbstractMenu(MenuTypes.PRINTER.get(), id, playerInventory, printer) {
 
   override protected def getHostClass = classOf[tileentity.Printer]
 

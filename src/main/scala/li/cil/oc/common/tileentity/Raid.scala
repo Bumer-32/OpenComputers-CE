@@ -137,7 +137,7 @@ class Raid(pos: BlockPos, state: BlockState)
   // ----------------------------------------------------------------------- //
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
-    new menu.Raid(MenuTypes.RAID, id, playerInventory, this)
+    new menu.Raid(id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
 

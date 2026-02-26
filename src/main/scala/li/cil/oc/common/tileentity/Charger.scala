@@ -233,7 +233,7 @@ class Charger(pos: BlockPos, state: BlockState)
   // ----------------------------------------------------------------------- //
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
-    new menu.Charger(MenuTypes.CHARGER, id, playerInventory, this)
+    new menu.Charger(id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
 

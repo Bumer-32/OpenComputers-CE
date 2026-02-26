@@ -1,29 +1,19 @@
 package li.cil.oc.common.entity;
 
 import li.cil.oc.OpenComputers;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.ObjectHolder;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
-@ObjectHolder("opencomputers")
 public final class EntityTypes {
-    public static final EntityType<Drone> DRONE = null;
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
+            DeferredRegister.create(ForgeRegistries.ENTITIES, OpenComputers.ID());
 
-    @SubscribeEvent
-    public static void registerEntities(RegistryEvent.Register<EntityType<?>> e) {
-        register(e.getRegistry(), "drone", EntityType.Builder.of(Drone::new, MobCategory.MISC)
-            .sized(12 / 16f, 6 / 16f).fireImmune());
-    }
-
-    private static void register(IForgeRegistry<EntityType<?>> registry, String name, EntityType.Builder<?> builder) {
-        EntityType<?> type = builder.build(name);
-        type.setRegistryName(new ResourceLocation(OpenComputers.ID(), name));
-        registry.register(type);
-    }
+    public static final RegistryObject<EntityType<Drone>> DRONE =
+            ENTITY_TYPES.register("drone", () -> EntityType.Builder.of(Drone::new, MobCategory.MISC)
+                    .sized(12 / 16f, 6 / 16f).fireImmune().build("drone"));
 
     private EntityTypes() {
         throw new Error();

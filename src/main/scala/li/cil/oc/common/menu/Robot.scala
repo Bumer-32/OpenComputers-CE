@@ -69,8 +69,8 @@ class RobotInfo(val mainInvSize: Int, val slot1: String, val tier1: Int,
     RobotInfo.getScreenBuffer(robot), RobotInfo.hasKeyboard(robot))
 }
 
-class Robot(selfType: MenuType[_ <: Robot], id: Int, playerInventory: Inventory, robot: Container, val info: RobotInfo)
-  extends AbstractMenu(selfType, id, playerInventory, robot) {
+class Robot(id: Int, playerInventory: Inventory, robot: Container, val info: RobotInfo)
+  extends AbstractMenu(MenuTypes.ROBOT.get(), id, playerInventory, robot) {
 
   private val withScreenHeight = 256
   private val noScreenHeight = 108

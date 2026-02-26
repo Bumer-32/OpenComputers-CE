@@ -9,8 +9,8 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.DataSlot
 import net.minecraft.world.inventory.MenuType
 
-class Case(selfType: MenuType[_ <: Case], id: Int, playerInventory: Inventory, computer: Container, tier: Int)
-  extends AbstractMenu(selfType, id, playerInventory, computer) {
+class Case(id: Int, playerInventory: Inventory, computer: Container, tier: Int)
+  extends AbstractMenu(MenuTypes.CASE.get(), id, playerInventory, computer) {
 
   override protected def getHostClass = classOf[tileentity.Case]
 

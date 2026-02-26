@@ -6,7 +6,7 @@ import li.cil.oc._
 import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.entity.EntityTypes
-import li.cil.oc.common.init.Items
+import li.cil.oc.common.init.{Blocks, Items}
 import li.cil.oc.common.tileentity.TileEntityTypes
 import li.cil.oc.common.recipe.Recipes
 import li.cil.oc.integration.Mods
@@ -32,11 +32,13 @@ import net.minecraft.world.level.block.Block
 
 class Proxy {
   protected val modBus: IEventBus = FMLJavaModLoadingContext.get.getModEventBus
-  modBus.register(classOf[MenuTypes])
-  modBus.register(classOf[EntityTypes])
+  Items.ITEMS.register(modBus)
+  Blocks.BLOCKS.register(modBus)
   TileEntityTypes.init(modBus)
   Recipes.init(modBus)
   LootFunctions.init(modBus)
+  EntityTypes.ENTITY_TYPES.register(modBus)
+  MenuTypes.MENU_TYPES.register(modBus)
 
   def preInit(): Unit = {
     OpenComputers.log.info("Initializing OpenComputers API.")

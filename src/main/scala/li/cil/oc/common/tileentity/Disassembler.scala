@@ -212,5 +212,5 @@ class Disassembler(pos: BlockPos, state: BlockState)
   // ----------------------------------------------------------------------- //
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
-    new menu.Disassembler(MenuTypes.DISASSEMBLER, id, playerInventory, this)
+    new menu.Disassembler(id, playerInventory, this)
 }
