@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Optional;
 
 public class FontParserHex implements IGlyphProvider {
     private static final byte[] OPAQUE = {(byte) 255, (byte) 255, (byte) 255, (byte) 255};
@@ -38,57 +39,50 @@ public class FontParserHex implements IGlyphProvider {
 
     @Override
     public void initialize() {
-        try {
-            glyphs.clear();
+        glyphs.clear();
 
-            OpenComputers.log().info("Loading Unicode glyphs...");
-            long time = System.currentTimeMillis();
-            int glyphCount = 0;
+        OpenComputers.log().info("Loading Unicode glyphs...");
+        long time = System.currentTimeMillis();
+        int glyphCount = 0;
 
-            ResourceLocation loc = new ResourceLocation(Settings.resourceDomain(), "font.hex");
-            for (Resource resource : Minecraft.getInstance().getResourceManager().getResources(loc)) {
-                final InputStream font = resource.getInputStream();
-                try {
-                    final BufferedReader input = new BufferedReader(new InputStreamReader(font));
-                    String line;
-                    while ((line = input.readLine()) != null) {
-                        final String info = line.substring(0, line.indexOf(':'));
-                        final int charCode = Integer.parseInt(info, 16);
-                        if (charCode < 0 || charCode >= FontUtils.codepoint_limit()) {
-                            OpenComputers.log().warn(String.format("Unicode font contained unexpected glyph: U+%04X, ignoring", charCode));
-                            continue; // Out of bounds.
-                        }
-                        final int expectedWidth = FontUtils.wcwidth(charCode);
-                        if (expectedWidth < 1) continue; // Skip control characters.
-                        // Two chars representing one byte represent one row of eight pixels.
-                        int glyphStrOfs = info.length() + 1;
-                        final byte[] glyph = new byte[(line.length() - glyphStrOfs) >> 1];
-                        final int glyphWidth = glyph.length / getGlyphHeight();
-                        if (expectedWidth == glyphWidth) {
-                            for (int i = 0; i < glyph.length; i++, glyphStrOfs += 2) {
-                                glyph[i] = (byte) ((hex2int(line.charAt(glyphStrOfs)) << 4) | (hex2int(line.charAt(glyphStrOfs + 1))));
-                            }
-                            if (!glyphs.containsKey(charCode)) {
-                                glyphCount++;
-                            }
-                            glyphs.put(charCode, glyph);
-                        } else if (Settings.get().logHexFontErrors()) {
-                            OpenComputers.log().warn(String.format("Size of glyph for code point U+%04X (%s) in font (%d) does not match expected width (%d), ignoring.", charCode, String.valueOf((char) charCode), glyphWidth, expectedWidth));
-                        }
+        ResourceLocation loc = ResourceLocation.fromNamespaceAndPath(Settings.resourceDomain(), "font.hex");
+        List<Resource> optRes = Minecraft.getInstance().getResourceManager().getResourceStack(loc);
+        if (optRes.isEmpty()) return;
+        for (Resource resource : optRes) {
+            try (InputStream font = resource.open()) {
+                final BufferedReader input = new BufferedReader(new InputStreamReader(font));
+                String line;
+                while ((line = input.readLine()) != null) {
+                    final String info = line.substring(0, line.indexOf(':'));
+                    final int charCode = Integer.parseInt(info, 16);
+                    if (charCode < 0 || charCode >= FontUtils.codepoint_limit()) {
+                        OpenComputers.log().warn(String.format("Unicode font contained unexpected glyph: U+%04X, ignoring", charCode));
+                        continue; // Out of bounds.
                     }
-                } finally {
-                    try {
-                        font.close();
-                    } catch (IOException ex) {
-                        OpenComputers.log().warn("Error parsing font.", ex);
+                    final int expectedWidth = FontUtils.wcwidth(charCode);
+                    if (expectedWidth < 1) continue; // Skip control characters.
+                    // Two chars representing one byte represent one row of eight pixels.
+                    int glyphStrOfs = info.length() + 1;
+                    final byte[] glyph = new byte[(line.length() - glyphStrOfs) >> 1];
+                    final int glyphWidth = glyph.length / getGlyphHeight();
+                    if (expectedWidth == glyphWidth) {
+                        for (int i = 0; i < glyph.length; i++, glyphStrOfs += 2) {
+                            glyph[i] = (byte) ((hex2int(line.charAt(glyphStrOfs)) << 4) | (hex2int(line.charAt(glyphStrOfs + 1))));
+                        }
+                        if (!glyphs.containsKey(charCode)) {
+                            glyphCount++;
+                        }
+                        glyphs.put(charCode, glyph);
+                    } else if (Settings.get().logHexFontErrors()) {
+                        OpenComputers.log().warn(String.format("Size of glyph for code point U+%04X (%s) in font (%d) does not match expected width (%d), ignoring.", charCode, (char) charCode, glyphWidth, expectedWidth));
                     }
                 }
+            } catch (IOException ex) {
+                OpenComputers.log().warn("Error parsing font.", ex);
             }
-
-            OpenComputers.log().info("Loaded " + glyphCount + " glyphs in " + (System.currentTimeMillis() - time) + " milliseconds.");
-        } catch (IOException ex) {
-            OpenComputers.log().warn("Failed loading glyphs.", ex);
         }
+
+        OpenComputers.log().info("Loaded " + glyphCount + " glyphs in " + (System.currentTimeMillis() - time) + " milliseconds.");
     }
 
     @Override

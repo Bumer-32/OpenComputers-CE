@@ -6,9 +6,9 @@ import li.cil.oc.{Settings, api}
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
-import net.minecraftforge.common.capabilities.{Capability, ICapabilityProvider}
+import net.minecraftforge.common.capabilities.{Capability, ForgeCapabilities, ICapabilityProvider}
 import net.minecraftforge.common.util.{LazyOptional, NonNullSupplier}
-import net.minecraftforge.energy.{CapabilityEnergy, IEnergyStorage}
+import net.minecraftforge.energy.IEnergyStorage
 
 // TODO Forge power capabilities.
 trait Chargeable extends api.driver.item.Chargeable {
@@ -23,7 +23,7 @@ trait Chargeable extends api.driver.item.Chargeable {
 }
 
 object Chargeable {
-  val KEY = new ResourceLocation(ModOpenComputers.getMod.id, "chargeable")
+  val KEY = ResourceLocation.fromNamespaceAndPath(ModOpenComputers.getMod.id, "chargeable")
 
   def convertForgeEnergyToOpenComputers(fe: Int): Double = fe / Settings.get.ratioForgeEnergy
 
@@ -48,7 +48,7 @@ object Chargeable {
     def invalidate() = wrapper.invalidate
 
     override def getCapability[T](capability: Capability[T], facing: Direction): LazyOptional[T] = {
-      if (capability == CapabilityEnergy.ENERGY) wrapper.cast[T]
+      if (capability == ForgeCapabilities.ENERGY) wrapper.cast[T]
       else LazyOptional.empty[T]
     }
 

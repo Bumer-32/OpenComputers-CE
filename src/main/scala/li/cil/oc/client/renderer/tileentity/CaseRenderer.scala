@@ -2,7 +2,7 @@ package li.cil.oc.client.renderer.tileentity
 
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
-import com.mojang.math.Vector3f
+import com.mojang.math.Axis
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.Case
@@ -28,9 +28,9 @@ class CaseRenderer extends BlockEntityRenderer[Case] {
     stack.translate(0.5, 0.5, 0.5)
 
     computer.yaw match {
-      case Direction.WEST => stack.mulPose(Vector3f.YP.rotationDegrees(-90))
-      case Direction.NORTH => stack.mulPose(Vector3f.YP.rotationDegrees(180))
-      case Direction.EAST => stack.mulPose(Vector3f.YP.rotationDegrees(90))
+      case Direction.WEST => stack.mulPose(Axis.YP.rotationDegrees(-90))
+      case Direction.NORTH => stack.mulPose(Axis.YP.rotationDegrees(180))
+      case Direction.EAST => stack.mulPose(Axis.YP.rotationDegrees(90))
       case _ => // No yaw.
     }
 

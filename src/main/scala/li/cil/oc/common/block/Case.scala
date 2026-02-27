@@ -7,7 +7,7 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.common.tileentity.TileEntityTypes
 import li.cil.oc.util.Tooltip
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.network.chat.{Component => ITextComponent, TextComponent => StringTextComponent}
+import net.minecraft.network.chat.{Component => ITextComponent}
 import net.minecraft.server.level.{ServerPlayer => ServerPlayerEntity}
 import net.minecraft.world.{InteractionHand => Hand}
 import net.minecraft.world.entity.player.{Player => PlayerEntity}
@@ -31,7 +31,7 @@ class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with t
 
   override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag): Unit = {
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase, slots)) {
-      tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(ITextComponent.literal(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 

@@ -1,6 +1,6 @@
 package li.cil.oc.api.internal;
 
-import com.mojang.math.Vector3d;
+import org.joml.Vector3d;
 import li.cil.oc.api.network.EnvironmentHost;
 
 /**

@@ -30,7 +30,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
 import net.minecraft.nbt.NbtIo
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.event.level.LevelEvent
 
 // Used by the native lua state to store kernel and stack data in auxiliary
 // files instead of directly in the tile entity data, avoiding potential
@@ -160,7 +160,7 @@ object SaveHandler {
     })
     saving.remove(name)
 
-    load(new ResourceLocation(dimension), chunk, name)
+    load(ResourceLocation.withDefaultNamespace(dimension), chunk, name)
   }
 
   def scheduleSave(dimension: ResourceLocation, chunk: ChunkPos, name: String, data: Array[Byte]): Unit = {
@@ -222,8 +222,8 @@ object SaveHandler {
   }
 
   @SubscribeEvent(priority = EventPriority.HIGHEST)
-  def onWorldLoad(e: WorldEvent.Load): Unit = {
-    if (!e.getWorld.isClientSide) {
+  def onWorldLoad(e: LevelEvent.Load): Unit = {
+    if (!e.getLevel.isClientSide) {
       // Touch all externally saved data when loading, to avoid it getting
       // deleted in the next save (because the now - save time will usually
       // be larger than the time out after loading a world again).
@@ -232,7 +232,7 @@ object SaveHandler {
   }
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
-  def onWorldSave(e: WorldEvent.Save): Unit = {
+  def onWorldSave(e: LevelEvent.Save): Unit = {
     stateSaveHandler.withPool(_.submit(new Runnable {
       override def run(): Unit = cleanSaveData()
     }))

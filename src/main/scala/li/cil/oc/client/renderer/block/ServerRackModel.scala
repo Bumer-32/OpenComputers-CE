@@ -6,7 +6,6 @@ import java.util.Collections
 import li.cil.oc.api.component.RackMountable
 import li.cil.oc.api.event.RackMountableRenderEvent
 import li.cil.oc.client.Textures
-import li.cil.oc.common.block
 import li.cil.oc.common.tileentity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.multiplayer.ClientLevel
@@ -17,23 +16,34 @@ import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraft.world.phys.Vec3
+import net.minecraft.util.RandomSource
+import net.minecraft.client.renderer.RenderType
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.client.model.data.IModelData
+import net.minecraftforge.client.model.data.{ModelData, ModelProperty}
 
-import scala.collection.JavaConverters.bufferAsJavaList
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
+object ServerRackModel {
+  val RACK_PROPERTY = new ModelProperty[tileentity.Rack]()
+}
+
 class ServerRackModel(val parent: BakedModel) extends SmartBlockModelBase {
+  import ServerRackModel.RACK_PROPERTY
+
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] =
-    data match {
-      case rack: tileentity.Rack =>
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource): util.List[BakedQuad] =
+    Collections.emptyList()
+
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] =
+    Option(data.get(RACK_PROPERTY)) match {
+      case Some(rack) =>
         val facing = rack.facing
         val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
-        for (side <- Direction.values if side != facing) {
-          faces ++= bakeQuads(Case(side.get3DDataValue), serverRackTexture, None)
+        for (s <- Direction.values if s != facing) {
+          faces ++= bakeQuads(Case(s.get3DDataValue), serverRackTexture, None)
         }
 
         val textures = serverTexture
@@ -53,7 +63,7 @@ class ServerRackModel(val parent: BakedModel) extends SmartBlockModelBase {
           case _ =>
         }
 
-        bufferAsJavaList(faces)
+        faces.toList.asJava
       case _ => super.getQuads(state, side, rand)
     }
 
@@ -94,5 +104,4 @@ class ServerRackModel(val parent: BakedModel) extends SmartBlockModelBase {
   object ItemOverride extends ItemOverrides {
     override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, seed: Int): BakedModel = parent
   }
-
 }

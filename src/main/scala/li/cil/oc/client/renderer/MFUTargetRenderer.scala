@@ -2,7 +2,6 @@ package li.cil.oc.client.renderer
 
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.VertexConsumer
-import com.mojang.math.Matrix4f
 import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -16,6 +15,7 @@ import net.minecraft.world.InteractionHand
 import net.minecraftforge.client.event.RenderLevelStageEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraft.nbt.Tag
+import org.joml.Matrix4f
 
 object MFUTargetRenderer {
   private val (drawRed, drawGreen, drawBlue) = (0.0f, 1.0f, 0.0f)
@@ -31,7 +31,7 @@ object MFUTargetRenderer {
       case stack: ItemStack if api.Items.get(stack) == mfu && stack.hasTag =>
         val data = stack.getTag
         if (data.contains(Settings.namespace + "coord", Tag.TAG_INT_ARRAY)) {
-          val dimension = new ResourceLocation(data.getString(Settings.namespace + "dimension"))
+          val dimension = ResourceLocation.withDefaultNamespace(data.getString(Settings.namespace + "dimension"))
           if (!player.level.dimension.location.equals(dimension)) return
           val Array(x, y, z, side) = data.getIntArray(Settings.namespace + "coord")
           if (player.distanceToSqr(x, y, z) > 64 * 64) return

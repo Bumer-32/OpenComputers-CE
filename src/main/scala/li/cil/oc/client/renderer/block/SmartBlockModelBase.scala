@@ -13,16 +13,18 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.core.Direction
 import net.minecraft.world.phys.Vec3
-import com.mojang.math.Vector3f
-import net.minecraftforge.client.model.data.IModelData
+import net.minecraft.util.RandomSource
+import net.minecraft.client.renderer.RenderType
+import net.minecraftforge.client.model.data.ModelData
+import org.joml.Vector3f
 
 trait SmartBlockModelBase extends BakedModel {
   override def getOverrides: ItemOverrides = ItemOverrides.EMPTY
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] =
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource): util.List[BakedQuad] =
     Collections.emptyList()
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random, extraData: IModelData): util.List[BakedQuad] =
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, extraData: ModelData, renderType: RenderType): util.List[BakedQuad] =
     getQuads(state, side, rand)
 
   override def useAmbientOcclusion = true
@@ -41,15 +43,13 @@ trait SmartBlockModelBase extends BakedModel {
 
   @Deprecated
   protected final val DefaultBlockCameraTransforms = {
-    // 1.18.2: ItemTransformVec3f → ItemTransform (コンストラクタ引数は同一: rotation, translation, scale)
-    val gui                  = new ItemTransform(new Vector3f(30, 225, 0), new Vector3f(0, 0, 0),          new Vector3f(0.625f, 0.625f, 0.625f))
-    val ground               = new ItemTransform(new Vector3f(0, 0, 0),   new Vector3f(0, 3, 0),           new Vector3f(0.25f, 0.25f, 0.25f))
-    val fixed                = new ItemTransform(new Vector3f(0, 0, 0),   new Vector3f(0, 0, 0),           new Vector3f(0.5f, 0.5f, 0.5f))
-    val thirdperson_righthand = new ItemTransform(new Vector3f(75, 45, 0), new Vector3f(0, 2.5f, 0),       new Vector3f(0.375f, 0.375f, 0.375f))
-    val firstperson_righthand = new ItemTransform(new Vector3f(0, 45, 0), new Vector3f(0, 0, 0),           new Vector3f(0.40f, 0.40f, 0.40f))
-    val firstperson_lefthand  = new ItemTransform(new Vector3f(0, 225, 0), new Vector3f(0, 0, 0),          new Vector3f(0.40f, 0.40f, 0.40f))
+    val gui                   = new ItemTransform(new Vector3f(30, 225, 0), new Vector3f(0, 0, 0),        new Vector3f(0.625f, 0.625f, 0.625f), new Vector3f())
+    val ground                = new ItemTransform(new Vector3f(0, 0, 0),   new Vector3f(0, 3, 0),         new Vector3f(0.25f, 0.25f, 0.25f),   new Vector3f())
+    val fixed                 = new ItemTransform(new Vector3f(0, 0, 0),   new Vector3f(0, 0, 0),         new Vector3f(0.5f, 0.5f, 0.5f),      new Vector3f())
+    val thirdperson_righthand = new ItemTransform(new Vector3f(75, 45, 0), new Vector3f(0, 2.5f, 0),     new Vector3f(0.375f, 0.375f, 0.375f), new Vector3f())
+    val firstperson_righthand = new ItemTransform(new Vector3f(0, 45, 0),  new Vector3f(0, 0, 0),         new Vector3f(0.40f, 0.40f, 0.40f),   new Vector3f())
+    val firstperson_lefthand  = new ItemTransform(new Vector3f(0, 225, 0), new Vector3f(0, 0, 0),         new Vector3f(0.40f, 0.40f, 0.40f),   new Vector3f())
 
-    // scale(0.0625f): ItemTransform.Deserializer と同じ正規化
     gui.translation.mul(0.0625f)
     ground.translation.mul(0.0625f)
     fixed.translation.mul(0.0625f)
@@ -57,9 +57,8 @@ trait SmartBlockModelBase extends BakedModel {
     firstperson_righthand.translation.mul(0.0625f)
     firstperson_lefthand.translation.mul(0.0625f)
 
-    // 1.18.2: ItemCameraTransforms → ItemTransforms（コンストラクタ引数は同一順序）
     new ItemTransforms(
-      ItemTransform.NO_TRANSFORM,  // 1.18.2: ItemTransformVec3f.NO_TRANSFORM → ItemTransform.NO_TRANSFORM
+      ItemTransform.NO_TRANSFORM,
       thirdperson_righthand,
       firstperson_lefthand,
       firstperson_righthand,
@@ -71,7 +70,6 @@ trait SmartBlockModelBase extends BakedModel {
 
   protected def missingModel = Minecraft.getInstance.getModelManager.getMissingModel
 
-  // Standard faces for a unit cube.
   protected final val UnitCube = Array(
     Array(new Vec3(0, 0, 1), new Vec3(0, 0, 0), new Vec3(1, 0, 0), new Vec3(1, 0, 1)),
     Array(new Vec3(0, 1, 0), new Vec3(0, 1, 1), new Vec3(1, 1, 1), new Vec3(1, 1, 0)),
@@ -81,7 +79,6 @@ trait SmartBlockModelBase extends BakedModel {
     Array(new Vec3(1, 1, 1), new Vec3(1, 0, 1), new Vec3(1, 0, 0), new Vec3(1, 1, 0))
   )
 
-  // Planes perpendicular to facings.
   protected final val Planes = Array(
     (new Vec3(1, 0, 0),  new Vec3(0, 0, -1)),
     (new Vec3(1, 0, 0),  new Vec3(0, 0,  1)),

@@ -4,14 +4,14 @@ import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.api
 import li.cil.oc.client.renderer.TextBufferRenderCache
 import li.cil.oc.client.renderer.gui.BufferRenderer
-import net.minecraft.client.gui.screens
+import net.minecraft.client.gui.{GuiGraphics, screens}
 import net.minecraft.client.KeyMapping
 import org.lwjgl.glfw.GLFW
 import net.minecraft.client.gui.components.events.ContainerEventHandler
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.Component
 
 class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val hasKeyboardCallback: () => Boolean, val hasPower: () => Boolean)
-  extends screens.Screen(TextComponent.EMPTY) with traits.InputBuffer with ContainerEventHandler {
+  extends screens.Screen(Component.empty()) with traits.InputBuffer with ContainerEventHandler {
 
   override protected def hasKeyboard = hasKeyboardCallback()
 
@@ -105,9 +105,9 @@ class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val has
     KeyMapping.releaseAll()
   }
 
-  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
-    super.render(stack, mouseX, mouseY, dt)
-    drawBufferLayer(stack)
+  override def render(graphics: GuiGraphics, mouseX: Int, mouseY: Int, dt: Float): Unit = {
+    super.render(graphics, mouseX, mouseY, dt)
+    drawBufferLayer(graphics.pose)
   }
 
   override def drawBuffer(stack: PoseStack) = {

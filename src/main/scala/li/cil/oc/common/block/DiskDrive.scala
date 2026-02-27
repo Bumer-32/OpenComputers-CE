@@ -19,7 +19,6 @@ import net.minecraft.core.Direction
 import net.minecraft.world.{InteractionHand => Hand}
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.{Component => ITextComponent}
-import net.minecraft.network.chat.{TextComponent => StringTextComponent}
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraft.world.level.{Level => World}
 
@@ -34,7 +33,7 @@ class DiskDrive(props: Properties) extends SimpleBlock(props) with traits.GUI {
   override protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
     super.tooltipTail(stack, world, tooltip, flag)
     if (Mods.ComputerCraft.isModAvailable) {
-      for (curr <- Tooltip.get(getClass.getSimpleName + ".CC")) tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      for (curr <- Tooltip.get(getClass.getSimpleName + ".CC")) tooltip.add(ITextComponent.literal(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 

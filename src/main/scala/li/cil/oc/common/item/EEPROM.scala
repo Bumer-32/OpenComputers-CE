@@ -8,7 +8,6 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.core.BlockPos
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraft.world.level.LevelReader
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Player
 
@@ -19,7 +18,7 @@ class EEPROM(props: Properties) extends Item(props) with IForgeItem with traits.
       if (tag.contains(Settings.namespace + "data")) {
         val data = tag.getCompound(Settings.namespace + "data")
         if (data.contains(Settings.namespace + "label")) {
-          return new TextComponent(data.getString(Settings.namespace + "label"))
+          return Component.literal(data.getString(Settings.namespace + "label"))
         }
       }
     }

@@ -2,12 +2,11 @@ package li.cil.oc.client.renderer.gui
 
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.{DefaultVertexFormat, PoseStack, Tesselator, VertexConsumer, VertexFormat}
-import com.mojang.math.Matrix4f
+import org.joml.Matrix4f
 import li.cil.oc.api
 import li.cil.oc.client.Textures
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.GameRenderer
-import org.lwjgl.opengl.GL11
 
 object BufferRenderer {
   val margin      = 7

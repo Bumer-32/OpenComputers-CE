@@ -19,7 +19,7 @@ object ExperienceUpgradeHandler {
     val (level, experience) = getLevelAndExperience(e.agent)
     // This is basically a 'does it have an experience upgrade' check.
     if (experience != 0.0) {
-      e.player.sendMessage(Localization.Analyzer.RobotXp(experience, level), Util.NIL_UUID)
+      e.player.sendSystemMessage(Localization.Analyzer.RobotXp(experience, level))
     }
   }
 

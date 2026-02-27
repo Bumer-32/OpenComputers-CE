@@ -22,16 +22,16 @@ import net.minecraft.world.item.{TooltipFlag => ITooltipFlag}
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.storage.loot.LootContext
-import net.minecraft.world.level.storage.loot.parameters.{LootContextParams => LootParameters}
+import net.minecraft.world.level.storage.loot.LootParams
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraft.world.level.block.state.{StateDefinition => StateContainer}
 import net.minecraft.core.Direction
 import net.minecraft.world.{InteractionHand => Hand}
 import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.{HitResult => RayTraceResult}
 import net.minecraft.network.chat.{Component => ITextComponent}
-import net.minecraft.network.chat.{TextComponent => StringTextComponent}
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.storage.loot.functions.LootItemFunctions
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraft.world.level.{Level => World}
 import net.minecraftforge.common.extensions.IForgeBlock
@@ -59,7 +59,7 @@ class Microcontroller(props: Properties)
     if (KeyBindings.showExtendedTooltips) {
       val info = new MicrocontrollerData(stack)
       for (component <- info.components if !component.isEmpty) {
-        tooltip.add(new StringTextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+        tooltip.add(ITextComponent.literal("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
       }
     }
   }
@@ -114,14 +114,13 @@ class Microcontroller(props: Properties)
     }
   }
 
-  override def getDrops(state: BlockState, ctx: LootContext.Builder): util.List[ItemStack] = {
-    val newCtx = ctx.withDynamicDrop(LootFunctions.DYN_ITEM_DATA, (c, f) => {
-      c.getParamOrNull(LootParameters.BLOCK_ENTITY) match {
-        case tileEntity: tileentity.Microcontroller => {
+  override def getDrops(state: BlockState, ctx: LootParams.Builder): util.List[ItemStack] = {
+    val newCtx = ctx.withDynamicDrop(LootFunctions.DYN_ITEM_DATA, f => {
+      ctx.getOptionalParameter(LootContextParams.BLOCK_ENTITY) match {
+        case tileEntity: tileentity.Microcontroller =>
           tileEntity.saveComponents()
           tileEntity.info.storedEnergy = tileEntity.snooperNode.localBuffer.toInt
           f.accept(tileEntity.info.createItemStack())
-        }
         case _ =>
       }
     })

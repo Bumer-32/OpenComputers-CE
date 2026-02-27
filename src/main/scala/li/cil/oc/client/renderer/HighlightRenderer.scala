@@ -10,7 +10,7 @@ import net.minecraft.client.renderer._
 import net.minecraft.core.Direction
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.phys.shapes.CollisionContext
-import net.minecraftforge.client.event.DrawSelectionEvent
+import net.minecraftforge.client.event.RenderHighlightEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import scala.util.Random
@@ -23,7 +23,7 @@ object HighlightRenderer {
   val TexHologram = RenderTypes.createTexturedQuad("hologram_effect", Textures.Model.HologramEffect, DefaultVertexFormat.POSITION_TEX_COLOR, true)
 
   @SubscribeEvent
-  def onDrawBlockHighlight(e: DrawSelectionEvent.HighlightBlock): Unit = if (e.getTarget != null && e.getTarget.getBlockPos != null) {
+  def onDrawBlockHighlight(e: RenderHighlightEvent.Block): Unit = if (e.getTarget != null && e.getTarget.getBlockPos != null) {
     val hitInfo = e.getTarget
     val world = Minecraft.getInstance.level
     val blockPos = BlockPosition(hitInfo.getBlockPos, world)

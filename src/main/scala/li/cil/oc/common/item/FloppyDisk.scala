@@ -15,6 +15,7 @@ import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.entity.player.Player
 import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.world.level.LevelReader
+import net.minecraftforge.client.event.ModelEvent
 import net.minecraftforge.client.model.ForgeModelBakery
 
 class FloppyDisk(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with CustomModel with traits.FileSystemLike {
@@ -25,7 +26,7 @@ class FloppyDisk(props: Properties) extends Item(props) with IForgeItem with tra
 
   @OnlyIn(Dist.CLIENT)
   private def modelLocationFromDyeName(dye: DyeColor) = {
-    new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.ItemName.Floppy + "_" + dye.getName, "inventory")
+    new ModelResourceLocation(Settings.resourceDomain, Constants.ItemName.Floppy + "_" + dye.getName, "inventory")
   }
 
   @OnlyIn(Dist.CLIENT)
@@ -38,13 +39,12 @@ class FloppyDisk(props: Properties) extends Item(props) with IForgeItem with tra
     modelLocationFromDyeName(DyeColor.byId(dyeIndex max 0 min 15))
   }
 
-  @OnlyIn(Dist.CLIENT)
-  override def registerModelLocations(): Unit = {
+  override def bakeModels(event: ModelEvent.RegisterAdditional): Unit = {
     for (dye <- DyeColor.values) {
-      val location = modelLocationFromDyeName(dye)
-      ForgeModelBakery.addSpecialModel(location)
+      event.register(modelLocationFromDyeName(dye))
     }
   }
+
 
   override def doesSneakBypassUse(stack: ItemStack, level: LevelReader, pos: BlockPos, player: Player): Boolean = true
 }

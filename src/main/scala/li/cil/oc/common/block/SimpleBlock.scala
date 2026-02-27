@@ -16,8 +16,8 @@ import net.minecraft.world.item.{TooltipFlag => ITooltipFlag}
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.storage.loot.LootContext
-import net.minecraft.world.level.storage.loot.parameters.{LootContextParams => LootParameters}
+import net.minecraft.world.level.storage.loot.{LootContext, LootParams}
+import net.minecraft.world.level.storage.loot.parameters.{LootContextParams, LootContextParams => LootParameters}
 import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
 import net.minecraft.core.Direction
 import net.minecraft.world.{InteractionHand => Hand, InteractionResult => ActionResultType}
@@ -67,7 +67,7 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
 
   protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase)) {
-      tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(ITextComponent.literal(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 
@@ -112,14 +112,14 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
   
   def getValidRotations(world: World, pos: BlockPos): Array[Direction] = validRotations_
 
-  override def getDrops(state: BlockState, ctx: LootContext.Builder): util.List[ItemStack] = {
-    val newCtx = ctx.getOptionalParameter(LootParameters.BLOCK_ENTITY) match {
-      case _: Inventory => ctx.withDynamicDrop(LootFunctions.DYN_VOLATILE_CONTENTS, (c, f) => {
-          c.getParamOrNull(LootParameters.BLOCK_ENTITY) match {
-            case inventory: Inventory => inventory.forAllLoot(f)
-            case _ =>
-          }
-        })
+  override def getDrops(state: BlockState, ctx: LootParams.Builder): util.List[ItemStack] = {
+    val newCtx = ctx.getOptionalParameter(LootContextParams.BLOCK_ENTITY) match {
+      case _: Inventory => ctx.withDynamicDrop(LootFunctions.DYN_VOLATILE_CONTENTS, f => {
+        ctx.getOptionalParameter(LootContextParams.BLOCK_ENTITY) match {
+          case inventory: Inventory => inventory.forAllLoot(f)
+          case _ =>
+        }
+      })
       case _ => ctx
     }
     super.getDrops(state, newCtx)

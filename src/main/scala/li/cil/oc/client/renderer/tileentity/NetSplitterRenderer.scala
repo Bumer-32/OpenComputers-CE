@@ -18,7 +18,6 @@ class NetSplitterRenderer(ctx: BlockEntityRendererProvider.Context) extends Bloc
   override def render(splitter: NetSplitter, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int): Unit = {
     RenderState.checkError(getClass.getName + ".render: entering")
 
-    // 1.18.2: color4f から setShaderColor へ
     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F)
 
     if (splitter.openSides.contains(!splitter.isInverted)) {
@@ -28,15 +27,12 @@ class NetSplitterRenderer(ctx: BlockEntityRendererProvider.Context) extends Bloc
       RenderState.mirrorScale(stack, 1.0025f, -1.0025f, 1.0025f)
       stack.translate(-0.5, -0.5, -0.5)
 
-      // 1.18.2: AtlasTexture.LOCATION_BLOCKS は InventoryMenu.BLOCK_ATLAS に統合されました。
-      // また、バインドは RenderSystem 経由で行うのが標準です。
       RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS)
 
       val r = buffer.getBuffer(RenderTypes.BLOCK_OVERLAY)
       val sideActivity = Textures.getSprite(Textures.Block.NetSplitterOn)
       val matrix = stack.last.pose
 
-      // 各面のオーバーレイ描画
       if (splitter.isSideOpen(Direction.DOWN)) {
         r.vertex(matrix, 0, 1, 0).uv(sideActivity.getU1, sideActivity.getV0).endVertex()
         r.vertex(matrix, 1, 1, 0).uv(sideActivity.getU0, sideActivity.getV0).endVertex()

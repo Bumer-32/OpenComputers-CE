@@ -2,7 +2,7 @@ package li.cil.oc.client.renderer.font
 
 import com.mojang.blaze3d.platform.NativeImage
 import com.mojang.blaze3d.vertex.VertexConsumer
-import com.mojang.math.Matrix4f
+import org.joml.Matrix4f
 import li.cil.oc.Settings
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.util.FontUtils
@@ -111,7 +111,8 @@ object DynamicFontRenderer {
         val g = glyphData.get(i + 1) & 0xFF
         val b = glyphData.get(i + 2) & 0xFF
         val a = glyphData.get(i + 3) & 0xFF
-        pixels.setPixelRGBA(1 + x * cellWidth + gx, 1 + y * cellHeight + gy, NativeImage.combine(a, b, g, r))
+        val abgr = (a << 24) | (b << 16) | (g << 8) | r
+        pixels.setPixelRGBA(1 + x * cellWidth + gx, 1 + y * cellHeight + gy, abgr)
       }
       texture.upload()
 

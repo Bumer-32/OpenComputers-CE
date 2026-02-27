@@ -2,8 +2,7 @@ package li.cil.oc.client.renderer.tileentity
 
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.VertexConsumer
-import com.mojang.math.Vector3f
+import com.mojang.math.Axis
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.Assembler
@@ -57,7 +56,7 @@ class AssemblerRenderer extends BlockEntityRenderer[Assembler] {
         vBuffer.vertex(matrix, 0.5005f, -0.5f, -0.5f).uv(icon.getU0, icon.getV0).endVertex()
       }
 
-      stack.mulPose(Vector3f.YP.rotationDegrees(90))
+      stack.mulPose(Axis.YP.rotationDegrees(90))
     }
 
     stack.popPose()

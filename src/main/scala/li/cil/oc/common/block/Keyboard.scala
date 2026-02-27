@@ -8,6 +8,7 @@ import li.cil.oc.util.ExtendedEnumFacing._
 import li.cil.oc.util.{BlockPosHelper, BlockPosition, InventoryUtils, RotationHelper}
 import net.minecraft.core.{BlockPos, Direction, Vec3i}
 import net.minecraft.server.level.{ServerLevel => ServerWorld}
+import net.minecraft.util.RandomSource
 import net.minecraft.world.{InteractionHand => Hand}
 import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.ItemStack
@@ -67,7 +68,7 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
     }
   }
 
-  override def tick(state: BlockState, world: ServerWorld, pos: BlockPos, rand: Random) = {
+  override def tick(state: BlockState, world: ServerWorld, pos: BlockPos, rand: RandomSource) = {
     world.getBlockEntity(pos) match {
       case keyboard: tileentity.Keyboard => api.Network.joinOrCreateNetwork(keyboard)
       case _ =>

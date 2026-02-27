@@ -1,11 +1,9 @@
 package li.cil.oc.common.block
 
-import li.cil.oc.OpenComputers
 import li.cil.oc.client.gui
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
 import li.cil.oc.common.tileentity.TileEntityTypes
-import li.cil.oc.util.RotationHelper
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
@@ -18,7 +16,7 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.phys.BlockHitResult
-import net.minecraft.world.level.{BlockGetter, Level}
+import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
 class Waypoint(props: Properties) extends RedstoneAware(props) with traits.Tickable {

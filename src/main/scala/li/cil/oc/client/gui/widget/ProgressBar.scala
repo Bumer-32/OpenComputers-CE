@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex._
 import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.client.Textures
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.renderer.GameRenderer
 
 class ProgressBar(val x: Int, val y: Int) extends Widget {
@@ -13,7 +14,7 @@ class ProgressBar(val x: Int, val y: Int) extends Widget {
   def barTexture = Textures.GUI.Bar
   var level = 0.0
 
-  def draw(stack: PoseStack): Unit = {
+  def draw(graphics: GuiGraphics): Unit = {
     if (level > 0) {
       val u0 = 0f
       val u1 = level.toFloat
@@ -32,7 +33,7 @@ class ProgressBar(val x: Int, val y: Int) extends Widget {
 
       r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
 
-      val matrix = stack.last.pose
+      val matrix = graphics.pose.last.pose
       r.vertex(matrix, tx, ty, owner.windowZ).uv(u0, v0).endVertex()
       r.vertex(matrix, tx, ty + height, owner.windowZ).uv(u0, v1).endVertex()
       r.vertex(matrix, tx + w, ty + height, owner.windowZ).uv(u1, v1).endVertex()

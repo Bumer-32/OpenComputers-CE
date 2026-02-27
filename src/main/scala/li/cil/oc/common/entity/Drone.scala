@@ -1,6 +1,6 @@
 package li.cil.oc.common.entity
 
-import com.mojang.math.Vector3d
+import org.joml.Vector3d
 import li.cil.oc._
 import li.cil.oc.api.driver.item
 import li.cil.oc.api.internal.MultiTank
@@ -19,7 +19,7 @@ import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.{BlockPosition, InventoryUtils}
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.network.syncher.{EntityDataAccessor, EntityDataSerializers, SynchedEntityData}
 import net.minecraft.server.level.{ServerLevel, ServerPlayer}
 import net.minecraft.tags.FluidTags
@@ -30,7 +30,6 @@ import net.minecraft.world.entity.player.{Inventory => PlayerInventory}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.level.material.Material
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.{InteractionHand, InteractionResult, MenuProvider}
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
@@ -475,7 +474,7 @@ class Drone(selfType: EntityType[Drone], level: Level) extends Entity(selfType, 
     }
     else {
       val groundDrag = getEnvironmentLevel.getBlock(BlockPosition(this: Entity).offset(Direction.DOWN)).getFriction * drag
-      setDeltaMovement(getDeltaMovement.multiply(groundDrag, drag * (if (isOnGround) -0.5 else 1), groundDrag))
+      setDeltaMovement(getDeltaMovement.multiply(groundDrag, drag * (if (onGround) -0.5 else 1), groundDrag))
     }
   }
 
@@ -495,7 +494,7 @@ class Drone(selfType: EntityType[Drone], level: Level) extends Entity(selfType, 
 
   // Not implemented in Drone itself because spectators would open this via vanilla Player.openMenu (without extra data).
   val containerProvider = new MenuProvider {
-    override def getDisplayName = TextComponent.EMPTY
+    override def getDisplayName = Component.empty
 
     override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
       new menu.Drone(id, playerInventory, mainInventory, mainInventory.getContainerSize)
@@ -506,7 +505,7 @@ class Drone(selfType: EntityType[Drone], level: Level) extends Entity(selfType, 
     if (player.isCrouching) {
       if (Wrench.isWrench(player.getItemInHand(InteractionHand.MAIN_HAND))) {
         if(!getEnvironmentLevel.isClientSide) {
-          outOfWorld()
+          checkBelowWorld()
         }
       }
       else if (!getEnvironmentLevel.isClientSide && !machine.isRunning) {
@@ -573,9 +572,9 @@ class Drone(selfType: EntityType[Drone], level: Level) extends Entity(selfType, 
     }
   }
 
-  override def outOfWorld(): Unit = {
+  override def checkBelowWorld(): Unit = {
     if (!isAlive) return
-    super.outOfWorld()
+    super.checkBelowWorld()
     if (!getEnvironmentLevel.isClientSide) {
       val stack = api.Items.get(Constants.ItemName.Drone).createItemStack(1)
       info.storedEnergy = control.node.localBuffer.toInt

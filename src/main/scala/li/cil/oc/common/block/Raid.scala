@@ -6,7 +6,6 @@ import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.item.data.RaidData
 import li.cil.oc.common.tileentity
-import li.cil.oc.common.tileentity.TileEntityTypes
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Tooltip
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
@@ -18,13 +17,10 @@ import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.server.level.{ServerPlayer => ServerPlayerEntity}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.state.{StateDefinition => StateContainer}
-import net.minecraft.world.level.storage.loot.LootContext
-import net.minecraft.world.level.storage.loot.parameters.{LootContextParams => LootParameters}
-import net.minecraft.core.Direction
+import net.minecraft.world.level.storage.loot.{LootContext, LootParams}
+import net.minecraft.world.level.storage.loot.parameters.{LootContextParams, LootContextParams => LootParameters}
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.{Component => ITextComponent}
-import net.minecraft.network.chat.{TextComponent => StringTextComponent}
-import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraft.world.level.{Level => World}
 import net.minecraftforge.common.extensions.IForgeBlock
@@ -41,7 +37,7 @@ class Raid(props: Properties) extends SimpleBlock(props) with IForgeBlock with t
     if (KeyBindings.showExtendedTooltips) {
       val data = new RaidData(stack)
       for (disk <- data.disks if !disk.isEmpty) {
-        tooltip.add(new StringTextComponent("- " + disk.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+        tooltip.add(ITextComponent.literal("- " + disk.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
       }
     }
   }
@@ -83,10 +79,10 @@ class Raid(props: Properties) extends SimpleBlock(props) with IForgeBlock with t
     }
   }
 
-  override def getDrops(state: BlockState, ctx: LootContext.Builder): util.List[ItemStack] = {
-    val newCtx = ctx.withDynamicDrop(LootFunctions.DYN_ITEM_DATA, (c, f) => {
-      c.getParamOrNull(LootParameters.BLOCK_ENTITY) match {
-        case tileEntity: tileentity.Raid => {
+  override def getDrops(state: BlockState, ctx: LootParams.Builder): util.List[ItemStack] = {
+    val newCtx = ctx.withDynamicDrop(LootFunctions.DYN_ITEM_DATA, f => {
+      ctx.getOptionalParameter(LootContextParams.BLOCK_ENTITY) match {
+        case tileEntity: tileentity.Raid =>
           val stack = createItemStack()
           if (tileEntity.items.exists(!_.isEmpty)) {
             val data = new RaidData()
@@ -96,7 +92,6 @@ class Raid(props: Properties) extends SimpleBlock(props) with IForgeBlock with t
             data.saveData(stack)
           }
           f.accept(stack)
-        }
         case _ =>
       }
     })

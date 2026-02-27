@@ -10,7 +10,7 @@ import net.minecraftforge.registries.ForgeRegistries
 
 object BlockImageProvider extends ImageProvider {
   override def getImage(data: String): ImageRenderer = {
-    ForgeRegistries.BLOCKS.getValue(new ResourceLocation(data.toLowerCase)) match {
+    ForgeRegistries.BLOCKS.getValue(ResourceLocation.withDefaultNamespace(data.toLowerCase)) match {
       case block: Block if block.asItem() != null => new ItemStackImageRenderer(Array(new ItemStack(block)))
       case _ => new TextureImageRenderer(TextureImageProvider.ManualMissingItem) with InteractiveImageRenderer {
         override def getTooltip(tooltip: String): String = "oc:gui.Manual.Warning.BlockMissing"

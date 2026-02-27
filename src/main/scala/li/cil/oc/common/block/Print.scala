@@ -2,21 +2,20 @@ package li.cil.oc.common.block
 
 import java.util
 import java.util.Random
-
 import li.cil.oc.Localization
 import li.cil.oc.Settings
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.tileentity
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockBehaviour.{Properties => Properties}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.item.{TooltipFlag => ITooltipFlag}
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.storage.loot.LootContext
-import net.minecraft.world.level.storage.loot.parameters.{LootContextParams => LootParameters}
+import net.minecraft.world.level.storage.loot.{LootContext, LootParams}
+import net.minecraft.world.level.storage.loot.parameters.{LootContextParams, LootContextParams => LootParameters}
 import net.minecraft.world.{InteractionResult => ActionResultType}
 import net.minecraft.core.Direction
 import net.minecraft.world.{InteractionHand => Hand}
@@ -26,10 +25,10 @@ import net.minecraft.world.phys.{HitResult => RayTraceResult}
 import net.minecraft.world.phys.shapes.{CollisionContext => ISelectionContext}
 import net.minecraft.world.phys.shapes.VoxelShape
 import net.minecraft.network.chat.{Component => ITextComponent}
-import net.minecraft.network.chat.{TextComponent => StringTextComponent}
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraft.world.level.{Level => World}
 import net.minecraft.server.level.{ServerLevel => ServerWorld}
+import net.minecraft.util.RandomSource
 import net.minecraftforge.common.extensions.IForgeBlock
 
 import scala.collection.convert.ImplicitConversionsToJava._
@@ -44,20 +43,20 @@ class Print(props: Properties) extends RedstoneAware(props) {
   override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) = {
     super.tooltipBody(stack, world, tooltip, advanced)
     val data = new PrintData(stack)
-    data.tooltip.foreach(s => tooltip.addAll(s.linesIterator.map(new StringTextComponent(_).setStyle(Tooltip.DefaultStyle)).toIterable))
+    data.tooltip.foreach(s => tooltip.addAll(s.linesIterator.map(ITextComponent.literal(_).setStyle(Tooltip.DefaultStyle)).toIterable))
   }
 
   override protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) = {
     super.tooltipTail(stack, world, tooltip, advanced)
     val data = new PrintData(stack)
     if (data.isBeaconBase) {
-      tooltip.add(new StringTextComponent(Localization.Tooltip.PrintBeaconBase).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(ITextComponent.literal(Localization.Tooltip.PrintBeaconBase).setStyle(Tooltip.DefaultStyle))
     }
     if (data.emitRedstone) {
-      tooltip.add(new StringTextComponent(Localization.Tooltip.PrintRedstoneLevel(data.redstoneLevel)).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(ITextComponent.literal(Localization.Tooltip.PrintRedstoneLevel(data.redstoneLevel)).setStyle(Tooltip.DefaultStyle))
     }
     if (data.emitLight) {
-      tooltip.add(new StringTextComponent(Localization.Tooltip.PrintLightValue(data.lightLevel)).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(ITextComponent.literal(Localization.Tooltip.PrintLightValue(data.lightLevel)).setStyle(Tooltip.DefaultStyle))
     }
   }
 
@@ -96,7 +95,7 @@ class Print(props: Properties) extends RedstoneAware(props) {
 
   def tickRate(world: World) = 20
 
-  override def tick(state: BlockState, world: ServerWorld, pos: BlockPos, rand: Random): Unit = {
+  override def tick(state: BlockState, world: ServerWorld, pos: BlockPos, rand: RandomSource): Unit = {
     if (!world.isClientSide) world.getBlockEntity(pos) match {
       case print: tileentity.Print =>
         if (print.state) print.toggleState()
@@ -150,9 +149,9 @@ class Print(props: Properties) extends RedstoneAware(props) {
     }
   }
 
-  override def getDrops(state: BlockState, ctx: LootContext.Builder): util.List[ItemStack] = {
-    val newCtx = ctx.withDynamicDrop(LootFunctions.DYN_ITEM_DATA, (c, f) => {
-      c.getParamOrNull(LootParameters.BLOCK_ENTITY) match {
+  override def getDrops(state: BlockState, ctx: LootParams.Builder): util.List[ItemStack] = {
+    val newCtx = ctx.withDynamicDrop(LootFunctions.DYN_ITEM_DATA, f => {
+      ctx.getOptionalParameter(LootContextParams.BLOCK_ENTITY) match {
         case tileEntity: tileentity.Print => f.accept(tileEntity.data.createItemStack())
         case _ =>
       }

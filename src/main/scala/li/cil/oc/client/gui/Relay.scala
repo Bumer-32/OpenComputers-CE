@@ -1,7 +1,6 @@
 package li.cil.oc.client.gui
 
 import java.text.DecimalFormat
-
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.client.Textures
@@ -15,6 +14,7 @@ import net.minecraft.world.entity.player.Inventory
 import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
+import net.minecraft.client.gui.GuiGraphics
 
 class Relay(state: menu.Relay, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
@@ -23,12 +23,13 @@ class Relay(state: menu.Relay, playerInventory: Inventory, name: Component)
 
   val tabPosition = new Rect2i(imageWidth, 10, 23, 26)
 
-  override protected def drawSecondaryBackgroundLayer(stack: PoseStack): Unit = {
-    super.drawSecondaryBackgroundLayer(stack)
+  override protected def drawSecondaryBackgroundLayer(graphics: GuiGraphics): Unit = {
+    super.drawSecondaryBackgroundLayer(graphics)
 
     // Tab background.
     RenderSystem.setShaderColor(1, 1, 1, 1)
     RenderSystem.setShaderTexture(0, Textures.GUI.UpgradeTab)
+    val stack = graphics.pose
     val x = windowX + tabPosition.getX
     val y = windowY + tabPosition.getY
     val w = tabPosition.getWidth
@@ -36,10 +37,10 @@ class Relay(state: menu.Relay, playerInventory: Inventory, name: Component)
     val t = Tesselator.getInstance
     val r = t.getBuilder
     r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
-    r.vertex(stack.last.pose, x, y + h, getBlitOffset).uv(0, 1).endVertex()
-    r.vertex(stack.last.pose, x + w, y + h, getBlitOffset).uv(1, 1).endVertex()
-    r.vertex(stack.last.pose, x + w, y, getBlitOffset).uv(1, 0).endVertex()
-    r.vertex(stack.last.pose, x, y, getBlitOffset).uv(0, 0).endVertex()
+    r.vertex(stack.last.pose, x, y + h, 0).uv(0, 1).endVertex()
+    r.vertex(stack.last.pose, x + w, y + h, 0).uv(1, 1).endVertex()
+    r.vertex(stack.last.pose, x + w, y, 0).uv(1, 0).endVertex()
+    r.vertex(stack.last.pose, x, y, 0).uv(0, 0).endVertex()
     t.end()
   }
 
@@ -67,26 +68,26 @@ class Relay(state: menu.Relay, playerInventory: Inventory, name: Component)
     }
   }
 
-  override def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int): Unit = {
-    super.drawSecondaryForegroundLayer(stack, mouseX, mouseY)
+  override def drawSecondaryForegroundLayer(graphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {
+    super.drawSecondaryForegroundLayer(graphics, mouseX, mouseY)
 
-    font.draw(stack,
+    graphics.drawString(font,
       Localization.Switch.TransferRate,
       14, 20, 0x404040)
-    font.draw(stack,
+    graphics.drawString(font,
       Localization.Switch.PacketsPerCycle,
       14, 39, 0x404040)
-    font.draw(stack,
+    graphics.drawString(font,
       Localization.Switch.QueueSize,
       14, 58, 0x404040)
 
-    font.draw(stack,
+    graphics.drawString(font,
       format.format(20f / inventoryContainer.relayDelay),
       108, 20, 0x404040)
-    font.draw(stack,
+    graphics.drawString(font,
       inventoryContainer.packetsPerCycleAvg + " / " + inventoryContainer.relayAmount,
       108, 39, thresholdBasedColor(inventoryContainer.packetsPerCycleAvg, math.ceil(inventoryContainer.relayAmount / 2f).toInt, inventoryContainer.relayAmount))
-    font.draw(stack,
+    graphics.drawString(font,
       inventoryContainer.queueSize + " / " + inventoryContainer.maxQueueSize,
       108, 58, thresholdBasedColor(inventoryContainer.queueSize, inventoryContainer.maxQueueSize / 2, inventoryContainer.maxQueueSize))
   }

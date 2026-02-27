@@ -1,7 +1,7 @@
 package li.cil.oc.client.renderer.tileentity
 
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.VertexConsumer  // 1.18.2: IVertexBuilder → VertexConsumer
+import com.mojang.blaze3d.vertex.VertexConsumer
 import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -14,20 +14,18 @@ import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.InteractionHand  // 1.18.2: Hand → InteractionHand
+import net.minecraft.world.InteractionHand
 import net.minecraft.core.Direction
-import com.mojang.math.Vector3f
+import com.mojang.math.Axis
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer => TileEntityRenderer}
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 
-// 1.18.2: BlockEntityRendererProvider[T] に変更
 object ScreenRenderer extends BlockEntityRendererProvider[Screen] {
   override def create(ctx: BlockEntityRendererProvider.Context): ScreenRenderer =
     new ScreenRenderer()
 }
 
-// 1.18.2: コンストラクタ引数なし
 class ScreenRenderer extends TileEntityRenderer[Screen] {
   private val maxRenderDistanceSq = Settings.get.maxScreenTextRenderDistance * Settings.get.maxScreenTextRenderDistance
   private val fadeDistanceSq      = Settings.get.screenTextFadeStartDistance * Settings.get.screenTextFadeStartDistance
@@ -35,15 +33,11 @@ class ScreenRenderer extends TileEntityRenderer[Screen] {
 
   private var screen: Screen = null
 
-  // ----------------------------------------------------------------------- //
-  // Rendering
-  // ----------------------------------------------------------------------- //
-
   override def render(
                        screen: Screen,
                        dt: Float,
-                       stack: PoseStack,          // 1.18.2: MatrixStack → PoseStack
-                       buffer: MultiBufferSource, // 1.18.2: IRenderTypeBuffer → MultiBufferSource
+                       stack: PoseStack,
+                       buffer: MultiBufferSource,
                        light: Int,
                        overlay: Int
                      ): Unit = {
@@ -63,14 +57,13 @@ class ScreenRenderer extends TileEntityRenderer[Screen] {
     val z            = screen.getBlockPos.getZ - eye_pos.z
     if (screenFacing.getStepX * (x + 0.5) + screenFacing.getStepY * (eye_delta + 0.5) + screenFacing.getStepZ * (z + 0.5) < 0) return
 
-    RenderSystem.setShaderColor(1, 1, 1, 1) // 1.18.2: color4f → setShaderColor
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     stack.pushPose()
     stack.translate(0.5, 0.5, 0.5)
 
     RenderState.checkError(getClass.getName + ".render: setup")
 
-    // 1.18.2: getBuffer の戻り値は VertexConsumer
     drawOverlay(stack, buffer.getBuffer(RenderTypes.BLOCK_OVERLAY))
 
     RenderState.checkError(getClass.getName + ".render: overlay")
@@ -95,14 +88,14 @@ class ScreenRenderer extends TileEntityRenderer[Screen] {
 
   private def transform(stack: PoseStack): Unit = {
     screen.yaw match {
-      case Direction.WEST  => stack.mulPose(Vector3f.YP.rotationDegrees(-90))
-      case Direction.NORTH => stack.mulPose(Vector3f.YP.rotationDegrees(180))
-      case Direction.EAST  => stack.mulPose(Vector3f.YP.rotationDegrees(90))
+      case Direction.WEST  => stack.mulPose(Axis.YP.rotationDegrees(-90))
+      case Direction.NORTH => stack.mulPose(Axis.YP.rotationDegrees(180))
+      case Direction.EAST  => stack.mulPose(Axis.YP.rotationDegrees(90))
       case _               => // No yaw.
     }
     screen.pitch match {
-      case Direction.DOWN => stack.mulPose(Vector3f.XP.rotationDegrees(90))
-      case Direction.UP   => stack.mulPose(Vector3f.XP.rotationDegrees(-90))
+      case Direction.DOWN => stack.mulPose(Axis.XP.rotationDegrees(90))
+      case Direction.UP   => stack.mulPose(Axis.XP.rotationDegrees(-90))
       case _              => // No pitch.
     }
 

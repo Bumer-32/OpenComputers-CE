@@ -10,25 +10,23 @@ import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer => TileEntityRenderer}
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 
-// 1.18.2: BlockEntityRendererProvider[T] に変更
 object RelayRenderer extends BlockEntityRendererProvider[tileentity.Relay] {
   override def create(ctx: BlockEntityRendererProvider.Context): RelayRenderer =
     new RelayRenderer()
 }
 
-// 1.18.2: コンストラクタ引数なし
 class RelayRenderer extends TileEntityRenderer[tileentity.Relay] {
   override def render(
                        switch: tileentity.Relay,
                        dt: Float,
-                       stack: PoseStack,          // 1.18.2: MatrixStack → PoseStack
-                       buffer: MultiBufferSource, // 1.18.2: IRenderTypeBuffer → MultiBufferSource
+                       stack: PoseStack,
+                       buffer: MultiBufferSource,
                        light: Int,
                        overlay: Int
                      ): Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.setShaderColor(1, 1, 1, 1) // 1.18.2: color4f → setShaderColor
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     val activity = math.max(0, 1 - (System.currentTimeMillis() - switch.lastMessage) / 1000.0)
     if (activity > 0) {

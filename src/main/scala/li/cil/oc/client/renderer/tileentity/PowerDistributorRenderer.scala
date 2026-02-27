@@ -10,25 +10,23 @@ import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer => TileEntityRenderer}
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 
-// 1.18.2: BlockEntityRendererProvider[T] に変更（Function[Dispatcher, T] は廃止）
 object PowerDistributorRenderer extends BlockEntityRendererProvider[tileentity.PowerDistributor] {
   override def create(ctx: BlockEntityRendererProvider.Context): PowerDistributorRenderer =
     new PowerDistributorRenderer()
 }
 
-// 1.18.2: BlockEntityRenderer はインターフェースになったためコンストラクタ引数不要
 class PowerDistributorRenderer extends TileEntityRenderer[tileentity.PowerDistributor] {
   override def render(
                        distributor: tileentity.PowerDistributor,
                        dt: Float,
-                       stack: PoseStack,         // 1.18.2: MatrixStack → PoseStack
-                       buffer: MultiBufferSource, // 1.18.2: IRenderTypeBuffer → MultiBufferSource
+                       stack: PoseStack,
+                       buffer: MultiBufferSource,
                        light: Int,
                        overlay: Int
                      ): Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.setShaderColor(1, 1, 1, 1) // 1.18.2: color4f → setShaderColor
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     if (distributor.globalBuffer > 0) {
       stack.pushPose()

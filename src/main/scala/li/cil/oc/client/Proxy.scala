@@ -1,7 +1,6 @@
 package li.cil.oc.client
 
 import com.mojang.blaze3d.systems.RenderSystem
-import li.cil.oc.OpenComputers
 import li.cil.oc.api
 import li.cil.oc.client
 import li.cil.oc.client.gui.GuiTypes
@@ -14,23 +13,18 @@ import li.cil.oc.client.renderer.block.ModelInitialization
 import li.cil.oc.client.renderer.block.NetSplitterModel
 import li.cil.oc.client.renderer.entity.{DroneRenderer, ModelQuadcopter}
 import li.cil.oc.client.renderer.tileentity._
-import li.cil.oc.common
 import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
 import li.cil.oc.common.{Proxy => CommonProxy}
 import li.cil.oc.common.component.TextBuffer
-import li.cil.oc.common.entity.Drone
 import li.cil.oc.common.entity.EntityTypes
 import li.cil.oc.common.event.NanomachinesHandler
 import li.cil.oc.common.event.RackMountableRenderHandler
-import li.cil.oc.common.tileentity
 import li.cil.oc.common.tileentity.TileEntityTypes
 import li.cil.oc.util.Audio
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers
 import net.minecraft.world.level.block.Block
-import net.minecraft.client.renderer.entity.{DrownedRenderer, EntityRenderDispatcher, EntityRenderer}
 import net.minecraft.world.item.Item
-import net.minecraftforge.client.ClientRegistry
-import net.minecraftforge.client.event.EntityRenderersEvent
+import net.minecraftforge.client.event.{EntityRenderersEvent, RegisterKeyMappingsEvent}
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
@@ -58,10 +52,6 @@ private[oc] class Proxy extends CommonProxy {
 
       ColorHandler.init()
 
-      ClientRegistry.registerKeyBinding(KeyBindings.extendedTooltip)
-      ClientRegistry.registerKeyBinding(KeyBindings.analyzeCopyAddr)
-      ClientRegistry.registerKeyBinding(KeyBindings.clipboardPaste)
-
       MinecraftForge.EVENT_BUS.register(HighlightRenderer)
       MinecraftForge.EVENT_BUS.register(NanomachinesHandler.Client)
       MinecraftForge.EVENT_BUS.register(PetRenderer)
@@ -80,6 +70,13 @@ private[oc] class Proxy extends CommonProxy {
   @SubscribeEvent
   def onRegisterLayerDefinitions(event: EntityRenderersEvent.RegisterLayerDefinitions): Unit = {
     event.registerLayerDefinition(ModelQuadcopter.LAYER_LOCATION, () => ModelQuadcopter.createLayer())
+  }
+
+  @SubscribeEvent
+  def onRegisterKeyMappings(event: RegisterKeyMappingsEvent): Unit = {
+    event.register(KeyBindings.extendedTooltip)
+    event.register(KeyBindings.analyzeCopyAddr)
+    event.register(KeyBindings.clipboardPaste)
   }
 
   @SubscribeEvent

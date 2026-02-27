@@ -11,7 +11,7 @@ import net.minecraftforge.common.capabilities.{Capability, ICapabilityProvider, 
 import net.minecraftforge.common.util.{LazyOptional, NonNullSupplier}
 
 object CapabilityEnvironment {
-  final val ProviderEnvironment = new ResourceLocation(Mods.IDs.OpenComputers, "environment")
+  final val ProviderEnvironment = ResourceLocation.fromNamespaceAndPath(Mods.IDs.OpenComputers, "environment")
 
   class Provider(val tileEntity: BlockEntity with Environment) extends ICapabilitySerializable[CompoundTag] with NonNullSupplier[Provider] with Environment {
     private val wrapper = LazyOptional.of(this)

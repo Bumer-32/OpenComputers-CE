@@ -9,14 +9,12 @@ import li.cil.oc.common.nanomachines.ControllerImpl
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.Rarity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraft.world.level.Level
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.TooltipFlag
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.InteractionResult
@@ -31,7 +29,7 @@ class Nanomachines(props: Properties) extends Item(props) with IForgeItem with t
     if (stack.hasTag) {
       val data = new NanomachineData(stack)
       if (!Strings.isNullOrEmpty(data.uuid)) {
-        tooltip.add(new TextComponent("§8" + data.uuid.substring(0, 13) + "...§7"))
+        tooltip.add(Component.literal("§8" + data.uuid.substring(0, 13) + "...§7"))
       }
     }
   }

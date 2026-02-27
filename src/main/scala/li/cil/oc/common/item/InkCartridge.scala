@@ -7,8 +7,8 @@ import net.minecraft.world.item.Item.Properties
 import net.minecraftforge.common.extensions.IForgeItem
 
 class InkCartridge(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem {
-  override def hasContainerItem(stack: ItemStack): Boolean = true
+  override def hasCraftingRemainingItem(stack: ItemStack): Boolean = true
 
-  override def getContainerItem(stack: ItemStack): ItemStack =
+  override def getCraftingRemainingItem(stack: ItemStack): ItemStack =
     Items.get(Constants.ItemName.InkCartridgeEmpty).createItemStack(1)
 }

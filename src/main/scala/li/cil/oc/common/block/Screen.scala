@@ -28,7 +28,6 @@ import net.minecraft.core.Direction
 import net.minecraft.world.{InteractionHand => Hand}
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.{Component => ITextComponent}
-import net.minecraft.network.chat.{TextComponent => StringTextComponent}
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraft.world.level.{Level => World}
@@ -47,7 +46,7 @@ class Screen(props: Properties, val tier: Int) extends RedstoneAware(props) with
     val (w, h) = Settings.screenResolutionsByTier(tier)
     val depth = PackedColor.Depth.bits(Settings.screenDepthsByTier(tier))
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase, w, h, depth)) {
-      tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(ITextComponent.literal(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 

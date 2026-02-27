@@ -2,7 +2,7 @@ package li.cil.oc.client.renderer.markdown.segment
 
 import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.client.renderer.markdown.MarkupFormat
-import net.minecraft.client.gui.Font
+import net.minecraft.client.gui.{Font, GuiGraphics}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -47,7 +47,7 @@ trait Segment {
    * Render the segment at the specified coordinates with the specified
    * properties.
    */
-  def render(stack: PoseStack, x: Int, y: Int, indent: Int, maxWidth: Int, renderer: Font, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = None
+  def render(graphics: GuiGraphics, x: Int, y: Int, indent: Int, maxWidth: Int, renderer: Font, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = None
 
   def renderAsText(format: MarkupFormat.Value): Iterable[String] = {
     var segment = this

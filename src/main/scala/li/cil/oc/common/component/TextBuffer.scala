@@ -32,8 +32,8 @@ import li.cil.oc.util.PackedColor
 import li.cil.oc.util.SideTracker
 import net.minecraft.client.Minecraft
 import net.minecraft.nbt.CompoundTag
-import net.minecraftforge.event.world.ChunkEvent
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.event.level.ChunkEvent
+import net.minecraftforge.event.level.LevelEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -510,7 +510,7 @@ object TextBuffer {
     clientBuffers = clientBuffers.filter(t => {
       val blockPos = BlockPosition(t.host)
       val chunkPos = chunk.getPos
-      val keep = t.host.getEnvironmentLevel != e.getWorld || ((blockPos.x >> 4) != chunkPos.x || (blockPos.z >> 4) != chunkPos.z)
+      val keep = t.host.getEnvironmentLevel != e.getLevel || ((blockPos.x >> 4) != chunkPos.x || (blockPos.z >> 4) != chunkPos.z)
       if (!keep) {
         ClientComponentTracker.remove(t.host.getEnvironmentLevel, t)
       }
@@ -519,9 +519,9 @@ object TextBuffer {
   }
 
   @SubscribeEvent
-  def onWorldUnload(e: WorldEvent.Unload): Unit = {
+  def onWorldUnload(e: LevelEvent.Unload): Unit = {
     clientBuffers = clientBuffers.filter(t => {
-      val keep = t.host.getEnvironmentLevel != e.getWorld
+      val keep = t.host.getEnvironmentLevel != e.getLevel
       if (!keep) {
         ClientComponentTracker.remove(t.host.getEnvironmentLevel, t)
       }

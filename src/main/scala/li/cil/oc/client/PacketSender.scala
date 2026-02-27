@@ -94,7 +94,7 @@ object PacketSender {
     if (value != null && !value.isEmpty) {
       if (value.length > 64 * 1024 || System.currentTimeMillis() < clipboardCooldown) {
         val handler = Minecraft.getInstance.getSoundManager
-        handler.play(SimpleSoundInstance.forUI(SoundEvents.NOTE_BLOCK_HARP, 1, 1))
+        handler.play(SimpleSoundInstance.forUI(SoundEvents.NOTE_BLOCK_HARP.value, 1, 1))
       }
       else {
         clipboardCooldown = System.currentTimeMillis() + value.length / 10

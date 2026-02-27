@@ -1,15 +1,15 @@
 package li.cil.oc.common.block
 
 import java.util.Random
-
 import li.cil.oc.common.tileentity
-import net.minecraft.world.level.block.state.BlockBehaviour.{Properties => Properties}
-import net.minecraft.world.level.block.{Block => Block}
-import net.minecraft.world.level.block.state.{BlockState => BlockState}
-import net.minecraft.core.{BlockPos => BlockPos}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.core.BlockPos
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraft.world.level.{Level => World}
 import net.minecraft.server.level.{ServerLevel => ServerWorld}
+import net.minecraft.util.RandomSource
 
 class Capacitor(props: Properties) extends SimpleBlock(props) {
   @Deprecated
@@ -30,7 +30,7 @@ class Capacitor(props: Properties) extends SimpleBlock(props) {
       case _ => 0
     }
 
-  override def tick(state: BlockState, world: ServerWorld, pos: BlockPos, rand: Random): Unit = {
+  override def tick(state: BlockState, world: ServerWorld, pos: BlockPos, rand: RandomSource): Unit = {
     world.updateNeighborsAt(pos, this)
   }
 

@@ -26,6 +26,7 @@ import com.mojang.blaze3d.vertex.Tesselator
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.network.chat.Component
 import com.mojang.blaze3d.vertex.VertexFormat
+import net.minecraft.client.gui.GuiGraphics
 
 class Robot(state: menu.Robot, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name)
@@ -90,14 +91,14 @@ class Robot(state: menu.Robot, playerInventory: Inventory, name: Component)
   private val selectionsStates = 17
   private val selectionStepV = 1 / selectionsStates.toFloat
 
-  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
+  override def render(graphics: GuiGraphics, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     powerButton.toggled = inventoryContainer.isRunning
     scrollButton.active = canScroll
     scrollButton.hoverOverride = isScrolling
     if (inventoryContainer.info.mainInvSize < 16 + inventoryOffset * 4) {
       if (inventoryOffset != 0) scrollTo(0)
     }
-    super.render(stack, mouseX, mouseY, dt)
+    super.render(graphics, mouseX, mouseY, dt)
   }
 
   override protected def init(): Unit = {
@@ -134,47 +135,45 @@ class Robot(state: menu.Robot, playerInventory: Inventory, name: Component)
     }
   }
 
-  override protected def renderLabels(stack: PoseStack, mouseX: Int, mouseY: Int): Unit = {
-    drawSecondaryForegroundLayer(stack, mouseX, mouseY)
+  override protected def renderLabels(graphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {
+    drawSecondaryForegroundLayer(graphics, mouseX, mouseY)
 
     for (slot <- 0 until menu.slots.size()) {
-      drawSlotHighlight(stack, menu.getSlot(slot))
+      drawSlotHighlight(graphics, menu.getSlot(slot))
     }
   }
 
-  override protected def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int): Unit = {
-    drawBufferLayer(stack)
-    if (isPointInRegion(power.x, power.y, power.width, power.height, mouseX - leftPos, mouseY - topPos)) {
-      val tooltip = new java.util.ArrayList[String]
+  override protected def drawSecondaryForegroundLayer(graphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {
+    drawBufferLayer(graphics.pose)
+    if (isHovering(power.x, power.y, power.width, power.height, mouseX - leftPos, mouseY - topPos)) {
+      val tooltip = new java.util.ArrayList[Component]
       val format = Localization.Computer.Power + ": %d%% (%d/%d)"
-      tooltip.add(format.format(
+      tooltip.add(Component.literal(format.format(
         100 * inventoryContainer.globalBuffer / inventoryContainer.globalBufferSize,
-        inventoryContainer.globalBuffer, inventoryContainer.globalBufferSize))
-      copiedDrawHoveringText(stack, tooltip, mouseX - leftPos, mouseY - topPos, font)
+        inventoryContainer.globalBuffer, inventoryContainer.globalBufferSize)))
+      graphics.renderComponentTooltip(font, tooltip, mouseX - leftPos, mouseY - topPos)
     }
     if (powerButton.isMouseOver(mouseX, mouseY)) {
-      val tooltip = new java.util.ArrayList[String]
-      tooltip.addAll(asJavaCollection(if (inventoryContainer.isRunning) Localization.Computer.TurnOff.linesIterator.toIterable else Localization.Computer.TurnOn.linesIterator.toIterable))
-      copiedDrawHoveringText(stack, tooltip, mouseX - leftPos, mouseY - topPos, font)
+      val tooltip = new java.util.ArrayList[Component]
+      tooltip.addAll(if (inventoryContainer.isRunning) Localization.Computer.TurnOff.linesIterator.map(Component.literal).iterator.to(Iterable) else Localization.Computer.TurnOn.linesIterator.map(Component.literal).iterator.to(Iterable))
+      graphics.renderComponentTooltip(font, tooltip, mouseX - leftPos, mouseY - topPos)
     }
   }
 
-  override protected def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int): Unit = {
+  override protected def renderBg(graphics: GuiGraphics, dt: Float, mouseX: Int, mouseY: Int): Unit = {
     RenderSystem.setShaderColor(1, 1, 1, 1)
-    if (buffer != null) Textures.bind(Textures.GUI.Robot)
-    else Textures.bind(Textures.GUI.RobotNoScreen)
-    blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
+    graphics.blit(if (buffer != null) Textures.GUI.Robot else Textures.GUI.RobotNoScreen, leftPos, topPos, 0, 0, imageWidth, imageHeight)
     power.level = inventoryContainer.globalBuffer.toDouble / inventoryContainer.globalBufferSize
-    drawWidgets(stack)
+    drawWidgets(graphics)
     if (inventoryContainer.info.mainInvSize > 0) {
-      drawSelection(stack)
+      drawSelection(graphics.pose)
     }
 
-    drawInventorySlots(stack)
+    drawInventorySlots(graphics)
   }
 
   // No custom slots, we just extend DynamicGuiContainer for the highlighting.
-  override protected def drawSlotBackground(stack: PoseStack, x: Int, y: Int): Unit = {}
+  override protected def drawSlotBackground(graphics: GuiGraphics, x: Int, y: Int): Unit = {}
 
   override def mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean = {
     val mx = mouseX.asInstanceOf[Int]
@@ -262,10 +261,10 @@ class Robot(state: menu.Robot, playerInventory: Inventory, name: Component)
       val t = Tesselator.getInstance
       val r = t.getBuilder
       r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
-      r.vertex(stack.last.pose, x, y, getBlitOffset).uv(0, offsetV).endVertex()
-      r.vertex(stack.last.pose, x, y + selectionSize, getBlitOffset).uv(0, offsetV + selectionStepV).endVertex()
-      r.vertex(stack.last.pose, x + selectionSize, y + selectionSize, getBlitOffset).uv(1, offsetV + selectionStepV).endVertex()
-      r.vertex(stack.last.pose, x + selectionSize, y, getBlitOffset).uv(1, offsetV).endVertex()
+      r.vertex(stack.last.pose, x, y, 0).uv(0, offsetV).endVertex()
+      r.vertex(stack.last.pose, x, y + selectionSize, 0).uv(0, offsetV + selectionStepV).endVertex()
+      r.vertex(stack.last.pose, x + selectionSize, y + selectionSize, 0).uv(1, offsetV + selectionStepV).endVertex()
+      r.vertex(stack.last.pose, x + selectionSize, y, 0).uv(1, offsetV).endVertex()
       t.end()
     }
   }

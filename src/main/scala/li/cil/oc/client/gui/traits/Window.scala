@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack
 
 import java.util
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiComponent
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.resources.ResourceLocation
 
@@ -31,12 +31,11 @@ trait Window extends Screen {
     topPos = (height - imageHeight) / 2
   }
 
-  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
+  override def render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     RenderSystem.setShaderTexture(0, backgroundImage)
     // Texture width and height are intentionally backwards.
-    GuiComponent.blit(stack, leftPos, topPos, getBlitOffset, 0, 0, imageWidth, imageHeight, windowHeight, windowWidth)
+    guiGraphics.blit(backgroundImage, leftPos, topPos, 0, 0, imageWidth, imageHeight, windowHeight, windowWidth)
 
-    super.render(stack, mouseX, mouseY, dt)
+    super.render(guiGraphics, mouseX, mouseY, dt)
   }
-
 }

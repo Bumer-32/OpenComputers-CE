@@ -6,10 +6,8 @@ import li.cil.oc.common.Proxy
 import li.cil.oc.common.capabilities.Capabilities
 import li.cil.oc.common.init.Blocks
 import li.cil.oc.common.init.Items
-import li.cil.oc.common.recipe.Recipes
 import li.cil.oc.integration.Mods
 import li.cil.oc.util.ThreadPoolFactory
-import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -66,23 +64,12 @@ class OpenComputers {
   modBus.register(this)
   modBus.register(classOf[Capabilities])
   OpenComputers.instance = Some(this)
-
   MinecraftForge.EVENT_BUS.register(OpenComputers.proxy)
   modBus.register(OpenComputers.proxy)
   Settings.load(FMLPaths.CONFIGDIR.get().resolve(Paths.get("opencomputers", "settings.conf")).toFile())
   OpenComputers.proxy.preInit()
   MinecraftForge.EVENT_BUS.register(ThreadPoolFactory)
   Mods.preInit() // Must happen after loading Settings but before registry events are fired.
-
-  @SubscribeEvent
-  def registerBlocks(e: RegistryEvent.Register[Block]): Unit = {
-    Blocks.init()
-  }
-
-  @SubscribeEvent
-  def registerItems(e: RegistryEvent.Register[Item]): Unit = {
-    Items.init()
-  }
 
   @SubscribeEvent
   def imc(e: InterModProcessEvent): Unit = {

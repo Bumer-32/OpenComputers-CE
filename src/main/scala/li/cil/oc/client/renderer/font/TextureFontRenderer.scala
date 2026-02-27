@@ -2,7 +2,7 @@ package li.cil.oc.client.renderer.font
 
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.{PoseStack, Tesselator, VertexConsumer}
-import com.mojang.math.Matrix4f
+import org.joml.Matrix4f
 import li.cil.oc.util.{ExtendedUnicodeHelper, PackedColor, TextBuffer}
 import li.cil.oc.client.renderer.RenderTypes
 import net.minecraft.client.renderer.RenderType

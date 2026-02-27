@@ -16,28 +16,27 @@ import net.minecraft.world.item.Item.Properties
 import net.minecraft.core.Direction
 import net.minecraft.core.NonNullList
 import net.minecraft.world.entity.player.Player
-import net.minecraftforge.client.event.ModelBakeEvent
+import net.minecraftforge.client.event.ModelEvent
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
 
 class Drone(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with CustomModel {
   @OnlyIn(Dist.CLIENT)
-  override def getModelLocation(stack: ItemStack) = new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.ItemName.Drone, "inventory")
+  override def getModelLocation(stack: ItemStack) = new ModelResourceLocation(Settings.resourceDomain, Constants.ItemName.Drone, "inventory")
 
   @OnlyIn(Dist.CLIENT)
-  override def bakeModels(bakeEvent: ModelBakeEvent): Unit = {
-    bakeEvent.getModelRegistry.put(getModelLocation(createItemStack()), DroneModel)
+  override def bakeModels(event: ModelEvent.RegisterAdditional): Unit = {
+    event.register(getModelLocation(createItemStack()))
   }
 
   override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[Component]): Unit = {
     if (KeyBindings.showExtendedTooltips) {
       val info = new DroneData(stack)
       for (component <- info.components if !component.isEmpty) {
-        tooltip.add(new TextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+        tooltip.add(Component.literal("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
       }
     }
   }
@@ -46,9 +45,6 @@ class Drone(props: Properties) extends Item(props) with IForgeItem with traits.S
     val data = new DroneData(stack)
     Rarity.byTier(data.tier)
   }
-
-  // Must be assembled to be usable so we hide it in the item list.
-  override def fillItemCategory(tab: CreativeModeTab, list: NonNullList[ItemStack]): Unit = {}
 
   override def onItemUse(stack: ItemStack, player: Player, position: BlockPosition, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
     val world = position.world.get

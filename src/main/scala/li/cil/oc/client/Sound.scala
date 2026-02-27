@@ -7,7 +7,6 @@ import java.net.URLStreamHandler
 import java.util.Timer
 import java.util.TimerTask
 import java.util.UUID
-
 import com.google.common.base.Charsets
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
@@ -15,13 +14,12 @@ import net.minecraft.client.Minecraft
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
-import net.minecraftforge.event.world.WorldEvent
 
 import scala.collection.mutable
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.client.resources.sounds.AbstractSoundInstance
-import net.minecraft.client.resources.sounds.TickableSoundInstance
+import net.minecraft.client.resources.sounds.{AbstractSoundInstance, SoundInstance, TickableSoundInstance}
 import net.minecraft.sounds.SoundSource
+import net.minecraftforge.event.level.LevelEvent
 
 object Sound {
   private val sources = mutable.Map.empty[BlockEntity, PseudoLoopingStream]
@@ -84,7 +82,7 @@ object Sound {
   }
 
   @SubscribeEvent
-  def onWorldUnload(event: WorldEvent.Unload): Unit = {
+  def onWorldUnload(event: LevelEvent.Unload): Unit = {
     commandQueue.synchronized(commandQueue.clear())
     sources.synchronized(try sources.foreach(_._2.stop()) catch {
       case _: Throwable => // Ignore.
@@ -141,7 +139,7 @@ object Sound {
   }
 
   private class PseudoLoopingStream(val BlockEntity: BlockEntity, val subVolume: Float, name: String)
-    extends AbstractSoundInstance(new ResourceLocation(OpenComputers.ID, name), SoundSource.BLOCKS) with TickableSoundInstance {
+    extends AbstractSoundInstance(ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, name), SoundSource.BLOCKS, SoundInstance.createUnseededRandom()) with TickableSoundInstance {
 
     var stopped = false
     volume = subVolume * Settings.get.soundVolume

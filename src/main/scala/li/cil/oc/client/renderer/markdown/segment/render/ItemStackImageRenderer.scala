@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.api.manual.ImageRenderer
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.world.item.ItemStack
 
 private[markdown] class ItemStackImageRenderer(val stacks: Array[ItemStack]) extends ImageRenderer {
@@ -14,25 +15,27 @@ private[markdown] class ItemStackImageRenderer(val stacks: Array[ItemStack]) ext
 
   override def getHeight = 32
 
-  override def render(matrix: PoseStack, mouseX: Int, mouseY: Int): Unit = {
+  override def render(graphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {
     val mc = Minecraft.getInstance()
     val index = ((System.currentTimeMillis() % (cycleSpeed * stacks.length)) / cycleSpeed).toInt
     val stack = stacks(index)
+    val pose = graphics.pose
 
-    matrix.pushPose()
+    pose.pushPose()
 
-    matrix.scale(getWidth / 16.0f, getHeight / 16.0f, getWidth / 16.0f)
+    pose.scale(getWidth / 16.0f, getHeight / 16.0f, getWidth / 16.0f)
 
     val modelViewStack = RenderSystem.getModelViewStack
     modelViewStack.pushPose()
-    modelViewStack.mulPoseMatrix(matrix.last.pose)
+    modelViewStack.mulPoseMatrix(pose.last.pose)
     RenderSystem.applyModelViewMatrix()
 
-    mc.getItemRenderer.renderAndDecorateItem(stack, 0, 0)
+    graphics.renderItem(stack, 0, 0)
+    graphics.renderItemDecorations(mc.font, stack, 0, 0)
 
     modelViewStack.popPose()
     RenderSystem.applyModelViewMatrix()
 
-    matrix.popPose()
+    pose.popPose()
   }
 }

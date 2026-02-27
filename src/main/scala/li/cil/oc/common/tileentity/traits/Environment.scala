@@ -9,10 +9,9 @@ import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
 import net.minecraft.world.level.Level
-import net.minecraftforge.client.model.data.IModelData
-import net.minecraftforge.client.model.data.ModelProperty
+import net.minecraftforge.client.model.data.{ModelData, ModelProperty}
 
-trait Environment extends TileEntity with network.Environment with network.EnvironmentHost with IModelData {
+trait Environment extends TileEntity with network.Environment with network.EnvironmentHost {
   protected var isChangeScheduled = false
 
   override def getEnvironmentLevel: Level = getLevel
@@ -101,8 +100,7 @@ trait Environment extends TileEntity with network.Environment with network.Envir
 
   // ----------------------------------------------------------------------- //
 
-  @Deprecated
-  override def getModelData() = this
+  override def getModelData: ModelData = ModelData.EMPTY
 
   @Deprecated
   override def hasProperty(prop: ModelProperty[_]) = false

@@ -2,13 +2,13 @@ package li.cil.oc.client.renderer.markdown
 
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.math.Vector4f
+import org.joml.Vector4f
 import li.cil.oc.api
 import li.cil.oc.client.renderer.markdown.segment.InteractiveSegment
 import li.cil.oc.client.renderer.markdown.segment.Segment
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.Font
+import net.minecraft.client.gui.{Font, GuiGraphics}
 import org.lwjgl.opengl.GL11
 
 import scala.collection.Iterable
@@ -69,8 +69,9 @@ object Document {
    * Renders a list of segments and tooltips if a segment with a tooltip is hovered.
    * Returns the hovered interactive segment, if any.
    */
-  def render(stack: PoseStack, document: Segment, x: Int, y: Int, maxWidth: Int, maxHeight: Int, yOffset: Int, renderer: Font, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
+  def render(graphics: GuiGraphics, document: Segment, x: Int, y: Int, maxWidth: Int, maxHeight: Int, yOffset: Int, renderer: Font, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
     val window = Minecraft.getInstance.getWindow
+    val stack = graphics.pose
 
     RenderState.pushAttrib()
 
@@ -80,9 +81,9 @@ object Document {
     val (x0, y0, x1, y1) = {
       val scale = window.getGuiScale
       val bottomLeft = new Vector4f(x, y + maxHeight, 0, 1)
-      bottomLeft.transform(stack.last.pose)
+      bottomLeft.mul(stack.last.pose)
       val topRight = new Vector4f(x + maxWidth, y, 0, 1)
-      topRight.transform(stack.last.pose)
+      topRight.mul(stack.last.pose)
       ((bottomLeft.x * scale).floor.asInstanceOf[Int],
         (window.getHeight - bottomLeft.y * scale).floor.asInstanceOf[Int],
         (topRight.x * scale).ceil.asInstanceOf[Int],
@@ -100,7 +101,7 @@ object Document {
     while (segment != null) {
       val segmentHeight = segment.nextY(indent, maxWidth, renderer)
       if (currentY + segmentHeight >= minY && currentY <= maxY) {
-        val result = segment.render(stack, x, currentY, indent, maxWidth, renderer, mouseX, mouseY)
+        val result = segment.render(graphics, x, currentY, indent, maxWidth, renderer, mouseX, mouseY)
         hovered = hovered.orElse(result)
       }
       currentY += segmentHeight

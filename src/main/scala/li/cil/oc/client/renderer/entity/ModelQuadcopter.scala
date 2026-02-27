@@ -2,6 +2,7 @@ package li.cil.oc.client.renderer.entity
 
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
+import com.mojang.math.Axis
 import li.cil.oc.common.entity.Drone
 import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.model.EntityModel
@@ -9,11 +10,11 @@ import net.minecraft.client.model.geom.{ModelLayerLocation, ModelPart, PartPose}
 import net.minecraft.client.model.geom.builders.{CubeListBuilder, LayerDefinition, MeshDefinition}
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.world.phys.Vec3
-import com.mojang.math.Vector3f
+import org.joml.{Quaternionf, Vector3f}
 import net.minecraft.resources.ResourceLocation
 
 object ModelQuadcopter {
-  val LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("opencomputers", "drone"), "main")
+  val LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("opencomputers", "drone"), "main")
   
   def createLayer(): LayerDefinition = {
     val mesh = new MeshDefinition()
@@ -73,10 +74,13 @@ final class ModelQuadcopter(root: ModelPart) extends EntityModel[Drone] {
     if (direction.dot(up) < 0.99) {
       val rotationAxis = direction.cross(up)
       val relativeSpeed = drone.getDeltaMovement.length().toFloat / drone.maxVelocity
-      stack.mulPose(new Vector3f(rotationAxis).rotationDegrees(relativeSpeed * -20))
+      val degrees: Float = relativeSpeed * -20.0f
+      val rotation: Quaternionf = new Quaternionf().setAngleAxis(Math.toRadians(degrees).toFloat, rotationAxis.x(), rotationAxis.y(), rotationAxis.z())
+
+      stack.mulPose(rotation)
     }
 
-    stack.mulPose(Vector3f.YP.rotationDegrees(drone.bodyAngle))
+    stack.mulPose(Axis.YP.rotationDegrees(drone.bodyAngle))
     body.render(stack, builder, light, overlay, r, g, b, a)
 
     for (i <- 0 to 3) {

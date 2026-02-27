@@ -49,7 +49,7 @@ trait Inventory extends SimpleInventory {
     }
   }
 
-  override def getName: Component = new TranslatableComponent(Settings.namespace + "container." + inventoryName)
+  override def getName: Component = Component.translatable(Settings.namespace + "container." + inventoryName)
 
   protected def inventoryName: String = getClass.getSimpleName.toLowerCase
 

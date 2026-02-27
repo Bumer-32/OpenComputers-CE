@@ -1,24 +1,25 @@
 package li.cil.oc.common.block
 
-import java.util.List
-
+import li.cil.oc.{CreativeTab, OpenComputers}
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.level.block.state.BlockBehaviour.{Properties => Properties}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.item.context.{BlockPlaceContext => BlockItemUseContext}
 import net.minecraft.world.item.DyeColor
-import net.minecraft.world.item.{CreativeModeTab => ItemGroup}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.state.properties.EnumProperty
 import net.minecraft.world.level.block.state.{StateDefinition => StateContainer}
-import net.minecraft.core.NonNullList
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 
 object ChameliumBlock {
   final val Color = EnumProperty.create("color", classOf[DyeColor])
 }
 
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = OpenComputers.ID)
 class ChameliumBlock(props: Properties) extends SimpleBlock(props) {
   protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]): Unit = {
     builder.add(ChameliumBlock.Color)
@@ -34,9 +35,12 @@ class ChameliumBlock(props: Properties) extends SimpleBlock(props) {
   override def getStateForPlacement(ctx: BlockItemUseContext): BlockState =
     defaultBlockState.setValue(ChameliumBlock.Color, DyeColor.byId(ctx.getItemInHand.getDamageValue))
 
-  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]): Unit = {
-    val stack = new ItemStack(this, 1)
-    stack.setDamageValue(defaultBlockState.getValue(ChameliumBlock.Color).getId)
-    list.add(stack)
+  @SubscribeEvent
+  def onBuildCreativeTab(e: BuildCreativeModeTabContentsEvent): Unit = {
+    if (e.getTabKey == CreativeTab.CREATIVE_TABS.getRegistryKey) {
+      val stack = new ItemStack(this, 1)
+      stack.setDamageValue(defaultBlockState.getValue(ChameliumBlock.Color).getId)
+      e.accept(stack)
+    }
   }
 }

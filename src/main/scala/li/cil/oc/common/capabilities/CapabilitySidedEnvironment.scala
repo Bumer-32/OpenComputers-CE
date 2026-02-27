@@ -10,7 +10,7 @@ import net.minecraftforge.common.capabilities.{Capability, ICapabilityProvider, 
 import net.minecraftforge.common.util.{LazyOptional, NonNullSupplier}
 
 object CapabilitySidedEnvironment {
-  final val ProviderSidedEnvironment = new ResourceLocation(Mods.IDs.OpenComputers, "sided_environment")
+  final val ProviderSidedEnvironment = ResourceLocation.fromNamespaceAndPath(Mods.IDs.OpenComputers, "sided_environment")
 
   class Provider(val tileEntity: BlockEntity with SidedEnvironment) extends ICapabilitySerializable[CompoundTag] with NonNullSupplier[Provider] with SidedEnvironment {
     private val wrapper = LazyOptional.of(this)

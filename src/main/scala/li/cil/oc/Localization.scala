@@ -11,9 +11,9 @@ object Localization {
 
   def canLocalize(key: String): Boolean = Language.getInstance.has(key)
 
-  def localizeLater(key: String) = new TranslatableComponent(resolveKey(key).getOrElse(key))
+  def localizeLater(key: String) = Component.translatable(resolveKey(key).getOrElse(key))
 
-  def localizeLater(key: String, values: AnyRef*) = new TranslatableComponent(resolveKey(key).getOrElse(key), values: _*)
+  def localizeLater(key: String, values: AnyRef*) = Component.translatable(resolveKey(key).getOrElse(key), values: _*)
 
   def localizeImmediately(key: String, values: AnyRef*): String = {
     resolveKey(key).map(k => String.format(Language.getInstance.getOrDefault(k), values: _*).linesIterator.map(_.trim).mkString("\n")).getOrElse(key)
@@ -31,29 +31,29 @@ object Localization {
         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, localizeLater("gui.Analyzer.CopyToClipboard"))))
     }
 
-    def AddressCopied: TranslatableComponent = localizeLater("gui.Analyzer.AddressCopied")
+    def AddressCopied: Component = localizeLater("gui.Analyzer.AddressCopied")
 
-    def ChargerSpeed(value: Double): TranslatableComponent = localizeLater("gui.Analyzer.ChargerSpeed", (value * 100).toInt + "%")
+    def ChargerSpeed(value: Double): Component = localizeLater("gui.Analyzer.ChargerSpeed", (value * 100).toInt + "%")
 
-    def ComponentName(value: String): TranslatableComponent = localizeLater("gui.Analyzer.ComponentName", value)
+    def ComponentName(value: String): Component = localizeLater("gui.Analyzer.ComponentName", value)
 
-    def Components(count: Int, maxCount: Int): TranslatableComponent = localizeLater("gui.Analyzer.Components", count + "/" + maxCount)
+    def Components(count: Int, maxCount: Int): Component = localizeLater("gui.Analyzer.Components", count + "/" + maxCount)
 
-    def LastError(value: String): TranslatableComponent = localizeLater("gui.Analyzer.LastError", localizeLater(value))
+    def LastError(value: String): Component = localizeLater("gui.Analyzer.LastError", localizeLater(value))
 
-    def RobotOwner(owner: String): TranslatableComponent = localizeLater("gui.Analyzer.RobotOwner", owner)
+    def RobotOwner(owner: String): Component = localizeLater("gui.Analyzer.RobotOwner", owner)
 
-    def RobotName(name: String): TranslatableComponent = localizeLater("gui.Analyzer.RobotName", name)
+    def RobotName(name: String): Component = localizeLater("gui.Analyzer.RobotName", name)
 
-    def RobotXp(experience: Double, level: Int): TranslatableComponent = localizeLater("gui.Analyzer.RobotXp", f"$experience%.2f", level.toString)
+    def RobotXp(experience: Double, level: Int): Component = localizeLater("gui.Analyzer.RobotXp", f"$experience%.2f", level.toString)
 
-    def StoredEnergy(value: String): TranslatableComponent = localizeLater("gui.Analyzer.StoredEnergy", value)
+    def StoredEnergy(value: String): Component = localizeLater("gui.Analyzer.StoredEnergy", value)
 
-    def TotalEnergy(value: String): TranslatableComponent = localizeLater("gui.Analyzer.TotalEnergy", value)
+    def TotalEnergy(value: String): Component = localizeLater("gui.Analyzer.TotalEnergy", value)
 
-    def Users(list: Iterable[String]): TranslatableComponent = localizeLater("gui.Analyzer.Users", list.mkString(", "))
+    def Users(list: Iterable[String]): Component = localizeLater("gui.Analyzer.Users", list.mkString(", "))
 
-    def WirelessStrength(value: Double): TranslatableComponent = localizeLater("gui.Analyzer.WirelessStrength", value.toInt.toString)
+    def WirelessStrength(value: Double): Component = localizeLater("gui.Analyzer.WirelessStrength", value.toInt.toString)
   }
 
   object Assembler {
@@ -61,13 +61,13 @@ object Localization {
 
     def CollectResult: String = localizeImmediately("gui.Assembler.Collect")
 
-    def InsertCPU: TranslatableComponent = localizeLater("gui.Assembler.InsertCPU")
+    def InsertCPU: Component = localizeLater("gui.Assembler.InsertCPU")
 
-    def InsertRAM: TranslatableComponent = localizeLater("gui.Assembler.InsertRAM")
+    def InsertRAM: Component = localizeLater("gui.Assembler.InsertRAM")
 
     def Complexity(complexity: Int, maxComplexity: Int): Component = {
       val message = localizeLater("gui.Assembler.Complexity", complexity.toString, maxComplexity.toString)
-      if (complexity > maxComplexity) new TextComponent("§4").append(message)
+      if (complexity > maxComplexity) Component.literal("§4").append(message)
       else message
     }
 
@@ -75,25 +75,25 @@ object Localization {
 
     def Progress(progress: Double, timeRemaining: String): String = localizeImmediately("gui.Assembler.Progress", progress.toInt.toString, timeRemaining)
 
-    def Warning(name: String): Component = new TextComponent("§7- ").append(localizeLater("gui.Assembler.Warning." + name))
+    def Warning(name: String): Component = Component.literal("§7- ").append(localizeLater("gui.Assembler.Warning." + name))
 
-    def Warnings: TranslatableComponent = localizeLater("gui.Assembler.Warnings")
+    def Warnings: Component = localizeLater("gui.Assembler.Warnings")
   }
 
   object Chat {
-    def WarningLuaFallback: Component = new TextComponent("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningLuaFallback"))
+    def WarningLuaFallback: Component = Component.literal("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningLuaFallback"))
 
-    def WarningProjectRed: Component = new TextComponent("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningProjectRed"))
+    def WarningProjectRed: Component = Component.literal("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningProjectRed"))
 
-    def WarningRecipes: Component = new TextComponent("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningRecipes"))
+    def WarningRecipes: Component = Component.literal("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningRecipes"))
 
-    def WarningClassTransformer: Component = new TextComponent("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningClassTransformer"))
+    def WarningClassTransformer: Component = Component.literal("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningClassTransformer"))
 
-    def WarningLink(url: String): Component = new TextComponent("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningLink", url))
+    def WarningLink(url: String): Component = Component.literal("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningLink", url))
 
-    def InfoNewVersion(version: String): Component = new TextComponent("§aOpenComputers§f: ").append(localizeLater("gui.Chat.NewVersion", version))
+    def InfoNewVersion(version: String): Component = Component.literal("§aOpenComputers§f: ").append(localizeLater("gui.Chat.NewVersion", version))
 
-    def TextureName(name: String): Component = new TextComponent("§aOpenComputers§f: ").append(localizeLater("gui.Chat.TextureName", name))
+    def TextureName(name: String): Component = Component.literal("§aOpenComputers§f: ").append(localizeLater("gui.Chat.TextureName", name))
   }
 
   object Computer {
@@ -151,9 +151,9 @@ object Localization {
   }
 
   object Terminal {
-    def InvalidKey: TranslatableComponent = localizeLater("gui.Terminal.InvalidKey")
+    def InvalidKey: Component = localizeLater("gui.Terminal.InvalidKey")
 
-    def OutOfRange: TranslatableComponent = localizeLater("gui.Terminal.OutOfRange")
+    def OutOfRange: Component = localizeLater("gui.Terminal.OutOfRange")
   }
 
   object Tooltip {

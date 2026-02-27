@@ -4,12 +4,14 @@ import com.google.common.base.Charsets;
 import li.cil.oc.api.manual.ContentProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * Basic implementation of a content provider based on Minecraft's resource
@@ -41,12 +43,12 @@ public class ResourceContentProvider implements ContentProvider {
     @Override
     public Iterable<String> getContent(String path) {
         final String resourcePath = basePath + (path.startsWith("/") ? path.substring(1) : path);
-        final ResourceLocation location = new ResourceLocation(resourceDomain, resourcePath.toLowerCase());
-        InputStream is = null;
-        try {
-            is = Minecraft.getInstance().getResourceManager().getResource(location).getInputStream();
+        final ResourceLocation location = ResourceLocation.fromNamespaceAndPath(resourceDomain, resourcePath.toLowerCase());
+        Optional<Resource> res = Minecraft.getInstance().getResourceManager().getResource(location);
+        if (res.isEmpty()) return null;
+        try (InputStream is = res.get().open()) {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8));
-            final ArrayList<String> lines = new ArrayList<String>();
+            final ArrayList<String> lines = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
                 lines.add(line);
@@ -54,13 +56,6 @@ public class ResourceContentProvider implements ContentProvider {
             return lines;
         } catch (Throwable ignored) {
             return null;
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException ignored) {
-                }
-            }
         }
     }
 }

@@ -6,6 +6,7 @@ import li.cil.oc.util.BlockPosHelper
 import li.cil.oc.{Constants, Settings, api}
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.server.level.{ServerLevel => ServerWorld}
+import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
@@ -61,7 +62,7 @@ class RobotAfterimage(props: Properties) extends SimpleBlock(props) with traits.
     }
   }
 
-  override def tick(state: BlockState, world: ServerWorld, pos: BlockPos, rand: Random): Unit = {
+  override def tick(state: BlockState, world: ServerWorld, pos: BlockPos, rand: RandomSource): Unit = {
     world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState)
   }
 

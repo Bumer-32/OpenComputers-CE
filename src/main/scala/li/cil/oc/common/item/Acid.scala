@@ -1,7 +1,5 @@
 package li.cil.oc.common.item
 
-import javax.annotation.Nonnull
-
 import li.cil.oc.api
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties

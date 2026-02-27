@@ -6,7 +6,6 @@ import li.cil.oc.Constants
 import li.cil.oc.api
 import li.cil.oc.client.Textures
 import li.cil.oc.common.Tier
-import li.cil.oc.common.block
 import li.cil.oc.common.block.Screen
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.Color
@@ -18,18 +17,22 @@ import net.minecraft.client.renderer.block.model.ItemOverrides
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
-import net.minecraftforge.client.model.data.IModelData
+import net.minecraft.util.RandomSource
+import net.minecraft.client.renderer.RenderType
+import net.minecraftforge.client.model.data.{ModelData, ModelProperty}
 
 import scala.collection.JavaConverters.seqAsJavaList
 import scala.collection.convert.ImplicitConversionsToJava._
 
 object ScreenModel extends SmartBlockModelBase {
+  val SCREEN_PROPERTY = new ModelProperty[tileentity.Screen]()
+
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] = {
     val safeSide = if (side != null) side else Direction.SOUTH
-    data match {
-      case screen: tileentity.Screen =>
+    Option(data.get(SCREEN_PROPERTY)) match {
+      case Some(screen) =>
         val facing = screen.toLocal(safeSide)
 
         val (x, y) = screen.localPosition
@@ -71,7 +74,7 @@ object ScreenModel extends SmartBlockModelBase {
               Textures.Block.Screen.Multi(pitch)(py)(px)(facing.get3DDataValue)
           }
 
-        seqAsJavaList(Seq(bakeQuad(safeSide, Textures.getSprite(texture), Some(screen.getColor), rotation)))
+        java.util.List.of(bakeQuad(safeSide, Textures.getSprite(texture), Some(screen.getColor), rotation))
       case _ => super.getQuads(state, safeSide, rand)
     }
   }
@@ -84,13 +87,13 @@ object ScreenModel extends SmartBlockModelBase {
       case _ => Color.byTier(Tier.One)
     }
 
-    override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] = {
+    override def getQuads(state: BlockState, side: Direction, rand: RandomSource): util.List[BakedQuad] = {
       val result =
         if (side == Direction.NORTH || side == null)
           Textures.Block.Screen.SingleFront(0)
         else
           Textures.Block.Screen.Single(side.ordinal())
-      seqAsJavaList(Seq(bakeQuad(if (side != null) side else Direction.SOUTH, Textures.getSprite(result), Some(Color.rgbValues(color)), 0)))
+      java.util.List.of(bakeQuad(if (side != null) side else Direction.SOUTH, Textures.getSprite(result), Some(Color.rgbValues(color)), 0))
     }
   }
 

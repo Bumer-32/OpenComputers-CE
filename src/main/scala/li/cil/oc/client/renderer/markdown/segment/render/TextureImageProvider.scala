@@ -9,11 +9,11 @@ import net.minecraft.resources.ResourceLocation
 object TextureImageProvider extends ImageProvider {
   val ManualMissingItem = {
     val tex = Textures.GUI.ManualMissingItem
-    new ResourceLocation(tex.getNamespace, s"textures/${tex.getPath}.png")
+    ResourceLocation.fromNamespaceAndPath(tex.getNamespace, s"textures/${tex.getPath}.png")
   }
 
   override def getImage(data: String): ImageRenderer = {
-    try new TextureImageRenderer(new ResourceLocation(data.toLowerCase)) catch {
+    try new TextureImageRenderer(ResourceLocation.withDefaultNamespace(data.toLowerCase)) catch {
       case t: Throwable => new TextureImageRenderer(ManualMissingItem) with InteractiveImageRenderer {
         override def getTooltip(tooltip: String): String = "oc:gui.Manual.Warning.ImageMissing"
 

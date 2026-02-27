@@ -98,8 +98,10 @@ repositories {
         }
     }
     maven {
-        name "SquidDev" /* CC: Tweaked */
-        url "https://squiddev.cc/maven/"
+        url "https://maven.squiddev.cc"
+        content {
+            includeGroup "cc.tweaked"
+        }
     }
     maven {
         url "https://api.modrinth.com/maven"
@@ -159,9 +161,9 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    compileOnly(group: 'org.scala-lang', name: 'scala-library', version: "2.13.10")
+    compileOnly(group: 'org.scala-lang', name: 'scala-library', version: "2.13.12")
     compileOnly(group: 'org.typelevel', name: "cats-core_2.13", version: '2.8.1-kotori')
-    runtimeOnly(group: "com.kotori316", name: "ScalableCatsForce".toLowerCase(), version: "2.13.10-build-12", classifier: "with-library") {
+    runtimeOnly(group: "com.kotori316", name: "ScalableCatsForce".toLowerCase(), version: "3.3.1-build-0", classifier: "with-library") {
         transitive(false)
     }
 
@@ -177,27 +179,27 @@ dependencies {
 
     def jeiSlug = "jei-${minecraft_version}"
 
-    compileOnly fg.deobf("curse.maven:tis-3d-238603:${tis3d_version}")
-    compileOnly fg.deobf("curse.maven:jade-324717:${jade_version}")
-    compileOnly fg.deobf("org.squiddev:cc-tweaked-${minecraft_version}:${cct_version}")
-
-    runtimeOnly fg.deobf("maven.modrinth:modernfix:${modernfix_version}")
+    compileOnly "curse.maven:tis-3d-238603:${tis3d_version}"
+    compileOnly "curse.maven:jade-324717:${jade_version}"
+    compileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-core-api:${cct_version}")
+    compileOnly(fg.deobf("cc.tweaked:cc-tweaked-${minecraft_version}-forge-api:${cct_version}"))
+    runtimeOnly(fg.deobf("cc.tweaked:cc-tweaked-${minecraft_version}-forge:${cct_version}"))
+    runtimeOnly "maven.modrinth:modernfix:${modernfix_version}"
     
     // CoFH Core & Thermal
-    compileOnly fg.deobf("curse.maven:cofh-core-69162:4801048")
-    compileOnly fg.deobf("curse.maven:thermal-foundation-222880:4788649")
+    compileOnly "curse.maven:cofh-core-69162:4801048"
+    compileOnly "curse.maven:thermal-foundation-222880:4788649"
 
-    compileOnly fg.deobf("appeng:appliedenergistics2:${ae2_version}:api")
-    compileOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:api")
-    compileOnly fg.deobf("codechicken:CBMultipart:${cbmultipart_version}:universal")
-    compileOnly fg.deobf("codechicken:ChickenASM:${casm_version}")
-    runtimeOnly fg.deobf("mezz.jei:${jeiSlug}-forge:${jei_version}")
-    compileOnly fg.deobf("mezz.jei:${jeiSlug}-forge-api:${jei_version}")
-    compileOnly fg.deobf("codechicken:CodeChickenLib:${ccl_version}:universal")
-    compileOnly fg.deobf("codechicken:EnderStorage:${enderstorage_version}:universal")
-    compileOnly fg.deobf("mrtjp:ProjectRed:${projred_version}:core")
+    compileOnly "appeng:appliedenergistics2-forge:${ae2_version}:api"
+    compileOnly "mekanism:Mekanism:${mekanism_version}:api"
+    runtimeOnly "mezz.jei:${jeiSlug}-forge:${jei_version}"
+    compileOnly "mezz.jei:${jeiSlug}-forge-api:${jei_version}"
+    compileOnly "curse.maven:cb-multipart-258426:5292585"
+    compileOnly "curse.maven:codechicken-lib-1-8-242818:5753868"
+    compileOnly "curse.maven:ender-storage-1-8-245174:5292573"
+    compileOnly "mrtjp:ProjectRed:${projred_version}:core"
 
-    testImplementation "org.scala-lang:scala3-library_3:3.3.7"
+    testImplementation "org.scala-lang:scala-library:2.13.12"
     testImplementation "org.scalatest:scalatest_3:3.2.18"
     testImplementation "org.scalatestplus:junit-4-13_3:3.2.18.0"
     testImplementation "junit:junit:4.13.2"

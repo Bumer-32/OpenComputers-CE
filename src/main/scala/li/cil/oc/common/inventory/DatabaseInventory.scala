@@ -9,7 +9,6 @@ import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
-import net.minecraft.network.chat.TextComponent
 
 trait DatabaseInventory extends ItemStackInventory with MenuProvider {
   def tier: Int = DriverUpgradeDatabase.tier(container)
@@ -24,7 +23,7 @@ trait DatabaseInventory extends ItemStackInventory with MenuProvider {
 
   override def canPlaceItem(slot: Int, stack: ItemStack) = stack != container
 
-  override def getDisplayName = TextComponent.EMPTY
+  override def getDisplayName = Component.empty()
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new DatabaseContainer(id, playerInventory, container, this, tier)

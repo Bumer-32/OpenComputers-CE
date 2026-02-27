@@ -7,11 +7,12 @@ import li.cil.oc.client.{PacketSender => ClientPacketSender}
 import li.cil.oc.common.menu
 import net.minecraft.client.Minecraft
 
-import scala.collection.JavaConverters.asJavaCollection
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.network.chat.Component
 import com.mojang.blaze3d.vertex.PoseStack
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
+import scala.jdk.CollectionConverters._
 
 class Server(state: menu.Server, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name)
@@ -21,10 +22,10 @@ class Server(state: menu.Server, playerInventory: Inventory, name: Component)
 
   override def lockedStack = inventoryContainer.stack
 
-  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float) = {
+  override def render(graphics: GuiGraphics, mouseX: Int, mouseY: Int, dt: Float) = {
     powerButton.visible = !inventoryContainer.isItem
     powerButton.toggled = inventoryContainer.isRunning
-    super.render(stack, mouseX, mouseY, dt)
+    super.render(graphics, mouseX, mouseY, dt)
   }
 
   override protected def init() = {
@@ -37,18 +38,17 @@ class Server(state: menu.Server, playerInventory: Inventory, name: Component)
     addRenderableWidget(powerButton)
   }
 
-  override def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int) = {
-    super.drawSecondaryForegroundLayer(stack, mouseX, mouseY)
+  override def drawSecondaryForegroundLayer(graphics: GuiGraphics, mouseX: Int, mouseY: Int) = {
+    super.drawSecondaryForegroundLayer(graphics, mouseX, mouseY)
     if (powerButton.isMouseOver(mouseX, mouseY)) {
-      val tooltip = new java.util.ArrayList[String]
-      tooltip.addAll(asJavaCollection(if (inventoryContainer.isRunning) Localization.Computer.TurnOff.linesIterator.toIterable else Localization.Computer.TurnOn.linesIterator.toIterable))
-      copiedDrawHoveringText(stack, tooltip, mouseX - leftPos, mouseY - topPos, font)
+      val tooltip = new java.util.ArrayList[Component]
+      tooltip.addAll(if (inventoryContainer.isRunning) Localization.Computer.TurnOff.linesIterator.map(Component.literal).toList.asJava else Localization.Computer.TurnOn.linesIterator.map(Component.literal).toList.asJava)
+      graphics.renderComponentTooltip(font, tooltip, mouseX - leftPos, mouseY - topPos)
     }
   }
 
-  override def drawSecondaryBackgroundLayer(stack: PoseStack) = {
+  override def drawSecondaryBackgroundLayer(graphics: GuiGraphics) = {
     RenderSystem.setShaderColor(1, 1, 1, 1.0f)
-    Textures.bind(Textures.GUI.Server)
-    blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
+    graphics.blit(Textures.GUI.Server, leftPos, topPos, 0, 0, imageWidth, imageHeight)
   }
 }

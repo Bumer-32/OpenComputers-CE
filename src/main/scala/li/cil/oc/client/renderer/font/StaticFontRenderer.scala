@@ -2,7 +2,7 @@ package li.cil.oc.client.renderer.font
 
 import com.google.common.base.Charsets
 import com.mojang.blaze3d.vertex.VertexConsumer
-import com.mojang.math.Matrix4f
+import org.joml.Matrix4f
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.client.Textures
@@ -15,15 +15,20 @@ import scala.io.Source
 class StaticFontRenderer extends TextureFontRenderer {
   protected val (chars, charWidth, charHeight) = try {
     val manager = Minecraft.getInstance.getResourceManager
-    val location = new ResourceLocation(Settings.resourceDomain, "textures/font/chars.txt")
-    val is = manager.getResource(location).getInputStream
-    val lines = Source.fromInputStream(is)(Charsets.UTF_8).getLines()
-    val charStr = lines.next()
-    val (w, h) = if (lines.hasNext) {
-      val size = lines.next().split(" ", 2)
-      (size(0).toInt, size(1).toInt)
-    } else (10, 18)
-    (charStr, w, h)
+    val location = ResourceLocation.fromNamespaceAndPath(Settings.resourceDomain, "textures/font/chars.txt")
+    val optRes = manager.getResource(location)
+    if (optRes.isPresent) {
+      val is = optRes.get.open
+      val lines = Source.fromInputStream(is)(Charsets.UTF_8).getLines()
+      val charStr = lines.next()
+      val (w, h) = if (lines.hasNext) {
+        val size = lines.next().split(" ", 2)
+        (size(0).toInt, size(1).toInt)
+      } else (10, 18)
+      (charStr, w, h)
+    } else {
+      (basicChars, 10, 18)
+    }
   } catch {
     case t: Throwable =>
       OpenComputers.log.warn("Failed reading font metadata, using defaults.", t)

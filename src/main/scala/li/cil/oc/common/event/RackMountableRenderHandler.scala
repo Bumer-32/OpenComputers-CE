@@ -1,24 +1,20 @@
 package li.cil.oc.common.event
 
-import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.math.Axis
 import li.cil.oc.Constants
 import li.cil.oc.api
 import li.cil.oc.api.event.RackMountableRenderEvent
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.client.renderer.tileentity.RenderUtil
-import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import org.lwjgl.opengl.GL11
-import org.lwjgl.opengl.GL13
-import com.mojang.math.Vector3f
 import net.minecraft.client.renderer.block.model.ItemTransforms
-import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.{ItemDisplayContext, ItemStack}
 import net.minecraft.nbt.Tag
 import net.minecraft.resources.ResourceLocation
+import org.joml.Vector3f
 
 object RackMountableRenderHandler {
   lazy val DiskDriveMountable = api.Items.get(Constants.ItemName.DiskDriveMountable)
@@ -44,16 +40,17 @@ object RackMountableRenderHandler {
           matrix.pushPose()
           RenderState.mirrorScale(matrix, 1, -1, 1)
           matrix.translate(10 / 16f, -(3.5f + e.mountable * 3f) / 16f, -2 / 16f)
-          matrix.mulPose(Vector3f.XN.rotationDegrees(90))
+          matrix.mulPose(Axis.XN.rotationDegrees(90))
           matrix.scale(0.5f, 0.5f, 0.5f)
 
           Minecraft.getInstance.getItemRenderer.renderStatic(
             stack,                              
-            ItemTransforms.TransformType.FIXED, 
+            ItemDisplayContext.FIXED,
             e.light,                            
             e.overlay,                          
             matrix,                             
-            e.typeBuffer,                       
+            e.typeBuffer,
+            null,
             0                                   
           )
           matrix.popPose()

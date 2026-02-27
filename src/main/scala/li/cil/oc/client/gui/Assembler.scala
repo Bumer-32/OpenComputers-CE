@@ -2,7 +2,7 @@ package li.cil.oc.client.gui
 
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
-import li.cil.oc.client.{PacketSender => ClientPacketSender, Textures}
+import li.cil.oc.client.{Textures, PacketSender => ClientPacketSender}
 import li.cil.oc.client.gui.widget.ProgressBar
 import li.cil.oc.common.menu
 import li.cil.oc.common.menu.ComponentSlot
@@ -12,7 +12,8 @@ import net.minecraft.world.entity.player.Inventory
 import net.minecraft.network.chat.Component
 import net.minecraft.world.inventory.Slot
 import net.minecraft.client.gui.components.Button
-import com.mojang.blaze3d.vertex.PoseStack
+import net.minecraft.client.gui.GuiGraphics
+
 import scala.jdk.CollectionConverters._
 
 class Assembler(val state: menu.Assembler, playerInventory: Inventory, name: Component)
@@ -42,23 +43,21 @@ class Assembler(val state: menu.Assembler, playerInventory: Inventory, name: Com
 
   private def canBuild = !inventoryContainer.isAssembling && validate.exists(_._1)
 
-  override protected def init() = {
+  override protected def init(): Unit = {
     super.init()
-    runButton = new ImageButton(leftPos + 7, topPos + 89, 18, 18, new Button.OnPress {
-      override def onPress(b: Button) = if (canBuild) ClientPacketSender.sendRobotAssemblerStart(inventoryContainer)
-    }, Textures.GUI.ButtonRun, canToggle = true)
+    runButton = new ImageButton(leftPos + 7, topPos + 89, 18, 18, (b: Button) => if (canBuild) ClientPacketSender.sendRobotAssemblerStart(inventoryContainer), Textures.GUI.ButtonRun, canToggle = true)
     addRenderableWidget(runButton)
   }
 
-  override protected def renderLabels(stack: PoseStack, mouseX: Int, mouseY: Int): Unit = {
-    drawSecondaryForegroundLayer(stack, mouseX, mouseY)
+  override protected def renderLabels(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {
+    drawSecondaryForegroundLayer(guiGraphics, mouseX, mouseY)
 
     for (slot <- 0 until menu.slots.size()) {
-      drawSlotHighlight(stack, menu.getSlot(slot))
+      drawSlotHighlight(guiGraphics, menu.getSlot(slot))
     }
   }
 
-  override def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int): Unit = {
+  override def drawSecondaryForegroundLayer(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {
     RenderState.pushAttrib()
     if (!inventoryContainer.isAssembling) {
       val message =
@@ -70,42 +69,40 @@ class Assembler(val state: menu.Assembler, playerInventory: Inventory, name: Com
           case _ if inventoryContainer.getSlot(0).hasItem => Localization.Assembler.CollectResult
           case _ => ""
         }
-      font.draw(stack, message, 30, 94, 0x404040)
+      guiGraphics.drawString(font, message, 30, 94, 0x404040)
       if (runButton.isMouseOver(mouseX, mouseY)) {
-        val tooltip = new java.util.ArrayList[String]
-        tooltip.add(Localization.Assembler.Run)
+        val tooltip = new java.util.ArrayList[Component]
+        tooltip.add(Component.literal(Localization.Assembler.Run))
         info.foreach {
           case (valid, _, warnings) => if (valid && warnings.length > 0) {
-            tooltip.addAll(warnings.map(_.getString).toList.asJava)
+            warnings.foreach(w => tooltip.add(w))
           }
         }
-        copiedDrawHoveringText(stack, tooltip, mouseX - leftPos, mouseY - topPos, font)
+        guiGraphics.renderComponentTooltip(font, tooltip, mouseX - leftPos, mouseY - topPos)
       }
     }
-    else if (isPointInRegion(progress.x, progress.y, progress.width, progress.height, mouseX - leftPos, mouseY - topPos)) {
-      val tooltip = new java.util.ArrayList[String]
+    else if (isHovering(progress.x, progress.y, progress.width, progress.height, mouseX - leftPos, mouseY - topPos)) {
+      val tooltip = new java.util.ArrayList[Component]
       val timeRemaining = formatTime(inventoryContainer.assemblyRemainingTime)
-      tooltip.add(Localization.Assembler.Progress(inventoryContainer.assemblyProgress, timeRemaining))
-      copiedDrawHoveringText(stack, tooltip, mouseX - leftPos, mouseY - topPos, font)
+      tooltip.add(Component.literal(Localization.Assembler.Progress(inventoryContainer.assemblyProgress, timeRemaining)))
+      guiGraphics.renderComponentTooltip(font, tooltip, mouseX - leftPos, mouseY - topPos)
     }
     RenderState.popAttrib()
   }
 
   private def formatTime(seconds: Int) = {
-    // Assembly times should not / rarely exceed one hour, so this is good enough.
     if (seconds < 60) f"0:$seconds%02d"
     else f"${seconds / 60}:${seconds % 60}%02d"
   }
 
-  override protected def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int): Unit = {
-    RenderSystem.setShaderColor(1, 1, 1, 1) // Required under Linux.
-    Textures.bind(Textures.GUI.RobotAssembler)
-    blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
+  override protected def renderBg(guiGraphics: GuiGraphics, dt: Float, mouseX: Int, mouseY: Int): Unit = {
+    RenderSystem.setShaderColor(1, 1, 1, 1)
+    guiGraphics.blit(Textures.GUI.RobotAssembler, leftPos, topPos, 0, 0, imageWidth, imageHeight)
     if (inventoryContainer.isAssembling) progress.level = inventoryContainer.assemblyProgress / 100.0
     else progress.level = 0
-    drawWidgets(stack)
-    drawInventorySlots(stack)
+    drawWidgets(guiGraphics)
+    drawInventorySlots(guiGraphics)
   }
 
-  override protected def drawDisabledSlot(stack: PoseStack, slot: ComponentSlot): Unit = {}
+  override protected def drawDisabledSlot(guiGraphics: GuiGraphics, slot: ComponentSlot): Unit = {}
 }

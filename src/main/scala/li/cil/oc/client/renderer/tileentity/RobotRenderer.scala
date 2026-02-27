@@ -14,22 +14,19 @@ import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
+import com.mojang.math.Axis
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer._
-import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType
 import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer => TileEntityRenderer}
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
-import net.minecraft.world.item.Items
-import net.minecraft.world.item.BlockItem
-import net.minecraft.world.item.ItemStack
-import net.minecraft.core.{BlockPos, Direction, Vec3i}
+import net.minecraft.world.item.{BlockItem, ItemDisplayContext, ItemStack, Items}
+import net.minecraft.core.{Direction, Vec3i}
 import net.minecraft.world.phys.Vec3
-import com.mojang.math.Vector3f
-import com.mojang.math.Matrix3f
 import net.minecraft.ChatFormatting
+import net.minecraft.client.gui.Font
 import net.minecraftforge.client.ForgeHooksClient
 import net.minecraftforge.common.MinecraftForge
+import org.joml.Matrix3f
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -39,19 +36,17 @@ object RobotRenderer extends BlockEntityRendererProvider[tileentity.RobotProxy] 
   override def create(ctx: BlockEntityRendererProvider.Context): RobotRenderer =
     new RobotRenderer()
 
-  // 1.18.2: コンストラクタ引数が不要になったため null 渡し不要
   private val instance = new RobotRenderer()
 
   def renderChassis(
                      stack: PoseStack,
-                     buffer: MultiBufferSource,  // 1.18.2: IRenderTypeBuffer → MultiBufferSource
+                     buffer: MultiBufferSource,
                      light: Int,
                      offset: Double = 0,
                      isRunningOverride: Boolean = false
                    ): Unit = instance.renderChassis(stack, buffer, light, null, offset, isRunningOverride)
 }
 
-// 1.18.2: BlockEntityRenderer はインターフェースになったためコンストラクタ引数不要
 class RobotRenderer extends TileEntityRenderer[tileentity.RobotProxy] {
   private val mountPoints = new Array[RobotRenderEvent.MountPoint](7)
 
@@ -160,32 +155,32 @@ class RobotRenderer extends TileEntityRenderer[tileentity.RobotProxy] {
     val offset = if (running) 0 else -0.06f
 
     // Left top.
-    mountPoints(0).offset.setX(0); mountPoints(0).offset.setY(0.2f);  mountPoints(0).offset.setZ(0.24f)
-    mountPoints(0).rotation.setX(0); mountPoints(0).rotation.setY(1); mountPoints(0).rotation.setZ(0); mountPoints(0).rotation.setW(90)
+    mountPoints(0).offset.set(0, 0.2f, 0.24f)
+    mountPoints(0).rotation.set(0, 1, 0, 90)
 
     // Right top.
-    mountPoints(1).offset.setX(0); mountPoints(1).offset.setY(0.2f);  mountPoints(1).offset.setZ(0.24f)
-    mountPoints(1).rotation.setX(0); mountPoints(1).rotation.setY(1); mountPoints(1).rotation.setZ(0); mountPoints(1).rotation.setW(-90)
+    mountPoints(1).offset.set(0, 0.2f, 0.24f)
+    mountPoints(1).rotation.set(0, 1, 0, -90)
 
     // Back top.
-    mountPoints(2).offset.setX(0); mountPoints(2).offset.setY(0.2f);  mountPoints(2).offset.setZ(0.24f)
-    mountPoints(2).rotation.setX(0); mountPoints(2).rotation.setY(1); mountPoints(2).rotation.setZ(0); mountPoints(2).rotation.setW(180)
+    mountPoints(2).offset.set(0, 0.2f, 0.24f)
+    mountPoints(2).rotation.set(0, 1, 0, 180)
 
     // Left bottom.
-    mountPoints(3).offset.setX(0); mountPoints(3).offset.setY(-0.2f - offset); mountPoints(3).offset.setZ(0.24f)
-    mountPoints(3).rotation.setX(0); mountPoints(3).rotation.setY(1); mountPoints(3).rotation.setZ(0); mountPoints(3).rotation.setW(90)
+    mountPoints(3).offset.set(0, -0.2f - offset, 0.24f)
+    mountPoints(3).rotation.set(0, 1, 0, 90)
 
     // Right bottom.
-    mountPoints(4).offset.setX(0); mountPoints(4).offset.setY(-0.2f - offset); mountPoints(4).offset.setZ(0.24f)
-    mountPoints(4).rotation.setX(0); mountPoints(4).rotation.setY(1); mountPoints(4).rotation.setZ(0); mountPoints(4).rotation.setW(-90)
+    mountPoints(4).offset.set(0, -0.2f - offset, 0.24f)
+    mountPoints(4).rotation.set(0, 1, 0, -90)
 
     // Back bottom.
-    mountPoints(5).offset.setX(0); mountPoints(5).offset.setY(-0.2f - offset); mountPoints(5).offset.setZ(0.24f)
-    mountPoints(5).rotation.setX(0); mountPoints(5).rotation.setY(1); mountPoints(5).rotation.setZ(0); mountPoints(5).rotation.setW(180)
+    mountPoints(5).offset.set(0, -0.2f - offset, 0.24f)
+    mountPoints(5).rotation.set(0, 1, 0, 180)
 
     // Front bottom.
-    mountPoints(6).offset.setX(0); mountPoints(6).offset.setY(-0.2f - offset); mountPoints(6).offset.setZ(0.24f)
-    mountPoints(6).rotation.setX(0); mountPoints(6).rotation.setY(1); mountPoints(6).rotation.setZ(0); mountPoints(6).rotation.setW(0)
+    mountPoints(6).offset.set(0, -0.2f - offset, 0.24f)
+    mountPoints(6).rotation.set(0, 1, 0, 0)
   }
 
   def renderChassis(
@@ -290,14 +285,14 @@ class RobotRenderer extends TileEntityRenderer[tileentity.RobotProxy] {
 
     if (robot.isAnimatingTurn) {
       val remaining = (robot.animationTicksLeft - f) / robot.animationTicksTotal.toFloat
-      val axis      = if (robot.turnAxis < 0) Vector3f.YN else Vector3f.YP
+      val axis      = if (robot.turnAxis < 0) Axis.YN else Axis.YP
       matrix.mulPose(axis.rotationDegrees(90 * remaining))
     }
 
     robot.yaw match {
-      case Direction.WEST  => matrix.mulPose(Vector3f.YP.rotationDegrees(-90))
-      case Direction.NORTH => matrix.mulPose(Vector3f.YP.rotationDegrees(180))
-      case Direction.EAST  => matrix.mulPose(Vector3f.YP.rotationDegrees(90))
+      case Direction.WEST  => matrix.mulPose(Axis.YP.rotationDegrees(-90))
+      case Direction.NORTH => matrix.mulPose(Axis.YP.rotationDegrees(180))
+      case Direction.EAST  => matrix.mulPose(Axis.YP.rotationDegrees(90))
       case _               => // No yaw.
     }
 
@@ -322,39 +317,38 @@ class RobotRenderer extends TileEntityRenderer[tileentity.RobotProxy] {
               val cycles              = math.max(robot.animationTicksTotal / wantedTicksPerCycle, 1)
               val ticksPerCycle       = robot.animationTicksTotal / cycles
               val remaining           = (robot.animationTicksLeft - f) / ticksPerCycle.toDouble
-              matrix.mulPose(Vector3f.XP.rotationDegrees((Math.sin((remaining - remaining.toInt) * Math.PI) * 45).toFloat))
+              matrix.mulPose(Axis.XP.rotationDegrees((Math.sin((remaining - remaining.toInt) * Math.PI) * 45).toFloat))
             }
 
             val item = stack.getItem
             if (item.isInstanceOf[BlockItem]) {
-              matrix.mulPose(Vector3f.XP.rotationDegrees(180.0F))
-              matrix.mulPose(Vector3f.YP.rotationDegrees(90.0F))
+              matrix.mulPose(Axis.XP.rotationDegrees(180.0F))
+              matrix.mulPose(Axis.YP.rotationDegrees(90.0F))
               val scale = 0.625F
               matrix.scale(scale, scale, scale)
             } else if (item == Items.BOW) {
               matrix.translate(0, -3f / 16f, -0.125F)
-              matrix.mulPose(Vector3f.ZP.rotationDegrees(170.0F))
+              matrix.mulPose(Axis.ZP.rotationDegrees(170.0F))
               val scale = 0.625F
               matrix.scale(scale, scale, scale)
             } else {
               matrix.translate(1f / 16f, 1f / 16f, -2f / 16f)
               val scale = 0.625F
               matrix.scale(scale, scale, scale)
-              matrix.mulPose(Vector3f.ZP.rotationDegrees(180.0F))
+              matrix.mulPose(Axis.ZP.rotationDegrees(180.0F))
             }
 
-            // 1.18.2: renderStatic の引数はそのまま（シグネチャ同一）
             itemRenderer.renderStatic(
               Minecraft.getInstance.player,
               stack,
-              TransformType.THIRD_PERSON_RIGHT_HAND,
+              ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
               false,
               matrix,
               buffer,
               proxy.getLevel,
               light,
               overlay,
-              proxy.getBlockPos.asLong.toInt  // entity ID の代わりにブロック座標ハッシュ
+              proxy.getBlockPos.asLong.toInt
             )
           } catch {
             case e: Throwable =>
@@ -419,11 +413,16 @@ class RobotRenderer extends TileEntityRenderer[tileentity.RobotProxy] {
       matrix.mulPose(Minecraft.getInstance.getEntityRenderDispatcher.cameraOrientation)
       RenderState.mirrorScale(matrix, -scale, -scale, scale)
 
-      // 1.18.2: TextFormatting → ChatFormatting（同ファイル内で既にインポート済み）
       f.drawInBatch(
         (if (EventHandler.isItTime) ChatFormatting.OBFUSCATED.toString else "") + name,
-        -halfWidth, 0, -1, false,
-        matrix.last.pose, buffer, false, bgColor, light
+        -halfWidth, 0f,
+        -1,
+        false,
+        matrix.last.pose,
+        buffer,
+        Font.DisplayMode.NORMAL, // 影なし指定
+        bgColor,
+        light
       )
     }
 

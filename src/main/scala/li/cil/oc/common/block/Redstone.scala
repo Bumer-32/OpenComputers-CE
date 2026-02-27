@@ -10,7 +10,6 @@ import net.minecraft.world.item.{TooltipFlag => ITooltipFlag}
 import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.network.chat.{Component => ITextComponent}
-import net.minecraft.network.chat.{TextComponent => StringTextComponent}
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraft.world.level.{Level => World}
 import net.minecraft.world.level.block.state.BlockState
@@ -22,7 +21,7 @@ class Redstone(props: Properties) extends RedstoneAware(props) {
     super.tooltipTail(stack, world, tooltip, advanced)
     // todo more generic way for redstone mods to provide lines
     if (Mods.ProjectRedTransmission.isModAvailable) {
-      for (curr <- Tooltip.get("redstonecard.ProjectRed")) tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      for (curr <- Tooltip.get("redstonecard.ProjectRed")) tooltip.add(ITextComponent.literal(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 

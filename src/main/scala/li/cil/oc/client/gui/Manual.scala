@@ -9,21 +9,17 @@ import li.cil.oc.client.renderer.markdown.segment.InteractiveSegment
 import li.cil.oc.client.renderer.markdown.segment.Segment
 import li.cil.oc.client.{Manual => ManualAPI}
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.screens
+import net.minecraft.client.gui.{GuiGraphics, screens}
 import net.minecraft.client.gui.components.Button
 import org.lwjgl.glfw.GLFW
 
 import scala.jdk.CollectionConverters._
-import scala.collection.JavaConverters.{asJavaIterable, seqAsJavaList}
-import scala.collection.convert.ImplicitConversionsToScala._
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.client.KeyMapping
 import com.mojang.blaze3d.vertex.PoseStack
-import net.minecraft.network.chat.FormattedText
 import com.mojang.blaze3d.platform.InputConstants
 import net.minecraft.network.chat.Component
 
-class Manual extends screens.Screen(TextComponent.EMPTY) with traits.Window {
+class Manual extends screens.Screen(Component.empty()) with traits.Window {
   final val documentMaxWidth = 230
   final val documentMaxHeight = 176
   final val scrollPosX = 244
@@ -64,7 +60,7 @@ class Manual extends screens.Screen(TextComponent.EMPTY) with traits.Window {
   def refreshPage(): Unit = {
     val content = Option(api.Manual.contentFor(ManualAPI.history.top.path)).
       getOrElse(Iterable("Document not found: " + ManualAPI.history.top.path).asJava)
-    document = Document.parse(content)
+    document = Document.parse(content.asScala)
     documentHeight = Document.height(document, documentMaxWidth, font)
     scrollTo(offset)
   }
@@ -107,29 +103,30 @@ class Manual extends screens.Screen(TextComponent.EMPTY) with traits.Window {
     refreshPage()
   }
 
-  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
-    super.render(stack, mouseX, mouseY, dt)
+  override def render(graphics: GuiGraphics, mouseX: Int, mouseY: Int, dt: Float): Unit = {
+    super.render(graphics, mouseX, mouseY, dt)
 
     scrollButton.active = canScroll
     scrollButton.hoverOverride = isScrolling
 
+    val stack = graphics.pose
     for ((tab, i) <- ManualAPI.tabs.zipWithIndex if i < maxTabsPerSide) {
       val button = renderables.get(i).asInstanceOf[ImageButton]
       stack.pushPose()
-      stack.translate(button.x + 5, button.y + 5, getBlitOffset)
+      stack.translate(button.x + 5, button.y + 5, 0)
       tab.renderer.render(stack)
       stack.popPose()
     }
 
-    currentSegment = Document.render(stack, document, leftPos + 8, topPos + 8, documentMaxWidth, documentMaxHeight, offset, font, mouseX, mouseY)
+    currentSegment = Document.render(graphics, document, leftPos + 8, topPos + 8, documentMaxWidth, documentMaxHeight, offset, font, mouseX, mouseY)
     def localizeAndWrap(text: String): java.util.List[Component] = {
-      Localization.localizeImmediately(text).linesIterator.map(new TextComponent(_)).toList.asInstanceOf[List[Component]].asJava
+      Localization.localizeImmediately(text).linesIterator.map(Component.literal).toList.asInstanceOf[List[Component]].asJava
     }
 
     if (!isScrolling) currentSegment match {
       case Some(segment) =>
         segment.tooltip match {
-          case Some(text) if text.nonEmpty => renderComponentTooltip(stack, localizeAndWrap(text), mouseX, mouseY, font)
+          case Some(text) if text.nonEmpty => graphics.renderComponentTooltip(font, localizeAndWrap(text), mouseX, mouseY)
           case _ =>
         }
       case _ =>
@@ -138,13 +135,13 @@ class Manual extends screens.Screen(TextComponent.EMPTY) with traits.Window {
     if (!isScrolling) for ((tab, i) <- ManualAPI.tabs.zipWithIndex if i < maxTabsPerSide) {
       val button = renderables.get(i).asInstanceOf[ImageButton]
       if (mouseX > button.x && mouseX < button.x + tabWidth && mouseY > button.y && mouseY < button.y + tabHeight) tab.tooltip.foreach(text => {
-        renderComponentTooltip(stack, localizeAndWrap(text), mouseX, mouseY, font)
+        graphics.renderComponentTooltip(font, localizeAndWrap(text), mouseX, mouseY)
       })
     }
 
     if (canScroll && (isCoordinateOverScrollBar(mouseX - leftPos, mouseY - topPos) || isScrolling)) {
-      val lines = seqAsJavaList(Seq(new TextComponent(s"${100 * offset / maxOffset}%")))
-      renderComponentTooltip(stack, lines, leftPos + scrollPosX + scrollWidth, scrollButton.y + scrollButton.getHeight + 1, font)
+      val lines: java.util.List[Component] = java.util.List.of(Component.literal(s"${100 * offset / maxOffset}%"))
+      graphics.renderComponentTooltip(font, lines, leftPos + scrollPosX + scrollWidth, scrollButton.y + scrollButton.getHeight + 1)
     }
   }
 

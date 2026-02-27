@@ -7,7 +7,6 @@ import li.cil.oc.api.event.RobotRenderEvent.MountPoint
 import li.cil.oc.api.internal.Robot
 import li.cil.oc.client.renderer.item.ItemUpgradeRenderer
 import li.cil.oc.common.tileentity
-import li.cil.oc.integration.opencomputers.{Item => OpenComputersItem}
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.Tooltip
 import net.minecraft.world.item.ItemStack
@@ -17,32 +16,17 @@ import net.minecraft.world.{InteractionHand, InteractionResult}
 import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
-import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.context.UseOnContext
 import net.minecraft.world.level.Level
 import net.minecraft.world.InteractionResultHolder
-
-/*
-import net.minecraft.client.renderer.{MultiBufferSource => IRenderTypeBuffer}
-import net.minecraft.world.item.{TooltipFlag => ITooltipFlag}
-import net.minecraft.world.entity.player.{Player => PlayerEntity}
-import net.minecraft.world.item.context.{BlockPlaceContext => BlockUseOnContext}
-import net.minecraft.world.item.context.{UseOnContext => UseOnContext}
-import net.minecraft.world.{InteractionResultHolder => ActionResult}
-import net.minecraft.world.{InteractionResult => InteractionResult}
-import net.minecraft.network.chat.{Component => ITextComponent}
-import net.minecraft.network.chat.{TextComponent => StringTextComponent}
-import net.minecraft.world.level.{LevelReader => IWorldReader}
-*/
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.network.chat.Component
+import net.minecraft.world.item.TooltipFlag
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import com.mojang.blaze3d.vertex.PoseStack
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.network.chat.TextComponent
-import net.minecraft.network.chat.Component
-import net.minecraft.world.item.TooltipFlag
 
 trait SimpleItem extends Item with api.driver.item.UpgradeRenderer {
   def createItemStack(amount: Int = 1) = new ItemStack(this, amount)
@@ -112,13 +96,13 @@ trait SimpleItem extends Item with api.driver.item.UpgradeRenderer {
   override def appendHoverText(stack: ItemStack, level: Level, tooltip: util.List[Component], flag: TooltipFlag): Unit = {
     if (tooltipName.isDefined) {
       for (curr <- Tooltip.get(tooltipName.get, tooltipData: _*)) {
-        tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+        tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
       }
       tooltipExtended(stack, tooltip)
     }
     else {
       for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase)) {
-        tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+        tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
       }
     }
     tooltipCosts(stack, tooltip)
@@ -131,7 +115,7 @@ trait SimpleItem extends Item with api.driver.item.UpgradeRenderer {
     if (stack.hasTag && stack.getTag.contains(Settings.namespace + "data")) {
       val data = stack.getTag.getCompound(Settings.namespace + "data")
       if (data.contains("node") && data.getCompound("node").contains("address")) {
-        tooltip.add(new TextComponent("§8" + data.getCompound("node").getString("address").substring(0, 13) + "...§7"))
+        tooltip.add(Component.literal("§8" + data.getCompound("node").getString("address").substring(0, 13) + "...§7"))
       }
     }
   }

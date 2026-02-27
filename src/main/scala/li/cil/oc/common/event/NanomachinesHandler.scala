@@ -2,7 +2,6 @@ package li.cil.oc.common.event
 
 import java.io.FileInputStream
 import java.io.FileOutputStream
-
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -12,7 +11,6 @@ import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.EventHandler
 import li.cil.oc.common.nanomachines.ControllerImpl
 import net.minecraft.client.Minecraft
-import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.event.entity.living.LivingEvent
 import net.minecraftforge.event.entity.player.PlayerEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -26,6 +24,8 @@ import net.minecraft.nbt.NbtIo
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import net.minecraftforge.client.event.RenderGuiOverlayEvent
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay
 
 object NanomachinesHandler {
 
@@ -34,12 +34,12 @@ object NanomachinesHandler {
     val TexNanomachinesBar = RenderTypes.createTexturedQuad("nanomachines_bar", Textures.GUI.NanomachinesBar, DefaultVertexFormat.POSITION_TEX, false)
 
     @SubscribeEvent
-    def onRenderGameOverlay(e: RenderGameOverlayEvent.Post): Unit = {
-      if (e.getType == RenderGameOverlayEvent.ElementType.TEXT) {
+    def onRenderGameOverlay(e: RenderGuiOverlayEvent.Post): Unit = {
+      if (e.getOverlay.id() == VanillaGuiOverlay.DEBUG_TEXT.id()) {
         val mc = Minecraft.getInstance
         api.Nanomachines.getController(mc.player) match {
           case controller: Controller =>
-            val stack = e.getMatrixStack
+            val graphics = e.getGuiGraphics
             val window = mc.getWindow
             val sizeX = 8
             val sizeY = 12
@@ -58,8 +58,8 @@ object NanomachinesHandler {
                 else y.toInt)
             val fill = controller.getLocalBuffer / controller.getLocalBufferSize
             val buffer = MultiBufferSource.immediate(Tesselator.getInstance.getBuilder)
-            drawRect(stack, buffer.getBuffer(TexNanomachines), left, top, sizeX, sizeY, sizeX, sizeY)
-            drawRect(stack, buffer.getBuffer(TexNanomachinesBar), left, top, sizeX, sizeY, sizeX, sizeY, fill.toFloat)
+            drawRect(graphics.pose, buffer.getBuffer(TexNanomachines), left, top, sizeX, sizeY, sizeX, sizeY)
+            drawRect(graphics.pose, buffer.getBuffer(TexNanomachinesBar), left, top, sizeX, sizeY, sizeX, sizeY, fill.toFloat)
             buffer.endBatch()
           case _ => // Nothing to show.
         }
@@ -79,14 +79,14 @@ object NanomachinesHandler {
   object Common {
     @SubscribeEvent
     def onPlayerRespawn(e: PlayerRespawnEvent): Unit = {
-      api.Nanomachines.getController(e.getPlayer) match {
+      api.Nanomachines.getController(e.getEntity) match {
         case controller: Controller => controller.changeBuffer(-controller.getLocalBuffer)
         case _ => // Not a player with nanomachines.
       }
     }
 
     @SubscribeEvent
-    def onLivingUpdate(e: LivingEvent.LivingUpdateEvent): Unit = {
+    def onLivingUpdate(e: LivingEvent.LivingTickEvent): Unit = {
       e.getEntity match {
         case player: Player => api.Nanomachines.getController(player) match {
           case controller: ControllerImpl =>
@@ -114,7 +114,7 @@ object NanomachinesHandler {
     @SubscribeEvent
     def onPlayerSave(e: PlayerEvent.SaveToFile): Unit = {
       val file = e.getPlayerFile("ocnm")
-      api.Nanomachines.getController(e.getPlayer) match {
+      api.Nanomachines.getController(e.getEntity) match {
         case controller: ControllerImpl =>
           try {
             val nbt = new CompoundTag()
@@ -138,7 +138,7 @@ object NanomachinesHandler {
     def onPlayerLoad(e: PlayerEvent.LoadFromFile): Unit = {
       val file = e.getPlayerFile("ocnm")
       if (file.exists()) {
-        api.Nanomachines.getController(e.getPlayer) match {
+        api.Nanomachines.getController(e.getEntity) match {
           case controller: ControllerImpl =>
             try {
               val fis = new FileInputStream(file)
@@ -159,10 +159,10 @@ object NanomachinesHandler {
 
     @SubscribeEvent
     def onPlayerDisconnect(e: PlayerLoggedOutEvent): Unit = {
-      api.Nanomachines.getController(e.getPlayer) match {
+      api.Nanomachines.getController(e.getEntity) match {
         case controller: ControllerImpl =>
           // Wait a tick because saving is done after this event.
-          EventHandler.scheduleServer(() => api.Nanomachines.uninstallController(e.getPlayer))
+          EventHandler.scheduleServer(() => api.Nanomachines.uninstallController(e.getEntity))
         case _ => // Not a player with nanomachines.
       }
     }

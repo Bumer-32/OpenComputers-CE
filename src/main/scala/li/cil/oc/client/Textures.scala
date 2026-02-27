@@ -1,34 +1,32 @@
 package li.cil.oc.client
 
+import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
-import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.texture.SimpleTexture
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.resources.ResourceLocation
-import net.minecraftforge.client.event.TextureStitchEvent
+import net.minecraft.world.inventory.InventoryMenu
+// 1.20.1: TextureStitchEvent.Pre は廃止。
+// - e.addSprite() 系 (Item, Block) → atlases/blocks.json で代替（このファイルから登録コード削除）
+// - textureManager.register() 系 (Font, GUI, Icons, Model) → RegisterClientReloadListenersEvent またはクライアント初期化時に登録
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import scala.collection.mutable
-import net.minecraft.world.inventory.InventoryMenu
-import com.mojang.blaze3d.systems.RenderSystem
 
 object Textures {
 
-  object Font extends TextureBundle {
+  object Font extends SimpleTextureBundle {
     val Aliased = L("chars_aliased")
     val AntiAliased = L("chars")
 
     override protected def basePath = "font/%s"
-
-    override protected def loader(e: TextureStitchEvent.Pre, loc: ResourceLocation) =
-      Minecraft.getInstance.textureManager.register(loc, new SimpleTexture(new ResourceLocation(loc.getNamespace, s"textures/${loc.getPath}.png")))
   }
 
-  object GUI extends TextureBundle {
+  object GUI extends SimpleTextureBundle {
     val Background = L("background")
     val Bar = L("bar")
     val Borders = L("borders")
@@ -70,12 +68,9 @@ object Textures {
     val Waypoint = L("waypoint")
 
     override protected def basePath = "gui/%s"
-
-    override protected def loader(e: TextureStitchEvent.Pre, loc: ResourceLocation) =
-      Minecraft.getInstance.textureManager.register(loc, new SimpleTexture(new ResourceLocation(loc.getNamespace, s"textures/${loc.getPath}.png")))
   }
 
-  object Icons extends TextureBundle {
+  object Icons extends SimpleTextureBundle {
     private val ForSlotType = Slot.All.map(name => name -> L(name)).toMap
     private val ForTier = Map(Tier.None -> L("na")) ++ (Tier.One to Tier.Three).map(tier => tier -> L("tier" + tier)).toMap
 
@@ -84,12 +79,9 @@ object Textures {
     def get(tier: Int) = ForTier.get(tier).orNull
 
     override protected def basePath = "icons/%s"
-
-    override protected def loader(e: TextureStitchEvent.Pre, loc: ResourceLocation) =
-      Minecraft.getInstance.textureManager.register(loc, new SimpleTexture(new ResourceLocation(loc.getNamespace, s"textures/${loc.getPath}.png")))
   }
 
-  object Model extends TextureBundle {
+  object Model extends SimpleTextureBundle {
     val UpgradeCrafting = L("crafting_upgrade")
     val UpgradeGenerator = L("generator_upgrade")
     val UpgradeInventory = L("inventory_upgrade")
@@ -98,22 +90,14 @@ object Textures {
     val Robot = L("robot")
 
     override protected def basePath = "model/%s"
-
-    override protected def loader(e: TextureStitchEvent.Pre, loc: ResourceLocation) =
-      Minecraft.getInstance.textureManager.register(loc, new SimpleTexture(new ResourceLocation(loc.getNamespace, s"textures/${loc.getPath}.png")))
   }
 
-  object Item extends TextureBundle {
-    val DroneItem = L("drone")
-    val Robot = L("robot")
-
-    override protected def basePath = "items/%s"
-
-    override protected def loader(e: TextureStitchEvent.Pre, loc: ResourceLocation) = e.addSprite(loc)
+  object Item {
+    val DroneItem = ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, "items/drone")
+    val Robot = ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, "items/robot")
   }
 
-  // These are kept in the block texture atlas to support animations.
-  object Block extends TextureBundle {
+  object Block {
     val AdapterOn = L("overlay/adapter_on")
     val AssemblerSideAssembling = L("overlay/assembler_side_assembling")
     val AssemblerSideOn = L("overlay/assembler_side_on")
@@ -148,397 +132,39 @@ object Textures {
     val ScreenUpIndicator = L("overlay/screen_up_indicator")
     val SwitchSideOn = L("overlay/switch_side_on")
     val TransposerOn = L("overlay/transposer_on")
-
     val Cable = L("cable")
     val CableCap = L("cablecap")
-    val GenericTop = L("generic_top", load = false)
+    val GenericTop = L("generic_top")
     val NetSplitterSide = L("netsplitter_side")
     val NetSplitterTop = L("netsplitter_top")
-    val RackFront = L("rack_front", load = false)
-    val RackSide = L("rack_side", load = false)
+    val RackFront = L("rack_front")
+    val RackSide = L("rack_side")
 
-    // Kill me now.
     object Screen {
       val Single = Array(
-        L("screen/b"),
-        L("screen/b"),
-        L("screen/b2"),
-        L("screen/b2"),
-        L("screen/b2"),
-        L("screen/b2")
+        L("screen/b"), L("screen/b"), L("screen/b2"),
+        L("screen/b2"), L("screen/b2"), L("screen/b2")
       )
+      val SingleFront = Array(L("screen/f"), L("screen/f2"))
+      val Horizontal = Array(Array(Array(L("screen/bht"),L("screen/bhb"),L("screen/bht2"),L("screen/bht2"),L("screen/b2"),L("screen/b2")),Array(L("screen/bhm"),L("screen/bhm"),L("screen/bhm2"),L("screen/bhm2"),L("screen/b"),L("screen/b")),Array(L("screen/bhb"),L("screen/bht"),L("screen/bhb2"),L("screen/bhb2"),L("screen/b2"),L("screen/b2"))),Array(Array(L("screen/bhb2"),L("screen/bht2"),L("screen/bht"),L("screen/bhb"),L("screen/b2"),L("screen/b2")),Array(L("screen/bhm2"),L("screen/bhm2"),L("screen/bhm"),L("screen/bhm"),L("screen/b"),L("screen/b")),Array(L("screen/bht2"),L("screen/bhb2"),L("screen/bhb"),L("screen/bht"),L("screen/b2"),L("screen/b2"))))
+      val HorizontalFront = Array(Array(L("screen/fhb2"),L("screen/fhm2"),L("screen/fht2")),Array(L("screen/fhb"),L("screen/fhm"),L("screen/fht")))
+      val Vertical = Array(Array(Array(L("screen/b"),L("screen/b"),L("screen/bvt"),L("screen/bvt"),L("screen/bvt"),L("screen/bvt")),Array(L("screen/b"),L("screen/b"),L("screen/bvm"),L("screen/bvm"),L("screen/bvm"),L("screen/bvm")),Array(L("screen/b"),L("screen/b"),L("screen/bvb2"),L("screen/bvb2"),L("screen/bvb2"),L("screen/bvb2"))),Array(Array(L("screen/b2"),L("screen/b2"),L("screen/bvt"),L("screen/bvt"),L("screen/bht2"),L("screen/bhb2")),Array(L("screen/b"),L("screen/b"),L("screen/bvm"),L("screen/bvm"),L("screen/bhm2"),L("screen/bhm2")),Array(L("screen/b2"),L("screen/b2"),L("screen/bvb"),L("screen/bvb"),L("screen/bhb2"),L("screen/bht2"))))
+      val VerticalFront = Array(Array(L("screen/fvt"),L("screen/fvm"),L("screen/fvb2")),Array(L("screen/fvt"),L("screen/fvm"),L("screen/fvb")))
+      val Multi = Array(Array(Array(Array(L("screen/bht"),L("screen/bhb"),L("screen/btl"),L("screen/btr"),L("screen/bvb"),L("screen/bvt")),Array(L("screen/bhm"),L("screen/bhm"),L("screen/btm"),L("screen/btm"),L("screen/b"),L("screen/b")),Array(L("screen/bhb"),L("screen/bht"),L("screen/btr"),L("screen/btl"),L("screen/bvt"),L("screen/bvb"))),Array(Array(L("screen/b"),L("screen/b"),L("screen/bml"),L("screen/bmr"),L("screen/bvm"),L("screen/bvm")),Array(L("screen/b"),L("screen/b"),L("screen/bmm"),L("screen/bmm"),L("screen/b"),L("screen/b")),Array(L("screen/b"),L("screen/b"),L("screen/bmr"),L("screen/bml"),L("screen/bvm"),L("screen/bvt"))),Array(Array(L("screen/bht"),L("screen/bhb"),L("screen/bbl2"),L("screen/bbr2"),L("screen/bvt"),L("screen/bvb2")),Array(L("screen/bhm"),L("screen/bhm"),L("screen/bbm2"),L("screen/bbm2"),L("screen/b"),L("screen/b")),Array(L("screen/bhb"),L("screen/bht"),L("screen/bbr2"),L("screen/bbl2"),L("screen/bvb2"),L("screen/bvt")))),Array(Array(Array(L("screen/bhb2"),L("screen/bht2"),L("screen/btl"),L("screen/btr"),L("screen/bht2"),L("screen/bhb2")),Array(L("screen/bhm2"),L("screen/bhm2"),L("screen/btm"),L("screen/btm"),L("screen/b"),L("screen/b")),Array(L("screen/bht2"),L("screen/bhb2"),L("screen/btr"),L("screen/btl"),L("screen/bht2"),L("screen/bhb2"))),Array(Array(L("screen/b"),L("screen/b"),L("screen/bml"),L("screen/bml"),L("screen/bhm2"),L("screen/bhm2")),Array(L("screen/b"),L("screen/b"),L("screen/bmm"),L("screen/bmm"),L("screen/b"),L("screen/b")),Array(L("screen/b"),L("screen/b"),L("screen/bmr"),L("screen/bmr"),L("screen/bhm2"),L("screen/bhm2"))),Array(Array(L("screen/bhb2"),L("screen/bht2"),L("screen/bbl"),L("screen/bbr"),L("screen/bhb2"),L("screen/bht2")),Array(L("screen/bhm2"),L("screen/bhm2"),L("screen/bbm"),L("screen/bbm"),L("screen/b"),L("screen/b")),Array(L("screen/bht2"),L("screen/bhb2"),L("screen/bbr"),L("screen/bbl"),L("screen/bhb2"),L("screen/bht2")))))
+      val MultiFront = Array(Array(Array(L("screen/ftr"),L("screen/ftm"),L("screen/ftl")),Array(L("screen/fmr"),L("screen/fmm"),L("screen/fml")),Array(L("screen/fbr2"),L("screen/fbm2"),L("screen/fbl2"))),Array(Array(L("screen/ftr"),L("screen/ftm"),L("screen/ftl")),Array(L("screen/fmr"),L("screen/fmm"),L("screen/fml")),Array(L("screen/fbr"),L("screen/fbm"),L("screen/fbl"))))
 
-      val SingleFront = Array(
-        L("screen/f"),
-        L("screen/f2")
-      )
-
-      val Horizontal = Array(
-        // Vertical.
-        Array(
-          Array(
-            L("screen/bht"),
-            L("screen/bhb"),
-            L("screen/bht2"),
-            L("screen/bht2"),
-            L("screen/b2"),
-            L("screen/b2")
-          ),
-          Array(
-            L("screen/bhm"),
-            L("screen/bhm"),
-            L("screen/bhm2"),
-            L("screen/bhm2"),
-            L("screen/b"), // Not rendered.
-            L("screen/b") // Not rendered.
-          ),
-          Array(
-            L("screen/bhb"),
-            L("screen/bht"),
-            L("screen/bhb2"),
-            L("screen/bhb2"),
-            L("screen/b2"),
-            L("screen/b2")
-          )
-        ),
-        // Horizontal.
-        Array(
-          Array(
-            L("screen/bhb2"),
-            L("screen/bht2"),
-            L("screen/bht"),
-            L("screen/bhb"),
-            L("screen/b2"),
-            L("screen/b2")
-          ),
-          Array(
-            L("screen/bhm2"),
-            L("screen/bhm2"),
-            L("screen/bhm"),
-            L("screen/bhm"),
-            L("screen/b"), // Not rendered.
-            L("screen/b") // Not rendered.
-          ),
-          Array(
-            L("screen/bht2"),
-            L("screen/bhb2"),
-            L("screen/bhb"),
-            L("screen/bht"),
-            L("screen/b2"),
-            L("screen/b2")
-          )
-        )
-      )
-
-      val HorizontalFront = Array(
-        // Vertical.
-        Array(
-          L("screen/fhb2"),
-          L("screen/fhm2"),
-          L("screen/fht2")
-        ),
-        // Horizontal.
-        Array(
-          L("screen/fhb"),
-          L("screen/fhm"),
-          L("screen/fht")
-        )
-      )
-
-      val Vertical = Array(
-        // Vertical.
-        Array(
-          Array(
-            L("screen/b"),
-            L("screen/b"),
-            L("screen/bvt"),
-            L("screen/bvt"),
-            L("screen/bvt"),
-            L("screen/bvt")
-          ),
-          Array(
-            L("screen/b"), // Not rendered.
-            L("screen/b"), // Not rendered.
-            L("screen/bvm"),
-            L("screen/bvm"),
-            L("screen/bvm"),
-            L("screen/bvm")
-          ),
-          Array(
-            L("screen/b"),
-            L("screen/b"),
-            L("screen/bvb2"),
-            L("screen/bvb2"),
-            L("screen/bvb2"),
-            L("screen/bvb2")
-          )
-        ),
-        // Horizontal.
-        Array(
-          Array(
-            L("screen/b2"),
-            L("screen/b2"),
-            L("screen/bvt"),
-            L("screen/bvt"),
-            L("screen/bht2"),
-            L("screen/bhb2")
-          ),
-          Array(
-            L("screen/b"), // Not rendered.
-            L("screen/b"), // Not rendered.
-            L("screen/bvm"),
-            L("screen/bvm"),
-            L("screen/bhm2"),
-            L("screen/bhm2")
-          ),
-          Array(
-            L("screen/b2"),
-            L("screen/b2"),
-            L("screen/bvb"),
-            L("screen/bvb"),
-            L("screen/bhb2"),
-            L("screen/bht2")
-          )
-        )
-      )
-
-      val VerticalFront = Array(
-        // Vertical.
-        Array(
-          L("screen/fvt"),
-          L("screen/fvm"),
-          L("screen/fvb2")
-        ),
-        // Horizontal.
-        Array(
-          L("screen/fvt"),
-          L("screen/fvm"),
-          L("screen/fvb")
-        )
-      )
-
-      val Multi = Array(
-        // Vertical.
-        Array(
-          // Top.
-          Array(
-            Array(
-              L("screen/bht"),
-              L("screen/bhb"),
-              L("screen/btl"),
-              L("screen/btr"),
-              L("screen/bvb"),
-              L("screen/bvt")
-            ),
-            Array(
-              L("screen/bhm"),
-              L("screen/bhm"),
-              L("screen/btm"),
-              L("screen/btm"),
-              L("screen/b"), // Not rendered.
-              L("screen/b") // Not rendered.
-            ),
-            Array(
-              L("screen/bhb"),
-              L("screen/bht"),
-              L("screen/btr"),
-              L("screen/btl"),
-              L("screen/bvt"),
-              L("screen/bvb")
-            )
-          ),
-          // Middle.
-          Array(
-            Array(
-              L("screen/b"), // Not rendered.
-              L("screen/b"), // Not rendered.
-              L("screen/bml"),
-              L("screen/bmr"),
-              L("screen/bvm"),
-              L("screen/bvm")
-            ),
-            Array(
-              L("screen/b"), // Not rendered.
-              L("screen/b"), // Not rendered.
-              L("screen/bmm"),
-              L("screen/bmm"),
-              L("screen/b"), // Not rendered.
-              L("screen/b") // Not rendered.
-            ),
-            Array(
-              L("screen/b"), // Not rendered.
-              L("screen/b"), // Not rendered.
-              L("screen/bmr"),
-              L("screen/bml"),
-              L("screen/bvm"),
-              L("screen/bvt")
-            )
-          ),
-          // Bottom.
-          Array(
-            Array(
-              L("screen/bht"),
-              L("screen/bhb"),
-              L("screen/bbl2"),
-              L("screen/bbr2"),
-              L("screen/bvt"),
-              L("screen/bvb2")
-            ),
-            Array(
-              L("screen/bhm"),
-              L("screen/bhm"),
-              L("screen/bbm2"),
-              L("screen/bbm2"),
-              L("screen/b"), // Not rendered.
-              L("screen/b") // Not rendered.
-            ),
-            Array(
-              L("screen/bhb"),
-              L("screen/bht"),
-              L("screen/bbr2"),
-              L("screen/bbl2"),
-              L("screen/bvb2"),
-              L("screen/bvt")
-            )
-          )
-        ),
-        // Horizontal.
-        Array(
-          // Top.
-          Array(
-            Array(
-              L("screen/bhb2"),
-              L("screen/bht2"),
-              L("screen/btl"),
-              L("screen/btr"),
-              L("screen/bht2"),
-              L("screen/bhb2")
-            ),
-            Array(
-              L("screen/bhm2"),
-              L("screen/bhm2"),
-              L("screen/btm"),
-              L("screen/btm"),
-              L("screen/b"), // Not rendered.
-              L("screen/b") // Not rendered.
-            ),
-            Array(
-              L("screen/bht2"),
-              L("screen/bhb2"),
-              L("screen/btr"),
-              L("screen/btl"),
-              L("screen/bht2"),
-              L("screen/bhb2")
-            )
-          ),
-          // Middle.
-          Array(
-            Array(
-              L("screen/b"), // Not rendered.
-              L("screen/b"), // Not rendered.
-              L("screen/bml"),
-              L("screen/bml"),
-              L("screen/bhm2"),
-              L("screen/bhm2")
-            ),
-            Array(
-              L("screen/b"), // Not rendered.
-              L("screen/b"), // Not rendered.
-              L("screen/bmm"),
-              L("screen/bmm"),
-              L("screen/b"), // Not rendered.
-              L("screen/b") // Not rendered.
-            ),
-            Array(
-              L("screen/b"), // Not rendered.
-              L("screen/b"), // Not rendered.
-              L("screen/bmr"),
-              L("screen/bmr"),
-              L("screen/bhm2"),
-              L("screen/bhm2")
-            )
-          ),
-          // Bottom.
-          Array(
-            Array(
-              L("screen/bhb2"),
-              L("screen/bht2"),
-              L("screen/bbl"),
-              L("screen/bbr"),
-              L("screen/bhb2"),
-              L("screen/bht2")
-            ),
-            Array(
-              L("screen/bhm2"),
-              L("screen/bhm2"),
-              L("screen/bbm"),
-              L("screen/bbm"),
-              L("screen/b"), // Not rendered.
-              L("screen/b") // Not rendered.
-            ),
-            Array(
-              L("screen/bht2"),
-              L("screen/bhb2"),
-              L("screen/bbr"),
-              L("screen/bbl"),
-              L("screen/bhb2"),
-              L("screen/bht2")
-            )
-          )
-        )
-      )
-
-      val MultiFront = Array(
-        // Vertical.
-        Array(
-          Array(
-            L("screen/ftr"),
-            L("screen/ftm"),
-            L("screen/ftl")
-          ),
-          Array(
-            L("screen/fmr"),
-            L("screen/fmm"),
-            L("screen/fml")
-          ),
-          Array(
-            L("screen/fbr2"),
-            L("screen/fbm2"),
-            L("screen/fbl2")
-          )
-        ),
-        // Horizontal.
-        Array(
-          Array(
-            L("screen/ftr"),
-            L("screen/ftm"),
-            L("screen/ftl")
-          ),
-          Array(
-            L("screen/fmr"),
-            L("screen/fmm"),
-            L("screen/fml")
-          ),
-          Array(
-            L("screen/fbr"),
-            L("screen/fbm"),
-            L("screen/fbl")
-          )
-        )
-      )
-
-      // The hacks I do for namespacing...
       private[Block] def makeSureThisIsInitialized(): Unit = {}
     }
 
-    Screen.makeSureThisIsInitialized()
-
     def bind(): Unit = Textures.bind(InventoryMenu.BLOCK_ATLAS)
 
-    override protected def basePath = "blocks/%s"
+    Screen.makeSureThisIsInitialized()
 
-    override protected def loader(e: TextureStitchEvent.Pre, loc: ResourceLocation) = e.addSprite(loc)
+    private def L(name: String) = ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, s"blocks/$name")
   }
+
+  def getSprite(location: ResourceLocation): TextureAtlasSprite =
+    Minecraft.getInstance.getModelManager.getAtlas(InventoryMenu.BLOCK_ATLAS).getSprite(location)
 
   def bind(location: ResourceLocation): Unit = {
     if (location != null) {
@@ -548,37 +174,29 @@ object Textures {
     }
   }
 
-  def getSprite(location: ResourceLocation): TextureAtlasSprite =
-    Minecraft.getInstance.getModelManager.getAtlas(InventoryMenu.BLOCK_ATLAS).getSprite(location)
-
   @SubscribeEvent
-  def onTextureStitchPre(e: TextureStitchEvent.Pre): Unit = {
-    if (e.getAtlas.location.equals(InventoryMenu.BLOCK_ATLAS)) {
-      Font.init(e)
-      GUI.init(e)
-      Icons.init(e)
-      Model.init(e)
-      Item.init(e)
-      Block.init(e)
+  def onRegisterReloadListeners(e: RegisterClientReloadListenersEvent): Unit = {
+    val tm = Minecraft.getInstance.textureManager
+    def register(bundle: SimpleTextureBundle): Unit = {
+      bundle.locations.foreach { loc =>
+        tm.register(loc, new SimpleTexture(ResourceLocation.fromNamespaceAndPath(loc.getNamespace, s"textures/${loc.getPath}.png")))
+      }
     }
+    register(Font)
+    register(GUI)
+    register(Icons)
+    register(Model)
   }
 
-  abstract class TextureBundle {
-    private val locations = mutable.ArrayBuffer.empty[ResourceLocation]
+  abstract class SimpleTextureBundle {
+    private[Textures] val locations = mutable.ArrayBuffer.empty[ResourceLocation]
 
-    final def init(e: TextureStitchEvent.Pre): Unit = {
-      locations.foreach(loader(e, _))
-    }
-
-    protected def L(name: String, load: Boolean = true) = {
-      val location = new ResourceLocation(OpenComputers.ID, String.format(basePath, name))
+    protected def L(name: String, load: Boolean = true): ResourceLocation = {
+      val location = ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, String.format(basePath, name))
       if (load) locations += location
       location
     }
 
     protected def basePath: String
-
-    protected def loader(e: TextureStitchEvent.Pre, loc: ResourceLocation): Unit
   }
-
 }

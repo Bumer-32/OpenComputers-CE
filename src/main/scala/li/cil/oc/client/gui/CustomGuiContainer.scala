@@ -1,11 +1,11 @@
 package li.cil.oc.client.gui
 
 import java.util
-import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.gui.widget.WidgetContainer
 import li.cil.oc.util.RenderState
 import net.minecraft.client.gui.Font
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.network.chat.Component
@@ -13,109 +13,26 @@ import net.minecraft.network.chat.FormattedText
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.locale.Language
+import com.mojang.blaze3d.vertex.Tesselator
 
 import scala.jdk.CollectionConverters._
-import net.minecraft.client.renderer.Sheets
-import com.mojang.blaze3d.vertex.Tesselator
-import net.minecraft.network.chat.TextComponent
 
 abstract class CustomGuiContainer[C <: AbstractContainerMenu](val inventoryContainer: C, inv: Inventory, title: Component)
   extends AbstractContainerScreen[C](inventoryContainer, inv, title) with WidgetContainer {
 
-  override def windowX = leftPos
+  override def windowX: Int = leftPos
 
-  override def windowY = topPos
+  override def windowY: Int = topPos
 
-  override def windowZ = getBlitOffset
+  override def windowZ: Float = 0f
 
-  override def isPauseScreen = false
+  override def isPauseScreen: Boolean = false
 
-  protected def add[T](list: util.List[T], value: Any) = list.add(value.asInstanceOf[T])
+  protected def add[T](list: util.List[T], value: Any): Boolean = list.add(value.asInstanceOf[T])
 
-  //override def renderTooltip(stack: PoseStack, text: util.List[Component], x: Int, y: Int): Unit = {
-  //  copiedDrawHoveringText0(stack, text, x, y, font)
-  //}
-
-  override def renderComponentTooltip(stack: PoseStack, text: util.List[Component], x: Int, y: Int): Unit = {
-    copiedDrawHoveringText0(stack, text, x, y, font)
-  }
-
-  protected def isPointInRegion(rectX: Int, rectY: Int, rectWidth: Int, rectHeight: Int, pointX: Int, pointY: Int): Boolean =
-    pointX >= rectX - 1 && pointX < rectX + rectWidth + 1 && pointY >= rectY - 1 && pointY < rectY + rectHeight + 1
-
-  protected def copiedDrawHoveringText(stack: PoseStack, lines: util.List[String], x: Int, y: Int, font: Font): Unit = {
-    val text = new util.ArrayList[Component]()
-    for (line <- lines.asScala) {
-      text.add(new TextComponent(line))
-    }
-    copiedDrawHoveringText0(stack, text, x, y, font)
-  }
-
-  protected def copiedDrawHoveringText0(stack: PoseStack, text: util.List[_ <: FormattedText], x: Int, y: Int, font: Font): Unit = {
-    if (!text.isEmpty) {
-      RenderSystem.disableDepthTest()
-      RenderSystem.enableBlend()
-      RenderSystem.defaultBlendFunc()
-
-      val textWidth = text.asScala.map(line => font.width(line)).max
-
-      var posX = x + 12
-      var posY = y - 12
-      var textHeight = 8
-      if (text.size > 1) {
-        textHeight += 2 + (text.size - 1) * 10
-      }
-      if (posX + textWidth > width) {
-        posX -= 28 + textWidth
-      }
-      if (posY + textHeight + 6 > height) {
-        posY = height - textHeight - 6
-      }
-
-      setBlitOffset(300)
-      itemRenderer.blitOffset = 300f
-      val bg = 0xF0100010
-      fillGradient(stack, posX - 3, posY - 4, posX + textWidth + 3, posY - 3, bg, bg)
-      fillGradient(stack, posX - 3, posY + textHeight + 3, posX + textWidth + 3, posY + textHeight + 4, bg, bg)
-      fillGradient(stack, posX - 3, posY - 3, posX + textWidth + 3, posY + textHeight + 3, bg, bg)
-      fillGradient(stack, posX - 4, posY - 3, posX - 3, posY + textHeight + 3, bg, bg)
-      fillGradient(stack, posX + textWidth + 3, posY - 3, posX + textWidth + 4, posY + textHeight + 3, bg, bg)
-      val color1 = 0x505000FF
-      val color2 = (color1 & 0x00FEFEFE) >> 1 | (color1 & 0xFF000000)
-      fillGradient(stack, posX - 3, posY - 3 + 1, posX - 3 + 1, posY + textHeight + 3 - 1, color1, color2)
-      fillGradient(stack, posX + textWidth + 2, posY - 3 + 1, posX + textWidth + 3, posY + textHeight + 3 - 1, color1, color2)
-      fillGradient(stack, posX - 3, posY - 3, posX + textWidth + 3, posY - 3 + 1, color1, color1)
-      fillGradient(stack, posX - 3, posY + textHeight + 2, posX + textWidth + 3, posY + textHeight + 3, color2, color2)
-
-      stack.pushPose()
-      stack.translate(0, 0, 400)
-      val tesselator = Tesselator.getInstance()
-      val buffer = MultiBufferSource.immediate(tesselator.getBuilder())
-      for ((line, index) <- text.asScala.zipWithIndex) {
-        font.drawInBatch(Language.getInstance.getVisualOrder(line), posX.toFloat, posY.toFloat, -1, true, stack.last.pose, buffer, false, 0, 15728880)
-        if (index == 0) {
-          posY += 2
-        }
-        posY += 10
-      }
-      buffer.endBatch()
-      stack.popPose()
-      setBlitOffset(0)
-      itemRenderer.blitOffset = 0f
-
-      RenderSystem.enableDepthTest()
-      RenderSystem.disableBlend()
-    }
-  }
-
-  override def fillGradient(stack: PoseStack, left: Int, top: Int, right: Int, bottom: Int, startColor: Int, endColor: Int): Unit = {
-    super.fillGradient(stack, left, top, right, bottom, startColor, endColor)
-    RenderState.makeItBlend()
-  }
-
-  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, partialTicks: Float): Unit = {
-    this.renderBackground(stack)
-    super.render(stack, mouseX, mouseY, partialTicks)
-    this.renderTooltip(stack, mouseX, mouseY)
+  override def render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTicks: Float): Unit = {
+    this.renderBackground(guiGraphics)
+    super.render(guiGraphics, mouseX, mouseY, partialTicks)
+    this.renderTooltip(guiGraphics, mouseX, mouseY)
   }
 }

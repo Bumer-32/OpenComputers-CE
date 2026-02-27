@@ -1,6 +1,6 @@
 package li.cil.oc.client.renderer.markdown.segment.render
 
-import java.io.IOException
+import java.io.{IOException, InputStream}
 import com.mojang.blaze3d.platform.NativeImage
 import com.mojang.blaze3d.platform.TextureUtil
 import com.mojang.blaze3d.systems.RenderSystem
@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.client.renderer.texture.AbstractTexture
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.resources.ResourceLocation
-import com.mojang.math.Matrix4f
+import net.minecraft.client.gui.GuiGraphics
 
 class TextureImageRenderer(val location: ResourceLocation) extends ImageRenderer {
   private val texture: ImageTexture = {
@@ -29,7 +29,7 @@ class TextureImageRenderer(val location: ResourceLocation) extends ImageRenderer
 
   override def getHeight: Int = texture.height
 
-  override def render(stack: PoseStack, mouseX: Int, mouseY: Int): Unit = {
+  override def render(graphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {
     RenderSystem.setShaderTexture(0, location)
     RenderSystem.setShader(() => GameRenderer.getPositionTexShader)
     RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
@@ -37,7 +37,7 @@ class TextureImageRenderer(val location: ResourceLocation) extends ImageRenderer
     RenderSystem.enableBlend()
     RenderSystem.defaultBlendFunc()
 
-    val matrix = stack.last.pose
+    val matrix = graphics.pose.last.pose
     val tesselator = Tesselator.getInstance()
     val builder = tesselator.getBuilder
 
@@ -58,14 +58,12 @@ class TextureImageRenderer(val location: ResourceLocation) extends ImageRenderer
     override def load(manager: ResourceManager): Unit = {
       this.releaseId()
 
-      val resource = try {
-        manager.getResource(resLoc)
-      } catch {
-        case _: IOException => return
-      }
+      val resOpt = manager.getResource(resLoc)
+      if (resOpt.isEmpty) return
 
-      val is = resource.getInputStream
+      var is: InputStream = null
       try {
+        is = resOpt.get.open
         val nativeImage = NativeImage.read(is)
         try {
           this.width = nativeImage.getWidth

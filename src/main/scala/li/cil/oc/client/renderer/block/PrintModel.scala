@@ -7,7 +7,6 @@ import com.google.common.base.Strings
 import li.cil.oc.Settings
 import li.cil.oc.client.KeyBindings
 import li.cil.oc.client.Textures
-import li.cil.oc.common.block
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.Color
@@ -18,24 +17,28 @@ import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.renderer.block.model.BakedQuad
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.client.renderer.block.model.ItemOverrides
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite      // 1.18.2: MissingTextureSprite → MissingTextureAtlasSprite
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
-import net.minecraftforge.client.model.data.IModelData
+import net.minecraft.util.RandomSource
+import net.minecraft.client.renderer.RenderType
+import net.minecraftforge.client.model.data.{ModelData, ModelProperty}
 
 import scala.collection.JavaConverters.bufferAsJavaList
 import scala.collection.mutable
 
 object PrintModel extends SmartBlockModelBase {
+  val PRINT_PROPERTY = new ModelProperty[tileentity.Print]()
+
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] =
-    data match {
-      case t: tileentity.Print =>
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] =
+    Option(data.get(PRINT_PROPERTY)) match {
+      case Some(t) =>
         val faces = mutable.ArrayBuffer.empty[BakedQuad]
         for (shape <- t.shapes if !Strings.isNullOrEmpty(shape.texture)) {
           val bounds  = shape.bounds.rotateTowards(t.facing)
@@ -47,20 +50,18 @@ object PrintModel extends SmartBlockModelBase {
     }
 
   private def resolveTexture(name: String): TextureAtlasSprite = try {
-    val texture = Textures.getSprite(new ResourceLocation(name))
-    // 1.18.2: MissingTextureSprite.getLocation → MissingTextureAtlasSprite.getLocation
-    if (texture.getName == MissingTextureAtlasSprite.getLocation)
-      Textures.getSprite(new ResourceLocation("minecraft:blocks/" + name))
+    val texture = Textures.getSprite(ResourceLocation.withDefaultNamespace(name))
+    if (texture.contents.name == MissingTextureAtlasSprite.getLocation)
+      Textures.getSprite(ResourceLocation.withDefaultNamespace("minecraft:blocks/" + name))
     else texture
   } catch {
-    // 1.18.2: MissingTextureAtlasSprite.getLocation
     case _: Throwable => Textures.getSprite(MissingTextureAtlasSprite.getLocation)
   }
 
   class ItemModel(val stack: ItemStack) extends SmartBlockModelBase {
     val data = new PrintData(stack)
 
-    override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] = {
+    override def getQuads(state: BlockState, side: Direction, rand: RandomSource): util.List[BakedQuad] = {
       val faces = mutable.ArrayBuffer.empty[BakedQuad]
       val shapes =
         if (data.hasActiveState && KeyBindings.showExtendedTooltips) data.stateOn
@@ -80,7 +81,6 @@ object PrintModel extends SmartBlockModelBase {
   }
 
   object ItemOverride extends ItemOverrides {
-    // 1.18.2: resolve に seed: Int 引数が追加された
     override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, seed: Int): BakedModel =
       new ItemModel(stack)
   }

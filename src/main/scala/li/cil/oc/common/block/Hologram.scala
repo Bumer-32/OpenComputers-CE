@@ -3,23 +3,18 @@ package li.cil.oc.common.block
 import java.util
 import li.cil.oc.common.tileentity
 import li.cil.oc.common.tileentity.TileEntityTypes
-import li.cil.oc.util.Rarity
 import li.cil.oc.util.Tooltip
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.item.{TooltipFlag => ITooltipFlag}
-import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.shapes.{CollisionContext => ISelectionContext}
 import net.minecraft.world.phys.shapes.VoxelShape
 import net.minecraft.world.phys.shapes.{Shapes => VoxelShapes}
 import net.minecraft.network.chat.{Component => ITextComponent}
-import net.minecraft.network.chat.{TextComponent => StringTextComponent}
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
@@ -34,7 +29,7 @@ class Hologram(props: Properties, val tier: Int) extends SimpleBlock(props) with
 
   override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag): Unit = {
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase() + tier)) {
-      tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(ITextComponent.literal(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 

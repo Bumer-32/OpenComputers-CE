@@ -20,7 +20,6 @@ import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.phys.BlockHitResult
@@ -41,7 +40,7 @@ class Item(value: Block, props: Properties) extends BlockItem(value, props) {
   override def getName(stack: ItemStack): Component = {
     if (api.Items.get(stack) == api.Items.get(Constants.BlockName.Print)) {
       val data = new PrintData(stack)
-      data.label.map(new TextComponent(_)).getOrElse(super.getName(stack))
+      data.label.map(Component.literal).getOrElse(super.getName(stack))
     }
     else super.getName(stack)
   }

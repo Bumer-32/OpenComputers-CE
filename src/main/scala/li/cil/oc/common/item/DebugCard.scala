@@ -15,7 +15,6 @@ import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.InteractionHand
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.entity.player.Player
 import net.minecraft.Util
 
@@ -23,7 +22,7 @@ class DebugCard(props: Properties) extends Item(props) with IForgeItem with trai
   override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[Component]): Unit = {
     super.tooltipExtended(stack, tooltip)
     val data = new DebugCardData(stack)
-    data.access.foreach(access => tooltip.add(new TextComponent(s"§8${access.player}§r")))
+    data.access.foreach(access => tooltip.add(Component.literal(s"§8${access.player}§r")))
   }
 
   override def use(stack: ItemStack, level: Level, player: Player): InteractionResultHolder[ItemStack] = {
@@ -37,7 +36,7 @@ class DebugCard(props: Properties) extends Item(props) with IForgeItem with trai
           case wl: DebugCardAccess.Whitelist => wl.nonce(name.getString) match {
             case Some(n) => n
             case None =>
-              player.sendMessage(new TextComponent("§cYou are not whitelisted to use debug card"), Util.NIL_UUID)
+              player.sendSystemMessage(Component.literal("§cYou are not whitelisted to use debug card"))
               player.swing(InteractionHand.MAIN_HAND)
               return new InteractionResultHolder[ItemStack](InteractionResult.FAIL, stack)
           }

@@ -10,7 +10,7 @@ import li.cil.oc.server.{PacketSender, agent}
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.{BlockPosition, InventoryUtils, Tooltip}
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.network.chat.{Component => ITextComponent, TextComponent => StringTextComponent}
+import net.minecraft.network.chat.{Component => ITextComponent}
 import net.minecraft.server.level.{ServerPlayer => ServerPlayerEntity}
 import net.minecraft.world.{InteractionHand => Hand}
 import net.minecraft.world.entity.LivingEntity
@@ -22,8 +22,8 @@ import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.FluidState
-import net.minecraft.world.level.storage.loot.LootContext
-import net.minecraft.world.level.storage.loot.parameters.{LootContextParams => LootParameters}
+import net.minecraft.world.level.storage.loot.{LootContext, LootParams}
+import net.minecraft.world.level.storage.loot.parameters.{LootContextParams, LootContextParams => LootParameters}
 import net.minecraft.world.phys.{HitResult => RayTraceResult}
 import net.minecraft.world.phys.shapes.{VoxelShape, CollisionContext => ISelectionContext, Shapes => VoxelShapes}
 
@@ -73,7 +73,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
 
   override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag): Unit = {
     for (curr <- Tooltip.get("robot")) {
-      tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(ITextComponent.literal(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 
@@ -84,10 +84,10 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
       val components = info.containers ++ info.components
       if (components.length > 0) {
         for (curr <- Tooltip.get("server.Components")) {
-          tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
+          tooltip.add(ITextComponent.literal(curr).setStyle(Tooltip.DefaultStyle))
         }
         for (component <- components if !component.isEmpty) {
-          tooltip.add(new StringTextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+          tooltip.add(ITextComponent.literal("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
         }
       }
     }
@@ -100,7 +100,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
         val level = Math.min((Math.pow(xp - Settings.get.baseXpToLevel, 1 / Settings.get.exponentialXpGrowth) / Settings.get.constantXpGrowth).toInt, 30)
         if (level > 0) {
           for (curr <- Tooltip.get(getDescriptionId + "_level", level)) {
-            tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
+            tooltip.add(ITextComponent.literal(curr).setStyle(Tooltip.DefaultStyle))
           }
         }
       }
@@ -108,7 +108,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
         val energy = stack.getTag.getInt(Settings.namespace + "storedEnergy")
         if (energy > 0) {
           for (curr <- Tooltip.get(getDescriptionId + "_storedenergy", energy)) {
-            tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
+            tooltip.add(ITextComponent.literal(curr).setStyle(Tooltip.DefaultStyle))
           }
         }
       }
@@ -126,27 +126,12 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
 
   // ----------------------------------------------------------------------- //
 
-  override def getDrops(state: BlockState, ctx: LootContext.Builder): util.List[ItemStack] = {
-    // Superspecial hack... usually this will not work, because Minecraft calls
-    // this method *after* the block has already been destroyed. Meaning we
-    // won't have access to the tile entity.
-    // However! Some mods with block breakers, specifically AE2's annihilation
-    // plane, will call *only* this method (don't use a fake player to call
-    // removedByPlayer), but call it *before* the block was destroyed. So in
-    // general it *should* be safe to generate the item here if the tile entity
-    // still exists, and always spawn the stack in removedByPlayer... if some
-    // mod calls this before the block is broken *and* calls removedByPlayer
-    // this will lead to dupes, but in some initial testing this wasn't the
-    // case anywhere (TE autonomous activator, CC turtles).
-    val newCtx = ctx.withDynamicDrop(LootFunctions.DYN_ITEM_DATA, (c, f) => {
-      c.getParamOrNull(LootParameters.BLOCK_ENTITY) match {
+  override def getDrops(state: BlockState, ctx: LootParams.Builder): util.List[ItemStack] = {
+    val newCtx = ctx.withDynamicDrop(LootFunctions.DYN_ITEM_DATA, f => {
+      ctx.getOptionalParameter(LootContextParams.BLOCK_ENTITY) match {
         case proxy: tileentity.RobotProxy =>
           val robot = proxy.robot
           if (robot.node != null) {
-            // Update: even more special hack! As discussed here http://git.io/IcNAyg
-            // some mods call this even when they're not about to actually break the
-            // block... soooo we need a whitelist to know when to generate a *proper*
-            // drop (i.e. with file systems closed / open handles not saved, e.g.).
             if (gettingDropsForActualDrop) {
               robot.node.remove()
               robot.saveComponents()
@@ -156,7 +141,6 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
         case _ =>
       }
     })
-
     super.getDrops(state, newCtx)
   }
 

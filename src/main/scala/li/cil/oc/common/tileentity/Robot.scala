@@ -38,7 +38,6 @@ import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.common.util.NonNullSupplier
 import net.minecraftforge.fluids._
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction
 import net.minecraftforge.api.distmarker.Dist
@@ -60,7 +59,6 @@ import net.minecraft.sounds.SoundSource
 import net.minecraft.Util
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.player.Inventory
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.entity.EquipmentSlot
 
 // Implementation note: this tile entity is never directly added to the world.

@@ -1,7 +1,7 @@
 package li.cil.oc.api.event;
 
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import li.cil.oc.api.driver.item.UpgradeRenderer;
 import li.cil.oc.api.internal.Agent;
 import li.cil.oc.api.internal.Robot;

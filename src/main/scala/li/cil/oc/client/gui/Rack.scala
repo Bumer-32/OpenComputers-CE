@@ -12,12 +12,14 @@ import org.lwjgl.opengl.GL11
 import scala.collection.JavaConverters.asJavaCollection
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
-import net.minecraft.network.chat.TextComponent
 import com.mojang.blaze3d.vertex.Tesselator
 import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
+
+import scala.jdk.CollectionConverters._
 
 class Rack(state: menu.Rack, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
@@ -104,7 +106,7 @@ class Rack(state: menu.Rack, playerInventory: Inventory, name: Component)
     }
   }
 
-  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
+  override def render(graphics: GuiGraphics, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     for (bus <- 0 until 5) {
       for (mountable <- 0 until inventoryContainer.otherInventory.getContainerSize) {
         val presence = inventoryContainer.nodePresence(mountable)
@@ -114,16 +116,15 @@ class Rack(state: menu.Rack, playerInventory: Inventory, name: Component)
       }
     }
     val relayMessage = if (inventoryContainer.isRelayEnabled) Localization.Rack.RelayEnabled else Localization.Rack.RelayDisabled
-    relayButton.setMessage(new TextComponent(relayMessage))
-    super.render(stack, mouseX, mouseY, dt)
+    relayButton.setMessage(Component.literal(relayMessage))
+    super.render(graphics, mouseX, mouseY, dt)
   }
 
   override protected def init(): Unit = {
     super.init()
 
-    relayButton = new ImageButton(leftPos + 101, topPos + 96, 65, 18, new Button.OnPress {
-      override def onPress(b: Button) = ClientPacketSender.sendRackRelayState(inventoryContainer, !inventoryContainer.isRelayEnabled)
-    }, Textures.GUI.ButtonRelay, new TextComponent(Localization.Rack.RelayDisabled), textIndent = 18)
+    relayButton = new ImageButton(leftPos + 101, topPos + 96, 65, 18, (b: Button) =>
+      ClientPacketSender.sendRackRelayState(inventoryContainer, !inventoryContainer.isRelayEnabled), Textures.GUI.ButtonRelay, Component.literal(Localization.Rack.RelayDisabled), textIndent = 18)
     addRenderableWidget(relayButton)
 
     val (mw, mh) = hoverMasterSize
@@ -154,8 +155,8 @@ class Rack(state: menu.Rack, playerInventory: Inventory, name: Component)
     }
   }
 
-  override def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int) = {
-    super.drawSecondaryForegroundLayer(stack, mouseX, mouseY)
+  override def drawSecondaryForegroundLayer(graphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {
+    super.drawSecondaryForegroundLayer(graphics, mouseX, mouseY)
     RenderState.pushAttrib() // Prevents NEI render glitch.
 
     RenderSystem.setShaderColor(1, 1, 1, 1)
@@ -165,7 +166,7 @@ class Rack(state: menu.Rack, playerInventory: Inventory, name: Component)
     if (inventoryContainer.isRelayEnabled) {
       val (left, top, w, h) = relayModeUVs
       for ((x, y) <- wireRelay) {
-        drawRect(stack, x, y, w, h, left, top)
+        drawRect(graphics.pose, x, y, w, h, left, top)
       }
     }
 
@@ -180,6 +181,7 @@ class Rack(state: menu.Rack, playerInventory: Inventory, name: Component)
 
       // Draw connectable indicators next to item slots.
       val (cx, cy) = connectorStart(mountable)
+      val stack = graphics.pose
       if (presence(0)) {
         drawRect(stack, cx, cy, mcw, mch, mcx, mcy)
         inventoryContainer.nodeMapping(mountable)(0) match {
@@ -238,30 +240,29 @@ class Rack(state: menu.Rack, playerInventory: Inventory, name: Component)
       val x = 122
       val y = 20 + bus * 11
 
-      font.draw(stack,
+      graphics.drawString(font,
         Localization.localizeImmediately(sideName(busToSide(bus))),
         x, y, 0x404040)
     }
 
     if (mouseX >= leftPos + 122 && mouseY >= topPos + 20 && mouseX < leftPos + 158 && mouseY < topPos + 20 + 5 * 11) {
-      val tooltip = new java.util.ArrayList[String]
-      tooltip.addAll(asJavaCollection(Localization.Rack.OrientationTooltip.linesIterator.toIterable))
-      copiedDrawHoveringText(stack, tooltip, mouseX - leftPos, mouseY - topPos, font)
+      val tooltip = new java.util.ArrayList[Component]
+      tooltip.addAll(Localization.Rack.OrientationTooltip.linesIterator.map(Component.literal).toList.asJava)
+      graphics.renderComponentTooltip(font, tooltip, mouseX - leftPos, mouseY - topPos)
     }
 
     if (relayButton.isMouseOver(mouseX, mouseY)) {
-      val tooltip = new java.util.ArrayList[String]
-      tooltip.addAll(asJavaCollection(Localization.Rack.RelayModeTooltip.linesIterator.toIterable))
-      copiedDrawHoveringText(stack, tooltip, mouseX - leftPos, mouseY - topPos, font)
+      val tooltip = new java.util.ArrayList[Component]
+      tooltip.addAll(Localization.Rack.RelayModeTooltip.linesIterator.map(Component.literal).toList.asJava)
+      graphics.renderComponentTooltip(font, tooltip, mouseX - leftPos, mouseY - topPos)
     }
 
     RenderState.popAttrib()
   }
 
-  override def drawSecondaryBackgroundLayer(stack: PoseStack): Unit = {
+  override def drawSecondaryBackgroundLayer(graphics: GuiGraphics): Unit = {
     RenderSystem.setShaderColor(1, 1, 1, 1) // Required under Linux.
-    RenderSystem.setShaderTexture(0, Textures.GUI.Rack)
-    blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
+    graphics.blit(Textures.GUI.Rack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
   }
 
   private def drawRect(stack: PoseStack, x: Int, y: Int, w: Int, h: Int, u: Int, v: Int): Unit = {

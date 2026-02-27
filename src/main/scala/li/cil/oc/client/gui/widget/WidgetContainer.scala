@@ -1,6 +1,7 @@
 package li.cil.oc.client.gui.widget
 
 import com.mojang.blaze3d.vertex.PoseStack
+import net.minecraft.client.gui.GuiGraphics
 
 import scala.collection.mutable
 
@@ -20,7 +21,7 @@ trait WidgetContainer {
 
   def windowZ = 0f
 
-  def drawWidgets(stack: PoseStack): Unit = {
-    widgets.foreach(_.draw(stack))
+  def drawWidgets(graphics: GuiGraphics): Unit = {
+    widgets.foreach(_.draw(graphics))
   }
 }

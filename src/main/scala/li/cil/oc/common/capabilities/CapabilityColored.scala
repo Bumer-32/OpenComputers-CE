@@ -10,7 +10,7 @@ import net.minecraftforge.common.util.{LazyOptional, NonNullSupplier}
 import net.minecraft.resources.ResourceLocation
 
 object CapabilityColored {
-  final val ProviderColored = new ResourceLocation(Mods.IDs.OpenComputers, "colored")
+  final val ProviderColored = ResourceLocation.fromNamespaceAndPath(Mods.IDs.OpenComputers, "colored")
 
   class Provider(val tileEntity: BlockEntity with Colored) extends ICapabilitySerializable[CompoundTag] with NonNullSupplier[Provider] with Colored {
     private val wrapper = LazyOptional.of(this)

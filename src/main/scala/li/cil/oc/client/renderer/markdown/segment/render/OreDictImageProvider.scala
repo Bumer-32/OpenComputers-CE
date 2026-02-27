@@ -5,6 +5,7 @@ import li.cil.oc.api.manual.ImageRenderer
 import li.cil.oc.api.manual.InteractiveImageRenderer
 import li.cil.oc.client.Textures
 import net.minecraft.core.Registry
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -17,15 +18,15 @@ import scala.jdk.CollectionConverters._
 
 object OreDictImageProvider extends ImageProvider {
   override def getImage(data: String): ImageRenderer = {
-    val desired = new ResourceLocation(data.toLowerCase)
+    val desired = ResourceLocation.withDefaultNamespace(data.toLowerCase)
     val stacks = mutable.ArrayBuffer.empty[ItemStack]
-    val itemTagKey = TagKey.create(Registry.ITEM_REGISTRY, desired)
+    val itemTagKey = TagKey.create(BuiltInRegistries.ITEM.key(), desired)
     val itemTag = ForgeRegistries.ITEMS.tags().getTag(itemTagKey)
     if (!itemTag.isEmpty) {
       stacks ++= itemTag.asScala.map(new ItemStack(_))
     }
     if (stacks.isEmpty) {
-      val blockTagKey = TagKey.create(Registry.BLOCK_REGISTRY, desired)
+      val blockTagKey = TagKey.create(BuiltInRegistries.BLOCK.key(), desired)
       val blockTag = ForgeRegistries.BLOCKS.tags().getTag(blockTagKey)
 
       if (!blockTag.isEmpty) {

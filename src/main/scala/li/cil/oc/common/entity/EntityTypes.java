@@ -9,7 +9,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 public final class EntityTypes {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
-            DeferredRegister.create(ForgeRegistries.ENTITIES, OpenComputers.ID());
+            DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, OpenComputers.ID());
 
     public static final RegistryObject<EntityType<Drone>> DRONE =
             ENTITY_TYPES.register("drone", () -> EntityType.Builder.of(Drone::new, MobCategory.MISC)

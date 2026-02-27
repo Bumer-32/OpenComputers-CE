@@ -2,8 +2,7 @@ package li.cil.oc.client.renderer.tileentity
 
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.VertexConsumer
-import com.mojang.math.Vector3f
+import com.mojang.math.Axis
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.DiskDrive
@@ -15,16 +14,13 @@ import net.minecraft.client.renderer.block.model.ItemTransforms
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 import net.minecraft.core.Direction
+import net.minecraft.world.item.ItemDisplayContext
 
 object DiskDriveRenderer extends BlockEntityRendererProvider[DiskDrive] {
   override def create(ctx: BlockEntityRendererProvider.Context): DiskDriveRenderer =
     new DiskDriveRenderer()
 }
 
-/**
- * 1.18.2 Mojmap 完全移植版.
- * Function インターフェースを削除し、Context 経由で ItemRenderer を取得する形に最適化。
- */
 class DiskDriveRenderer extends BlockEntityRenderer[DiskDrive] {
   private lazy val itemRenderer = Minecraft.getInstance().getItemRenderer
 
@@ -38,9 +34,9 @@ class DiskDriveRenderer extends BlockEntityRenderer[DiskDrive] {
     matrix.translate(0.5, 0.5, 0.5)
 
     drive.yaw match {
-      case Direction.WEST => matrix.mulPose(Vector3f.YP.rotationDegrees(-90))
-      case Direction.NORTH => matrix.mulPose(Vector3f.YP.rotationDegrees(180))
-      case Direction.EAST => matrix.mulPose(Vector3f.YP.rotationDegrees(90))
+      case Direction.WEST => matrix.mulPose(Axis.YP.rotationDegrees(-90))
+      case Direction.NORTH => matrix.mulPose(Axis.YP.rotationDegrees(180))
+      case Direction.EAST => matrix.mulPose(Axis.YP.rotationDegrees(90))
       case _ => // No yaw.
     }
 
@@ -48,12 +44,21 @@ class DiskDriveRenderer extends BlockEntityRenderer[DiskDrive] {
       case stack if !stack.isEmpty =>
         matrix.pushPose()
         matrix.translate(0, 3.5 / 16.0, 6.0 / 16.0)
-        matrix.mulPose(Vector3f.XN.rotationDegrees(90))
+        matrix.mulPose(Axis.XN.rotationDegrees(90))
         matrix.scale(0.5f, 0.5f, 0.5f)
 
         val itemLight = LevelRenderer.getLightColor(drive.getLevel, drive.getBlockPos.relative(drive.facing))
 
-        itemRenderer.renderStatic(stack, ItemTransforms.TransformType.FIXED, itemLight, overlay, matrix, buffer, 0)
+        itemRenderer.renderStatic(
+          stack,
+          ItemDisplayContext.FIXED,
+          itemLight,
+          overlay,
+          matrix,
+          buffer,
+          drive.getLevel,
+          0
+        )
 
         matrix.popPose()
       case _ =>

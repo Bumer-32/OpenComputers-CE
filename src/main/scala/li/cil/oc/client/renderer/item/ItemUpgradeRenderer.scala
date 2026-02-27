@@ -1,8 +1,8 @@
 package li.cil.oc.client.renderer.item
 
-import com.mojang.blaze3d.vertex.PoseStack      
-import com.mojang.blaze3d.vertex.VertexConsumer 
-import com.mojang.math.Vector3f                 
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.VertexConsumer
+import org.joml.{Quaternionf, Vector3f}
 import li.cil.oc.Constants
 import li.cil.oc.api
 import li.cil.oc.api.driver.item.{UpgradeRenderer => DriverUpgradeRenderer}
@@ -32,12 +32,10 @@ object ItemUpgradeRenderer {
     descriptor == craftingUpgrade || descriptor == generatorUpgrade || descriptor == inventoryUpgrade
   }
 
-  // 1.18.2: IRenderTypeBuffer → MultiBufferSource
   def render(matrix: PoseStack, buffer: MultiBufferSource, light: Int, stack: ItemStack, mountPoint: MountPoint): Unit = {
     val descriptor = api.Items.get(stack)
 
     if (descriptor == api.Items.get(Constants.ItemName.CraftingUpgrade)) {
-      // 1.18.2: buffer.getBuffer の戻り値は VertexConsumer
       drawSimpleBlock(matrix, buffer.getBuffer(RenderTypes.UPGRADE_CRAFTING), light, mountPoint)
       RenderState.checkError(getClass.getName + ".renderItem: crafting upgrade")
     }
@@ -55,11 +53,13 @@ object ItemUpgradeRenderer {
   private val (minX, minY, minZ) = (-0.1f, -0.1f, -0.1f)
   private val (maxX, maxY, maxZ) = ( 0.1f,  0.1f,  0.1f)
 
-  // 1.18.2: IVertexBuilder → VertexConsumer
   private def drawSimpleBlock(stack: PoseStack, r: VertexConsumer, light: Int, mountPoint: MountPoint, frontOffset: Float = 0): Unit = {
-    // 1.18.2: Vector3f 引数構築は変わらず com.mojang.math.Vector3f を使う
-    stack.mulPose(new Vector3f(mountPoint.rotation.x, mountPoint.rotation.y, mountPoint.rotation.z)
-      .rotationDegrees(mountPoint.rotation.w))
+    stack.mulPose(new Quaternionf().rotationAxis(
+      mountPoint.rotation.w * (Math.PI.toFloat / 180f),
+      mountPoint.rotation.x,
+      mountPoint.rotation.y,
+      mountPoint.rotation.z
+    ))
     stack.translate(mountPoint.offset.x, mountPoint.offset.y, mountPoint.offset.z)
 
     // Front.

@@ -2,13 +2,13 @@ package li.cil.oc.client.renderer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +23,10 @@ public class RenderCache implements MultiBufferSource {
             this.type = type;
             try {
                 builder.end();
-                this.vertexBuffer = new VertexBuffer();
+                this.vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
                 this.vertexBuffer.bind();
-                this.vertexBuffer.upload(builder);
+                BufferBuilder.RenderedBuffer renderedBuffer = builder.end();
+                this.vertexBuffer.upload(renderedBuffer);
                 VertexBuffer.unbind();
             } catch (Exception e) {
                 if (this.vertexBuffer != null) this.vertexBuffer.close();
@@ -114,27 +115,15 @@ public class RenderCache implements MultiBufferSource {
     public void render(PoseStack poseStack) {
         if (isEmpty()) return;
 
-        // IMPORTANT: Combine RenderSystem's current model-view stack with the passed PoseStack.
-        //
-        // During GUI rendering, GameRenderer sets RenderSystem.getModelViewStack() to
-        // identity + translate(0, 0, -2000) before calling Screen.render(), and uses an
-        // orthographic projection with near=1000, far=3000.
-        //
-        // If we only use poseStack.last().pose() (which contains GUI screen-space transforms
-        // like translate/scale but NO Z offset), all vertices remain at Z=0 in view space,
-        // which is OUTSIDE the [1000, 3000] frustum -> clipped and invisible in GUI.
-        //
-        // During block-entity rendering, RenderSystem.getModelViewStack() is effectively
-        // identity, so multiplying by it is a no-op and existing behaviour is preserved.
-        Matrix4f modelView = RenderSystem.getModelViewStack().last().pose().copy();
-        modelView.multiply(poseStack.last().pose());
+        Matrix4f modelView = new Matrix4f(RenderSystem.getModelViewStack().last().pose());
+
+        modelView.mul(poseStack.last().pose());
 
         Matrix4f projection = RenderSystem.getProjectionMatrix();
 
-        Matrix3f identityNormal = new Matrix3f();
-        identityNormal.setIdentity();
+        Matrix3f identityNormal = new Matrix3f().identity();
 
-        Matrix3f oldInverseRotation = RenderSystem.getInverseViewRotationMatrix();
+        Matrix3f oldInverseRotation = new Matrix3f(RenderSystem.getInverseViewRotationMatrix());
         RenderSystem.setInverseViewRotationMatrix(identityNormal);
 
         RenderSystem.enableBlend();

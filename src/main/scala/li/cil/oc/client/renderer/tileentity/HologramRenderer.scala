@@ -3,7 +3,7 @@ package li.cil.oc.client.renderer.tileentity
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.{PoseStack, VertexConsumer}
-import com.mojang.math.{Matrix4f, Vector3f}
+import com.mojang.math.Axis
 import li.cil.oc.Settings
 import li.cil.oc.client.Textures
 import li.cil.oc.common.tileentity.Hologram
@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.{MultiBufferSource, RenderType}
 import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 import net.minecraft.core.Direction
+import org.joml.{Matrix4f, Quaternionf, Vector3f}
 
 import scala.util.Random
 
@@ -67,31 +68,35 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
 
     // 向き
     hologram.yaw match {
-      case Direction.WEST  => stack.mulPose(Vector3f.YP.rotationDegrees(-90))
-      case Direction.NORTH => stack.mulPose(Vector3f.YP.rotationDegrees(180))
-      case Direction.EAST  => stack.mulPose(Vector3f.YP.rotationDegrees(90))
+      case Direction.WEST  => stack.mulPose(Axis.YP.rotationDegrees(-90))
+      case Direction.NORTH => stack.mulPose(Axis.YP.rotationDegrees(180))
+      case Direction.EAST  => stack.mulPose(Axis.YP.rotationDegrees(90))
       case _ =>
     }
 
     hologram.pitch match {
-      case Direction.DOWN => stack.mulPose(Vector3f.XP.rotationDegrees(90))
-      case Direction.UP   => stack.mulPose(Vector3f.XP.rotationDegrees(-90))
+      case Direction.DOWN => stack.mulPose(Axis.XP.rotationDegrees(90))
+      case Direction.UP   => stack.mulPose(Axis.XP.rotationDegrees(-90))
       case _ =>
     }
 
-    // 自由回転
-    stack.mulPose(
-      new Vector3f(hologram.rotationX, hologram.rotationY, hologram.rotationZ)
-        .rotationDegrees(hologram.rotationAngle)
+    val quat1 = new Quaternionf().rotationAxis(
+      hologram.rotationAngle * (Math.PI.toFloat / 180f),
+      hologram.rotationX,
+      hologram.rotationY,
+      hologram.rotationZ
     )
+    stack.mulPose(quat1)
 
-    stack.mulPose(
-      new Vector3f(hologram.rotationSpeedX, hologram.rotationSpeedY, hologram.rotationSpeedZ)
-        .rotationDegrees(
-          hologram.rotationSpeed *
-            (hologram.getLevel.getGameTime % (360 * 20 - 1) + partialTick) / 20f
-        )
+    val currentAngle = hologram.rotationSpeed * (hologram.getLevel.getGameTime % (360 * 20 - 1) + partialTick) / 20f
+
+    val quat2 = new Quaternionf().rotationAxis(
+      currentAngle * (Math.PI.toFloat / 180f),
+      hologram.rotationSpeedX,
+      hologram.rotationSpeedY,
+      hologram.rotationSpeedZ
     )
+    stack.mulPose(quat2)
 
     stack.scale(1.001f, 1.001f, 1.001f)
 
@@ -101,7 +106,6 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
       (hologram.translation.z * hologram.width / 16.0 - 1.5) * hologram.scale
     )
 
-    // フリッカー
     if (Settings.get.hologramFlickerFrequency > 0 &&
       random.nextDouble() < Settings.get.hologramFlickerFrequency) {
       stack.scale(
@@ -134,8 +138,6 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
 
     RenderState.checkError(getClass.getName + ".render: leaving")
   }
-
-  // ======== 完全置換ジオメトリ生成 ========
 
   private def renderHologramGeometry(
                                       hologram: Hologram,

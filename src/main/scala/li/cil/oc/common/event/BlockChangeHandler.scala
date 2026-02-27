@@ -2,9 +2,6 @@ package li.cil.oc.common.event
 
 import li.cil.oc.common.EventHandler
 import li.cil.oc.util.BlockPosition
-import net.minecraft.core.BlockPos
-import net.minecraftforge.event.world.WorldEvent
-import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import scala.collection.mutable
 

@@ -14,7 +14,6 @@ import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraft.world.level.Level
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.TooltipFlag
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.InteractionResult
@@ -25,7 +24,7 @@ class Manual(props: Properties) extends Item(props) with IForgeItem with traits.
   @OnlyIn(Dist.CLIENT)
   override def appendHoverText(stack: ItemStack, level: Level, tooltip: util.List[Component], flag: TooltipFlag): Unit = {
     super.appendHoverText(stack, level, tooltip, flag)
-    tooltip.add(new TextComponent(ChatFormatting.DARK_GRAY.toString + "v" + OpenComputers.Version))
+    tooltip.add(Component.literal(ChatFormatting.DARK_GRAY.toString + "v" + OpenComputers.Version))
   }
 
   override def use(stack: ItemStack, level: Level, player: Player): InteractionResultHolder[ItemStack] = {

@@ -2,12 +2,12 @@ package li.cil.oc.client.renderer.markdown.segment
 
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.math.Vector4f
+import org.joml.Vector4f
 import li.cil.oc.api.manual.ImageRenderer
 import li.cil.oc.api.manual.InteractiveImageRenderer
 import li.cil.oc.client.renderer.markdown.Document
 import li.cil.oc.client.renderer.markdown.MarkupFormat
-import net.minecraft.client.gui.Font
+import net.minecraft.client.gui.{Font, GuiGraphics}
 import org.lwjgl.opengl.GL11
 
 private[markdown] class RenderSegment(val parent: Segment, val title: String, val imageRenderer: ImageRenderer) extends InteractiveSegment {
@@ -34,7 +34,7 @@ private[markdown] class RenderSegment(val parent: Segment, val title: String, va
 
   override def nextX(indent: Int, maxWidth: Int, renderer: Font): Int = 0
 
-  override def render(stack: PoseStack, x: Int, y: Int, indent: Int, maxWidth: Int, renderer: Font, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
+  override def render(graphics: GuiGraphics, x: Int, y: Int, indent: Int, maxWidth: Int, renderer: Font, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
     val width = imageWidth(maxWidth)
     val height = imageHeight(maxWidth)
     val xOffset = (maxWidth - width) / 2
@@ -45,6 +45,7 @@ private[markdown] class RenderSegment(val parent: Segment, val title: String, va
     lastY = y + yOffset
 
     val hovered = checkHovered(mouseX, mouseY, x + xOffset, y + yOffset, width, height)
+    val stack = graphics.pose
 
     stack.pushPose()
     stack.translate(x + xOffset, y + yOffset, 0)
@@ -56,29 +57,16 @@ private[markdown] class RenderSegment(val parent: Segment, val title: String, va
     RenderSystem.enableDepthTest()
 
     if (hovered.isDefined) {
-      RenderSystem.setShaderColor(1, 1, 1, 0.15f)
-      RenderSystem.disableTexture()
-      GL11.glBegin(GL11.GL_QUADS)
-      val matrix = stack.last.pose
-      val vec = new Vector4f(0, 0, 0, 1)
-      vec.transform(matrix)
-      GL11.glVertex3f(vec.x, vec.y, vec.z)
-      vec.set(0, imageRenderer.getHeight, 0, 1)
-      vec.transform(matrix)
-      GL11.glVertex3f(vec.x, vec.y, vec.z)
-      vec.set(imageRenderer.getWidth, imageRenderer.getHeight, 0, 1)
-      vec.transform(matrix)
-      GL11.glVertex3f(vec.x, vec.y, vec.z)
-      vec.set(imageRenderer.getWidth, 0, 0, 1)
-      vec.transform(matrix)
-      GL11.glVertex3f(vec.x, vec.y, vec.z)
-      GL11.glEnd()
-      RenderSystem.enableTexture()
+      stack.pushPose()
+      val color = 0x26FFFFFF
+      graphics.fill(0, 0, imageRenderer.getWidth, imageRenderer.getHeight, color)
+
+      stack.popPose()
     }
 
     RenderSystem.setShaderColor(1, 1, 1, 1)
 
-    imageRenderer.render(stack, mouseX - x, mouseY - y)
+    imageRenderer.render(graphics, mouseX - x, mouseY - y)
 
     RenderSystem.disableBlend()
     //RenderSystem.disableAlphaTest()

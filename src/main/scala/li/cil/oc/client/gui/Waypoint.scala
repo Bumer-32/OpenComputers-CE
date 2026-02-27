@@ -8,10 +8,11 @@ import li.cil.oc.common.tileentity
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.components.EditBox
 import net.minecraft.client.KeyMapping
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
 
-class Waypoint(val waypoint: tileentity.Waypoint) extends Screen(TextComponent.EMPTY) {
+class Waypoint(val waypoint: tileentity.Waypoint) extends Screen(Component.empty()) {
   val imageWidth = 176
   val imageHeight = 24
   var leftPos = 0
@@ -36,7 +37,7 @@ class Waypoint(val waypoint: tileentity.Waypoint) extends Screen(TextComponent.E
     leftPos = (width - imageWidth) / 2
     topPos = (height - imageHeight) / 2
 
-    textField = new EditBox(font, leftPos + 7, topPos + 8, 164 - 12, 12, TextComponent.EMPTY) {
+    textField = new EditBox(font, leftPos + 7, topPos + 8, 164 - 12, 12, Component.empty()) {
       override def keyPressed(keyCode: Int, scanCode: Int, mods: Int): Boolean = {
         if (keyCode == GLFW.GLFW_KEY_ENTER) {
           val label = textField.getValue.take(32)
@@ -64,12 +65,11 @@ class Waypoint(val waypoint: tileentity.Waypoint) extends Screen(TextComponent.E
     super.removed()
   }
 
-  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
-    renderBackground(stack)
-    super.render(stack, mouseX, mouseY, dt)
+  override def render(graphics: GuiGraphics, mouseX: Int, mouseY: Int, dt: Float): Unit = {
+    renderBackground(graphics)
+    super.render(graphics, mouseX, mouseY, dt)
     RenderSystem.setShaderColor(1, 1, 1, 1)
-    RenderSystem.setShaderTexture(0, Textures.GUI.Waypoint)
-    blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
-    textField.render(stack, mouseX, mouseY, dt)
+    graphics.blit(Textures.GUI.Waypoint, leftPos, topPos, 0, 0, imageWidth, imageHeight)
+    textField.render(graphics, mouseX, mouseY, dt)
   }
 }

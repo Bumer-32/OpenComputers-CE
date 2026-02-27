@@ -80,7 +80,6 @@ trait InputBuffer extends DisplayBuffer {
 
   override protected def init() = {
     super.init()
-    Minecraft.getInstance.keyboardHandler.setSendRepeatsToGui(true)
   }
 
   override protected def drawBufferLayer(stack: PoseStack): Unit = {
@@ -113,7 +112,6 @@ trait InputBuffer extends DisplayBuffer {
 
   override def removed() = {
     super.removed()
-    Minecraft.getInstance.keyboardHandler.setSendRepeatsToGui(false)
     if (buffer != null) {
       flushQueuedKey()
       for ((code, char) <- pressedKeys) {

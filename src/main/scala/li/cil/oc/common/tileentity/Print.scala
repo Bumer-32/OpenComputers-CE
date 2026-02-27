@@ -28,14 +28,13 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.ticks.ScheduledTick
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.client.model.data.IModelData
 import net.minecraftforge.client.model.data.ModelProperty
 
 import scala.collection.Iterable
 import scala.collection.convert.ImplicitConversionsToJava._
 
 class Print(pos: BlockPos, blockState: BlockState, val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int => Unit], val onStateChange: Option[() => Unit])
-  extends BlockEntity(TileEntityTypes.PRINT.get(), pos, blockState) with traits.TileEntity with traits.RedstoneAware with traits.RotatableTile with IModelData {
+  extends BlockEntity(TileEntityTypes.PRINT.get(), pos, blockState) with traits.TileEntity with traits.RedstoneAware with traits.RotatableTile {
 
   def this(pos: BlockPos, blockState: BlockState) = this(pos, blockState, None, None, None)
   def this(pos: BlockPos, blockState: BlockState, canToggle: () => Boolean, scheduleUpdate: Int => Unit, onStateChange: () => Unit) =
@@ -173,7 +172,7 @@ class Print(pos: BlockPos, blockState: BlockState, val canToggle: Option[() => B
   // ----------------------------------------------------------------------- //
 
   @Deprecated
-  override def getModelData() = this
+  override def getModelData = this
 
   @Deprecated
   override def hasProperty(prop: ModelProperty[_]) = false

@@ -123,7 +123,7 @@ object PacketHandler extends CommonPacketHandler {
         override def execute = {
           val mc = Minecraft.getInstance
           mc.keyboardHandler.setClipboard(address)
-          mc.gui.handleChat(ChatType.SYSTEM, Localization.Analyzer.AddressCopied, Util.NIL_UUID)
+          mc.gui.getChat.addMessage(Localization.Analyzer.AddressCopied)
         }
       })
     }
@@ -206,7 +206,7 @@ object PacketHandler extends CommonPacketHandler {
         MinecraftForge.EVENT_BUS.post(new FileSystemAccessEvent.Client(sound, t, data))
       case _ => // Invalid packet.
     }
-    else world(p.player, new ResourceLocation(p.readUTF())) match {
+    else world(p.player, ResourceLocation.withDefaultNamespace(p.readUTF())) match {
       case Some(world) =>
         val x = p.readDouble()
         val y = p.readDouble()
@@ -223,7 +223,7 @@ object PacketHandler extends CommonPacketHandler {
         MinecraftForge.EVENT_BUS.post(new NetworkActivityEvent.Client(t, data))
       case _ => // Invalid packet.
     }
-    else world(p.player, new ResourceLocation(p.readUTF())) match {
+    else world(p.player, ResourceLocation.withDefaultNamespace(p.readUTF())) match {
       case Some(world) =>
         val x = p.readDouble()
         val y = p.readDouble()
@@ -404,7 +404,7 @@ object PacketHandler extends CommonPacketHandler {
     }
 
   def onParticleEffect(p: PacketParser): Unit = {
-    world(p.player, new ResourceLocation(p.readUTF())) match {
+    world(p.player, ResourceLocation.withDefaultNamespace(p.readUTF())) match {
       case Some(world) =>
         val x = p.readInt()
         val y = p.readInt()
@@ -414,7 +414,7 @@ object PacketHandler extends CommonPacketHandler {
         val particleType = p.readRegistryEntry(ForgeRegistries.PARTICLE_TYPES)
         particleType match {
           case particle: ParticleOptions =>
-            val count = p.readUnsignedByte() / (1 << Minecraft.getInstance.options.particles.getId())
+            val count = p.readUnsignedByte() / (1 << Minecraft.getInstance.options.particles.get.getId)
 
             for (i <- 0 until count) {
               def rv(f: Direction => Int) = direction match {
@@ -573,7 +573,7 @@ object PacketHandler extends CommonPacketHandler {
   }
 
   def onRobotMove(p: PacketParser): AnyVal = {
-    val dimension = new ResourceLocation(p.readUTF())
+    val dimension = ResourceLocation.withDefaultNamespace(p.readUTF())
     val x = p.readInt()
     val y = p.readInt()
     val z = p.readInt()
@@ -821,7 +821,7 @@ object PacketHandler extends CommonPacketHandler {
     }
 
   def onSoundEffect(p: PacketParser): Unit = {
-    world(p.player, new ResourceLocation(p.readUTF())) match {
+    world(p.player, ResourceLocation.withDefaultNamespace(p.readUTF())) match {
       case Some(world) =>
         val x = p.readDouble()
         val y = p.readDouble()
@@ -829,13 +829,13 @@ object PacketHandler extends CommonPacketHandler {
         val sound = p.readUTF()
         val category = SoundSource.values()(p.readByte())
         val range = p.readFloat()
-        world.playSound(p.player, x, y, z, new SoundEvent(new ResourceLocation(sound)), category, range / 15 + 0.5F, 1.0F)
+        world.playSound(p.player, x, y, z, SoundEvent.createVariableRangeEvent(ResourceLocation.withDefaultNamespace(sound)), category, range / 15 + 0.5F, 1.0F)
       case _ => // Invalid packet.
     }
   }
 
   def onSound(p: PacketParser): Unit = {
-    if (world(p.player, new ResourceLocation(p.readUTF())).isDefined) {
+    if (world(p.player, ResourceLocation.withDefaultNamespace(p.readUTF())).isDefined) {
       val x = p.readInt()
       val y = p.readInt()
       val z = p.readInt()
@@ -846,7 +846,7 @@ object PacketHandler extends CommonPacketHandler {
   }
 
   def onSoundPattern(p: PacketParser): Unit = {
-    if (world(p.player, new ResourceLocation(p.readUTF())).isDefined) {
+    if (world(p.player, ResourceLocation.withDefaultNamespace(p.readUTF())).isDefined) {
       val x = p.readInt()
       val y = p.readInt()
       val z = p.readInt()

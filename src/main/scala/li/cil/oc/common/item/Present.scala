@@ -25,8 +25,6 @@ import net.minecraft.sounds.SoundSource
 import net.minecraft.sounds.SoundEvents
 
 class Present(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem {
-  override def fillItemCategory(tab: CreativeModeTab, list: NonNullList[ItemStack]): Unit = {}
-
   override def use(stack: ItemStack, level: Level, player: Player): InteractionResultHolder[ItemStack] = {
     if (stack.getCount > 0) {
       stack.shrink(1)

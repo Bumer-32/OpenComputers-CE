@@ -15,7 +15,6 @@ import scala.collection.convert.ImplicitConversionsToScala._
 import net.minecraft.world.level.Level
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.TooltipFlag
-import net.minecraft.network.chat.TextComponent
 
 class LinkedCard(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with traits.ItemTier {
   @OnlyIn(Dist.CLIENT)
@@ -27,12 +26,12 @@ class LinkedCard(props: Properties) extends Item(props) with IForgeItem with tra
         val channel = data.getString(Settings.namespace + "tunnel")
         if (channel.length > 13) {
           for (curr <- Tooltip.get(unlocalizedName + "_channel", channel.substring(0, 13) + "...")) {
-            tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+            tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
           }
         }
         else {
           for (curr <- Tooltip.get(unlocalizedName + "_channel", channel)) {
-            tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+            tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
           }
         }
       }

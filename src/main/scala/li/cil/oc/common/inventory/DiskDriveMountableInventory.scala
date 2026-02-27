@@ -10,7 +10,6 @@ import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
 
 trait DiskDriveMountableInventory extends ItemStackInventory with MenuProvider {
   def tier: Int = 1
@@ -26,7 +25,7 @@ trait DiskDriveMountableInventory extends ItemStackInventory with MenuProvider {
     case _ => false
   }
 
-  override def getDisplayName = TextComponent.EMPTY
+  override def getDisplayName = Component.empty()
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new DiskDriveContainer(id, playerInventory, this)

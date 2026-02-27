@@ -11,7 +11,9 @@ import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
-import net.minecraftforge.client.model.data.IModelData
+import net.minecraft.util.RandomSource
+import net.minecraft.client.renderer.RenderType
+import net.minecraftforge.client.model.data.ModelData
 
 import scala.collection.JavaConverters.bufferAsJavaList
 import scala.collection.mutable
@@ -19,11 +21,11 @@ import scala.collection.mutable
 object RobotModel extends SmartBlockModelBase {
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] =
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource): util.List[BakedQuad] =
     ItemModel.getQuads(state, side, rand)
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random, extraData: IModelData): util.List[BakedQuad] =
-    ItemModel.getQuads(state, side, rand, extraData)
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, extraData: ModelData, renderType: RenderType): util.List[BakedQuad] =
+    ItemModel.getQuads(state, side, rand, extraData, renderType)
 
   object ItemModel extends SmartBlockModelBase {
     private val size = 0.4f
@@ -66,7 +68,7 @@ object RobotModel extends SmartBlockModelBase {
       }.toArray
     }
 
-    override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] = {
+    override def getQuads(state: BlockState, side: Direction, rand: RandomSource): util.List[BakedQuad] = {
       val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
       faces += new BakedQuad(quad(top, top1, top2),    tint, Direction.NORTH, robotTexture, true)
