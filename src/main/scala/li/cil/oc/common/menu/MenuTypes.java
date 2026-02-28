@@ -13,7 +13,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 public final class MenuTypes {
     public static final DeferredRegister<MenuType<?>> MENU_TYPES =
-            DeferredRegister.create(ForgeRegistries.CONTAINERS, OpenComputers.ID());
+            DeferredRegister.create(ForgeRegistries.MENU_TYPES, OpenComputers.ID());
 
     public static final RegistryObject<MenuType<Adapter>> ADAPTER =
             MENU_TYPES.register("adapter", () -> IForgeMenuType.create(
@@ -97,26 +97,26 @@ public final class MenuTypes {
             }));
 
     public static void openAdapterGui(ServerPlayer player, li.cil.oc.common.tileentity.Adapter adapter) {
-        NetworkHooks.openGui(player, adapter);
+        NetworkHooks.openScreen(player, adapter);
     }
 
     public static void openAssemblerGui(ServerPlayer player, li.cil.oc.common.tileentity.Assembler assembler) {
-        NetworkHooks.openGui(player, assembler);
+        NetworkHooks.openScreen(player, assembler);
     }
 
     public static void openCaseGui(ServerPlayer player, li.cil.oc.common.tileentity.Case computer) {
-        NetworkHooks.openGui(player, computer, buff -> {
+        NetworkHooks.openScreen(player, computer, buff -> {
             buff.writeVarInt(computer.getContainerSize());
             buff.writeVarInt(computer.tier());
         });
     }
 
     public static void openChargerGui(ServerPlayer player, li.cil.oc.common.tileentity.Charger charger) {
-        NetworkHooks.openGui(player, charger);
+        NetworkHooks.openScreen(player, charger);
     }
 
     public static void openDatabaseGui(ServerPlayer player, li.cil.oc.common.inventory.DatabaseInventory database) {
-        NetworkHooks.openGui(player, database, buff -> {
+        NetworkHooks.openScreen(player, database, buff -> {
             buff.writeItem(database.container());
             buff.writeVarInt(database.getContainerSize());
             buff.writeVarInt(database.tier());
@@ -124,51 +124,51 @@ public final class MenuTypes {
     }
 
     public static void openDisassemblerGui(ServerPlayer player, li.cil.oc.common.tileentity.Disassembler disassembler) {
-        NetworkHooks.openGui(player, disassembler);
+        NetworkHooks.openScreen(player, disassembler);
     }
 
     public static void openDiskDriveGui(ServerPlayer player, li.cil.oc.common.tileentity.DiskDrive diskDrive) {
-        NetworkHooks.openGui(player, diskDrive);
+        NetworkHooks.openScreen(player, diskDrive);
     }
 
     public static void openDiskDriveGui(ServerPlayer player, li.cil.oc.server.component.DiskDriveMountable diskDrive) {
-        NetworkHooks.openGui(player, diskDrive);
+        NetworkHooks.openScreen(player, diskDrive);
     }
 
     public static void openDiskDriveGui(ServerPlayer player, li.cil.oc.common.inventory.DiskDriveMountableInventory diskDrive) {
-        NetworkHooks.openGui(player, diskDrive);
+        NetworkHooks.openScreen(player, diskDrive);
     }
 
     public static void openDroneGui(ServerPlayer player, li.cil.oc.common.entity.Drone drone) {
-        NetworkHooks.openGui(player, drone.containerProvider(), buff -> {
+        NetworkHooks.openScreen(player, drone.containerProvider(), buff -> {
             buff.writeVarInt(drone.mainInventory().getContainerSize());
         });
     }
 
     public static void openPrinterGui(ServerPlayer player, li.cil.oc.common.tileentity.Printer printer) {
-        NetworkHooks.openGui(player, printer);
+        NetworkHooks.openScreen(player, printer);
     }
 
     public static void openRackGui(ServerPlayer player, li.cil.oc.common.tileentity.Rack rack) {
-        NetworkHooks.openGui(player, rack);
+        NetworkHooks.openScreen(player, rack);
     }
 
     public static void openRaidGui(ServerPlayer player, li.cil.oc.common.tileentity.Raid raid) {
-        NetworkHooks.openGui(player, raid);
+        NetworkHooks.openScreen(player, raid);
     }
 
     public static void openRelayGui(ServerPlayer player, li.cil.oc.common.tileentity.Relay relay) {
-        NetworkHooks.openGui(player, relay);
+        NetworkHooks.openScreen(player, relay);
     }
 
     public static void openRobotGui(ServerPlayer player, li.cil.oc.common.tileentity.Robot robot) {
-        NetworkHooks.openGui(player, robot, buff -> {
+        NetworkHooks.openScreen(player, robot, buff -> {
             RobotInfo$.MODULE$.writeRobotInfo(buff, new RobotInfo(robot));
         });
     }
 
     public static void openServerGui(ServerPlayer player, li.cil.oc.common.inventory.ServerInventory server, int rackSlot) {
-        NetworkHooks.openGui(player, server, buff -> {
+        NetworkHooks.openScreen(player, server, buff -> {
             buff.writeItem(server.container());
             buff.writeVarInt(server.getContainerSize());
             buff.writeVarInt(server.tier());
@@ -177,7 +177,7 @@ public final class MenuTypes {
     }
 
     public static void openTabletGui(ServerPlayer player, li.cil.oc.common.item.TabletWrapper tablet) {
-        NetworkHooks.openGui(player, tablet, buff -> {
+        NetworkHooks.openScreen(player, tablet, buff -> {
             buff.writeItem(tablet.stack());
             buff.writeVarInt(tablet.getContainerSize());
             buff.writeUtf(tablet.containerSlotType(), 32);

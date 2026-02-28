@@ -11,6 +11,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.registries.{DeferredRegister, RegistryObject}
 import li.cil.oc.common.Tier
 import li.cil.oc.integration.opencomputers.ModOpenComputers
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 
 object CreativeTab {
   val CREATIVE_TABS: DeferredRegister[CreativeModeTab] =

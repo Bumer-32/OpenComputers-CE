@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RenderCache implements MultiBufferSource {
-
     public static class DrawEntry implements AutoCloseable {
         private final RenderType type;
         private VertexBuffer vertexBuffer;
@@ -22,7 +21,6 @@ public class RenderCache implements MultiBufferSource {
         public DrawEntry(RenderType type, BufferBuilder builder) {
             this.type = type;
             try {
-                builder.end();
                 this.vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
                 this.vertexBuffer.bind();
                 BufferBuilder.RenderedBuffer renderedBuffer = builder.end();

@@ -4,9 +4,14 @@ import java.nio.file.Paths
 import li.cil.oc.common.IMC
 import li.cil.oc.common.Proxy
 import li.cil.oc.common.capabilities.Capabilities
+import li.cil.oc.common.entity.EntityTypes
 import li.cil.oc.common.init.Blocks
 import li.cil.oc.common.init.Items
+import li.cil.oc.common.menu.MenuTypes
+import li.cil.oc.common.recipe.Recipes
+import li.cil.oc.common.tileentity.TileEntityTypes
 import li.cil.oc.integration.Mods
+import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.ThreadPoolFactory
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.MinecraftForge
@@ -62,7 +67,16 @@ class OpenComputers {
   val modBus = FMLJavaModLoadingContext.get.getModEventBus
 
   modBus.register(this)
+  Items.init(modBus)
+  Blocks.init(modBus)
+  CreativeTab.CREATIVE_TABS.register(modBus)
+  TileEntityTypes.init(modBus)
+  Recipes.init(modBus)
+  LootFunctions.init(modBus)
+  EntityTypes.ENTITY_TYPES.register(modBus)
+  MenuTypes.MENU_TYPES.register(modBus)
   modBus.register(classOf[Capabilities])
+  modBus.register(CreativeTab)
   OpenComputers.instance = Some(this)
   MinecraftForge.EVENT_BUS.register(OpenComputers.proxy)
   modBus.register(OpenComputers.proxy)

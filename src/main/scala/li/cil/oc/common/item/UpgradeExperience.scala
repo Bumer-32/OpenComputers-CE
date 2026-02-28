@@ -13,7 +13,6 @@ import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraft.world.item.TooltipFlag
 import net.minecraft.world.level.Level
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
 
 class UpgradeExperience(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with traits.ItemTier {
   @OnlyIn(Dist.CLIENT)
@@ -24,7 +23,7 @@ class UpgradeExperience(props: Properties) extends Item(props) with IForgeItem w
       val experience = ExperienceUtil.getExperience(nbt)
       val level = ExperienceUtil.calculateLevelFromExperience(experience)
       val reportedLevel = ExperienceUtil.calculateExperienceLevel(level, experience)
-      tooltip.add(new TextComponent(Localization.Tooltip.ExperienceLevel(reportedLevel)).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(Component.literal(Localization.Tooltip.ExperienceLevel(reportedLevel)).setStyle(Tooltip.DefaultStyle))
     }
   }
 }

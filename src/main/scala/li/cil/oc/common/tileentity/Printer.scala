@@ -246,7 +246,7 @@ class Printer(pos: BlockPos, state: BlockState)
     def canMergeOutput = {
       val presentStack = getItem(slotOutput)
       val outputStack = data.createItemStack()
-      presentStack.isEmpty || (presentStack.sameItem(outputStack) && ItemStack.tagMatches(presentStack, outputStack))
+      presentStack.isEmpty || ItemStack.matches(presentStack, outputStack)
     }
 
     if (isActive && output.isEmpty && canMergeOutput) {
@@ -304,8 +304,8 @@ class Printer(pos: BlockPos, state: BlockState)
       val material = removeItem(slotInk, 1)
       if (material != null) {
         amountInk += inkValue
-        if (material.hasContainerItem()) {
-          setItem(slotInk, material.getContainerItem())
+        if (material.hasCraftingRemainingItem) {
+          setItem(slotInk, material.getCraftingRemainingItem)
         }
       }
     }

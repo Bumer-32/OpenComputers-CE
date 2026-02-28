@@ -1,24 +1,35 @@
 package li.cil.oc.integration.computercraft
 
-import dan200.computercraft.api.ComputerCraftAPI
 import dan200.computercraft.api.peripheral.IPeripheral
-import dan200.computercraft.api.peripheral.IPeripheralProvider
 import li.cil.oc.common.tileentity.Relay
 import net.minecraft.core.Direction
-import net.minecraft.core.BlockPos
-import net.minecraft.world.level.Level
+import net.minecraft.resources.ResourceLocation
+import net.minecraftforge.common.capabilities.{Capability, CapabilityManager, CapabilityToken, ForgeCapabilities}
 import net.minecraftforge.common.util.LazyOptional
-import net.minecraftforge.common.util.NonNullSupplier
+import net.minecraftforge.event.AttachCapabilitiesEvent
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
+import li.cil.oc.OpenComputers
 
-object PeripheralProvider extends IPeripheralProvider {
-  def init(): Unit = {
-    ComputerCraftAPI.registerPeripheralProvider(this)
-  }
-
-  override def getPeripheral(level: Level, blockPos: BlockPos, side: Direction): LazyOptional[IPeripheral] = level.getBlockEntity(blockPos) match {
-    case relay: Relay => LazyOptional.of(new NonNullSupplier[IPeripheral] {
-      override def get = new RelayPeripheral(relay)
-    })
-    case _ => LazyOptional.empty[IPeripheral]
+@EventBusSubscriber(modid = OpenComputers.ID)
+object PeripheralProvider {
+  val CAPABILITY_PERIPHERAL: Capability[IPeripheral] = CapabilityManager.get(new CapabilityToken[IPeripheral]() {})
+  private val PERIPHERAL_KEY = ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, "peripheral")
+    
+  @SubscribeEvent
+  def attachCapabilities(event: AttachCapabilitiesEvent[BlockEntity]): Unit = {
+    event.getObject match {
+      case relay: Relay =>
+        val peripheral = new RelayPeripheral(relay)
+        val lazyOptional = LazyOptional.of(() => peripheral)
+        event.addCapability(PERIPHERAL_KEY, new net.minecraftforge.common.capabilities.ICapabilityProvider {
+          override def getCapability[T](cap: Capability[T], side: Direction): LazyOptional[T] =
+            if (cap == CAPABILITY_PERIPHERAL) lazyOptional.cast()
+            else LazyOptional.empty()
+        })
+        event.addListener(() => lazyOptional.invalidate())
+      case _ =>
+    }
   }
 }

@@ -161,7 +161,8 @@ trait SmartBlockModelBase extends BakedModel {
       0xFF000000 | b << 16 | g << 8 | r,
       java.lang.Float.floatToRawIntBits(u),
       java.lang.Float.floatToRawIntBits(v),
-      0, vx | (vy << 0x08) | (vz << 0x10)
+      0,
+      vx | (vy << 0x08) | (vz << 0x10)
     )
   }
 }

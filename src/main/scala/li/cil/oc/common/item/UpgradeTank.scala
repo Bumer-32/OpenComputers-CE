@@ -14,7 +14,6 @@ import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.TooltipFlag
 import net.minecraft.world.level.Level
-import net.minecraft.network.chat.TextComponent
 
 class UpgradeTank(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with traits.ItemTier {
   @OnlyIn(Dist.CLIENT)
@@ -23,7 +22,7 @@ class UpgradeTank(props: Properties) extends Item(props) with IForgeItem with tr
     if (stack.hasTag) {
       FluidStack.loadFluidStackFromNBT(stack.getTag.getCompound(Settings.namespace + "data")) match {
         case stack: FluidStack =>
-          tooltip.add(new TextComponent(stack.getFluid.getAttributes.getDisplayName(stack).getString + ": " + stack.getAmount + "/16000").setStyle(Tooltip.DefaultStyle))
+          tooltip.add(Component.literal(stack.getDisplayName.getString + ": " + stack.getAmount + "/16000").setStyle(Tooltip.DefaultStyle))
         case _ =>
       }
     }

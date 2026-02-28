@@ -34,7 +34,7 @@ import li.cil.oc.util.StackOption._
 import net.minecraft.client.Minecraft
 import net.minecraft.world.item.ItemStack
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.capabilities.{Capability, ForgeCapabilities}
 import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.common.util.NonNullSupplier
 import net.minecraftforge.fluids._
@@ -60,6 +60,7 @@ import net.minecraft.Util
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.EquipmentSlot
+import net.minecraft.network.chat
 
 // Implementation note: this tile entity is never directly added to the world.
 // It is always wrapped by a `RobotProxy` tile entity, which forwards any
@@ -88,7 +89,7 @@ class Robot(pos: BlockPos, state: BlockState)
   // ----------------------------------------------------------------------- //
 
   override def getCapability[T](capability: Capability[T], facing: Direction): LazyOptional[T] = {
-    if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
+    if (capability == ForgeCapabilities.FLUID_HANDLER)
       fluidCap.cast()
     else
       super.getCapability(capability, facing)
@@ -208,8 +209,8 @@ class Robot(pos: BlockPos, state: BlockState)
   override def setName(name: String): Unit = info.name = name
 
   override def onAnalyze(player: entity.player.Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
-    player.sendMessage(Localization.Analyzer.RobotOwner(ownerName), Util.NIL_UUID)
-    player.sendMessage(Localization.Analyzer.RobotName(player_.getName.getString), Util.NIL_UUID)
+    player.sendSystemMessage(Localization.Analyzer.RobotOwner(ownerName))
+    player.sendSystemMessage(Localization.Analyzer.RobotName(player_.getName.getString))
     MinecraftForge.EVENT_BUS.post(new RobotAnalyzeEvent(this, player))
     super.onAnalyze(player, side, hitX, hitY, hitZ)
   }
@@ -769,7 +770,7 @@ class Robot(pos: BlockPos, state: BlockState)
 
   // ----------------------------------------------------------------------- //
 
-  override def getDisplayName = TextComponent.EMPTY
+  override def getDisplayName = chat.Component.empty
 
   override def createMenu(id: Int, playerInventory: Inventory, player: PlayerEntity) =
     new menu.Robot(id, playerInventory, this, new menu.RobotInfo(this))

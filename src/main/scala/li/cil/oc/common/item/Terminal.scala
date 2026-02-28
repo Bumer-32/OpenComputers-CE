@@ -4,13 +4,11 @@ import java.util
 import com.google.common.base.Strings
 import li.cil.oc.Constants
 import li.cil.oc.Localization
-import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.client.gui
 import li.cil.oc.common.component
 import li.cil.oc.common.tileentity.traits.TileEntity
-import li.cil.oc.util.Tooltip
 import net.minecraft.client.Minecraft
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -21,12 +19,11 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.TooltipFlag
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.InteractionHand
-import net.minecraftforge.client.model.ForgeModelBakery
+import net.minecraftforge.client.event.ModelEvent
 
 class Terminal(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with CustomModel {
   def hasServer(stack: ItemStack) = stack.hasTag && stack.getTag.contains(Settings.namespace + "server")
@@ -36,13 +33,13 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
     super.appendHoverText(stack, level, tooltip, flag)
     if (hasServer(stack)) {
       val server = stack.getTag.getString(Settings.namespace + "server")
-      tooltip.add(new TextComponent("§8" + server.substring(0, 13) + "...§7"))
+      tooltip.add(Component.literal("§8" + server.substring(0, 13) + "...§7"))
     }
   }
 
   @OnlyIn(Dist.CLIENT)
   private def modelLocationFromState(running: Boolean) = {
-    new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.ItemName.Terminal + (if (running) "_on" else "_off"), "inventory")
+    new ModelResourceLocation(Settings.resourceDomain, Constants.ItemName.Terminal + (if (running) "_on" else "_off"), "inventory")
   }
 
   @OnlyIn(Dist.CLIENT)
@@ -50,10 +47,9 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
     modelLocationFromState(hasServer(stack))
   }
 
-  @OnlyIn(Dist.CLIENT)
-  override def registerModelLocations(): Unit = {
+  override def bakeModels(event: ModelEvent.RegisterAdditional): Unit = {
     for (state <- Seq(true, false)) {
-      ForgeModelBakery.addSpecialModel(modelLocationFromState(state))
+      event.register(modelLocationFromState(state))
     }
   }
 

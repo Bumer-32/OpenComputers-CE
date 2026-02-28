@@ -1,16 +1,12 @@
 package li.cil.oc.util
 
-import java.util.Optional
 import java.util.function.Consumer
-
 import li.cil.oc.OpenComputers
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.StackOption._
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
-import net.minecraftforge.common.util.LazyOptional
-import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
 import net.minecraftforge.items.IItemHandlerModifiable
 import net.minecraftforge.items.wrapper.InvWrapper
@@ -23,6 +19,7 @@ import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.WorldlyContainer
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.phys.Vec3
+import net.minecraftforge.common.capabilities.ForgeCapabilities
 
 object InventoryUtils {
 
@@ -42,7 +39,7 @@ object InventoryUtils {
     !stackA.isEmpty && !stackB.isEmpty &&
       stackA.getItem == stackB.getItem &&
       (stackA.getDamageValue == stackB.getDamageValue) &&
-      (!checkNBT || ItemStack.tagMatches(stackA, stackB))
+      (!checkNBT || ItemStack.isSameItemSameTags(stackA, stackB))
 
   /**
    * Retrieves an actual inventory implementation for a specified world coordinate,
@@ -50,11 +47,11 @@ object InventoryUtils {
    */
   def inventorySourceAt(position: BlockPosition, side: Direction): Option[InventorySource] = position.world match {
     case Some(world) if world.blockExists(position) => world.getBlockEntity(position) match {
-      case tile: BlockEntity if tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side).isPresent => Option(BlockInventorySource(position, side, tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side).orElse(null)))
+      case tile: BlockEntity if tile.getCapability(ForgeCapabilities.ITEM_HANDLER, side).isPresent => Option(BlockInventorySource(position, side, tile.getCapability(ForgeCapabilities.ITEM_HANDLER, side).orElse(null)))
       case tile: Container => Option(BlockInventorySource(position, side, asItemHandler(tile, side)))
       case _ => world.getEntitiesOfClass(classOf[Entity], position.bounds)
-        .filter(e => e.isAlive && e.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side).isPresent)
-        .map(a => EntityInventorySource(a, side, a.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side).orElse(null)))
+        .filter(e => e.isAlive && e.getCapability(ForgeCapabilities.ITEM_HANDLER, side).isPresent)
+        .map(a => EntityInventorySource(a, side, a.getCapability(ForgeCapabilities.ITEM_HANDLER, side).orElse(null)))
         .find(a => a != null && a.inventory != null)
     }
     case _ => None

@@ -21,6 +21,7 @@ import scala.ref.WeakReference
 import net.minecraft.world.Container
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.core.Registry
+import net.minecraft.core.registries.Registries
 
 class Trade(val info: TradeInfo) extends AbstractValue {
   def this() = this(new TradeInfo())
@@ -195,8 +196,8 @@ class TradeInfo(var host: Option[EnvironmentHost], var merchant: WeakReference[M
   }
 
   private def loadEntity(nbt: CompoundTag, uuid: UUID): Option[Entity] = {
-    val dimension = new ResourceLocation(nbt.getString(DimensionIDTag))
-    val dimKey = ResourceKey.create(Registry.DIMENSION_REGISTRY, dimension)
+    val dimension = ResourceLocation.tryParse(nbt.getString(DimensionIDTag))
+    val dimKey = ResourceKey.create(Registries.DIMENSION, dimension)
     val world = ServerLifecycleHooks.getCurrentServer.getLevel(dimKey)
 
     Option(world.getEntity(uuid))
@@ -210,8 +211,8 @@ class TradeInfo(var host: Option[EnvironmentHost], var merchant: WeakReference[M
   }
 
   private def loadHostTileEntity(nbt: CompoundTag): Option[EnvironmentHost] = {
-    val dimension = new ResourceLocation(nbt.getString(DimensionIDTag))
-    val dimKey = ResourceKey.create(Registry.DIMENSION_REGISTRY, dimension)
+    val dimension = ResourceLocation.tryParse(nbt.getString(DimensionIDTag))
+    val dimKey = ResourceKey.create(Registries.DIMENSION, dimension)
     val world = ServerLifecycleHooks.getCurrentServer.getLevel(dimKey)
 
     val x = nbt.getInt(HostXTag)

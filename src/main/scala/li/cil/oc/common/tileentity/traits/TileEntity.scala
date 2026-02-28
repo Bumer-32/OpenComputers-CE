@@ -14,6 +14,7 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket
 import net.minecraft.network.Connection
+import net.minecraftforge.client.model.data.ModelProperty
 
 trait TileEntity extends net.minecraft.world.level.block.entity.BlockEntity {
   private final val IsServerDataTag = Settings.namespace + "isServerData"
@@ -130,4 +131,10 @@ trait TileEntity extends net.minecraft.world.level.block.entity.BlockEntity {
       case e: Throwable => OpenComputers.log.warn("There was a problem reading a TileEntity description packet. Please report this if you see it!", e)
     }
   }
+  
+  def hasProperty(prop: ModelProperty[_]) = false
+
+  def getData[T](prop: ModelProperty[T]): T = null.asInstanceOf[T]
+
+  def setData[T](prop: ModelProperty[T], value: T): T = null.asInstanceOf[T]
 }

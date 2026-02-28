@@ -51,10 +51,10 @@ object ExtendedRecipe {
   private lazy val robot = api.Items.get(Constants.BlockName.Robot)
   private lazy val tablet = api.Items.get(Constants.ItemName.Tablet)
   private lazy val print = api.Items.get(Constants.BlockName.Print)
-  private val beaconBlocks = ItemTags.create(new ResourceLocation("forge", "beacon_base_blocks"))
+  private val beaconBlocks = ItemTags.create(ResourceLocation.fromNamespaceAndPath("forge", "beacon_base_blocks"))
 
   def patchRecipe[R <: Recipe[_]](recipe: R): R = {
-    val resultStack = recipe.getResultItem
+    val resultStack = recipe.getResultItem(null)
     val resultItemName = api.Items.get(resultStack)
 
     // EEPROM initialization.
@@ -162,14 +162,14 @@ object ExtendedRecipe {
           }
           data.isBeaconBase = true
         }
-        if (glowstoneDust.sameItem(stack)) {
+        if (ItemStack.isSameItem(glowstoneDust, stack)) {
           if (data.lightLevel == 15) {
             // Crafting wouldn't change anything, prevent accidental resource loss.
             return ItemStack.EMPTY
           }
           data.lightLevel = math.min(15, data.lightLevel + 1)
         }
-        if (glowstone.sameItem(stack)) {
+        if (ItemStack.isSameItem(glowstone, stack)) {
           if (data.lightLevel == 15) {
             // Crafting wouldn't change anything, prevent accidental resource loss.
             return ItemStack.EMPTY

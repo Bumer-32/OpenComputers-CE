@@ -112,7 +112,7 @@ object ItemUtils {
         // to make it output fluids into fluiducts or such, sorry).
         !input.getItem.isInstanceOf[BucketItem]).toArray, outputSize)
 
-    def getOutputSize(recipe: Recipe[_]) = recipe.getResultItem.getCount
+    def getOutputSize(recipe: Recipe[_]) = recipe.getResultItem(null).getCount
 
     def isInputBlacklisted(stack: ItemStack) = stack.getItem match {
       case item: BlockItem => Settings.get.disassemblerInputBlacklist.contains(ForgeRegistries.BLOCKS.getKey(item.getBlock))
@@ -121,7 +121,7 @@ object ItemUtils {
     }
 
     val (ingredients, count) = manager.getAllRecipesFor[CraftingContainer, CraftingRecipe](RecipeType.CRAFTING).
-      filter(recipe => !recipe.getResultItem.isEmpty && recipe.getResultItem.sameItem(stack)).collect {
+      filter(recipe => !recipe.getResultItem(null).isEmpty && ItemStack.isSameItem(recipe.getResultItem(null), stack)).collect {
       case recipe: ShapedRecipe => getFilteredInputs(resolveOreDictEntries(recipe.getIngredients), getOutputSize(recipe))
       case recipe: ShapelessRecipe => getFilteredInputs(resolveOreDictEntries(recipe.getIngredients), getOutputSize(recipe))
     }.collectFirst {
@@ -132,13 +132,13 @@ object ItemUtils {
     }
 
     // Avoid positive feedback loops.
-    if (ingredients.exists(ingredient => ingredient.sameItem(stack))) {
+    if (ingredients.exists(ingredient => ItemStack.isSameItem(ingredient, stack))) {
       return Array.empty[ItemStack]
     }
     // Merge equal items for size division by output size.
     val merged = mutable.ArrayBuffer.empty[ItemStack]
     for (ingredient <- ingredients) {
-      merged.find(_.sameItem(ingredient)) match {
+      merged.find(mergedStack => ItemStack.isSameItem(ingredient, mergedStack)) match {
         case Some(entry) => entry.grow(ingredient.getCount)
         case _ => merged += ingredient.copy()
       }

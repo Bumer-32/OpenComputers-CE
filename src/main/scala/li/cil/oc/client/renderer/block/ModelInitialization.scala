@@ -107,77 +107,77 @@ object ModelInitialization {
       case custom: CustomModel => custom.bakeModels(e)
       case _ =>
     }
+  }
 
-    @SubscribeEvent
-    def onModifyBakingResult(e: ModelEvent.ModifyBakingResult): Unit = {
-      val registry = e.getModels
+  @SubscribeEvent
+  def onModifyBakingResult(e: ModelEvent.ModifyBakingResult): Unit = {
+    val registry = e.getModels
 
-      registry.put(CableBlockLocation, CableModel)
-      registry.put(CableItemLocation, CableModel)
-      registry.put(NetSplitterBlockLocation, NetSplitterModel)
-      registry.put(NetSplitterItemLocation, NetSplitterModel)
-      registry.put(PrintBlockLocation, PrintModel)
-      registry.put(PrintItemLocation, PrintModel)
-      registry.put(RobotBlockLocation, RobotModel)
-      registry.put(RobotItemLocation, RobotModel)
-      registry.put(RobotAfterimageBlockLocation, NullModel)
+    registry.put(CableBlockLocation, CableModel)
+    registry.put(CableItemLocation, CableModel)
+    registry.put(NetSplitterBlockLocation, NetSplitterModel)
+    registry.put(NetSplitterItemLocation, NetSplitterModel)
+    registry.put(PrintBlockLocation, PrintModel)
+    registry.put(PrintItemLocation, PrintModel)
+    registry.put(RobotBlockLocation, RobotModel)
+    registry.put(RobotItemLocation, RobotModel)
+    registry.put(RobotAfterimageBlockLocation, NullModel)
 
-      for (item <- meshableItems) item match {
-        case custom: CustomModel =>
-          val originalLocation = new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(custom.asItem), "inventory")
-          registry.get(originalLocation) match {
-            case original: BakedModel =>
-              val overrides = new ItemOverrides {
-                override def resolve(base: BakedModel, stack: ItemStack, world: ClientLevel, holder: LivingEntity, seed: Int): BakedModel =
-                  Option(custom.getModelLocation(stack)).map(registry.get).getOrElse(original)
-              }
-              val fake = new SmartBlockModelBase {
-                override def getQuads(state: BlockState, dir: Direction, rand: RandomSource): java.util.List[net.minecraft.client.renderer.block.model.BakedQuad] =
-                  original.getQuads(state, dir, rand)
+    for (item <- meshableItems) item match {
+      case custom: CustomModel =>
+        val originalLocation = new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(custom.asItem), "inventory")
+        registry.get(originalLocation) match {
+          case original: BakedModel =>
+            val overrides = new ItemOverrides {
+              override def resolve(base: BakedModel, stack: ItemStack, world: ClientLevel, holder: LivingEntity, seed: Int): BakedModel =
+                Option(custom.getModelLocation(stack)).map(registry.get).getOrElse(original)
+            }
+            val fake = new SmartBlockModelBase {
+              override def getQuads(state: BlockState, dir: Direction, rand: RandomSource): java.util.List[net.minecraft.client.renderer.block.model.BakedQuad] =
+                original.getQuads(state, dir, rand)
 
-                override def getQuads(state: BlockState, dir: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): java.util.List[net.minecraft.client.renderer.block.model.BakedQuad] =
-                  original.getQuads(state, dir, rand, data, renderType)
+              override def getQuads(state: BlockState, dir: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): java.util.List[net.minecraft.client.renderer.block.model.BakedQuad] =
+                original.getQuads(state, dir, rand, data, renderType)
 
-                override def useAmbientOcclusion() = original.useAmbientOcclusion
+              override def useAmbientOcclusion() = original.useAmbientOcclusion
 
-                override def isGui3d() = original.isGui3d
+              override def isGui3d() = original.isGui3d
 
-                override def usesBlockLight() = original.usesBlockLight
+              override def usesBlockLight() = original.usesBlockLight
 
-                override def isCustomRenderer() = original.isCustomRenderer
+              override def isCustomRenderer() = original.isCustomRenderer
 
-                @Deprecated
-                override def getParticleIcon() = original.getParticleIcon
+              @Deprecated
+              override def getParticleIcon() = original.getParticleIcon
 
-                @Deprecated
-                override def getTransforms() = original.getTransforms
+              @Deprecated
+              override def getTransforms() = original.getTransforms
 
-                override def getOverrides() = overrides
-              }
-              registry.put(originalLocation, fake)
-            case _ =>
-          }
-        case _ =>
-      }
+              override def getOverrides() = overrides
+            }
+            registry.put(originalLocation, fake)
+          case _ =>
+        }
+      case _ =>
+    }
 
-      val modelOverrides = Map[String, BakedModel => BakedModel](
-        Constants.BlockName.ScreenTier1 -> (_ => ScreenModel),
-        Constants.BlockName.ScreenTier2 -> (_ => ScreenModel),
-        Constants.BlockName.ScreenTier3 -> (_ => ScreenModel),
-        Constants.BlockName.Rack -> (parent => new ServerRackModel(parent))
-      )
+    val modelOverrides = Map[String, BakedModel => BakedModel](
+      Constants.BlockName.ScreenTier1 -> (_ => ScreenModel),
+      Constants.BlockName.ScreenTier2 -> (_ => ScreenModel),
+      Constants.BlockName.ScreenTier3 -> (_ => ScreenModel),
+      Constants.BlockName.Rack -> (parent => new ServerRackModel(parent))
+    )
 
-      registry.keySet.toArray.foreach {
-        case location: ModelResourceLocation =>
-          for ((name, model) <- modelOverrides) {
-            val pattern = s"^${Settings.resourceDomain}:$name#.*"
-            if (location.toString.matches(pattern)) registry.put(location, model(registry.get(location)))
-          }
-        case _ =>
-      }
-      for ((real, virtual) <- modelRemappings) {
-        registry.put(real, registry.get(virtual))
-      }
+    registry.keySet.toArray.foreach {
+      case location: ModelResourceLocation =>
+        for ((name, model) <- modelOverrides) {
+          val pattern = s"^${Settings.resourceDomain}:$name#.*"
+          if (location.toString.matches(pattern)) registry.put(location, model(registry.get(location)))
+        }
+      case _ =>
+    }
+    for ((real, virtual) <- modelRemappings) {
+      registry.put(real, registry.get(virtual))
     }
   }
 }

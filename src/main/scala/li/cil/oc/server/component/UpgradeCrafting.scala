@@ -1,7 +1,6 @@
 package li.cil.oc.server.component
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -15,6 +14,7 @@ import li.cil.oc.api.machine.Context
 import li.cil.oc.api.network._
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.InventoryUtils
+
 import scala.collection.convert.ImplicitConversionsToJava._
 import net.minecraft.world.inventory
 import net.minecraft.world.inventory.AbstractContainerMenu
@@ -23,6 +23,7 @@ import net.minecraft.world.inventory.ResultSlot
 import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
 
 class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends AbstractManagedEnvironment with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
@@ -44,8 +45,9 @@ class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends Abs
     result(CraftingContainer.craft(count): _*)
   }
 
-  private object CraftingContainer extends inventory.CraftingContainer(new AbstractContainerMenu(null, 0) {
+  private object CraftingContainer extends inventory.TransientCraftingContainer(new AbstractContainerMenu(null, 0) {
     override def stillValid(player: Player) = true
+    override def quickMoveStack(player: Player, i: Int) = ItemStack.EMPTY
   }, 3, 3) {
     def craft(wantedCount: Int): Seq[_] = {
       val player = host.player
@@ -62,7 +64,7 @@ class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends Abs
 
           val craftResult = new ResultContainer
           val craftingSlot = new ResultSlot(player, CraftingContainer, craftResult, 0, 0, 0)
-          val craftedResult = craft.get.assemble(this)
+          val craftedResult = craft.get.assemble(this, null)
           craftResult.setItem(0, craftedResult)
           if (!craftingSlot.hasItem)
             return false

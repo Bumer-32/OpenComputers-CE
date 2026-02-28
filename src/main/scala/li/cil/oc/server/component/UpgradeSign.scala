@@ -1,7 +1,6 @@
 package li.cil.oc.server.component
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -21,15 +20,14 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayerFactory
-import net.minecraftforge.event.world.BlockEvent
 import net.minecraftforge.eventbus.api.Event
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.level.block.entity.SignBlockEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.network.chat.Component
+import net.minecraftforge.event.level.BlockEvent
 
 abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
   private final lazy val deviceInfo = Map(
@@ -44,7 +42,7 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
   def host: EnvironmentHost
 
   private def getAllMessages(sign: SignBlockEntity): Seq[Component] = {
-    (0 until 4).map(i => sign.getMessage(i, false))
+    (0 until 4).map(i => sign.getFrontText.getMessage(i, false))
   }
 
   protected def getValue(tileEntity: Option[SignBlockEntity]): Array[AnyRef] = {
@@ -68,7 +66,7 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
           return result((), "not allowed")
         }
 
-        lines.map(line => new TextComponent(line)).copyToArray(getAllMessages(sign).toArray)
+        lines.map(line => Component.literal(line)).copyToArray(getAllMessages(sign).toArray)
         host.getEnvironmentLevel.notifyBlockUpdate(sign.getBlockPos)
 
         MinecraftForge.EVENT_BUS.post(new SignChangeEvent.Post(sign, lines))

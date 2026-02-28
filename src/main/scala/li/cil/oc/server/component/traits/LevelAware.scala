@@ -4,14 +4,11 @@ import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.util.{BlockInventorySource, BlockPosition, EntityInventorySource, InventorySource}
 import li.cil.oc.util.ExtendedBlock._
-import li.cil.oc.util.ExtendedLevel._
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayerFactory
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
-import net.minecraftforge.event.world.BlockEvent
 import net.minecraftforge.eventbus.api.Event.Result
 import net.minecraftforge.fluids.IFluidBlock
-import net.minecraftforge.items.IItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
 
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -26,6 +23,7 @@ import net.minecraft.world.level.block.LiquidBlock
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.vehicle.Minecart
 import net.minecraft.world.phys.shapes.CollisionContext
+import net.minecraftforge.event.level.BlockEvent
 
 trait LevelAware {
   def position: BlockPosition

@@ -172,9 +172,6 @@ class Print(pos: BlockPos, blockState: BlockState, val canToggle: Option[() => B
   // ----------------------------------------------------------------------- //
 
   @Deprecated
-  override def getModelData = this
-
-  @Deprecated
   override def hasProperty(prop: ModelProperty[_]) = false
 
   @Deprecated

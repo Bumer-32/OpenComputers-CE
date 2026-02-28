@@ -42,7 +42,7 @@ object FileSystemAccessHandler {
   @SubscribeEvent
   def onFileSystemAccess(e: FileSystemAccessEvent.Client): Unit = {
     val volume = Settings.get.soundVolume
-    val sound = new SoundEvent(ResourceLocation.withDefaultNamespace(e.getSound))
+    val sound = SoundEvent.createVariableRangeEvent(ResourceLocation.tryParse(e.getSound))
     e.getWorld.playLocalSound(e.getX, e.getY, e.getZ, sound, SoundSource.BLOCKS, volume, 1, false)
     e.getBlockEntity match {
       case t: DiskDrive => t.lastAccess = System.currentTimeMillis()

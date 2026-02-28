@@ -3,7 +3,6 @@ package li.cil.oc.common
 import java.io
 import java.util.Random
 import java.util.concurrent.Callable
-
 import li.cil.oc.Constants
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
@@ -15,16 +14,16 @@ import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.resources.ResourceLocation
-import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
-import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.storage.LevelResource
 import net.minecraft.nbt.Tag
+import net.minecraft.network.chat.Component
+import net.minecraftforge.event.level.LevelEvent
+import scala.jdk.CollectionConverters._
 
 //class Loot extends WeightedRandomChestContent(api.Items.get(Constants.ItemName.Floppy).item(), api.Items.get(Constants.ItemName.Floppy).createItemStack(1).getDamageValue, 1, 1, Settings.get.lootProbability) {
 //  override def generateChestContent(random: Random, newInventory: IInventory) =
@@ -36,11 +35,11 @@ import net.minecraft.nbt.Tag
 //}
 
 object Loot {
-//  val containers = Array(
-//    ChestGenHooks.DUNGEON_CHEST,
-//    ChestGenHooks.PYRAMID_DESERT_CHEST,
-//    ChestGenHooks.PYRAMID_JUNGLE_CHEST,
-//    ChestGenHooks.STRONGHOLD_LIBRARY)
+  //  val containers = Array(
+  //    ChestGenHooks.DUNGEON_CHEST,
+  //    ChestGenHooks.PYRAMID_DESERT_CHEST,
+  //    ChestGenHooks.PYRAMID_JUNGLE_CHEST,
+  //    ChestGenHooks.STRONGHOLD_LIBRARY)
 
   val factories = mutable.Map.empty[ResourceLocation, Callable[FileSystem]]
 
@@ -88,9 +87,9 @@ object Loot {
   }
 
   def init(): Unit = {
-//    for (container <- containers) {
-//      ChestGenHooks.addItem(container, new Loot())
-//    }
+    //    for (container <- containers) {
+    //      ChestGenHooks.addItem(container, new Loot())
+    //    }
 
     val list = new java.util.Properties()
     val listStream = getClass.getResourceAsStream("/assets/" + Settings.resourceDomain + "/loot/loot.properties")
@@ -100,7 +99,7 @@ object Loot {
   }
 
   @SubscribeEvent
-  def initForWorld(e: WorldEvent.Load): Unit = e.getWorld match {
+  def initForWorld(e: LevelEvent.Load): Unit = e.getLevel match {
     case world: ServerLevel if world.dimension == Level.OVERWORLD => {
       worldDisks.clear()
       disksForSampling.clear()
@@ -133,15 +132,21 @@ object Loot {
   }
 
   private def parseLootDisks(list: java.util.Properties, acc: mutable.ArrayBuffer[(ItemStack, Int)], external: Boolean): Unit = {
-    for (key <- list.stringPropertyNames) {
+    for (key <- list.stringPropertyNames.asScala) {
       val value = list.getProperty(key)
       try value.split(":") match {
         case Array(name, count, color) =>
-          acc += ((createLootDisk(name, key, external, Some(Color.byName(color))), count.toInt))
+          val stack = createLootDisk(name, key, external, Some(Color.byName(color)))
+          acc += ((stack, count.toInt))
+          if (acc eq globalDisks) disksForClient += stack
         case Array(name, count) =>
-          acc += ((createLootDisk(name, key, external), count.toInt))
+          val stack = createLootDisk(name, key, external)
+          acc += ((stack, count.toInt))
+          if (acc eq globalDisks) disksForClient += stack
         case _ =>
-          acc += ((createLootDisk(value, key, external), 1))
+          val stack = createLootDisk(value, key, external)
+          acc += ((stack, 1))
+          if (acc eq globalDisks) disksForClient += stack
       }
       catch {
         case t: Throwable => OpenComputers.log.warn("Bad loot descriptor: " + value, t)
@@ -153,10 +158,10 @@ object Loot {
     val callable = if (external) new Callable[FileSystem] {
       override def call(): FileSystem = api.FileSystem.asReadOnly(api.FileSystem.fromSaveDirectory("loot/" + path, 0, false))
     } else new Callable[FileSystem] {
-      override def call(): FileSystem = api.FileSystem.fromResource(new ResourceLocation(Settings.resourceDomain, "loot/" + path))
+      override def call(): FileSystem = api.FileSystem.fromResource(ResourceLocation.fromNamespaceAndPath(Settings.resourceDomain, "loot/" + path))
     }
-    val stack = registerLootDisk(path, new ResourceLocation(Settings.resourceDomain, path), color.getOrElse(DyeColor.LIGHT_GRAY), callable, doRecipeCycling = true)
-    stack.setHoverName(new TextComponent(name))
+    val stack = registerLootDisk(path, ResourceLocation.fromNamespaceAndPath(Settings.resourceDomain, path), color.getOrElse(DyeColor.LIGHT_GRAY), callable, doRecipeCycling = true)
+    stack.setHoverName(Component.literal(name))
     if (!external) {
       Items.registerStack(stack, path)
     }

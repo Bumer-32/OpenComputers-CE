@@ -17,15 +17,13 @@ import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.server.level.{ServerPlayer => ServerPlayerEntity}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.state.{StateDefinition => StateContainer}
-import net.minecraft.world.level.storage.loot.{LootContext, LootParams}
-import net.minecraft.world.level.storage.loot.parameters.{LootContextParams, LootContextParams => LootParameters}
+import net.minecraft.world.level.storage.loot.LootParams
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.{Component => ITextComponent}
 import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraft.world.level.{Level => World}
 import net.minecraftforge.common.extensions.IForgeBlock
-
-import scala.reflect.ClassTag
 
 class Raid(props: Properties) extends SimpleBlock(props) with IForgeBlock with traits.GUI {
 

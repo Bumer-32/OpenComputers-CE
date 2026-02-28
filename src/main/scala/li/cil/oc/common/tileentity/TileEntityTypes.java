@@ -11,7 +11,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 public final class TileEntityTypes {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES =
-            DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, OpenComputers.ID());
+            DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, OpenComputers.ID());
 
     public static final RegistryObject<BlockEntityType<Adapter>> ADAPTER =
             BLOCK_ENTITY_TYPES.register("adapter", () -> BlockEntityType.Builder

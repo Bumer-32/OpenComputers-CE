@@ -74,8 +74,15 @@ abstract class PacketHandler {
   private[oc] class PacketParser(stream: InputStream, val player: Player) extends DataInputStream(stream) {
     val packetType = PacketType(readByte())
 
-    def readRegistryEntry[T <: IForgeRegistryEntry[T]](registry: IForgeRegistry[T]): T =
-      registry.asInstanceOf[ForgeRegistry[T]].getValue(readInt())
+    def readRegistryEntry[T](registry: IForgeRegistry[T]): T = {
+      val id = readUTF()
+      val location = ResourceLocation.tryParse(id)
+      if (location != null) {
+        registry.getValue(location)
+      } else {
+        registry.getValue(ResourceLocation.parse("minecraft:air"))
+      }
+    }
 
     def getBlockEntity[T: ClassTag](dimension: ResourceLocation, x: Int, y: Int, z: Int): Option[T] = {
       world(player, dimension) match {
@@ -113,7 +120,7 @@ abstract class PacketHandler {
     }
 
     def readBlockEntity[T: ClassTag](): Option[T] = {
-      val dimension = new ResourceLocation(readUTF())
+      val dimension = ResourceLocation.tryParse(readUTF())
       val x = readInt()
       val y = readInt()
       val z = readInt()
@@ -121,7 +128,7 @@ abstract class PacketHandler {
     }
 
     def readEntity[T: ClassTag](): Option[T] = {
-      val dimension = new ResourceLocation(readUTF())
+      val dimension = ResourceLocation.tryParse(readUTF())
       val id = readInt()
       getEntity[T](dimension, id)
     }

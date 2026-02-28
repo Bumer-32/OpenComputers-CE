@@ -8,17 +8,14 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.texture.SimpleTexture
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.packs.resources.{ResourceManager, ResourceManagerReloadListener}
 import net.minecraft.world.inventory.InventoryMenu
-// 1.20.1: TextureStitchEvent.Pre は廃止。
-// - e.addSprite() 系 (Item, Block) → atlases/blocks.json で代替（このファイルから登録コード削除）
-// - textureManager.register() 系 (Font, GUI, Icons, Model) → RegisterClientReloadListenersEvent またはクライアント初期化時に登録
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import scala.collection.mutable
 
 object Textures {
-
   object Font extends SimpleTextureBundle {
     val Aliased = L("chars_aliased")
     val AntiAliased = L("chars")
@@ -176,16 +173,20 @@ object Textures {
 
   @SubscribeEvent
   def onRegisterReloadListeners(e: RegisterClientReloadListenersEvent): Unit = {
-    val tm = Minecraft.getInstance.textureManager
-    def register(bundle: SimpleTextureBundle): Unit = {
-      bundle.locations.foreach { loc =>
-        tm.register(loc, new SimpleTexture(ResourceLocation.fromNamespaceAndPath(loc.getNamespace, s"textures/${loc.getPath}.png")))
+    e.registerReloadListener(new ResourceManagerReloadListener {
+      override def onResourceManagerReload(manager: ResourceManager): Unit = {
+        val tm = Minecraft.getInstance.textureManager
+        def register(bundle: SimpleTextureBundle): Unit = {
+          bundle.locations.foreach { loc =>
+            tm.register(loc, new SimpleTexture(ResourceLocation.fromNamespaceAndPath(loc.getNamespace, s"textures/${loc.getPath}.png")))
+          }
+        }
+        register(Font)
+        register(GUI)
+        register(Icons)
+        register(Model)
       }
-    }
-    register(Font)
-    register(GUI)
-    register(Icons)
-    register(Model)
+    })
   }
 
   abstract class SimpleTextureBundle {

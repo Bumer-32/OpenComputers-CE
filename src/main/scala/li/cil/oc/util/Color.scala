@@ -5,6 +5,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
 import net.minecraft.core.Registry
+import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceLocation
 
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -32,7 +33,7 @@ object Color {
   val byName = DyeColor.values().map(col => (col.getName, col)).toMap
 
   private def getDyeTag(color: DyeColor): TagKey[Item] = {
-    TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("forge", s"dyes/${color.getName}"))
+    TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("forge", s"dyes/${color.getName}"))
   }
 
   val byTag: Map[TagKey[Item], DyeColor] = DyeColor.values().map(col => (getDyeTag(col), col)).toMap

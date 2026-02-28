@@ -6,17 +6,14 @@ import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.ItemStack
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.core.BlockPos
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.extensions.IForgeItem
-import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.entity.player.Player
 import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.world.level.LevelReader
 import net.minecraftforge.client.event.ModelEvent
-import net.minecraftforge.client.model.ForgeModelBakery
 
 class FloppyDisk(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with CustomModel with traits.FileSystemLike {
   // Necessary for anonymous subclasses used for loot disks.
@@ -44,7 +41,6 @@ class FloppyDisk(props: Properties) extends Item(props) with IForgeItem with tra
       event.register(modelLocationFromDyeName(dye))
     }
   }
-
-
+  
   override def doesSneakBypassUse(stack: ItemStack, level: LevelReader, pos: BlockPos, player: Player): Boolean = true
 }

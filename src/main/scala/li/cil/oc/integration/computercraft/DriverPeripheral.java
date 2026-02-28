@@ -1,17 +1,15 @@
 package li.cil.oc.integration.computercraft;
 
-import dan200.computercraft.api.filesystem.IMount;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.ILuaTask;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.api.lua.LuaTask;
 import dan200.computercraft.api.lua.ObjectArguments;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.api.peripheral.IWorkMonitor;
+import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.apis.PeripheralAPI;
-import dan200.computercraft.core.asm.PeripheralMethod;
+import dan200.computercraft.api.peripheral.WorkMonitor;
 import li.cil.oc.OpenComputers;
 import li.cil.oc.Settings;
 import li.cil.oc.api.FileSystem;
@@ -28,12 +26,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.capabilities.Capability;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock {
     private static Set<Class<?>> blacklist;
@@ -47,7 +44,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
         // Delayed initialization of the resolved classes to allow registering
         // additional entries via IMC.
         if (blacklist == null) {
-            blacklist = new HashSet<Class<?>>();
+            blacklist = new HashSet<>();
             for (String name : Settings.get().peripheralBlacklist()) {
                 final Class<?> clazz = Reflection.getClass(name);
                 if (clazz != null) {
@@ -62,14 +59,30 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
         return false;
     }
 
+    @SuppressWarnings("unchecked")
+    private static Capability<IPeripheral> getPeripheralCapability() {
+        try {
+            Class<?> clazz = Class.forName("dan200.computercraft.shared.Capabilities");
+            return (Capability<IPeripheral>) clazz.getField("CAPABILITY_PERIPHERAL").get(null);
+        } catch (Exception e) {
+            OpenComputers.log().warn("Could not access ComputerCraft Capabilities via reflection.", e);
+            return null;
+        }
+    }
+
+    private static final Capability<IPeripheral> PERIPHERAL_CAP = getPeripheralCapability();
+
     private IPeripheral findPeripheral(final Level world, final BlockPos pos, final Direction side) {
         try {
-            final IPeripheral p = dan200.computercraft.shared.Peripherals.getPeripheral(world, pos, side, cap -> {});
+            if (PERIPHERAL_CAP == null) return null;
+            final BlockEntity be = world.getBlockEntity(pos);
+            if (be == null) return null;
+            final IPeripheral p = be.getCapability(PERIPHERAL_CAP, side).orElse(null);
             if (!isBlacklisted(p)) {
                 return p;
             }
         } catch (Exception e) {
-            OpenComputers.log().warn(String.format("Error accessing ComputerCraft peripheral @ (%d, %d, %d).", pos.getX(), pos.getY(), pos.getZ()), e);
+            OpenComputers.log().warn("Error accessing ComputerCraft peripheral @ ({}, {}, {}).", pos.getX(), pos.getY(), pos.getZ(), e);
         }
         return null;
     }
@@ -95,16 +108,16 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
 
     public static class Environment extends li.cil.oc.api.prefab.AbstractManagedEnvironment implements li.cil.oc.api.network.ManagedPeripheral, NamedBlock {
         protected final IPeripheral peripheral;
-
-        protected final Map<String, PeripheralMethod> methods;
         protected final String[] methodNames;
-
-        protected final Map<String, FakeComputerAccess> accesses = new HashMap<String, FakeComputerAccess>();
+        protected final Map<String, FakeComputerAccess> accesses = new HashMap<>();
 
         public Environment(final IPeripheral peripheral) {
             this.peripheral = peripheral;
-            methods = PeripheralAPI.getMethods(peripheral);
-            methodNames = methods.keySet().toArray(new String[methods.size()]);
+            if (peripheral instanceof IDynamicPeripheral dynamic) {
+                methodNames = dynamic.getMethodNames();
+            } else {
+                methodNames = new String[0];
+            }
             setNode(Network.newNode(this, Visibility.Network).create());
         }
 
@@ -115,18 +128,29 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
 
         @Override
         public Object[] invoke(final String name, final Context context, final Arguments args) throws Exception {
-            final Object[] argArray = CallableHelper.convertArguments(args);
-            final PeripheralMethod method = methods.get(name);
-            if (method == null) throw new NoSuchMethodException();
+            if (!(peripheral instanceof IDynamicPeripheral dynamic)) throw new NoSuchMethodException();
+
+            final String[] names = dynamic.getMethodNames();
+            int index = -1;
+            for (int i = 0; i < names.length; i++) {
+                if (names[i].equals(name)) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index == -1) throw new NoSuchMethodException();
+
             final FakeComputerAccess access;
             if (accesses.containsKey(context.node().address())) {
                 access = accesses.get(context.node().address());
             } else {
-                // The calling contexts is not visible to us, meaning we never got
+                // The calling context is not visible to us, meaning we never got
                 // an onConnect for it. Create a temporary access.
                 access = new FakeComputerAccess(this, context);
             }
-            return method.apply(peripheral, UnsupportedLuaContext.instance(), access, new ObjectArguments(argArray)).getResult();
+
+            final Object[] argArray = CallableHelper.convertArguments(args);
+            return dynamic.callMethod(access, UnsupportedLuaContext.instance(), index, new ObjectArguments(argArray)).getResult();
         }
 
         @Override
@@ -172,7 +196,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
         public static class FakeComputerAccess implements IComputerAccess {
             protected final Environment owner;
             protected final Context context;
-            protected final Map<String, ManagedEnvironment> fileSystems = new HashMap<String, ManagedEnvironment>();
+            protected final Map<String, ManagedEnvironment> fileSystems = new HashMap<>();
 
             public FakeComputerAccess(final Environment owner, final Context context) {
                 this.owner = owner;
@@ -180,14 +204,14 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
             }
 
             public void close() {
-                for (li.cil.oc.api.network.ManagedEnvironment fileSystem : fileSystems.values()) {
+                for (ManagedEnvironment fileSystem : fileSystems.values()) {
                     fileSystem.node().remove();
                 }
                 fileSystems.clear();
             }
 
             @Override
-            public String mount(final String desiredLocation, final IMount mount) {
+            public String mount(final String desiredLocation, final Mount mount) {
                 if (fileSystems.containsKey(desiredLocation)) {
                     return null;
                 }
@@ -195,7 +219,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
             }
 
             @Override
-            public String mount(String desiredLocation, IMount mount, String driveName) {
+            public String mount(final String desiredLocation, final Mount mount, final String driveName) {
                 if (fileSystems.containsKey(desiredLocation)) {
                     return null;
                 }
@@ -203,7 +227,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
             }
 
             @Override
-            public String mountWritable(final String desiredLocation, final IWritableMount mount) {
+            public String mountWritable(final String desiredLocation, final WritableMount mount) {
                 if (fileSystems.containsKey(desiredLocation)) {
                     return null;
                 }
@@ -211,22 +235,22 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
             }
 
             @Override
-            public String mountWritable(String desiredLocation, IWritableMount mount, String driveName) {
+            public String mountWritable(final String desiredLocation, final WritableMount mount, final String driveName) {
                 if (fileSystems.containsKey(desiredLocation)) {
                     return null;
                 }
                 return mount(desiredLocation, FileSystem.asManagedEnvironment(DriverComputerCraftMedia.fromComputerCraft(mount), driveName));
             }
 
-            private String mount(final String path, final li.cil.oc.api.network.ManagedEnvironment fileSystem) {
-                fileSystems.put(path, fileSystem); //TODO This is per peripheral/Environment. It would be far better with per computer
+            private String mount(final String path, final ManagedEnvironment fileSystem) {
+                fileSystems.put(path, fileSystem); // TODO: This is per peripheral/Environment. It would be far better with per computer
                 context.node().connect(fileSystem.node());
                 return path;
             }
 
             @Override
             public void unmount(final String location) {
-                final li.cil.oc.api.network.ManagedEnvironment fileSystem = fileSystems.remove(location);
+                final ManagedEnvironment fileSystem = fileSystems.remove(location);
                 if (fileSystem != null) {
                     fileSystem.node().remove();
                 }
@@ -238,7 +262,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
             }
 
             @Override
-            public void queueEvent(final String event, final Object[] arguments) {
+            public void queueEvent(final String event, final Object... arguments) {
                 context.signal(event, arguments);
             }
 
@@ -248,18 +272,33 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
             }
 
             @Override
-            public Map<String, IPeripheral> getAvailablePeripherals() {
+            public @NotNull Map<String, IPeripheral> getAvailablePeripherals() {
                 return Collections.emptyMap();
             }
 
             @Override
-            public IPeripheral getAvailablePeripheral(String name) {
+            public IPeripheral getAvailablePeripheral(final String name) {
                 return null;
             }
 
             @Override
-            public IWorkMonitor getMainThreadMonitor() {
-                throw new UnsupportedOperationException();
+            public @NotNull WorkMonitor getMainThreadMonitor() {
+                return new WorkMonitor() {
+                    @Override
+                    public boolean canWork() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean shouldWork() {
+                        return false;
+                    }
+
+                    @Override
+                    public void trackWork(long l, @NotNull TimeUnit timeUnit) {
+
+                    }
+                };
             }
         }
 
@@ -267,24 +306,18 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
          * Since we abstract away anything language specific, we cannot support the
          * Lua context specific operations ComputerCraft provides.
          */
-        public final static class UnsupportedLuaContext implements ILuaContext {
-            protected static final UnsupportedLuaContext Instance = new UnsupportedLuaContext();
+        public static final class UnsupportedLuaContext implements ILuaContext {
+            private static final UnsupportedLuaContext Instance = new UnsupportedLuaContext();
 
-            private UnsupportedLuaContext() {
-            }
+            private UnsupportedLuaContext() {}
 
             public static UnsupportedLuaContext instance() {
                 return Instance;
             }
 
             @Override
-            public long issueMainThreadTask(ILuaTask task) throws LuaException {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public MethodResult executeMainThreadTask(ILuaTask task) throws LuaException {
-                throw new UnsupportedOperationException();
+            public long issueMainThreadTask(@NotNull LuaTask luaTask) throws LuaException {
+                return 0;
             }
         }
     }

@@ -1,7 +1,6 @@
 package li.cil.oc.server
 
 import java.io.InputStream
-
 import li.cil.oc.Localization
 import li.cil.oc.OpenComputers
 import li.cil.oc.api
@@ -32,6 +31,7 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.InteractionHand
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Registry
+import net.minecraft.core.registries.Registries
 
 object PacketHandler extends CommonPacketHandler {
   private val securityMarker = MarkerManager.getMarker("SuspiciousPackets")
@@ -40,7 +40,7 @@ object PacketHandler extends CommonPacketHandler {
     OpenComputers.log.warn(securityMarker, "Player {} tried to send GUI packets without opening them", player.getGameProfile)
 
   override protected def world(player: Player, dimension: ResourceLocation): Option[Level] =
-    Option(ServerLifecycleHooks.getCurrentServer.getLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, dimension)))
+    Option(ServerLifecycleHooks.getCurrentServer.getLevel(ResourceKey.create(Registries.DIMENSION, dimension)))
 
   override def dispatch(p: PacketParser): Unit = {
     p.packetType match {
@@ -170,7 +170,7 @@ object PacketHandler extends CommonPacketHandler {
         if (!computer.isPaused) {
           computer.start()
           computer.lastError match {
-            case message if message != null => player.sendMessage(Localization.Analyzer.LastError(message), Util.NIL_UUID)
+            case message if message != null => player.sendSystemMessage(Localization.Analyzer.LastError(message))
             case _ =>
           }
         }

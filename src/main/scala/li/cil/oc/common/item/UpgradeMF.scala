@@ -4,7 +4,6 @@ import java.util
 
 import li.cil.oc.Localization
 import li.cil.oc.Settings
-import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.Tooltip
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties
@@ -17,7 +16,6 @@ import net.minecraft.core.Direction
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.nbt.CompoundTag
 
 class UpgradeMF(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with traits.ItemTier {
@@ -32,7 +30,7 @@ class UpgradeMF(props: Properties) extends Item(props) with IForgeItem with trai
   }
 
   override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[Component]): Unit = {
-    tooltip.add(new TextComponent(Localization.Tooltip.MFULinked(stack.getTag match {
+    tooltip.add(Component.literal(Localization.Tooltip.MFULinked(stack.getTag match {
       case data: CompoundTag => data.contains(Settings.namespace + "coord")
       case _ => false
     })).setStyle(Tooltip.DefaultStyle))

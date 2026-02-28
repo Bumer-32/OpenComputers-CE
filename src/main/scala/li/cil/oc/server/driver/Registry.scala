@@ -1,7 +1,6 @@
 package li.cil.oc.server.driver
 
 import java.util
-
 import li.cil.oc.OpenComputers
 import li.cil.oc.api
 import li.cil.oc.api.driver.Converter
@@ -16,18 +15,15 @@ import li.cil.oc.util.InventoryUtils
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
-import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
 
-import scala.collection.JavaConverters.mapAsScalaMap
-import scala.collection.convert.ImplicitConversionsToJava._
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.math.ScalaNumber
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.Container
 import net.minecraft.world.level.Level
+import net.minecraftforge.common.capabilities.ForgeCapabilities
 
 /**
  * This class keeps track of registered drivers and provides installation logic
@@ -128,20 +124,20 @@ private[oc] object Registry extends api.detail.DriverAPI {
     }.orNull
   }
 
-  override def environmentsFor(stack: ItemStack): util.Set[Class[_]] = environmentProviders.map(_.getEnvironment(stack)).filter(_ != null).toSet[Class[_]]
+  override def environmentsFor(stack: ItemStack): util.Set[Class[_]] = environmentProviders.map(_.getEnvironment(stack)).filter(_ != null).toSet[Class[_]].asJava
 
   override def itemHandlerFor(stack: ItemStack, player: Player): IItemHandler = {
     inventoryProviders.find(provider => provider.worksWith(stack, player)).
       map(provider => InventoryUtils.asItemHandler(provider.getInventory(stack, player))).
       getOrElse {
-        stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).orElse(null)
+        stack.getCapability(ForgeCapabilities.ITEM_HANDLER, null).orElse(null)
       }
   }
 
-  override def itemDrivers: util.List[DriverItem] = items.toSeq
+  override def itemDrivers: util.List[DriverItem] = items.asJava
 
   def blacklistHost(stack: ItemStack, host: Class[_]): Unit = {
-    blacklist.find(_._1.sameItem(stack)) match {
+    blacklist.find(blacklistStack => ItemStack.isSameItem(blacklistStack._1, stack)) match {
       case Some((_, hosts)) => hosts += host
       case _ => blacklist.append((stack, mutable.Set(host)))
     }
@@ -191,19 +187,19 @@ private[oc] object Registry extends api.detail.DriverAPI {
 
         case arg: Map[_, _] => convertMap(arg, arg, memo)
         case arg: mutable.Map[_, _] => convertMap(arg, arg.toMap, memo)
-        case arg: java.util.Map[_, _] => convertMap(arg, arg.toMap, memo)
+        case arg: java.util.Map[_, _] => convertMap(arg, arg.asScala.toMap, memo)
 
         case arg: Iterable[_] => convertList(arg, arg.zipWithIndex.toIterator, memo)
-        case arg: java.lang.Iterable[_] => convertList(arg, arg.zipWithIndex.iterator, memo)
+        case arg: java.lang.Iterable[_] => convertList(arg, arg.asScala.zipWithIndex.iterator, memo)
 
         case arg =>
           val converted = new util.HashMap[AnyRef, AnyRef]()
-          memo += arg -> converted
+          memo.asScala += arg -> converted
           converters.foreach(converter => try converter.convert(arg, converted) catch {
             case t: Throwable => OpenComputers.log.warn("Type converter threw an exception.", t)
           })
           if (converted.isEmpty) {
-            memo += arg -> arg.toString
+            memo.asScala += arg -> arg.toString
             arg.toString
           }
           else {
@@ -215,12 +211,12 @@ private[oc] object Registry extends api.detail.DriverAPI {
             // - convertRecursively(M) encounters A in the memoization map, uses M.
             //   That M is then 'wrong', as in not fully converted. Hence the clear
             //   plus copy action afterwards.
-            memo += converted -> converted // Makes convertMap re-use the map.
+            memo.asScala += converted -> converted // Makes convertMap re-use the map.
             convertRecursively(converted, memo, force = true)
-            memo -= converted
+            memo.asScala -= converted
             if (converted.size == 1 && converted.containsKey("oc:flatten")) {
               val value = converted.get("oc:flatten")
-              memo += arg -> value // Update memoization map.
+              memo.asScala += arg -> value // Update memoization map.
               value
             }
             else {
@@ -233,7 +229,7 @@ private[oc] object Registry extends api.detail.DriverAPI {
 
   def convertList(obj: Any, list: Iterator[(Any, Int)], memo: util.IdentityHashMap[Any, AnyRef]): Array[AnyRef] = {
     val converted = mutable.ArrayBuffer.empty[AnyRef]
-    memo += obj -> converted
+    memo.asScala += obj -> converted
     for ((value, index) <- list) {
       converted += convertRecursively(value, memo)
     }
@@ -241,9 +237,9 @@ private[oc] object Registry extends api.detail.DriverAPI {
   }
 
   def convertMap[K, V](obj: Any, map: Map[K, V], memo: util.IdentityHashMap[Any, AnyRef]): AnyRef = {
-    val converted = memo.getOrElseUpdate(obj, mutable.Map.empty[AnyRef, AnyRef]) match {
+    val converted = memo.asScala.getOrElseUpdate(obj, mutable.Map.empty[AnyRef, AnyRef]) match {
       case map: mutable.Map[AnyRef, AnyRef]@unchecked => map
-      case map: java.util.Map[AnyRef, AnyRef]@unchecked => mapAsScalaMap(map)
+      case map: java.util.Map[AnyRef, AnyRef]@unchecked => map.asScala
     }
     map.collect {
       case (key: AnyRef, value: AnyRef) => converted += convertRecursively(key, memo) -> convertRecursively(value, memo)

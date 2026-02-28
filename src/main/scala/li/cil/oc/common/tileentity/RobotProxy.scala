@@ -2,7 +2,6 @@ package li.cil.oc.common.tileentity
 
 import java.util.UUID
 import java.util.function.Consumer
-
 import li.cil.oc.api
 import li.cil.oc.api.internal
 import li.cil.oc.api.internal.MultiTank
@@ -13,23 +12,19 @@ import li.cil.oc.api.machine.Machine
 import li.cil.oc.api.network._
 import li.cil.oc.common.inventory.InventoryProxy
 import li.cil.oc.common.tileentity.traits.RedstoneAware
-import li.cil.oc.server.agent.Player
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.capabilities.{Capability, ForgeCapabilities}
 import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.common.util.NonNullSupplier
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.IFluidTank
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.WorldlyContainer
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
@@ -57,7 +52,7 @@ class RobotProxy(pos: BlockPos, state: BlockState, val robot: Robot)
   }
 
   override def getCapability[T](capability: Capability[T], facing: Direction): LazyOptional[T] = {
-    if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
+    if (capability == ForgeCapabilities.FLUID_HANDLER)
       wrapper.cast[T]
     else super.getCapability(capability, facing)
   }

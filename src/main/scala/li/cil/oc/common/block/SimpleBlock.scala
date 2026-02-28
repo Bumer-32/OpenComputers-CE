@@ -16,17 +16,16 @@ import net.minecraft.world.item.{TooltipFlag => ITooltipFlag}
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.storage.loot.{LootContext, LootParams}
-import net.minecraft.world.level.storage.loot.parameters.{LootContextParams, LootContextParams => LootParameters}
+import net.minecraft.world.level.storage.loot.LootParams
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraft.world.level.block.entity.{BlockEntity => TileEntity}
 import net.minecraft.core.Direction
-import net.minecraft.world.{InteractionHand => Hand, InteractionResult => ActionResultType}
+import net.minecraft.world.{InteractionHand, InteractionResult}
 import net.minecraft.core.BlockPos
-import net.minecraft.world.phys.{BlockHitResult => BlockRayTraceResult}
-import net.minecraft.network.chat.{Component => ITextComponent}
-import net.minecraft.network.chat.{TextComponent => StringTextComponent}
+import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.network.chat.Component
 import net.minecraft.world.item.context.BlockPlaceContext
-import net.minecraft.world.level.{BlockGetter => IBlockReader}
+import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.{Level => World}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -56,29 +55,29 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
   // ----------------------------------------------------------------------- //
 
   @OnlyIn(Dist.CLIENT)
-  override def appendHoverText(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
+  override def appendHoverText(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], flag: ITooltipFlag): Unit = {
     tooltipHead(stack, world, tooltip, flag)
     tooltipBody(stack, world, tooltip, flag)
     tooltipTail(stack, world, tooltip, flag)
   }
 
-  protected def tooltipHead(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
+  protected def tooltipHead(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], flag: ITooltipFlag): Unit = {
   }
 
-  protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
+  protected def tooltipBody(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], flag: ITooltipFlag): Unit = {
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase)) {
-      tooltip.add(ITextComponent.literal(curr).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 
-  protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], flag: ITooltipFlag): Unit = {
+  protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], flag: ITooltipFlag): Unit = {
   }
 
   // ----------------------------------------------------------------------- //
   // Rotation
   // ----------------------------------------------------------------------- //
 
-  def getFacing(world: IBlockReader, pos: BlockPos): Direction =
+  def getFacing(world: BlockGetter, pos: BlockPos): Direction =
     world.getBlockEntity(pos) match {
       case tileEntity: Rotatable => tileEntity.facing
       case _ => Direction.SOUTH
@@ -96,7 +95,7 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
       case _ => false
     }
 
-  def toLocal(world: IBlockReader, pos: BlockPos, value: Direction): Direction =
+  def toLocal(world: BlockGetter, pos: BlockPos, value: Direction): Direction =
     world.getBlockEntity(pos) match {
       case rotatable: Rotatable => rotatable.toLocal(value)
       case _ => value
@@ -106,7 +105,7 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
   // Block
   // ----------------------------------------------------------------------- //
 
-  override def canHarvestBlock(state: BlockState, world: IBlockReader, pos: BlockPos, player: PlayerEntity) = true
+  override def canHarvestBlock(state: BlockState, world: BlockGetter, pos: BlockPos, player: PlayerEntity) = true
 
   override def canBeReplaced(state: BlockState, ctx: BlockPlaceContext): Boolean = false
   
@@ -146,7 +145,7 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def use(state: BlockState, world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, trace: BlockRayTraceResult): ActionResultType = {
+  override def use(state: BlockState, world: World, pos: BlockPos, player: PlayerEntity, hand: InteractionHand, trace: BlockHitResult): InteractionResult = {
     val heldItem = player.getItemInHand(hand)
     world.getBlockEntity(pos) match {
       case colored: Colored if Color.isDye(heldItem) =>
@@ -155,7 +154,7 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
         if (!player.isCreative && colored.consumesDye) {
           heldItem.split(1)
         }
-        ActionResultType.sidedSuccess(world.isClientSide)
+        InteractionResult.sidedSuccess(world.isClientSide)
       case _ => {
         val loc = trace.getLocation
         val pos = trace.getBlockPos
@@ -163,10 +162,10 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
         val y = loc.y.toFloat - pos.getY
         val z = loc.z.toFloat - pos.getZ
         if (localOnBlockActivated(world, pos, player, hand, heldItem, trace.getDirection, x, y, z))
-          ActionResultType.sidedSuccess(world.isClientSide) else ActionResultType.PASS
+          InteractionResult.sidedSuccess(world.isClientSide) else InteractionResult.PASS
       }
     }
   }
 
-  def localOnBlockActivated(world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = false
+  def localOnBlockActivated(world: World, pos: BlockPos, player: PlayerEntity, hand: InteractionHand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = false
 }

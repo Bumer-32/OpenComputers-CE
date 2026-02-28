@@ -58,7 +58,7 @@ object Audio {
       val clampedFrequency = ((frequencyInHz - 20) max 0 min 1980) / 1980f + 0.5f
       var delay = 0
       for (ch <- pattern) {
-        val record = new SimpleSoundInstance(SoundEvents.NOTE_BLOCK_HARP, SoundSource.BLOCKS, gain, clampedFrequency, new BlockPos(x, y, z))
+        val record = new SimpleSoundInstance(SoundEvents.NOTE_BLOCK_HARP.value, SoundSource.BLOCKS, gain, clampedFrequency, mc.level.random, new BlockPos(x.toInt, y.toInt, z.toInt))
         if (delay == 0) mc.getSoundManager.play(record)
         else mc.getSoundManager.playDelayed(record, delay)
         delay += ((if (ch == '.') durationInMilliseconds else 2 * durationInMilliseconds) * 20 / 1000) max 1

@@ -8,7 +8,6 @@ import java.io.DataOutputStream
 import java.io.OutputStream
 import java.util.zip.Deflater
 import java.util.zip.DeflaterOutputStream
-import io.netty.buffer.Unpooled
 import li.cil.oc.{OpenComputers, Settings}
 import li.cil.oc.api.network.EnvironmentHost
 import net.minecraft.world.item.ItemStack
@@ -28,8 +27,14 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.Level
 
 abstract class PacketBuilder(stream: OutputStream) extends DataOutputStream(stream) {
-  def writeRegistryEntry[T <: IForgeRegistryEntry[T]](registry: IForgeRegistry[T], value: T): Unit =
-    writeInt(registry.asInstanceOf[ForgeRegistry[T]].getID(value))
+  def writeRegistryEntry[T](registry: IForgeRegistry[T], value: T): Unit = {
+    val key = registry.getKey(value)
+    if (key != null) {
+      writeUTF(key.toString)
+    } else {
+      writeUTF("minecraft:air")
+    }
+  }
 
   def writeTileEntity(t: BlockEntity): Unit = {
     writeUTF(t.getLevel.dimension.location.toString)

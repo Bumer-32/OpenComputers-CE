@@ -42,7 +42,7 @@ object ParticleProvider extends ScalaProvider("b48c4bbd-51bb-4915-9367-16cff3220
   }
 
   class ParticleBehavior(var effectType: SimpleParticleType, player: Player) extends AbstractBehavior(player) {
-    override def getNameHint = "particles." + effectType.getRegistryName.getPath
+    override def getNameHint = "particles." + ForgeRegistries.PARTICLE_TYPES.getKey(effectType).getPath
 
     override def update(): Unit = {
       val world = player.level

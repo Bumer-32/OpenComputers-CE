@@ -2,11 +2,10 @@ package li.cil.oc.util
 
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.math.{Matrix3f, Matrix4f}
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
-import net.minecraft.client.Minecraft
 import net.minecraft.util.Mth
+import org.joml.{Matrix3f, Matrix4f}
 import org.lwjgl.opengl._
 
 // This class has evolved into a wrapper for RenderSystem that basically does
@@ -86,7 +85,7 @@ object RenderState {
   }
 
   def mirrorScale(stack: PoseStack, sx: Float, sy: Float, sz: Float): Unit = {
-    stack.last.pose.multiply(Matrix4f.createScaleMatrix(sx, sy, sz))
+    stack.last.pose.mul(new Matrix4f().scaling(sx, sy, sz))
     if (sx != sy || sx != sz || sx <= 0) {
       val isx = 1 / sx
       val isy = 1 / sy
@@ -98,7 +97,7 @@ object RenderState {
         // compensate for taking the absolute of invScale
         normScale = -normScale
       }
-      stack.last.normal.mul(Matrix3f.createScaleMatrix(isx * normScale, isy * normScale, isz * normScale))
+      stack.last.normal.mul(new Matrix3f().scaling(isx * normScale, isy * normScale, isz * normScale))
     }
   }
 }

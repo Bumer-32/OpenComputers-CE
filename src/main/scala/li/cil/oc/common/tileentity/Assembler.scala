@@ -24,12 +24,11 @@ import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.network.chat
 
 import scala.collection.convert.ImplicitConversionsToJava._
 
@@ -209,7 +208,7 @@ class Assembler(pos: BlockPos, state: BlockState)
 
   // ----------------------------------------------------------------------- //
 
-  override def getDisplayName = TextComponent.EMPTY
+  override def getDisplayName = chat.Component.empty
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new menu.Assembler(id, playerInventory, this)

@@ -11,11 +11,9 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.{Inventory => PlayerInventory}
 import net.minecraft.world.Container
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.level.block.state.BlockState
 
 import scala.collection.immutable
@@ -65,7 +63,7 @@ class Inventory(player: Player, val agent: internal.Agent) extends PlayerInvento
 
   override def dropAll(): Unit = {}
 
-  override def contains(stack: ItemStack): Boolean = (0 until getContainerSize).map(getItem).filter(!_.isEmpty).exists(_.sameItem(stack))
+  override def contains(stack: ItemStack): Boolean = (0 until getContainerSize).map(getItem).filter(!_.isEmpty).exists(containerStack => ItemStack.isSameItem(stack, containerStack))
 
   override def replaceWith(from: PlayerInventory): Unit = {}
 
@@ -92,7 +90,7 @@ class Inventory(player: Player, val agent: internal.Agent) extends PlayerInvento
     else agent.mainInventory.setItem(slot, stack)
   }
 
-  override def getName: Component = new TextComponent(agent.name)
+  override def getName: Component = Component.literal(agent.name)
 
   override def getMaxStackSize: Int = agent.mainInventory.getMaxStackSize
 

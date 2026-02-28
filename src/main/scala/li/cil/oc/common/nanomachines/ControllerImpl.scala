@@ -21,10 +21,12 @@ import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.PlayerUtils
 import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.core.registries.Registries
 import net.minecraft.world.entity.player.Player
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.{ResourceKey, ResourceLocation}
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.damagesource.{DamageSource, DamageType}
 import net.minecraft.world.effect.{MobEffectInstance, MobEffects}
 import net.minecraft.world.level.Level
 
@@ -39,9 +41,10 @@ class ControllerImpl(val player: Player) extends Controller with WirelessEndpoin
   lazy val CommandRange = Settings.get.nanomachinesCommandRange * Settings.get.nanomachinesCommandRange
   final val FullSyncInterval = 20 * 60
 
-  final val OverloadDamage = new DamageSourceWithRandomCause("oc.nanomachinesOverload", 3).
-    bypassArmor().
-    bypassMagic()
+  val OverloadDamageKey: ResourceKey[DamageType] = ResourceKey.create(
+    Registries.DAMAGE_TYPE,
+    ResourceLocation.fromNamespaceAndPath("opencomputers", "nanomachines_overload")
+  )
 
   var uuid = UUID.randomUUID.toString
   var responsePort = 0
@@ -275,8 +278,10 @@ class ControllerImpl(val player: Player) extends Controller with WirelessEndpoin
         }
 
         val overload = activeInputs - getSafeActiveInputs
-        if (!player.isCreative && overload > 0 && player.level.getGameTime % 20 == 0) {
-          player.hurt(OverloadDamage, overload)
+        if (!player.isCreative && overload > 0 && player.level().getGameTime % 20 == 0) {
+          val src = new DamageSourceWithRandomCause(OverloadDamageKey, 3, player.level())
+
+          player.hurt(src, overload.toFloat)
         }
       }
 

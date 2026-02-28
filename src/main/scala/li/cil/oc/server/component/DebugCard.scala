@@ -2,7 +2,6 @@ package li.cil.oc.server.component
 
 import java.util.UUID
 import java.util.function.Supplier
-
 import com.google.common.base.Strings
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
@@ -53,8 +52,8 @@ import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import net.minecraft.core.Registry
+import net.minecraft.core.registries.{BuiltInRegistries, Registries}
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.level.{GameType, Level, LevelSettings}
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.storage.ServerLevelData
@@ -68,31 +67,13 @@ import net.minecraftforge.fml.ModList
 import net.minecraftforge.server.ServerLifecycleHooks
 import net.minecraftforge.registries.ForgeRegistries
 import net.minecraftforge.registries.IForgeRegistry
-/*
-FlowingFluidBlock → LiquidBlock
-ICommandSource → CommandSource
-CommandSource → CommandSourceStack
-MinecartEntity → AbstractMinecart
-ServerPlayer → ServerPlayer
-ScoreCriteria → ObjectiveCriteria
-TileEntity → BlockEntity
-RegistryKey → ResourceKey
-SoundCategory → SoundSource
-ISelectionContext → CollisionContext
-Vector2f → Vec2
-Vector3d → Vec3
-Component → Component
-TextComponent → TextComponent
-World → Level
-WorldSettings → LevelSettings
-ServerWorld → ServerLevel
-*/
+
 import scala.collection.JavaConverters.{collectionAsScalaIterable, mapAsScalaMap}
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.vehicle.Minecart
-import net.minecraftforge.event.world.BlockEvent
+import net.minecraftforge.event.level.BlockEvent
 
 class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with DebugNode {
   override val node: ComponentConnector = Network.newNode(this, Visibility.Neighbors).
@@ -115,15 +96,15 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
 
   private def createCommandSourceStack(): CommandSourceStack = {
     val sender = new CommandSource {
-      override def sendMessage(message: Component, sender: UUID): Unit = {
-        CommandMessages = Option(CommandMessages.fold("")(_ + "\n") + message.getString)
-      }
-
       override def acceptsSuccess = true
 
       override def acceptsFailure = true
 
       override def shouldInformAdmins = true
+
+      override def sendSystemMessage(component: Component): Unit = {
+        CommandMessages = Option(CommandMessages.fold("")(_ + "\n") + component.getString)
+      }
     }
     val world = host.getEnvironmentLevel.asInstanceOf[ServerLevel]
     val server = world.getServer
@@ -275,7 +256,7 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
       CommandMessages = None
       var value = 0
       for (command <- commands) {
-        value = ServerLifecycleHooks.getCurrentServer.getCommands.performCommand(source, command.toString)
+        value = ServerLifecycleHooks.getCurrentServer.getCommands.performPrefixedCommand(source, command.toString)
       }
       result(value, CommandMessages.orNull)
     }
@@ -524,7 +505,7 @@ object DebugCard {
     @Callback(doc = """function(id:string, amount:number, meta:number[, nbt:string]):number -- Adds the item stack to the players inventory""")
     def insertItem(context: Context, args: Arguments): Array[AnyRef] =
       withPlayer(player => {
-        val item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(args.checkString(0)))
+        val item = ForgeRegistries.ITEMS.getValue(ResourceLocation.tryParse(args.checkString(0)))
         if (item == null) {
           throw new IllegalArgumentException("invalid item id")
         }
@@ -612,7 +593,7 @@ object DebugCard {
       val criteria = ObjectiveCriteria.byName(objType).orElseThrow(new Supplier[IllegalArgumentException] {
         override def get = new IllegalArgumentException("invalid criterion")
       })
-      scoreboard.addObjective(objName, criteria, new TextComponent(objName), ObjectiveCriteria.RenderType.INTEGER)
+      scoreboard.addObjective(objName, criteria, Component.literal(objName), ObjectiveCriteria.RenderType.INTEGER)
       null
     }
 
@@ -675,8 +656,8 @@ object DebugCard {
     override def loadData(nbt: CompoundTag): Unit = {
       super.loadData(nbt)
       ctx = AccessContext.loadData(nbt)
-      dimension = new ResourceLocation(nbt.getString(DimensionTag))
-      val dimKey = ResourceKey.create(Registry.DIMENSION_REGISTRY, dimension)
+      dimension = ResourceLocation.tryParse(nbt.getString(DimensionTag))
+      val dimKey = ResourceKey.create(Registries.DIMENSION, dimension)
       scoreboard = ServerLifecycleHooks.getCurrentServer.getLevel(dimKey).getScoreboard
     }
 
@@ -788,7 +769,7 @@ object DebugCard {
       val (x, y, z) = (args.checkInteger(0), args.checkInteger(1), args.checkInteger(2))
       val sound = args.checkString(3)
       val range = args.checkInteger(4)
-      PacketSender.sendSound(world, x, y, z, new ResourceLocation(sound), SoundSource.MASTER, range)
+      PacketSender.sendSound(world, x, y, z, ResourceLocation.tryParse(sound), SoundSource.MASTER, range)
       null
     }
 
@@ -799,7 +780,7 @@ object DebugCard {
     def getBlockId(context: Context, args: Arguments): Array[AnyRef] = {
       checkAccess()
       val block = world.getBlockState(new BlockPos(args.checkInteger(0), args.checkInteger(1), args.checkInteger(2))).getBlock
-      result(Registry.BLOCK.getId(block))
+      result(BuiltInRegistries.BLOCK.getId(block))
     }
 
     @Deprecated
@@ -895,7 +876,7 @@ object DebugCard {
     @Callback(doc = """function(x:number, y:number, z:number, id:string, meta:number):number -- Set the block at the specified coordinates.""")
     def setBlock(context: Context, args: Arguments): Array[AnyRef] = {
       checkAccess()
-      val block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(args.checkString(3)))
+      val block = ForgeRegistries.BLOCKS.getValue(ResourceLocation.tryParse(args.checkString(3)))
       val metadata = args.checkInteger(4)
       result(world.setBlockAndUpdate(new BlockPos(args.checkInteger(0), args.checkInteger(1), args.checkInteger(2)), getStateFromMeta(block, metadata)))
     }
@@ -906,7 +887,7 @@ object DebugCard {
       checkAccess()
       val (xMin, yMin, zMin) = (args.checkInteger(0), args.checkInteger(1), args.checkInteger(2))
       val (xMax, yMax, zMax) = (args.checkInteger(3), args.checkInteger(4), args.checkInteger(5))
-      val block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(args.checkString(3)))
+      val block = ForgeRegistries.BLOCKS.getValue(ResourceLocation.tryParse(args.checkString(3)))
       val metadata = args.checkInteger(7)
       for (x <- math.min(xMin, xMax) to math.max(xMin, xMax)) {
         for (y <- math.min(yMin, yMax) to math.max(yMin, yMax)) {
@@ -924,7 +905,7 @@ object DebugCard {
     @Callback(doc = """function(id:string, count:number, damage:number, nbt:string, x:number, y:number, z:number, side:number):boolean - Insert an item stack into the inventory at the specified location. NBT tag is expected in JSON format.""")
     def insertItem(context: Context, args: Arguments): Array[AnyRef] = {
       checkAccess()
-      val item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(args.checkString(0)))
+      val item = ForgeRegistries.ITEMS.getValue(ResourceLocation.tryParse(args.checkString(0)))
       if (item == null) {
         throw new IllegalArgumentException("invalid item id")
       }
@@ -962,7 +943,7 @@ object DebugCard {
     @Callback(doc = """function(id:string, amount:number, x:number, y:number, z:number, side:number):boolean - Insert some fluid into the tank at the specified location.""")
     def insertFluid(context: Context, args: Arguments): Array[AnyRef] = {
       checkAccess()
-      val fluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(args.checkString(0)))
+      val fluid = ForgeRegistries.FLUIDS.getValue(ResourceLocation.tryParse(args.checkString(0)))
       if (fluid == null) {
         throw new IllegalArgumentException("invalid fluid id")
       }
@@ -995,8 +976,8 @@ object DebugCard {
     override def loadData(nbt: CompoundTag): Unit = {
       super.loadData(nbt)
       ctx = AccessContext.loadData(nbt)
-      val dimension = new ResourceLocation(nbt.getString(DimensionTag))
-      val dimKey = ResourceKey.create(Registry.DIMENSION_REGISTRY, dimension)
+      val dimension = ResourceLocation.tryParse(nbt.getString(DimensionTag))
+      val dimKey = ResourceKey.create(Registries.DIMENSION, dimension)
       world = ServerLifecycleHooks.getCurrentServer.getLevel(dimKey)
     }
 

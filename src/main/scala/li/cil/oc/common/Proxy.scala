@@ -32,16 +32,55 @@ import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.world.level.block.Block
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent
 
+object Proxy {
+  // Yes, this could be boiled down even further, but I like to keep it
+  // explicit like this, because it makes it a) clearer, b) easier to
+  // extend, in case that should ever be needed.
+
+  // Example usage: OpenComputers.ID + ":rack" -> "serverRack"
+  private val blockRenames = Map[String, String](
+    OpenComputers.ID + ":serverRack" -> Constants.BlockName.Rack // Yay, full circle >_>
+  )
+
+  // Example usage: OpenComputers.ID + ":tabletCase" -> "tabletCase1"
+  private val itemRenames = Map[String, String](
+    OpenComputers.ID + ":dataCard" -> Constants.ItemName.DataCardTier1,
+    OpenComputers.ID + ":serverRack" -> Constants.BlockName.Rack,
+    OpenComputers.ID + ":wlanCard" -> Constants.ItemName.WirelessNetworkCardTier2
+  )
+  
+  @SubscribeEvent
+  def onMissingMappings(e: MissingMappingsEvent): Unit = {
+    e.getMappings(ForgeRegistries.Keys.BLOCKS, OpenComputers.ID).asScala.foreach { missing =>
+      blockRenames.get(missing.getKey.getPath) match {
+        case Some(name) =>
+          if (Strings.isNullOrEmpty(name)) {
+            missing.ignore()
+          } else {
+            val target = ForgeRegistries.BLOCKS.getValue(ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, name))
+            if (target != null) missing.remap(target) else missing.warn()
+          }
+        case _ => missing.warn()
+      }
+    }
+
+    e.getMappings(ForgeRegistries.Keys.ITEMS, OpenComputers.ID).asScala.foreach { missing =>
+      itemRenames.get(missing.getKey.getPath) match {
+        case Some(name) =>
+          if (Strings.isNullOrEmpty(name)) {
+            missing.ignore()
+          } else {
+            val target = ForgeRegistries.ITEMS.getValue(ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, name))
+            if (target != null) missing.remap(target) else missing.warn()
+          }
+        case _ => missing.warn()
+      }
+    }
+  }
+}
+
 class Proxy {
   protected val modBus: IEventBus = FMLJavaModLoadingContext.get.getModEventBus
-  Items.init(modBus)
-  Blocks.init(modBus)
-  CreativeTab.CREATIVE_TABS.register(modBus)
-  TileEntityTypes.init(modBus)
-  Recipes.init(modBus)
-  LootFunctions.init(modBus)
-  EntityTypes.ENTITY_TYPES.register(modBus)
-  MenuTypes.MENU_TYPES.register(modBus)
 
   def preInit(): Unit = {
     OpenComputers.log.info("Initializing OpenComputers API.")
@@ -112,49 +151,4 @@ class Proxy {
   def registerModel(instance: Item, id: String): Unit = {}
 
   def registerModel(instance: Block, id: String): Unit = {}
-
-  // Yes, this could be boiled down even further, but I like to keep it
-  // explicit like this, because it makes it a) clearer, b) easier to
-  // extend, in case that should ever be needed.
-
-  // Example usage: OpenComputers.ID + ":rack" -> "serverRack"
-  private val blockRenames = Map[String, String](
-    OpenComputers.ID + ":serverRack" -> Constants.BlockName.Rack // Yay, full circle >_>
-  )
-
-  // Example usage: OpenComputers.ID + ":tabletCase" -> "tabletCase1"
-  private val itemRenames = Map[String, String](
-    OpenComputers.ID + ":dataCard" -> Constants.ItemName.DataCardTier1,
-    OpenComputers.ID + ":serverRack" -> Constants.BlockName.Rack,
-    OpenComputers.ID + ":wlanCard" -> Constants.ItemName.WirelessNetworkCardTier2
-  )
-
-  @SubscribeEvent
-  def onMissingMappings(e: MissingMappingsEvent): Unit = {
-    e.getMappings(ForgeRegistries.Keys.BLOCKS, OpenComputers.ID).asScala.foreach { missing =>
-      blockRenames.get(missing.getKey.getPath) match {
-        case Some(name) =>
-          if (Strings.isNullOrEmpty(name)) {
-            missing.ignore()
-          } else {
-            val target = ForgeRegistries.BLOCKS.getValue(ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, name))
-            if (target != null) missing.remap(target) else missing.warn()
-          }
-        case _ => missing.warn()
-      }
-    }
-
-    e.getMappings(ForgeRegistries.Keys.ITEMS, OpenComputers.ID).asScala.foreach { missing =>
-      itemRenames.get(missing.getKey.getPath) match {
-        case Some(name) =>
-          if (Strings.isNullOrEmpty(name)) {
-            missing.ignore()
-          } else {
-            val target = ForgeRegistries.ITEMS.getValue(ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, name))
-            if (target != null) missing.remap(target) else missing.warn()
-          }
-        case _ => missing.warn()
-      }
-    }
-  }
 }

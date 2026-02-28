@@ -71,7 +71,7 @@ abstract class UpgradePiston(val host: EnvironmentHost) extends AbstractManagedE
   def isSticky(context: Context, args: Arguments): Array[AnyRef] = result(isSticky)
 
   protected def doPistonAction(context: Context, side: Direction, extending: Boolean): Array[AnyRef] = {
-    val sound = if (extending) SoundEvents.PISTON_EXTEND.getRegistryName else SoundEvents.PISTON_CONTRACT.getRegistryName
+    val sound = if (extending) SoundEvents.PISTON_EXTEND.getLocation else SoundEvents.PISTON_CONTRACT.getLocation
     val hostPos = pushOrigin(side).toBlockPos
     val piston = (if (isSticky) Blocks.STICKY_PISTON else Blocks.PISTON).asInstanceOf[PistonBaseBlock]
 
@@ -84,7 +84,7 @@ abstract class UpgradePiston(val host: EnvironmentHost) extends AbstractManagedE
       val innerBlockPos = hostPos.relative(side): BlockPos
       val innerBlockState = host.getEnvironmentLevel.getBlockState(innerBlockPos)
       if (innerBlockState != null) {
-        if (!innerBlockState.isAir()) {
+        if (!innerBlockState.isAir) {
           if (innerBlockState.getPistonPushReaction != PushReaction.DESTROY) {
             return result(false, "path is obstructed")
           }

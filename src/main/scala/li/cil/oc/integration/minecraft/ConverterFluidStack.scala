@@ -1,8 +1,8 @@
 package li.cil.oc.integration.minecraft
 
 import java.util
-
 import li.cil.oc.api
+import net.minecraftforge.registries.ForgeRegistries
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
@@ -13,8 +13,9 @@ object ConverterFluidStack extends api.driver.Converter {
         output += "amount" -> Int.box(stack.getAmount)
         output += "hasTag" -> Boolean.box(stack.hasTag)
         val fluid = stack.getFluid
-        output += "name" -> fluid.getRegistryName.toString
-        output += "label" -> fluid.getAttributes.getDisplayName(stack).getString
+        val registryName = ForgeRegistries.FLUIDS.getKey(fluid).toString
+        output += "name" -> registryName
+        output += "label" -> fluid.getFluidType.getDescription(stack).getString
       case _ =>
     }
 }

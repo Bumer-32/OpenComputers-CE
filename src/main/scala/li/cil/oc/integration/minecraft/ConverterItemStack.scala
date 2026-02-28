@@ -11,6 +11,7 @@ import net.minecraft.world.item
 import net.minecraft.world.item.Item
 import net.minecraft.tags.ItemTags
 import net.minecraft.world.item.enchantment.EnchantmentHelper
+import net.minecraftforge.registries.ForgeRegistries
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
@@ -53,12 +54,15 @@ object ConverterItemStack extends api.driver.Converter {
             .toArray
           output += "oreNames" -> tags
         }
+
+        val name = ForgeRegistries.ITEMS.getKey(stack.getItem).toString
+
         output += "damage" -> Int.box(stack.getDamageValue)
         output += "maxDamage" -> Int.box(stack.getMaxDamage)
         output += "size" -> Int.box(stack.getCount)
         output += "maxSize" -> Int.box(stack.getMaxStackSize)
         output += "hasTag" -> Boolean.box(stack.hasTag)
-        output += "name" -> stack.getItem.getRegistryName
+        output += "name" -> name
         output += "label" -> stack.getDisplayName.getString
 
         // custom mod tags
@@ -81,8 +85,9 @@ object ConverterItemStack extends api.driver.Converter {
         val enchantments = mutable.ArrayBuffer.empty[mutable.Map[String, Any]]
         EnchantmentHelper.getEnchantments(stack).collect {
           case (enchantment, level) =>
+            val name = ForgeRegistries.ENCHANTMENTS.getKey(enchantment).toString
             val map = mutable.Map[String, Any](
-              "name" -> enchantment.getRegistryName,
+              "name" -> name,
               "label" -> enchantment.getFullname(level),
               "level" -> level
             )

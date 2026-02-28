@@ -14,8 +14,8 @@ import net.minecraft.world.item.{TooltipFlag => ITooltipFlag}
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.storage.loot.{LootContext, LootParams}
-import net.minecraft.world.level.storage.loot.parameters.{LootContextParams, LootContextParams => LootParameters}
+import net.minecraft.world.level.storage.loot.LootParams
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraft.world.{InteractionResult => ActionResultType}
 import net.minecraft.core.Direction
 import net.minecraft.world.{InteractionHand => Hand}
@@ -29,10 +29,8 @@ import net.minecraft.world.level.{BlockGetter => IBlockReader}
 import net.minecraft.world.level.{Level => World}
 import net.minecraft.server.level.{ServerLevel => ServerWorld}
 import net.minecraft.util.RandomSource
-import net.minecraftforge.common.extensions.IForgeBlock
 
-import scala.collection.convert.ImplicitConversionsToJava._
-import scala.reflect.ClassTag
+import scala.jdk.CollectionConverters._
 
 class Print(props: Properties) extends RedstoneAware(props) {
   @Deprecated
@@ -43,7 +41,7 @@ class Print(props: Properties) extends RedstoneAware(props) {
   override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) = {
     super.tooltipBody(stack, world, tooltip, advanced)
     val data = new PrintData(stack)
-    data.tooltip.foreach(s => tooltip.addAll(s.linesIterator.map(ITextComponent.literal(_).setStyle(Tooltip.DefaultStyle)).toIterable))
+    data.tooltip.foreach(s => tooltip.addAll(s.linesIterator.map(ITextComponent.literal(_).setStyle(Tooltip.DefaultStyle)).toList.asJava))
   }
 
   override protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) = {

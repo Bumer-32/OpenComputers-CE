@@ -20,7 +20,6 @@ import net.minecraft.world.InteractionResult
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.network.chat.Component
 
 class Server(props: Properties, val tier: Int) extends Item(props) with IForgeItem with traits.SimpleItem {
@@ -47,10 +46,10 @@ class Server(props: Properties, val tier: Int) extends Item(props) with IForgeIt
       }
       if (stacks.nonEmpty) {
         for (curr <- Tooltip.get("server.Components")) {
-          tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+          tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
         }
         for (itemName <- stacks.keys.toArray.sorted) {
-          tooltip.add(new TextComponent("- " + stacks(itemName) + "x " + itemName).setStyle(Tooltip.DefaultStyle))
+          tooltip.add(Component.literal("- " + stacks(itemName) + "x " + itemName).setStyle(Tooltip.DefaultStyle))
         }
       }
     }

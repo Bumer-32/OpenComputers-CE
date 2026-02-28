@@ -59,6 +59,6 @@ class UpgradeSolarGenerator(val host: EnvironmentHost) extends AbstractManagedEn
     host.getEnvironmentLevel.isDay &&
       (host.getEnvironmentLevel.dimension != Level.NETHER) &&
       host.getEnvironmentLevel.canSeeSkyFromBelowWater(blockPos.toBlockPos) &&
-      (host.getEnvironmentLevel.getBiome(blockPos.toBlockPos).value.getPrecipitation == Precipitation.NONE || (!host.getEnvironmentLevel.isRaining && !host.getEnvironmentLevel.isThundering))
+      (host.getEnvironmentLevel.getBiome(blockPos.toBlockPos).value.getPrecipitationAt(blockPos.toBlockPos) == Precipitation.NONE || (!host.getEnvironmentLevel.isRaining && !host.getEnvironmentLevel.isThundering))
   }
 }

@@ -10,7 +10,7 @@ import li.cil.oc.server.PacketSender
 import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.Component
 import net.minecraft.{ChatFormatting, Util}
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
@@ -154,7 +154,7 @@ class NeuralNetwork(controller: ControllerImpl) extends Persistable {
         }
       }
       sb.append(")")
-      player.sendMessage(new TextComponent(sb.toString()), Util.NIL_UUID)
+      player.sendSystemMessage(Component.literal(sb.toString()))
       sb.clear()
     }
   }

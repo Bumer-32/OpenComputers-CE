@@ -28,6 +28,7 @@ import li.cil.oc.common.menu
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.item
 import li.cil.oc.integration.Mods
+import li.cil.oc.integration.computercraft.RelayPeripheral
 import li.cil.oc.integration.opencomputers.DriverLinkedCard
 import li.cil.oc.server.network.QuantumNetwork
 import net.minecraft.world.item.ItemStack
@@ -46,6 +47,8 @@ import net.minecraft.nbt.Tag
 import net.minecraft.nbt.ListTag
 import net.minecraft.Util
 import net.minecraft.world.level.Level
+import net.minecraftforge.common.capabilities.{Capability, ICapabilityProvider}
+import net.minecraftforge.common.util.LazyOptional
 
 class Relay(pos: BlockPos, state: BlockState) 
   extends BlockEntity(TileEntityTypes.RELAY.get(), pos, state) with traits.Hub with traits.ComponentInventory
@@ -107,7 +110,7 @@ class Relay(pos: BlockPos, state: BlockState)
 
   override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
     if (isWirelessEnabled) {
-      player.sendMessage(Localization.Analyzer.WirelessStrength(strength), Util.NIL_UUID)
+      player.sendSystemMessage(Localization.Analyzer.WirelessStrength(strength))
       Array(componentNodes(side.get3DDataValue))
     }
     else null

@@ -4,11 +4,11 @@ import java.io.IOException
 import java.io.OutputStream
 import java.nio.channels.Channels
 
-import dan200.computercraft.api.filesystem.IWritableMount
+import dan200.computercraft.api.filesystem.WritableMount
 import li.cil.oc.api.fs.Mode
 import li.cil.oc.server.fs.OutputStreamFileSystem
 
-class ComputerCraftWritableFileSystem(override val mount: IWritableMount)
+class ComputerCraftWritableFileSystem(override val mount: WritableMount)
   extends ComputerCraftFileSystem(mount)
   with OutputStreamFileSystem {
 
@@ -36,7 +36,7 @@ class ComputerCraftWritableFileSystem(override val mount: IWritableMount)
     case _: Throwable => None
   }
 
-  protected class ComputerCraftOutputHandle(val mount: IWritableMount, val stream: OutputStream, owner: OutputStreamFileSystem, handle: Int, path: String) extends OutputHandle(owner, handle, path) {
+  protected class ComputerCraftOutputHandle(val mount: WritableMount, val stream: OutputStream, owner: OutputStreamFileSystem, handle: Int, path: String) extends OutputHandle(owner, handle, path) {
     override def length() = mount.getSize(path)
 
     override def position() = throw new IOException("bad file descriptor")

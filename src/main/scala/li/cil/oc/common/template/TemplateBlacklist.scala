@@ -13,7 +13,7 @@ object TemplateBlacklist {
   private lazy val TheBlacklist = { // scnr
     val pattern = """^([^@]+)(?:@(\d+))?$""".r
     def parseDescriptor(id: String, meta: Int) = {
-      val item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(id))
+      val item = ForgeRegistries.ITEMS.getValue(ResourceLocation.withDefaultNamespace(id))
       if (item == null) {
         OpenComputers.log.warn(s"Bad assembler blacklist entry '$id', unknown item id.")
         None
@@ -44,6 +44,6 @@ object TemplateBlacklist {
   }
 
   def filter(stack: ItemStack): Boolean = {
-    !TheBlacklist.exists(_.sameItem(stack))
+    !TheBlacklist.exists(listItem => ItemStack.isSameItem(listItem, stack))
   }
 }

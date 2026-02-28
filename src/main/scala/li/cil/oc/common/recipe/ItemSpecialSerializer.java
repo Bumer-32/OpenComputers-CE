@@ -13,11 +13,9 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
 
-public class ItemSpecialSerializer<T extends Recipe<?>> extends ForgeRegistryEntry<RecipeSerializer<?>>
-    implements RecipeSerializer<T> {
+public class ItemSpecialSerializer<T extends Recipe<?>> implements RecipeSerializer<T> {
 
     private final BiFunction<ResourceLocation, ItemLike, T> ctor;
     private final Function<T, Item> getter;
@@ -30,7 +28,7 @@ public class ItemSpecialSerializer<T extends Recipe<?>> extends ForgeRegistryEnt
     @Override
     @NotNull
     public T fromJson(@NotNull ResourceLocation recipeId, @NotNull JsonObject json) {
-        ResourceLocation loc = new ResourceLocation(GsonHelper.getAsString(json, "item"));
+        ResourceLocation loc = ResourceLocation.tryParse(GsonHelper.getAsString(json, "item"));
         if (!ForgeRegistries.ITEMS.containsKey(loc)) {
             throw new JsonSyntaxException("Unknown item '" + loc + "'");
         }

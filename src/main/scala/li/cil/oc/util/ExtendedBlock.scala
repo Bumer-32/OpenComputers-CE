@@ -2,6 +2,8 @@ package li.cil.oc.util
 
 import net.minecraft.world.level.block.Block
 import net.minecraft.core.Direction
+import net.minecraft.tags.BlockTags
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.fluids.IFluidBlock
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction
 
@@ -16,7 +18,7 @@ object ExtendedBlock {
     def isAir(position: BlockPosition) = position.world.get.isEmptyBlock(position.toBlockPos)
     
     @Deprecated
-    def isReplaceable(position: BlockPosition) = block.defaultBlockState.getMaterial.isReplaceable
+    def isReplaceable(position: BlockPosition) = block.defaultBlockState.is(BlockTags.REPLACEABLE)
 
     @Deprecated
     def getBlockHardness(position: BlockPosition) = position.world.get.getBlockState(position.toBlockPos).getDestroySpeed(position.world.get, position.toBlockPos)

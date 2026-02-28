@@ -55,10 +55,10 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
     if (ForgeHooks.getBurnTime(stack, null) <= 0) {
       return result((), "selected slot does not contain fuel")
     }
-    val container: ItemStack = stack.getContainerItem()
+    val container: ItemStack = stack.getCraftingRemainingItem
     val inQueue: ItemStack = inventory match {
       case SomeStack(q) if q != null && q.getCount > 0 =>
-        if (!q.sameItem(stack) || !ItemStack.tagMatches(q, stack)) {
+        if (!ItemStack.matches(q, stack)) {
           return result((), "different fuel type already queued")
         }
         q
@@ -121,11 +121,11 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
       return result(false, "queue is empty")
     }
     val previousSelectedItem: ItemStack = host.mainInventory.getItem(host.selectedSlot).copy
-    val emptyContainer: ItemStack = inQueue.getContainerItem match {
+    val emptyContainer: ItemStack = inQueue.getCraftingRemainingItem match {
       case requiredContainer if !requiredContainer.isEmpty && requiredContainer.getCount > 0 => previousSelectedItem match {
         case slotItem: ItemStack if !slotItem.isEmpty &&
           slotItem.getItem == requiredContainer.getItem &&
-          ItemStack.tagMatches(slotItem, requiredContainer) => slotItem.copy
+          ItemStack.isSameItemSameTags(slotItem, requiredContainer) => slotItem.copy
         case _ => return result(false, "removing this fuel requires the appropriate container in the selected slot")
       }
       case _ => ItemStack.EMPTY // nothing to do, nothing required

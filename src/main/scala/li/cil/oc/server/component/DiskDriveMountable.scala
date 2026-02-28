@@ -30,13 +30,13 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
 import net.minecraft.world.MenuProvider
+import net.minecraft.network.chat
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import net.minecraft.world.entity.player.Player
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
-import net.minecraft.network.chat.TextComponent
 
 class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) 
   extends AbstractManagedEnvironment with ItemStackInventory with ComponentInventory with RackMountable with Analyzable with DeviceInfo with MenuProvider {
@@ -206,7 +206,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int)
   // ----------------------------------------------------------------------- //
   // INamedContainerProvider
 
-  override def getDisplayName = TextComponent.EMPTY
+  override def getDisplayName = chat.Component.empty
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new DiskDriveContainer(id, playerInventory, this)

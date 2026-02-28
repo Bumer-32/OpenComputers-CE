@@ -13,8 +13,8 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraftforge.items.IItemHandler
+import net.minecraftforge.registries.ForgeRegistries
 
-import scala.collection.convert.ImplicitConversionsToScala._
 import scala.jdk.CollectionConverters._
 
 trait LevelInventoryAnalytics extends LevelAware with SideRestricted with NetworkAware {
@@ -106,10 +106,14 @@ trait LevelInventoryAnalytics extends LevelAware with SideRestricted with Networ
     }
     withInventorySource(facing, {
       case BlockInventorySource(position, _, _) => blockAt(position) match {
-        case Some(block) => result(block.getRegistryName)
+        case Some(block) => 
+          val name = ForgeRegistries.BLOCKS.getKey(block).toString
+          result(name)
         case _ => result((), "Unknown")
       }
-      case EntityInventorySource(entity, _, _) => result(entity.getType.getRegistryName)
+      case EntityInventorySource(entity, _, _) =>
+        val name = ForgeRegistries.ENTITY_TYPES.getKey(entity.getType).toString
+        result(name)
       case _ => result((), "Unknown")
     })
   }

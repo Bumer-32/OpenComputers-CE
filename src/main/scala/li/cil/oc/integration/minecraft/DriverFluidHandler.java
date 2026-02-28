@@ -11,7 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
 public final class DriverFluidHandler implements DriverBlock {
@@ -21,12 +21,12 @@ public final class DriverFluidHandler implements DriverBlock {
         if (blockEntity == null) {
             return false;
         }
-        return blockEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side).isPresent();
+        return blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, side).isPresent();
     }
 
     @Override
     public ManagedEnvironment createEnvironment(final Level level, final BlockPos pos, final Direction side) {
-        return new Environment(level.getBlockEntity(pos).getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side).orElse(null));
+        return new Environment(level.getBlockEntity(pos).getCapability(ForgeCapabilities.FLUID_HANDLER, side).orElse(null));
     }
 
     public static final class Environment extends ManagedTileEntityEnvironment<IFluidHandler> {

@@ -16,6 +16,7 @@ import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.InventoryUtils
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
+import net.minecraft.tags.BlockTags
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.{Container, InteractionHand}
 import net.minecraft.world.entity.{Entity, LivingEntity, Pose}
@@ -286,7 +287,7 @@ trait Agent extends traits.LevelControl with traits.ContainerControl with traits
           // but onItemUse will try to adjust the placement if the target position is not replaceable
           // we don't want that
           val state: BlockState = world.getBlockState(adjustedPos)
-          if (state.getMaterial.isReplaceable) {
+          if (state.is(BlockTags.REPLACEABLE)) {
             player.placeBlock(agent.selectedSlot, adjustedPos, facing, hx, hy, hz)
           } else {
             false

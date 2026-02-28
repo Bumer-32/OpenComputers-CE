@@ -1,9 +1,7 @@
 package li.cil.oc.integration.opencomputers
 
-import com.google.common.base.Strings
 import li.cil.oc.Settings
 import li.cil.oc.api
-import li.cil.oc.api.driver
 import li.cil.oc.api.driver.DriverItem
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.api.internal
@@ -11,6 +9,7 @@ import li.cil.oc.common.Tier
 import li.cil.oc.server.driver.Registry
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.item
 
 import scala.annotation.tailrec
 
@@ -18,7 +17,7 @@ trait Item extends DriverItem {
   def worksWith(stack: ItemStack, host: Class[_ <: EnvironmentHost]): Boolean =
     worksWith(stack) && !Registry.blacklist.exists {
       case (blacklistedStack, blacklistedHost) =>
-        stack.sameItem(blacklistedStack) &&
+        ItemStack.isSameItem(stack, blacklistedStack) &&
           blacklistedHost.exists(_.isAssignableFrom(host))
     }
 

@@ -2,18 +2,19 @@ package li.cil.oc.common.recipe
 
 import li.cil.oc.util.ItemColorizer
 import li.cil.oc.util.StackOption
+import net.minecraft.core.RegistryAccess
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.ItemStack
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.inventory.CraftingContainer
-import net.minecraft.world.item.crafting.CustomRecipe
+import net.minecraft.world.item.crafting.{CraftingBookCategory, CustomRecipe}
 import net.minecraft.world.level.{ItemLike, Level}
 
 /**
   * @author Vexatos
   */
-class DecolorizeRecipe(id: ResourceLocation, target: ItemLike) extends CustomRecipe(id) {
+class DecolorizeRecipe(id: ResourceLocation, target: ItemLike) extends CustomRecipe(id, CraftingBookCategory.MISC) {
   val targetItem: Item = target.asItem()
 
   override def matches(crafting: CraftingContainer, level: Level): Boolean = {
@@ -23,7 +24,7 @@ class DecolorizeRecipe(id: ResourceLocation, target: ItemLike) extends CustomRec
     targets.size == 1 && other.size == 1 && other.forall(_.getItem == Items.WATER_BUCKET)
   }
 
-  override def assemble(crafting: CraftingContainer): ItemStack = {
+  override def assemble(crafting: CraftingContainer, registryAccess: RegistryAccess): ItemStack = {
     var targetStack: ItemStack = ItemStack.EMPTY
 
     (0 until crafting.getContainerSize).flatMap(i => StackOption(crafting.getItem(i))).foreach { stack =>

@@ -53,8 +53,8 @@ class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends Abstra
   def getPosition(context: Context, args: Arguments): Array[AnyRef] = {
     val info = data.mapData(host.getEnvironmentLevel)
     val size = data.getSize(host.getEnvironmentLevel)
-    val relativeX = host.xPosition - info.x
-    val relativeZ = host.zPosition - info.z
+    val relativeX = host.xPosition - info.centerX
+    val relativeZ = host.zPosition - info.centerZ
 
     if (math.abs(relativeX) <= size / 2 && math.abs(relativeZ) <= size / 2)
       result(relativeX, host.yPosition, relativeZ)
@@ -96,9 +96,9 @@ class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends Abstra
       case machine: api.machine.Machine => (machine.host, message.data) match {
         case (tablet: internal.Tablet, Array(nbt: CompoundTag, stack: ItemStack, player: Player, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
           val info = data.mapData(host.getEnvironmentLevel)
-          nbt.putInt("posX", blockPos.x - info.x)
+          nbt.putInt("posX", blockPos.x - info.centerX)
           nbt.putInt("posY", blockPos.y)
-          nbt.putInt("posZ", blockPos.z - info.z)
+          nbt.putInt("posZ", blockPos.z - info.centerZ)
         case _ => // Ignore.
       }
       case _ => // Ignore.

@@ -14,7 +14,6 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.Block
 import net.minecraft.tags.BlockTags
 import net.minecraftforge.common.Tags
-import net.minecraft.world.level.material.Material
 
 object ExtendedLevel {
 
@@ -48,7 +47,7 @@ object ExtendedLevel {
     def extinguishFire(player: Player, position: BlockPosition, side: Direction) = {
       val pos = position.toBlockPos
       val state = level.getBlockState(pos)
-      if (state.getMaterial == Material.FIRE) {
+      if (state.is(BlockTags.FIRE)) {
         level.setBlock(pos, Blocks.AIR.defaultBlockState, 3)
         true
       }

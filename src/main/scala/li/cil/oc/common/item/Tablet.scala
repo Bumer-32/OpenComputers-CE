@@ -1,6 +1,5 @@
 package li.cil.oc.common.item
 
-import java.lang.Iterable
 import java.util
 import java.util.UUID
 import java.util.concurrent.Callable
@@ -30,16 +29,14 @@ import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.inventory.ComponentInventory
 import li.cil.oc.common.item.data.TabletData
 import li.cil.oc.integration.opencomputers.DriverScreen
-import li.cil.oc.server.{PacketSender, component}
+import li.cil.oc.server.component
 import li.cil.oc.util.Audio
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.Rarity
 import li.cil.oc.util.RotationHelper
 import li.cil.oc.util.Tooltip
-
 import net.minecraft.client.Minecraft
-import net.minecraft.client.resources.model.ModelBakery
 import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
@@ -59,25 +56,24 @@ import net.minecraft.world.InteractionResult
 import net.minecraft.core.Direction
 import net.minecraft.world.InteractionHand
 import net.minecraft.core.NonNullList
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.Util
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraftforge.event.TickEvent.ClientTickEvent
 import net.minecraftforge.event.TickEvent.ServerTickEvent
-import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.server.ServerLifecycleHooks
 
 import scala.collection.JavaConverters.asJavaIterable
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
+import scala.jdk.CollectionConverters._
 import net.minecraft.nbt.Tag
+import net.minecraftforge.event.level.LevelEvent
 
 class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with CustomModel with traits.Chargeable {
   final val TimeToAnalyze = 10
@@ -91,10 +87,10 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
       val components = info.items.drop(1)
       if (components.length > 1) {
         for (curr <- Tooltip.get("server.Components")) {
-          tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+          tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
         }
         components.collect {
-          case component if !component.isEmpty => tooltip.add(new TextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+          case component if !component.isEmpty => tooltip.add(Component.literal("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
         }
       }
     }
@@ -127,7 +123,7 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
       case Some(state) => if (state) "_on" else "_off"
       case _ => ""
     }
-    new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.ItemName.Tablet + suffix, "inventory")
+    new ModelResourceLocation(Settings.resourceDomain, Constants.ItemName.Tablet + suffix, "inventory")
   }
 
   @OnlyIn(Dist.CLIENT)
@@ -158,9 +154,6 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
   }
 
   // ----------------------------------------------------------------------- //
-
-  // Must be assembled to be usable so we hide it in the item list.
-  override def fillItemCategory(tab: CreativeModeTab, list: NonNullList[ItemStack]): Unit = {}
 
   override def inventoryTick(stack: ItemStack, level: Level, entity: Entity, slot: Int, selected: Boolean): Unit =
     entity match {
@@ -230,7 +223,7 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
               val computer = Tablet.get(stack, player).machine
               computer.start()
               computer.lastError match {
-                case message if message != null => player.sendMessage(Localization.Analyzer.LastError(message), Util.NIL_UUID)
+                case message if message != null => player.sendSystemMessage(Localization.Analyzer.LastError(message))
                 case _ =>
               }
             }
@@ -430,9 +423,9 @@ class TabletWrapper(var stack: ItemStack, var player: Player) extends ComponentI
       case _ => Tier.None
     }
 
-  override def internalComponents(): Iterable[ItemStack] = (0 until getContainerSize).collect {
-    case slot if !getItem(slot).isEmpty && isComponentSlot(slot, getItem(slot)) => getItem(slot)
-  }
+  override def internalComponents(): java.lang.Iterable[ItemStack] = (0 until getContainerSize).collect {
+      case slot if !getItem(slot).isEmpty && isComponentSlot(slot, getItem(slot)) => getItem(slot)
+  }.asJava
 
   override def componentSlot(address: String): Int = components.indexWhere(_.exists(env => env.node != null && env.node.address == address))
 
@@ -531,14 +524,14 @@ object Tablet {
   }
 
   @SubscribeEvent
-  def onLevelSave(e: WorldEvent.Save): Unit = {
-    Server.saveAll(e.getWorld.asInstanceOf[Level])
+  def onLevelSave(e: LevelEvent.Save): Unit = {
+    Server.saveAll(e.getLevel.asInstanceOf[Level])
   }
 
   @SubscribeEvent
-  def onLevelUnload(e: WorldEvent.Unload): Unit = {
-    Client.clear(e.getWorld.asInstanceOf[Level])
-    Server.clear(e.getWorld.asInstanceOf[Level])
+  def onLevelUnload(e: LevelEvent.Unload): Unit = {
+    Client.clear(e.getLevel.asInstanceOf[Level])
+    Server.clear(e.getLevel.asInstanceOf[Level])
   }
 
   @SubscribeEvent

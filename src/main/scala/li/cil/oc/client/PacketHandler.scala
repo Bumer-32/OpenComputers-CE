@@ -821,7 +821,7 @@ object PacketHandler extends CommonPacketHandler {
     }
 
   def onSoundEffect(p: PacketParser): Unit = {
-    world(p.player, ResourceLocation.withDefaultNamespace(p.readUTF())) match {
+    world(p.player, ResourceLocation.tryParse(p.readUTF())) match {
       case Some(world) =>
         val x = p.readDouble()
         val y = p.readDouble()
@@ -835,7 +835,7 @@ object PacketHandler extends CommonPacketHandler {
   }
 
   def onSound(p: PacketParser): Unit = {
-    if (world(p.player, ResourceLocation.withDefaultNamespace(p.readUTF())).isDefined) {
+    if (world(p.player, ResourceLocation.tryParse(p.readUTF())).isDefined) {
       val x = p.readInt()
       val y = p.readInt()
       val z = p.readInt()
@@ -846,7 +846,7 @@ object PacketHandler extends CommonPacketHandler {
   }
 
   def onSoundPattern(p: PacketParser): Unit = {
-    if (world(p.player, ResourceLocation.withDefaultNamespace(p.readUTF())).isDefined) {
+    if (world(p.player, ResourceLocation.tryParse(p.readUTF())).isDefined) {
       val x = p.readInt()
       val y = p.readInt()
       val z = p.readInt()

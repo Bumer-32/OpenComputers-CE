@@ -35,8 +35,7 @@ import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-import scala.collection.convert.ImplicitConversionsToJava._
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 class Charger(pos: BlockPos, state: BlockState)
@@ -63,7 +62,7 @@ class Charger(pos: BlockPos, state: BlockState)
     DeviceAttribute.Product -> "PowerUpper"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -84,7 +83,7 @@ class Charger(pos: BlockPos, state: BlockState)
   }
 
   override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Null = {
-    player.sendMessage(Localization.Analyzer.ChargerSpeed(chargeSpeed), Util.NIL_UUID)
+    player.sendSystemMessage(Localization.Analyzer.ChargerSpeed(chargeSpeed))
     null
   }
 
@@ -262,11 +261,11 @@ class Charger(pos: BlockPos, state: BlockState)
       case Some(t: RobotProxy) => new RobotChargeable(t.robot)
     }
     val bounds = BlockPosition(this).bounds.inflate(1, 1, 1)
-    val drones = getLevel.getEntitiesOfClass(classOf[Drone], bounds).collect {
+    val drones = getLevel.getEntitiesOfClass(classOf[Drone], bounds).asScala.collect {
       case drone: Drone => new DroneChargeable(drone)
     }
 
-    val players = getLevel.getEntitiesOfClass(classOf[Player], bounds).collect {
+    val players = getLevel.getEntitiesOfClass(classOf[Player], bounds).asScala.collect {
       case player: Player => player
     }
 
@@ -286,7 +285,7 @@ class Charger(pos: BlockPos, state: BlockState)
     // scan players for chargeable equipment
     equipment.clear()
     players.foreach {
-      player => player.inventory.items.foreach {
+      player => player.inventory.items.asScala.foreach {
         stack =>
           if (Option(Driver.driverFor(stack, getClass)) match {
             case Some(driver) if driver.slot(stack) == Slot.Tablet => true

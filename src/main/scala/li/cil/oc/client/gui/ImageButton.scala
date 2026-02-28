@@ -11,7 +11,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.{Component, MutableComponent}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import com.mojang.blaze3d.vertex.BufferBuilder
@@ -31,7 +31,7 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
                   val textHoverColor: Int = 0xFFFFA0,
                   val textIndent: Int = -1,
                   val textureWidth: Int = -1,
-                  val textureHeight: Int = -1) extends Button(xPos, yPos, w, h, text, handler, null) {
+                  val textureHeight: Int = -1) extends Button(xPos, yPos, w, h, text, handler, _ => Component.empty()) {
 
   var toggled = false
   var hoverOverride = false

@@ -1,7 +1,7 @@
 package li.cil.oc.integration.computercraft
 
-import dan200.computercraft.api.filesystem.IMount
-import dan200.computercraft.api.filesystem.IWritableMount
+import dan200.computercraft.api.filesystem.Mount
+import dan200.computercraft.api.filesystem.WritableMount
 import dan200.computercraft.api.media.IMedia
 import li.cil.oc
 import li.cil.oc.Settings
@@ -12,13 +12,14 @@ import li.cil.oc.common.Slot
 import li.cil.oc.integration.opencomputers.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.server.level.ServerLevel
 
 object DriverComputerCraftMedia extends Item {
   override def worksWith(stack: ItemStack) = stack.getItem.isInstanceOf[IMedia]
 
   override def createEnvironment(stack: ItemStack, host: EnvironmentHost) = if (!host.getEnvironmentLevel.isClientSide) {
     val address = addressFromTag(dataTag(stack))
-    val mount = fromComputerCraft(stack.getItem.asInstanceOf[IMedia].createDataMount(stack, host.getEnvironmentLevel))
+    val mount = fromComputerCraft(stack.getItem.asInstanceOf[IMedia].createDataMount(stack, host.getEnvironmentLevel.asInstanceOf[ServerLevel]))
     Option(oc.api.FileSystem.asManagedEnvironment(mount, new ComputerCraftLabel(stack), host, Settings.resourceDomain + ":floppy_access")) match {
       case Some(environment) =>
         environment.node.asInstanceOf[oc.server.network.Node].address = address
@@ -32,8 +33,8 @@ object DriverComputerCraftMedia extends Item {
   override def slot(stack: ItemStack) = Slot.Floppy
 
   def createFileSystem(mount: AnyRef) = Option(mount) collect {
-    case rw: IWritableMount => new ComputerCraftWritableFileSystem(rw)
-    case ro: IMount => new ComputerCraftFileSystem(ro)
+    case rw: WritableMount => new ComputerCraftWritableFileSystem(rw)
+    case ro: Mount => new ComputerCraftFileSystem(ro)
   }
 
   private def addressFromTag(tag: CompoundTag) =

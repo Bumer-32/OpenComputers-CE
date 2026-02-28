@@ -16,7 +16,6 @@ import li.cil.oc.util.InventoryUtils
 import net.minecraft.world.level.block.piston.PistonBaseBlock
 import net.minecraft.world.entity.{Entity, EntityDimensions, EquipmentSlot, LivingEntity, Pose}
 import net.minecraft.world.entity.item.ItemEntity
-import net.minecraft.world.item.trading.Merchant
 import net.minecraft.world.entity.player.{Player => PlayerEntity}
 import net.minecraft.world.entity.player.Player.{BedSleepingProblem => BedStatus}
 import net.minecraft.world.level.block.Blocks
@@ -31,9 +30,8 @@ import net.minecraft.world.item.trading.MerchantOffers
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket
 import net.minecraft.world.effect.MobEffectInstance
-import net.minecraft.server.level.ServerPlayerGameMode
-import net.minecraft.server.players.{ServerOpListEntry, UserWhiteListEntry}
-import net.minecraft.world.level.block.entity.{BlockEntity, CommandBlockEntity, SignBlockEntity}
+import net.minecraft.server.players.ServerOpListEntry
+import net.minecraft.world.level.block.entity.{CommandBlockEntity, SignBlockEntity}
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.core.Direction
@@ -42,7 +40,6 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.level.{BaseCommandBlock, Level}
 import net.minecraft.server.level.ServerLevel
 import net.minecraftforge.common.MinecraftForge
@@ -188,7 +185,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.getEnvironmentL
 
   var facing, side = Direction.SOUTH
 
-  override def getName = new TextComponent(agent.name)
+  override def getName = Component.literal(agent.name)
 
   // ----------------------------------------------------------------------- //
 
@@ -344,7 +341,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.getEnvironmentL
     val durationHandler = new {
       @SubscribeEvent(priority = EventPriority.LOWEST)
       def onItemUseStart(startUse: LivingEntityUseItemEvent.Start): Unit = {
-        if (startUse.getEntityLiving == entity && !startUse.isCanceled) {
+        if (startUse.getEntity == entity && !startUse.isCanceled) {
           startUse.setDuration(duration.toInt)
         }
       }
@@ -464,7 +461,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.getEnvironmentL
   })
 
   private def isItemUseAllowed(stack: ItemStack) = stack.isEmpty || {
-    (Settings.get.allowUseItemsWithDuration || stack.getUseDuration <= 0) && !stack.sameItem(new ItemStack(Items.LEAD))
+    (Settings.get.allowUseItemsWithDuration || stack.getUseDuration <= 0) && !ItemStack.isSameItem(stack, new ItemStack(Items.LEAD))
   }
 
   override def drop(stack: ItemStack, dropAround: Boolean, traceItem: Boolean): ItemEntity =
@@ -619,7 +616,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.getEnvironmentL
 
   override def startSleepInBed(bedLocation: BlockPos) = Either.left[BedStatus, net.minecraft.util.Unit](BedStatus.OTHER_PROBLEM)
 
-  override def sendMessage(message: Component, sender: UUID): Unit = {}
+  override def sendSystemMessage(message: Component): Unit = {}
 
   override def openCommandBlock(commandBlock: CommandBlockEntity): Unit = {}
 
@@ -629,7 +626,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.getEnvironmentL
 
   override def openMinecartCommandBlock(thing: BaseCommandBlock): Unit = {}
 
-  override def openTextEdit(signTile: SignBlockEntity): Unit = {}
+  override def openTextEdit(signTile: SignBlockEntity, isFront: Boolean): Unit = {}
 
   // ----------------------------------------------------------------------- //
 
@@ -641,7 +638,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.getEnvironmentL
     def tick(): Unit = {
       // Cancel if the agent stopped or our action is invalidated some other way.
       if (level != player.level || !level.isLoaded(pos) || level.isEmptyBlock(pos) || !player.agent.machine.isRunning) {
-        player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, side, player.level.getMaxBuildHeight())
+        player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, side, player.level.getMaxBuildHeight, 0)
         return
       }
 

@@ -6,20 +6,22 @@ import li.cil.oc.api
 import li.cil.oc.common.Loot
 import li.cil.oc.integration.util.Wrench
 import li.cil.oc.util.StackOption
-import net.minecraft.core.NonNullList
+import net.minecraft.core.{NonNullList, RegistryAccess}
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.inventory.CraftingContainer
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.crafting.{Ingredient, Recipe, RecipeSerializer, RecipeType}
+import net.minecraft.world.item.crafting.{CraftingBookCategory, CraftingRecipe, Ingredient, Recipe, RecipeSerializer, RecipeType}
 import net.minecraft.world.level.Level
 
 import scala.collection.JavaConverters
 import scala.collection.immutable
 
-class LootDiskCyclingRecipe(val getId: ResourceLocation) extends Recipe[CraftingContainer] {
+class LootDiskCyclingRecipe(val getId: ResourceLocation, val bookCategory: CraftingBookCategory) extends CraftingRecipe {
   val ingredients = NonNullList.create[Ingredient]
   ingredients.add(Ingredient.of(Loot.disksForCycling.toArray: _*))
   ingredients.add(Ingredient.of(api.Items.get(Constants.ItemName.Wrench).createItemStack(1)))
+
+  override def category(): CraftingBookCategory = bookCategory
 
   override def matches(crafting: CraftingContainer, level: Level): Boolean = {
     val stacks = collectStacks(crafting).toArray
@@ -29,7 +31,7 @@ class LootDiskCyclingRecipe(val getId: ResourceLocation) extends Recipe[Crafting
   override def getType: RecipeType[_] = Recipes.LOOTDISK_CYCLING.getRecipeType
   override def getSerializer: RecipeSerializer[_] = Recipes.LOOTDISK_CYCLING.getSerializer
 
-  override def assemble(crafting: CraftingContainer): ItemStack = {
+  override def assemble(crafting: CraftingContainer, registryAccess: RegistryAccess): ItemStack = {
     val lootDiskStacks = Loot.disksForCycling
     collectStacks(crafting).find(Loot.isLootDisk) match {
       case Some(lootDisk) if lootDiskStacks.nonEmpty =>
@@ -47,7 +49,7 @@ class LootDiskCyclingRecipe(val getId: ResourceLocation) extends Recipe[Crafting
 
   override def canCraftInDimensions(width: Int, height: Int): Boolean = width * height >= 2
 
-  override def getResultItem = Loot.disksForCycling.headOption match {
+  override def getResultItem(registryAccess: RegistryAccess) = Loot.disksForCycling.headOption match {
     case Some(lootDisk) => lootDisk
     case _ => ItemStack.EMPTY
   }

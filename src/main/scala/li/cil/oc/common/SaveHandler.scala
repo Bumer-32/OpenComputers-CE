@@ -160,7 +160,7 @@ object SaveHandler {
     })
     saving.remove(name)
 
-    load(ResourceLocation.withDefaultNamespace(dimension), chunk, name)
+    load(ResourceLocation.tryParse(dimension), chunk, name)
   }
 
   def scheduleSave(dimension: ResourceLocation, chunk: ChunkPos, name: String, data: Array[Byte]): Unit = {

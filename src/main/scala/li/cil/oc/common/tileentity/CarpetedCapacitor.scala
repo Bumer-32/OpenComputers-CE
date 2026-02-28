@@ -8,7 +8,6 @@ import li.cil.oc.Settings
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.animal.Ocelot
 import net.minecraft.world.entity.animal.Sheep
-import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.world.level.Level
@@ -39,7 +38,7 @@ class CarpetedCapacitor(pos: BlockPos, state: BlockState)
     def tryDamageOne(): Unit = {
       for (ent <- entities) {
         if (rng.nextDouble() < chance) {
-          ent.hurt(DamageSource.GENERIC, 1)
+          ent.hurt(level.damageSources().generic(), 1)
           ent.setLastHurtByMob(ent) // panic
           ent.knockback(0, .25, 0)
           // wait a minute before the next possible shock

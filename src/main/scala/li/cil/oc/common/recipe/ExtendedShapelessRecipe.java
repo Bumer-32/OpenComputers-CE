@@ -2,13 +2,13 @@ package li.cil.oc.common.recipe;
 
 import com.google.gson.JsonObject;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
 
 public class ExtendedShapelessRecipe implements Recipe<CraftingContainer> {
@@ -24,8 +24,8 @@ public class ExtendedShapelessRecipe implements Recipe<CraftingContainer> {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inv) {
-        return ExtendedRecipe.addNBTToResult(this, wrapped.assemble(inv), inv);
+    public ItemStack assemble(CraftingContainer inv, @NotNull RegistryAccess registryAccess) {
+        return ExtendedRecipe.addNBTToResult(this, wrapped.assemble(inv, registryAccess), inv);
     }
 
     @Override
@@ -34,8 +34,8 @@ public class ExtendedShapelessRecipe implements Recipe<CraftingContainer> {
     }
 
     @Override
-    public ItemStack getResultItem() {
-        return wrapped.getResultItem();
+    public ItemStack getResultItem(@NotNull RegistryAccess registryAccess) {
+        return wrapped.getResultItem(registryAccess);
     }
 
     @Override
@@ -70,8 +70,7 @@ public class ExtendedShapelessRecipe implements Recipe<CraftingContainer> {
         return wrapped.getGroup();
     }
 
-    public static final class Serializer extends ForgeRegistryEntry<RecipeSerializer<?>>
-        implements RecipeSerializer<ExtendedShapelessRecipe> {
+    public static final class Serializer implements RecipeSerializer<ExtendedShapelessRecipe> {
 
         @Override
         @NotNull

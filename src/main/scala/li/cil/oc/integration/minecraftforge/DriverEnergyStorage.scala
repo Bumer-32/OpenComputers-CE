@@ -14,7 +14,7 @@ import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraftforge.energy.CapabilityEnergy
+import net.minecraftforge.common.capabilities.ForgeCapabilities
 import net.minecraftforge.energy.IEnergyStorage
 
 /**
@@ -23,12 +23,12 @@ import net.minecraftforge.energy.IEnergyStorage
 object DriverEnergyStorage extends DriverBlock {
 
   override def worksWith(world: Level, pos: BlockPos, side: Direction): Boolean = world.getBlockEntity(pos) match {
-    case tile: BlockEntity if tile.getCapability(CapabilityEnergy.ENERGY, side).isPresent => true
+    case tile: BlockEntity if tile.getCapability(ForgeCapabilities.ENERGY, side).isPresent => true
     case _ => false
   }
 
   override def createEnvironment(world: Level, pos: BlockPos, side: Direction): ManagedEnvironment = world.getBlockEntity(pos) match {
-    case tile: BlockEntity if tile.getCapability(CapabilityEnergy.ENERGY, side).isPresent => new Environment(tile.getCapability(CapabilityEnergy.ENERGY, side).orElse(null))
+    case tile: BlockEntity if tile.getCapability(ForgeCapabilities.ENERGY, side).isPresent => new Environment(tile.getCapability(ForgeCapabilities.ENERGY, side).orElse(null))
     case _ => null
   }
 

@@ -6,7 +6,6 @@ import li.cil.oc.util.StackOption
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TranslatableComponent
 import net.minecraft.nbt.Tag
 
 trait Inventory extends SimpleInventory {

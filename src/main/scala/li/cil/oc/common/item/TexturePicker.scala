@@ -9,7 +9,6 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
-import net.minecraftforge.client.model.ModelDataManager
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraft.world.entity.player.Player
 import net.minecraft.Util
@@ -21,9 +20,10 @@ class TexturePicker(props: Properties) extends Item(props) with IForgeItem with 
         if (player.level.isClientSide) {
           val pos = position.toBlockPos
           val model = Minecraft.getInstance.getBlockRenderer.getBlockModel(player.level.getBlockState(pos))
-          val particle = if (model != null) model.getParticleIcon(ModelDataManager.getModelData(player.level, pos)) else null
-          if (particle != null && particle.getName != null) {
-            player.sendMessage(Localization.Chat.TextureName(particle.getName.toString), Util.NIL_UUID)
+          val be = player.level.getBlockEntity(pos)
+          val particle = if (model != null) model.getParticleIcon(be.getModelData) else null
+          if (particle != null && particle.contents.name != null) {
+            player.sendSystemMessage(Localization.Chat.TextureName(particle.contents.name.toString))
           }
         }
         true

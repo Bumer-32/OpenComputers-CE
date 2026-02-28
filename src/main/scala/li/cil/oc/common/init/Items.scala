@@ -28,10 +28,9 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Rarity
 import net.minecraft.core.NonNullList
 import net.minecraft.resources.ResourceLocation
-import net.minecraftforge.eventbus.api.IEventBus
-import net.minecraftforge.registries.DeferredRegister
-import net.minecraftforge.registries.ForgeRegistries
-import net.minecraftforge.registries.RegistryObject
+import net.minecraft.world.level.ItemLike
+import net.minecraftforge.eventbus.api.{EventPriority, IEventBus}
+import net.minecraftforge.registries.{DeferredRegister, ForgeRegistries, RegisterEvent, RegistryObject}
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -111,34 +110,33 @@ object Items extends ItemAPI {
     instance
   }
 
-  def registerItem(instance: Item, id: String): Item = {
+  def registerItem(makeItem: => Item, id: String): Item = {
     if (!descriptors.contains(id)) {
-      val ro: RegistryObject[Item] = instance match {
-        case simple: SimpleItem =>
-          val registered: RegistryObject[Item] = ITEMS.register(id, () => {
+      // NOTE: makeItem must NOT be evaluated here — only inside the supplier lambda.
+      // In Forge 1.20.1, Item.<init> calls createIntrusiveHolder which requires the
+      // registry to be in write mode (i.e. during RegisterEvent). Instantiating items
+      // eagerly (before RegisterEvent) causes a validateWrite crash.
+      val ro: RegistryObject[Item] = ITEMS.register(id, () => {
+        val instance = makeItem  // instantiated here, safely during RegisterEvent
+        instance match {
+          case simple: SimpleItem =>
             OpenComputers.proxy.registerModel(simple, id)
-            simple
-          })
-          registered
-        case _ =>
-          ITEMS.register(id, () => instance)
-      }
+          case _ =>
+        }
+        names += instance -> id
+        instance
+      })
       descriptors += id -> new ItemInfo {
         override def name: String = id
         override def block: Block = null
         override def item: Item = ro.get()
-        override def createItemStack(size: Int): ItemStack = instance match {
+        override def createItemStack(size: Int): ItemStack = ro.get() match {
           case simple: SimpleItem => simple.createItemStack(size)
           case _ => new ItemStack(ro.get(), size)
         }
       }
-      names += instance -> id
-      EventHandler.scheduleServer(() => {
-        val registered = ro.get()
-        if (registered != instance) names += registered -> id
-      })
     }
-    instance
+    null  // return value is unused at all callsites
   }
 
   def registerStack(stack: ItemStack, id: String): ItemStack = {
@@ -168,7 +166,7 @@ object Items extends ItemAPI {
 
   // ----------------------------------------------------------------------- //
 
-  val registeredItems: ArrayBuffer[ItemStack] = mutable.ArrayBuffer.empty[ItemStack]
+  private val registeredItems: ArrayBuffer[ItemStack] = mutable.ArrayBuffer.empty[ItemStack]
 
   override def registerFloppy(name: String, loc: ResourceLocation, color: DyeColor, factory: Callable[FileSystem], doRecipeCycling: Boolean): ItemStack = {
     val stack = Loot.registerLootDisk(name, loc, color, factory, doRecipeCycling)
@@ -350,6 +348,14 @@ object Items extends ItemAPI {
       descriptors.getOrElseUpdate(k, descriptors(v))
     }
 
+    // DeferredRegister listens at HIGHEST priority, so our LOW-priority listener
+    // runs after all items are registered — safe to call ro.get() / createItemStack.
+    bus.addListener(EventPriority.LOW, (event: RegisterEvent) => {
+      if (event.getRegistryKey == ForgeRegistries.Keys.ITEMS) {
+        initPostStorage()
+      }
+    })
+
     ITEMS.register(bus)
   }
 
@@ -514,16 +520,17 @@ object Items extends ItemAPI {
     registerItem(new item.HardDiskDrive(defaultProps, Tier.One), Constants.ItemName.HDDTier1)
     registerItem(new item.HardDiskDrive(defaultProps.rarity(Rarity.UNCOMMON), Tier.Two), Constants.ItemName.HDDTier2)
     registerItem(new item.HardDiskDrive(defaultProps.rarity(Rarity.RARE), Tier.Three), Constants.ItemName.HDDTier3)
+  }
 
+  private def initPostStorage(): Unit = {
     val luaBios = {
       val code = new Array[Byte](4 * 1024)
       val count = OpenComputers.getClass.getResourceAsStream(Settings.scriptPath + "bios.lua").read(code)
       registerEEPROM("EEPROM (Lua BIOS)", code.take(count), null, readonly = false)
     }
     registerStack(luaBios, Constants.ItemName.LuaBios)
-
   }
-
+  
   // Special purpose items that don't fit into any other category.
   private def initSpecial(): Unit = {
     registerItem(new item.Tablet(defaultProps.stacksTo(1)), Constants.ItemName.Tablet)
@@ -538,5 +545,6 @@ object Items extends ItemAPI {
     list.add(Items.createConfiguredTablet())
     Loot.disksForClient.foreach(list.add)
     registeredItems.foreach(list.add)
+    
   }
 }

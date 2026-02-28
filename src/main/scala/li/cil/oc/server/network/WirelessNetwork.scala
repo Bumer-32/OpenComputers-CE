@@ -6,8 +6,8 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedBlock._
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.RTree
-import net.minecraftforge.event.world.ChunkEvent
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.event.level.ChunkEvent
+import net.minecraftforge.event.level.LevelEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -20,16 +20,16 @@ object WirelessNetwork {
   val dimensions = mutable.Map.empty[ResourceKey[Level], RTree[WirelessEndpoint]]
 
   @SubscribeEvent
-  def onWorldUnload(e: WorldEvent.Unload): Unit = {
-    if (!e.getWorld.isClientSide) e.getWorld match {
+  def onWorldUnload(e: LevelEvent.Unload): Unit = {
+    if (!e.getLevel.isClientSide) e.getLevel match {
       case level: Level => dimensions.remove(level.dimension)
       case _ =>
     }
   }
 
   @SubscribeEvent
-  def onWorldLoad(e: WorldEvent.Load): Unit = {
-    if (!e.getWorld.isClientSide) e.getWorld match {
+  def onWorldLoad(e: LevelEvent.Load): Unit = {
+    if (!e.getLevel.isClientSide) e.getLevel match {
       case level: Level => dimensions.remove(level.dimension)
       case _ =>
     }

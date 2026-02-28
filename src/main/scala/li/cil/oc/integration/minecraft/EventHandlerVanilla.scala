@@ -3,14 +3,15 @@ package li.cil.oc.integration.minecraft
 import li.cil.oc.Settings
 import li.cil.oc.api.event.GeolyzerEvent
 import li.cil.oc.util.{BlockPosHelper, BlockPosition, ItemUtils}
-import li.cil.oc.util.ExtendedLevel._
+import net.minecraft.tags.BlockTags
 import net.minecraft.world.level.block.{Block, Blocks, CropBlock, LiquidBlock, StemBlock}
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.properties.IntegerProperty
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fluids.IFluidBlock
+import net.minecraftforge.registries.ForgeRegistries
 
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.jdk.CollectionConverters._
 
 object EventHandlerVanilla {
   @SubscribeEvent
@@ -23,7 +24,9 @@ object EventHandlerVanilla {
     }
 
     val noise = new Array[Byte](e.data.length)
-    world.random.nextBytes(noise)
+    for (i <- noise.indices) {
+      noise(i) = world.random.nextInt(256).toByte
+    }
     // Map to [-1, 1). The additional /33f is for normalization below.
     noise.map(_ / 128f / 33f).copyToArray(e.data)
 
@@ -36,21 +39,22 @@ object EventHandlerVanilla {
         val blockState = world.getBlockState(pos)
         val block = blockState.getBlock
         val isFluid = block.isInstanceOf[LiquidBlock] || block.isInstanceOf[IFluidBlock]
-        if (!blockState.isAir() && (includeReplaceable || isFluid || !blockState.getMaterial.isReplaceable)) {
+        if (!blockState.isAir && (includeReplaceable || isFluid || !blockState.is(BlockTags.REPLACEABLE))) {
           val distance = math.sqrt(rx * rx + ry * ry + rz * rz).toFloat
           e.data(index) = e.data(index) * distance * Settings.get.geolyzerNoise + blockState.getDestroySpeed(world, pos)
+        } else {
+          e.data(index) = 0
         }
-        else e.data(index) = 0
       }
       else e.data(index) = 0
     }
   }
 
   private def getGrowth(blockState: BlockState) = {
-    blockState.getProperties().find(prop => {prop.isInstanceOf[IntegerProperty] && prop.getName() == "age"}) match {
+    blockState.getProperties().asScala.find(prop => {prop.isInstanceOf[IntegerProperty] && prop.getName() == "age"}) match {
       case Some(prop) =>
         val propAge = prop.asInstanceOf[IntegerProperty]
-        Some((blockState.getValue(propAge).toFloat / propAge.getPossibleValues().max) max 0 min 1)
+        Some((blockState.getValue(propAge).toFloat / propAge.getPossibleValues.asScala.max) max 0 min 1)
       case None => None
     }
   }
@@ -60,26 +64,27 @@ object EventHandlerVanilla {
     val world = e.host.getEnvironmentLevel
     val blockState = world.getBlockState(e.pos)
     val block = blockState.getBlock
+    val blockName = ForgeRegistries.BLOCKS.getKey(block).toString
 
-    e.data += "name" -> block.getRegistryName
-    e.data += "hardness" -> Float.box(blockState.getDestroySpeed(world, e.pos))
-    e.data += "harvestLevel" -> Int.box(ItemUtils.getHarvestLevel(blockState))
-    e.data += "harvestTool" -> ItemUtils.getHarvestTool(blockState)
-    e.data += "color" -> Int.box(blockState.getMapColor(world, e.pos).col)
+    e.data.asScala += "name" -> blockName
+    e.data.asScala += "hardness" -> Float.box(blockState.getDestroySpeed(world, e.pos))
+    e.data.asScala += "harvestLevel" -> Int.box(ItemUtils.getHarvestLevel(blockState))
+    e.data.asScala += "harvestTool" -> ItemUtils.getHarvestTool(blockState)
+    e.data.asScala += "color" -> Int.box(blockState.getMapColor(world, e.pos).col)
 
     // backward compatibility
-    e.data += "metadata" -> Int.box(0)
+    e.data.asScala += "metadata" -> Int.box(0)
 
-    e.data += "properties" -> {
-      var props:Map[String, Any] = Map();
-      for (prop <- blockState.getProperties()) {
+    e.data.asScala += "properties" -> {
+      var props: Map[String, Any] = Map()
+      for (prop <- blockState.getProperties.asScala) {
         props += prop.getName() -> blockState.getValue(prop)
       }
       props
     }
 
     if (Settings.get.insertIdsInConverters) {
-      e.data += "id" -> Int.box(Block.getId(blockState))
+      e.data.asScala += "id" -> Int.box(Block.getId(blockState))
     }
 
     {
@@ -91,7 +96,7 @@ object EventHandlerVanilla {
         None
       }
     } foreach { growth =>
-      e.data += "growth" -> Float.box(growth)
+      e.data.asScala += "growth" -> Float.box(growth)
     }
   }
 }

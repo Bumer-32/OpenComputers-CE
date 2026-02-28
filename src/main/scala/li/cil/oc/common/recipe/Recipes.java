@@ -2,10 +2,9 @@ package li.cil.oc.common.recipe;
 
 import li.cil.oc.OpenComputers;
 import net.minecraft.core.Registry;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.*;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -32,9 +31,12 @@ public final class Recipes {
     }
 
     public static final DeferredRegister<RecipeSerializer<?>> SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, OpenComputers.ID());
-    public static final DeferredRegister<RecipeType<?>> RECIPES = DeferredRegister.create(Registry.RECIPE_TYPE_REGISTRY, OpenComputers.ID());
+    public static final DeferredRegister<RecipeType<?>> RECIPES = DeferredRegister.create(Registries.RECIPE_TYPE, OpenComputers.ID());
 
-    public static final RecipeRegistration<LootDiskCyclingRecipe> LOOTDISK_CYCLING = register("crafting_lootdisk_cycling", new SimpleRecipeSerializer<>(LootDiskCyclingRecipe::new));
+    public static final RecipeRegistration<LootDiskCyclingRecipe> LOOTDISK_CYCLING = register(
+            "crafting_lootdisk_cycling",
+            new SimpleCraftingRecipeSerializer<>(LootDiskCyclingRecipe::new)
+    );
     public static final RecipeRegistration<ColorizeRecipe> COLORIZE = register("crafting_colorize", new ItemSpecialSerializer<>(ColorizeRecipe::new, ColorizeRecipe::targetItem));
     public static final RecipeRegistration<DecolorizeRecipe> DECOLORIZE = register("crafting_decolorize", new ItemSpecialSerializer<>(DecolorizeRecipe::new, DecolorizeRecipe::targetItem));
     public static final RecipeRegistration<ExtendedShapedRecipe> SHAPED_EXTENDED = register("crafting_shaped_extended", new ExtendedShapedRecipe.Serializer());

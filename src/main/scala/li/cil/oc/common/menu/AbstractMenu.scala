@@ -1,6 +1,5 @@
 package li.cil.oc.common.menu
 
-import java.util.Arrays
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common
 import li.cil.oc.common.InventorySlots.InventorySlot
@@ -88,8 +87,7 @@ abstract class AbstractMenu(selfType: MenuType[_ <: AbstractMenu], id: Int, val 
 
     if (!toStack.isEmpty) {
       if (toStackSize < maxStackSize &&
-          fromStack.sameItem(toStack) &&
-          ItemStack.tagMatches(fromStack, toStack) &&
+          ItemStack.isSameItemSameTags(fromStack, toStack) &&
           itemsMoved > 0) {
         toStack.grow(from.remove(itemsMoved).getCount)
       } else return false

@@ -8,8 +8,6 @@ object ModComputerCraft extends ModProxy {
   override def getMod = Mods.ComputerCraft
 
   override def initialize(): Unit = {
-    PeripheralProvider.init()
-
     Driver.add(DriverComputerCraftMedia)
     Driver.add(new DriverPeripheral())
 

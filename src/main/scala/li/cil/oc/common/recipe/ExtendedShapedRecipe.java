@@ -2,6 +2,7 @@ package li.cil.oc.common.recipe;
 
 import com.google.gson.JsonObject;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -9,7 +10,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.crafting.IShapedRecipe;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
 
 public class ExtendedShapedRecipe implements Recipe<CraftingContainer>, IShapedRecipe<CraftingContainer> {
@@ -26,8 +26,8 @@ public class ExtendedShapedRecipe implements Recipe<CraftingContainer>, IShapedR
 
     @Override
     @NotNull
-    public ItemStack assemble(@NotNull CraftingContainer inv) {
-        return ExtendedRecipe.addNBTToResult(this, wrapped.assemble(inv), inv);
+    public ItemStack assemble(@NotNull CraftingContainer inv, @NotNull RegistryAccess registryAccess) {
+        return ExtendedRecipe.addNBTToResult(this, wrapped.assemble(inv, registryAccess), inv);
     }
 
     @Override
@@ -36,8 +36,8 @@ public class ExtendedShapedRecipe implements Recipe<CraftingContainer>, IShapedR
     }
 
     @Override
-    public ItemStack getResultItem() {
-        return wrapped.getResultItem();
+    public ItemStack getResultItem(@NotNull RegistryAccess registryAccess) {
+        return wrapped.getResultItem(registryAccess);
     }
 
     @Override
@@ -82,8 +82,7 @@ public class ExtendedShapedRecipe implements Recipe<CraftingContainer>, IShapedR
         return wrapped.getRecipeHeight();
     }
 
-    public static final class Serializer extends ForgeRegistryEntry<RecipeSerializer<?>>
-        implements RecipeSerializer<ExtendedShapedRecipe> {
+    public static final class Serializer implements RecipeSerializer<ExtendedShapedRecipe> {
 
         @Override
         public ExtendedShapedRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
