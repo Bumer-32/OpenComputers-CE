@@ -90,8 +90,8 @@ object Textures {
   }
 
   object Item {
-    val DroneItem = ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, "items/drone")
-    val Robot = ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, "items/robot")
+    val DroneItem = ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, "item/drone")
+    val Robot = ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, "item/robot")
   }
 
   object Block {
@@ -157,7 +157,7 @@ object Textures {
 
     Screen.makeSureThisIsInitialized()
 
-    private def L(name: String) = ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, s"blocks/$name")
+    private def L(name: String) = ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, s"block/$name")
   }
 
   def getSprite(location: ResourceLocation): TextureAtlasSprite =

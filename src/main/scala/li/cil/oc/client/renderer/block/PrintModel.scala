@@ -29,6 +29,7 @@ import net.minecraft.client.renderer.RenderType
 import net.minecraftforge.client.model.data.{ModelData, ModelProperty}
 
 import scala.collection.JavaConverters.bufferAsJavaList
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 object PrintModel extends SmartBlockModelBase {
@@ -45,14 +46,14 @@ object PrintModel extends SmartBlockModelBase {
           val texture = resolveTexture(shape.texture)
           faces ++= bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), shape.tint.getOrElse(White))
         }
-        bufferAsJavaList(faces)
+        faces.asJava
       case _ => super.getQuads(state, side, rand)
     }
 
   private def resolveTexture(name: String): TextureAtlasSprite = try {
-    val texture = Textures.getSprite(ResourceLocation.withDefaultNamespace(name))
+    val texture = Textures.getSprite(ResourceLocation.tryParse(name))
     if (texture.contents.name == MissingTextureAtlasSprite.getLocation)
-      Textures.getSprite(ResourceLocation.withDefaultNamespace("minecraft:blocks/" + name))
+      Textures.getSprite(ResourceLocation.withDefaultNamespace("block/" + name))
     else texture
   } catch {
     case _: Throwable => Textures.getSprite(MissingTextureAtlasSprite.getLocation)
@@ -73,7 +74,7 @@ object PrintModel extends SmartBlockModelBase {
       }
       if (shapes.isEmpty) {
         val bounds  = ExtendedAABB.unitBounds
-        val texture = resolveTexture(Settings.resourceDomain + ":blocks/white")
+        val texture = resolveTexture(Settings.resourceDomain + ":block/white")
         faces ++= bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), Color.rgbValues(DyeColor.LIME))
       }
       bufferAsJavaList(faces)
