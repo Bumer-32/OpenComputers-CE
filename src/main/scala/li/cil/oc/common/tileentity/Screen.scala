@@ -9,6 +9,7 @@ import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.Color
 import li.cil.oc.util.ExtendedLevel._
+import li.cil.oc.client.renderer.block.ScreenModel
 import net.minecraft.client.Minecraft
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.CompoundTag
@@ -17,6 +18,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraft.world.phys.AABB
+import net.minecraftforge.client.model.data.ModelData
 
 import scala.collection.mutable
 import scala.language.postfixOps
@@ -31,6 +33,12 @@ class Screen(pos: BlockPos, state: BlockState, var tier: Int) extends BlockEntit
   _isOutputEnabled = true
 
   override def validFacings = Direction.values
+
+  @OnlyIn(Dist.CLIENT)
+  override def getModelData: ModelData =
+    ModelData.builder()
+  .`with`(ScreenModel.SCREEN_PROPERTY, this)
+    .build()
 
   // ----------------------------------------------------------------------- //
 
@@ -316,6 +324,7 @@ class Screen(pos: BlockPos, state: BlockState, var tier: Int) extends BlockEntit
   def loadForClient(nbt: CompoundTag): Unit = {
     tier = nbt.getByte(TierTag) max 0 min 2
     super.loadForClient(nbt)
+    requestModelDataUpdate()
     invertTouchMode = nbt.getBoolean(InvertTouchModeTag)
   }
 

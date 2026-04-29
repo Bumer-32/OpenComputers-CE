@@ -3,6 +3,7 @@ package li.cil.oc.api.prefab;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import li.cil.oc.api.manual.TabIconRenderer;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,21 +22,9 @@ public class TextureTabIconRenderer implements TabIconRenderer {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void render(PoseStack stack) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, location);
+    public void render(GuiGraphics graphics) {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-        final Tesselator t = Tesselator.getInstance();
-        final BufferBuilder r = t.getBuilder();
-
-        r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-
-        r.vertex(stack.last().pose(), 0, 16, 0).uv(0, 1).endVertex();
-        r.vertex(stack.last().pose(), 16, 16, 0).uv(1, 1).endVertex();
-        r.vertex(stack.last().pose(), 16, 0, 0).uv(1, 0).endVertex();
-        r.vertex(stack.last().pose(), 0, 0, 0).uv(0, 0).endVertex();
-
-        t.end();
+        graphics.blit(location, 0, 0, 0, 0, 16, 16, 16, 16);
     }
 }

@@ -1,6 +1,7 @@
 package li.cil.oc.api.manual;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -23,5 +24,5 @@ public interface TabIconRenderer {
      * adjusted so that drawing starts at (0,0,0), and should go to (16,16,0).
      */
     @OnlyIn(Dist.CLIENT)
-    void render(PoseStack stack);
+    void render(GuiGraphics graphics);
 }

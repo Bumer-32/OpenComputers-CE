@@ -2,9 +2,11 @@ package li.cil.oc.api.prefab;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import li.cil.oc.api.manual.TabIconRenderer;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Vector4f;
 
 /**
  * Simple implementation of a tab icon renderer using an item stack as its graphic.
@@ -21,7 +23,17 @@ public class ItemStackTabIconRenderer implements TabIconRenderer {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void render(PoseStack matrix) {
-        
+    public void render(GuiGraphics graphics) {
+        Vector4f vec = new Vector4f(0, 0, 0, 1);
+        vec.mul(graphics.pose().last().pose());
+
+        graphics.renderItem(stack, (int) vec.x(), (int) vec.y());
+
+        graphics.renderItemDecorations(
+                net.minecraft.client.Minecraft.getInstance().font,
+                stack,
+                (int) vec.x(),
+                (int) vec.y()
+        );
     }
 }

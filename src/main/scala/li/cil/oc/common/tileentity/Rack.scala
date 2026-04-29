@@ -23,6 +23,7 @@ import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedInventory._
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.RotationHelper
+import li.cil.oc.client.renderer.block.ServerRackModel
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraftforge.api.distmarker.Dist
@@ -34,6 +35,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.{Container, MenuProvider}
 import net.minecraft.nbt.{CompoundTag, IntArrayTag, Tag}
 import net.minecraft.world.entity.player.{Inventory, Player}
+import net.minecraftforge.client.model.data.ModelData
 
 import scala.collection.immutable.ArraySeq
 
@@ -44,6 +46,12 @@ class Rack(pos: BlockPos, state: BlockState)
   var isRelayEnabled = false
   val lastData = new Array[CompoundTag](getContainerSize)
   val hasChanged: Array[Boolean] = Array.fill(getContainerSize)(true)
+
+  @OnlyIn(Dist.CLIENT)
+  override def getModelData: ModelData =
+    ModelData.builder()
+  .`with`(ServerRackModel.RACK_PROPERTY, this)
+    .build()
 
   // Map node connections for each installed mountable. Each mountable may
   // have up to four outgoing connections, with the first one always being
@@ -447,6 +455,7 @@ class Rack(pos: BlockPos, state: BlockState)
   @OnlyIn(Dist.CLIENT) override
   def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
+    requestModelDataUpdate()
 
     val data = nbt.getList(LastDataTag, Tag.TAG_COMPOUND).
       toTagArray[CompoundTag]

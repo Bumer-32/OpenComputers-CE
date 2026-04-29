@@ -40,8 +40,6 @@ abstract class AbstractMenu(selfType: MenuType[_ <: AbstractMenu], id: Int, val 
 
   private var lastSync = System.currentTimeMillis()
 
-  protected val playerListeners = mutable.ArrayBuffer.empty[ServerPlayer]
-
   override def stillValid(player: Player) = otherInventory.stillValid(player)
 
   override def clicked(slot: Int, dragType: Int, clickType: ClickType, player: Player) = {
@@ -164,27 +162,15 @@ abstract class AbstractMenu(selfType: MenuType[_ <: AbstractMenu], id: Int, val 
     }
   }
 
-  override def addSlotListener(listener: ContainerListener): Unit = {
-    listener match {
-      case _: FakePlayer => // Nope
-      case player: ServerPlayer => playerListeners += player
-      case _ =>
-    }
-    super.addSlotListener(listener)
-  }
-
-  @OnlyIn(Dist.CLIENT)
-  override def removeSlotListener(listener: ContainerListener): Unit = {
-    if (listener.isInstanceOf[ServerPlayer]) playerListeners -= listener.asInstanceOf[ServerPlayer]
-    super.removeSlotListener(listener)
-  }
-
   override def broadcastChanges(): Unit = {
     super.broadcastChanges()
     if (SideTracker.isServer) {
       val nbt = new CompoundTag()
       detectCustomDataChanges(nbt)
-      for (player <- playerListeners) ServerPacketSender.sendContainerUpdate(this, nbt, player)
+      playerInventory.player match {
+        case player: ServerPlayer => ServerPacketSender.sendContainerUpdate(this, nbt, player)
+        case _ =>
+      }
     }
   }
 

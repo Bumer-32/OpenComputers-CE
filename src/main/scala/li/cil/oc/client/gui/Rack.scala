@@ -1,23 +1,21 @@
 package li.cil.oc.client.gui
 
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.{
+  DefaultVertexFormat,
+  PoseStack,
+  Tesselator,
+  VertexFormat
+}
 import li.cil.oc.Localization
-import li.cil.oc.client.Textures
-import li.cil.oc.client.{PacketSender => ClientPacketSender}
+import li.cil.oc.client.{Textures, PacketSender => ClientPacketSender}
 import li.cil.oc.common.menu
 import li.cil.oc.util.RenderState
-import net.minecraft.core.Direction
-import org.lwjgl.opengl.GL11
-
-import scala.collection.JavaConverters.asJavaCollection
-import net.minecraft.network.chat.Component
-import net.minecraft.world.entity.player.Inventory
-import com.mojang.blaze3d.vertex.Tesselator
-import com.mojang.blaze3d.vertex.VertexFormat
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
-import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
+import net.minecraft.core.Direction
+import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.player.Inventory
 
 import scala.jdk.CollectionConverters._
 
@@ -272,11 +270,12 @@ class Rack(state: menu.Rack, playerInventory: Inventory, name: Component)
     val v1 = v0 + h / 256f
     val t = Tesselator.getInstance()
     val r = t.getBuilder
+    RenderSystem.setShader(() => net.minecraft.client.renderer.GameRenderer.getPositionTexShader)
     r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
-    r.vertex(stack.last.pose, x, y, windowZ).uv(u0, v0).endVertex()
-    r.vertex(stack.last.pose, x, y + h, windowZ).uv(u0, v1).endVertex()
-    r.vertex(stack.last.pose, x + w, y + h, windowZ).uv(u1, v1).endVertex()
-    r.vertex(stack.last.pose, x + w, y, windowZ).uv(u1, v0).endVertex()
+    r.vertex(stack.last.pose, x,     y,     windowZ).uv(u0, v0).endVertex() // 左上
+    r.vertex(stack.last.pose, x + w, y,     windowZ).uv(u1, v0).endVertex() // 右上
+    r.vertex(stack.last.pose, x + w, y + h, windowZ).uv(u1, v1).endVertex() // 右下
+    r.vertex(stack.last.pose, x,     y + h, windowZ).uv(u0, v1).endVertex() // 左下
     t.end()
   }
 }
