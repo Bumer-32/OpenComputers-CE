@@ -13,7 +13,7 @@ object TextureImageProvider extends ImageProvider {
   }
 
   override def getImage(data: String): ImageRenderer = {
-    try new TextureImageRenderer(ResourceLocation.withDefaultNamespace(data.toLowerCase)) catch {
+    try new TextureImageRenderer(ResourceLocation.tryParse(data.toLowerCase)) catch {
       case t: Throwable => new TextureImageRenderer(ManualMissingItem) with InteractiveImageRenderer {
         override def getTooltip(tooltip: String): String = "oc:gui.Manual.Warning.ImageMissing"
 

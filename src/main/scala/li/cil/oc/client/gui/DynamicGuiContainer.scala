@@ -1,9 +1,6 @@
 package li.cil.oc.client.gui
 
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
-import com.mojang.blaze3d.vertex.Tesselator
-import com.mojang.blaze3d.vertex.VertexFormat
 import li.cil.oc.client.Textures
 import li.cil.oc.common
 import li.cil.oc.common.menu.AbstractMenu
@@ -28,7 +25,6 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
     inventoryLabelY = imageHeight - 96 + 2
   }
 
-  // 1.20.1: PoseStack → GuiGraphics
   protected def drawSecondaryForegroundLayer(graphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {}
 
   override protected def renderLabels(graphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {
@@ -45,7 +41,6 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
 
   override protected def renderBg(graphics: GuiGraphics, dt: Float, mouseX: Int, mouseY: Int): Unit = {
     RenderSystem.setShaderColor(1, 1, 1, 1)
-    // 1.20.1: Textures.bind + blit → graphics.blit
     graphics.blit(Textures.GUI.Background, leftPos, topPos, 0, 0, imageWidth, imageHeight)
     drawSecondaryBackgroundLayer(graphics)
     RenderState.makeItBlend()
@@ -88,7 +83,6 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
         slot match {
           case component: ComponentSlot if !slot.hasItem =>
             if (component.tierIcon != null)
-              // 1.20.1: GuiComponent.blit → graphics.blit
               graphics.blit(component.tierIcon, slot.x, slot.y, 0, 0, 16, 16, 16, 16)
             if (component.hasBackground)
               graphics.blit(component.getBackgroundLocation, slot.x, slot.y, 0, 0, 16, 16, 16, 16)
@@ -116,11 +110,10 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
           }
         }
         if (drawHighlight) {
-          graphics.pose().pushPose()
-          graphics.pose().translate(0, 0, 100)
-          // 1.20.1: fillGradient はインスタンスメソッドではなく graphics のメソッド
+          RenderSystem.enableBlend()
+          RenderSystem.defaultBlendFunc()
           graphics.fillGradient(slot.x, slot.y, slot.x + 16, slot.y + 16, 0x80FFFFFF, 0x80FFFFFF)
-          graphics.pose().popPose()
+          RenderSystem.disableBlend()
         }
     }
   }
@@ -137,7 +130,6 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
 
   protected def drawSlotBackground(graphics: GuiGraphics, x: Int, y: Int): Unit = {
     RenderSystem.setShaderColor(1, 1, 1, 1)
-    // 1.18.2: Tesselator で直接描画 → 1.20.1: graphics.blit に統一
     graphics.blit(Textures.GUI.Slot, x, y, 0, 0, 18, 18)
   }
 

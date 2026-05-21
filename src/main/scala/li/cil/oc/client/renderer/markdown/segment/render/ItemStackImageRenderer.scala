@@ -1,7 +1,6 @@
 package li.cil.oc.client.renderer.markdown.segment.render
 
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.api.manual.ImageRenderer
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
@@ -19,23 +18,13 @@ private[markdown] class ItemStackImageRenderer(val stacks: Array[ItemStack]) ext
     val mc = Minecraft.getInstance()
     val index = ((System.currentTimeMillis() % (cycleSpeed * stacks.length)) / cycleSpeed).toInt
     val stack = stacks(index)
-    val pose = graphics.pose
 
-    pose.pushPose()
-
-    pose.scale(getWidth / 16.0f, getHeight / 16.0f, getWidth / 16.0f)
-
-    val modelViewStack = RenderSystem.getModelViewStack
-    modelViewStack.pushPose()
-    modelViewStack.mulPoseMatrix(pose.last.pose)
-    RenderSystem.applyModelViewMatrix()
+    graphics.pose.pushPose()
+    graphics.pose.scale(getWidth / 16.0f, getHeight / 16.0f, getWidth / 16.0f)
 
     graphics.renderItem(stack, 0, 0)
     graphics.renderItemDecorations(mc.font, stack, 0, 0)
 
-    modelViewStack.popPose()
-    RenderSystem.applyModelViewMatrix()
-
-    pose.popPose()
+    graphics.pose.popPose()
   }
 }

@@ -10,7 +10,7 @@ import net.minecraftforge.registries.ForgeRegistries
 
 object ItemImageProvider extends ImageProvider {
   override def getImage(data: String): ImageRenderer = {
-    ForgeRegistries.ITEMS.getValue(ResourceLocation.withDefaultNamespace(data.toLowerCase)) match {
+    ForgeRegistries.ITEMS.getValue(ResourceLocation.tryParse(data.toLowerCase)) match {
       case item: Item => new ItemStackImageRenderer(Array(new ItemStack(item)))
       case _ => new TextureImageRenderer(TextureImageProvider.ManualMissingItem) with InteractiveImageRenderer {
         override def getTooltip(tooltip: String): String = "oc:gui.Manual.Warning.ItemMissing"

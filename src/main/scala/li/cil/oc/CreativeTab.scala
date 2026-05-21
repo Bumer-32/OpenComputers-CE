@@ -1,17 +1,13 @@
 package li.cil.oc
 
 import li.cil.oc.common.init.Items
-import li.cil.oc.common.item.RedstoneCard
-import net.minecraft.core.NonNullList
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
-import net.minecraft.world.item.{CreativeModeTab, ItemStack}
+import net.minecraft.world.item.CreativeModeTab
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.registries.{DeferredRegister, RegistryObject}
-import li.cil.oc.common.Tier
 import li.cil.oc.integration.opencomputers.ModOpenComputers
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 
 object CreativeTab {
   val CREATIVE_TABS: DeferredRegister[CreativeModeTab] =
@@ -27,14 +23,7 @@ object CreativeTab {
   @SubscribeEvent
   def onBuildContents(event: BuildCreativeModeTabContentsEvent): Unit = {
     if (event.getTabKey == MAIN.getKey) {
-      val itemsToAdd: NonNullList[ItemStack] = NonNullList.create()
-      Items.decorateCreativeTab(itemsToAdd)
-
-      itemsToAdd.forEach(stack => event.accept(stack))
-
-      Items.descriptors.get(Constants.ItemName.RedstoneCardTier2).foreach { info =>
-        if (ModOpenComputers.hasRedstoneCardT2) event.accept(info.createItemStack(1))
-      }
+      Items.decorateCreativeTab(event, ModOpenComputers.hasRedstoneCardT2)
     }
   }
 }

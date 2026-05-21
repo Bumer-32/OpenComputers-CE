@@ -26,7 +26,6 @@ import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Rarity
-import net.minecraft.core.NonNullList
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.ItemLike
 import net.minecraftforge.eventbus.api.{EventPriority, IEventBus}
@@ -530,7 +529,7 @@ object Items extends ItemAPI {
     }
     registerStack(luaBios, Constants.ItemName.LuaBios)
   }
-  
+
   // Special purpose items that don't fit into any other category.
   private def initSpecial(): Unit = {
     registerItem(new item.Tablet(defaultProps.stacksTo(1)), Constants.ItemName.Tablet)
@@ -538,13 +537,45 @@ object Items extends ItemAPI {
     registerItem(new item.Present(defaultProps), Constants.ItemName.Present)
   }
 
-  def decorateCreativeTab(list: NonNullList[ItemStack]): Unit = {
-    list.add(Items.createConfiguredDrone())
-    list.add(Items.createConfiguredMicrocontroller())
-    list.add(Items.createConfiguredRobot())
-    list.add(Items.createConfiguredTablet())
-    Loot.disksForClient.foreach(list.add)
-    registeredItems.foreach(list.add)
-    
+  // アイテムフォームを持たない、またはクリエイティブタブに表示しないブロック名のセット。
+  // 1.18.2 では Item.Properties().tab(CreativeTab) の有無で自動的に除外されていたが、
+  // 1.20.1 では BuildCreativeModeTabContentsEvent で明示的に管理する必要がある。
+  private val creativeTabExcluded: Set[String] = Set(
+    Constants.BlockName.Microcontroller, // 組み立て済みマイコン（configuredで追加）
+    Constants.BlockName.Print,           // 印刷物（動的生成のため除外）
+    Constants.BlockName.Robot            // 組み立て済みロボット（configuredで追加）
+    // RobotAfterimage は registerBlockOnly → item = null → isEmpty でスキップされる
+  )
+
+  def decorateCreativeTab(event: net.minecraftforge.event.BuildCreativeModeTabContentsEvent, hasRedstoneCardT2: Boolean): Unit = {
+    event.accept(Items.createConfiguredDrone())
+    event.accept(Items.createConfiguredMicrocontroller())
+    event.accept(Items.createConfiguredRobot())
+    event.accept(Items.createConfiguredTablet())
+
+    Loot.disksForClient.foreach(event.accept)
+
+    for ((id, info) <- descriptors) {
+      if (!creativeTabExcluded.contains(id) && id != Constants.ItemName.RedstoneCardTier2) {
+        val stack = info.createItemStack(1)
+        if (!stack.isEmpty) {
+          if (id == Constants.BlockName.PowerConverter && Settings.get.ignorePower) {
+            // skip
+          } else {
+            event.accept(stack)
+          }
+        }
+      }
+    }
+
+    val sortedItems = ArrayBuffer.from(registeredItems)
+    sortedItems.sortBy(_.getHoverName.getString)
+    sortedItems.foreach(event.accept)
+
+    if (hasRedstoneCardT2) {
+      descriptors.get(Constants.ItemName.RedstoneCardTier2).foreach { info =>
+        event.accept(info.createItemStack(1))
+      }
+    }
   }
 }

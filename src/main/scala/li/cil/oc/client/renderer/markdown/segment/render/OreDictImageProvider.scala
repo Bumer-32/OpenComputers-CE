@@ -17,8 +17,9 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 object OreDictImageProvider extends ImageProvider {
+  //
   override def getImage(data: String): ImageRenderer = {
-    val desired = ResourceLocation.withDefaultNamespace(data.toLowerCase)
+    val desired = ResourceLocation.tryParse(data.toLowerCase)
     val stacks = mutable.ArrayBuffer.empty[ItemStack]
     val itemTagKey = TagKey.create(BuiltInRegistries.ITEM.key(), desired)
     val itemTag = ForgeRegistries.ITEMS.tags().getTag(itemTagKey)
