@@ -6,7 +6,7 @@ import li.cil.oc.api
 import li.cil.oc.api.event.RobotRenderEvent.MountPoint
 import li.cil.oc.api.internal.Robot
 import li.cil.oc.client.renderer.item.ItemUpgradeRenderer
-import li.cil.oc.common.tileentity
+import li.cil.oc.common.blockentity
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.Tooltip
 import net.minecraft.world.item.ItemStack
@@ -39,7 +39,7 @@ trait SimpleItem extends Item with api.driver.item.UpgradeRenderer {
 
   override def doesSneakBypassUse(stack: ItemStack, level: LevelReader, pos: BlockPos, player: Player): Boolean = {
     level.getBlockEntity(pos) match {
-      case drive: tileentity.DiskDrive => true
+      case drive: blockentity.DiskDrive => true
       case _ => super.doesSneakBypassUse(stack, level, pos, player)
     }
   }

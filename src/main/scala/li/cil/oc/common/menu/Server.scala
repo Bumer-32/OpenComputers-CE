@@ -1,7 +1,7 @@
 package li.cil.oc.common.menu
 
 import li.cil.oc.common.InventorySlots
-import li.cil.oc.common.inventory.ServerInventory
+import li.cil.oc.common.container.ServerInventory
 import li.cil.oc.server.component
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.entity.player.Inventory

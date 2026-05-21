@@ -2,7 +2,7 @@ package li.cil.oc.common.item
 
 import li.cil.oc.OpenComputers
 import li.cil.oc.common.menu.MenuTypes
-import li.cil.oc.common.inventory.DiskDriveMountableInventory
+import li.cil.oc.common.container.DiskDriveMountableInventory
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.ItemStack

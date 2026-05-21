@@ -4,20 +4,20 @@ import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
-import li.cil.oc.common.tileentity
+import li.cil.oc.common.blockentity
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer => TileEntityRenderer}
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 
-object PowerDistributorRenderer extends BlockEntityRendererProvider[tileentity.PowerDistributor] {
+object PowerDistributorRenderer extends BlockEntityRendererProvider[blockentity.PowerDistributor] {
   override def create(ctx: BlockEntityRendererProvider.Context): PowerDistributorRenderer =
     new PowerDistributorRenderer()
 }
 
-class PowerDistributorRenderer extends TileEntityRenderer[tileentity.PowerDistributor] {
+class PowerDistributorRenderer extends TileEntityRenderer[blockentity.PowerDistributor] {
   override def render(
-                       distributor: tileentity.PowerDistributor,
+                       distributor: blockentity.PowerDistributor,
                        dt: Float,
                        stack: PoseStack,
                        buffer: MultiBufferSource,

@@ -2,8 +2,8 @@ package li.cil.oc.common.block
 
 import li.cil.oc.client.gui
 import li.cil.oc.common.block.property.PropertyRotatable
-import li.cil.oc.common.tileentity
-import li.cil.oc.common.tileentity.TileEntityTypes
+import li.cil.oc.common.blockentity
+import li.cil.oc.common.blockentity.TileEntityTypes
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
@@ -25,14 +25,14 @@ class Waypoint(props: Properties) extends RedstoneAware(props) with traits.Ticka
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Waypoint(pos, state)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new blockentity.Waypoint(pos, state)
 
   // ----------------------------------------------------------------------- //
 
   override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: InteractionHand, trace: BlockHitResult): InteractionResult = {
     if (!player.isCrouching) {
       if (world.isClientSide) world.getBlockEntity(pos) match {
-        case t: tileentity.Waypoint => showGui(t)
+        case t: blockentity.Waypoint => showGui(t)
         case _ =>
       }
       InteractionResult.sidedSuccess(world.isClientSide)
@@ -41,13 +41,13 @@ class Waypoint(props: Properties) extends RedstoneAware(props) with traits.Ticka
   }
 
   @OnlyIn(Dist.CLIENT)
-  private def showGui(t: tileentity.Waypoint): Unit = {
+  private def showGui(t: blockentity.Waypoint): Unit = {
     Minecraft.getInstance.pushGuiLayer(new gui.Waypoint(t))
   }
 
   override def getValidRotations(world: Level, pos: BlockPos): Array[Direction] =
     world.getBlockEntity(pos) match {
-      case waypoint: tileentity.Waypoint =>
+      case waypoint: blockentity.Waypoint =>
         Direction.values.filter {
           d => d != waypoint.facing && d != waypoint.facing.getOpposite
         }

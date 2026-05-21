@@ -7,7 +7,7 @@ import li.cil.oc.api.internal.MultiTank
 import li.cil.oc.api.machine.{Context, MachineHost}
 import li.cil.oc.api.network._
 import li.cil.oc.api.{Driver, Machine, internal, machine}
-import li.cil.oc.common.inventory.{ComponentInventory, Inventory}
+import li.cil.oc.common.container.{ComponentInventory, Inventory}
 import li.cil.oc.common.item.data.DroneData
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.{EventHandler, menu}
@@ -573,8 +573,6 @@ class Drone(selfType: EntityType[Drone], level: Level) extends Entity(selfType, 
   }
 
   override def checkBelowWorld(): Unit = {
-    if (!isAlive) return
-    super.checkBelowWorld()
     if (!getEnvironmentLevel.isClientSide) {
       val stack = api.Items.get(Constants.ItemName.Drone).createItemStack(1)
       info.storedEnergy = control.node.localBuffer.toInt
@@ -584,6 +582,7 @@ class Drone(selfType: EntityType[Drone], level: Level) extends Entity(selfType, 
       getEnvironmentLevel.addFreshEntity(entity)
       InventoryUtils.dropAllSlots(BlockPosition(this: Entity), mainInventory)
     }
+    super.checkBelowWorld()  // superはkill()を呼ぶので最後に
   }
 
   override def getName: Component = Localization.localizeLater("entity.oc.Drone.name")

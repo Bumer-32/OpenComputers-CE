@@ -1,7 +1,7 @@
 package li.cil.oc.integration.computercraft
 
 import dan200.computercraft.api.peripheral.IPeripheral
-import li.cil.oc.common.tileentity.Relay
+import li.cil.oc.common.blockentity.Relay
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.common.capabilities.{Capability, CapabilityManager, CapabilityToken, ForgeCapabilities}

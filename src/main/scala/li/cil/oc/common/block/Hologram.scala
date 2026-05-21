@@ -1,8 +1,8 @@
 package li.cil.oc.common.block
 
 import java.util
-import li.cil.oc.common.tileentity
-import li.cil.oc.common.tileentity.TileEntityTypes
+import li.cil.oc.common.blockentity
+import li.cil.oc.common.blockentity.TileEntityTypes
 import li.cil.oc.util.Tooltip
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
@@ -35,7 +35,7 @@ class Hologram(props: Properties, val tier: Int) extends SimpleBlock(props) with
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Hologram(pos, state, tier)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new blockentity.Hologram(pos, state, tier)
 
   override def getBlockEntityType: BlockEntityType[_ <: BlockEntity] = TileEntityTypes.HOLOGRAM.get()
 }

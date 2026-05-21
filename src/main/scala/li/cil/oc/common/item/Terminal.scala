@@ -8,7 +8,7 @@ import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.client.gui
 import li.cil.oc.common.component
-import li.cil.oc.common.tileentity.traits.TileEntity
+import li.cil.oc.common.blockentity.traits.BaseBlockEntity
 import net.minecraft.client.Minecraft
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -65,7 +65,7 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
             if (!Strings.isNullOrEmpty(key) && !Strings.isNullOrEmpty(address)) {
               component.TerminalServer.loaded.find(address) match {
                 case Some(term) if term != null && term.rack != null => term.rack match {
-                  case rack: TileEntity with api.internal.Rack => {
+                  case rack: BaseBlockEntity with api.internal.Rack => {
                     def inRange = player.isAlive && !rack.isRemoved && player.distanceToSqr(rack.x + 0.5, rack.y + 0.5, rack.z + 0.5) < term.range * term.range
                     if (inRange) {
                       if (term.sidedKeys.contains(key)) showGui(stack, key, term, () => inRange)

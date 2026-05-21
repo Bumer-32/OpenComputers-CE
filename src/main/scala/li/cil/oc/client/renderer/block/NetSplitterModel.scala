@@ -5,7 +5,7 @@ import java.util.Collections
 
 import li.cil.oc.OpenComputers
 import li.cil.oc.client.Textures
-import li.cil.oc.common.tileentity
+import li.cil.oc.common.blockentity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.renderer.block.model.BakedQuad
@@ -27,7 +27,7 @@ import scala.collection.JavaConverters.bufferAsJavaList
 import scala.collection.mutable
 
 object NetSplitterModel extends SmartBlockModelBase {
-  val NET_SPLITTER_PROPERTY = new ModelProperty[tileentity.NetSplitter]()
+  val NET_SPLITTER_PROPERTY = new ModelProperty[blockentity.NetSplitter]()
 
   override def getOverrides: ItemOverrides = ItemOverride
 

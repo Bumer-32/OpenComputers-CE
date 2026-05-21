@@ -202,7 +202,7 @@ class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment w
   def getKeyboards(context: Context, args: Arguments): Array[AnyRef] = {
     context.pause(0.25)
     host match {
-      case screen: tileentity.Screen =>
+      case screen: blockentity.Screen =>
         Array(screen.screens.map(_.node).flatMap(_.neighbors.filter(_.host.isInstanceOf[Keyboard]).map(_.address)).toArray)
       case _ =>
         Array(node.neighbors.filter(_.host.isInstanceOf[Keyboard]).map(_.address).toArray)
@@ -428,6 +428,7 @@ class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment w
   private final val HasPowerTag = Settings.namespace + "hasPower"
   private final val MaxWidthTag = Settings.namespace + "maxWidth"
   private final val MaxHeightTag = Settings.namespace + "maxHeight"
+  private final val MaxDepthTag = Settings.namespace + "maxDepth"
   private final val PreciseTag = Settings.namespace + "precise"
   private final val ViewportWidthTag = Settings.namespace + "viewportWidth"
   private final val ViewportHeightTag = Settings.namespace + "viewportHeight"
@@ -459,6 +460,14 @@ class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment w
       val maxHeight = nbt.getInt(MaxHeightTag)
       maxResolution = (maxWidth, maxHeight)
     }
+    // Restore maxDepth so that getMaximumColorDepth() returns the correct tier
+    // even if setMaximumColorDepth() was not called after construction (e.g.
+    // when the buffer lazy val was initialised before load(nbt) ran).
+    if (nbt.contains(MaxDepthTag)) {
+      val depthValues = api.internal.TextBuffer.ColorDepth.values
+      val ordinal = nbt.getInt(MaxDepthTag) min (depthValues.length - 1) max 0
+      maxDepth = depthValues(ordinal)
+    }
     precisionMode = nbt.getBoolean(PreciseTag)
 
     if (nbt.contains(ViewportWidthTag)) {
@@ -484,7 +493,7 @@ class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment w
     // when their update() runs).
     if (node.network != null) {
       for (node <- node.network.nodes) node.host match {
-        case computer: tileentity.traits.Computer if !computer.machine.isPaused =>
+        case computer: blockentity.traits.Computer if !computer.machine.isPaused =>
           computer.machine.pause(0.1)
         case _ =>
       }
@@ -495,6 +504,7 @@ class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment w
     nbt.putBoolean(HasPowerTag, hasPower)
     nbt.putInt(MaxWidthTag, maxResolution._1)
     nbt.putInt(MaxHeightTag, maxResolution._2)
+    nbt.putInt(MaxDepthTag, maxDepth.ordinal)
     nbt.putBoolean(PreciseTag, precisionMode)
     nbt.putInt(ViewportWidthTag, viewport._1)
     nbt.putInt(ViewportHeightTag, viewport._2)
@@ -903,7 +913,7 @@ object TextBuffer {
 
     private def sendToKeyboards(name: String, values: AnyRef*): Unit = {
       owner.host match {
-        case screen: tileentity.Screen =>
+        case screen: blockentity.Screen =>
           screen.screens.foreach(_.node.sendToNeighbors(name, values: _*))
         case _ =>
           owner.node.sendToNeighbors(name, values: _*)

@@ -6,7 +6,7 @@ import java.util.Collections
 import li.cil.oc.api.component.RackMountable
 import li.cil.oc.api.event.RackMountableRenderEvent
 import li.cil.oc.client.Textures
-import li.cil.oc.common.tileentity
+import li.cil.oc.common.blockentity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.renderer.block.model.BakedQuad
@@ -25,7 +25,7 @@ import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 object ServerRackModel {
-  val RACK_PROPERTY = new ModelProperty[tileentity.Rack]()
+  val RACK_PROPERTY = new ModelProperty[blockentity.Rack]()
 }
 
 class ServerRackModel(val parent: BakedModel) extends SmartBlockModelBase {

@@ -147,7 +147,7 @@ trait SmartBlockModelBase extends BakedModel {
     })
   }
 
-  protected def rawData(x: Double, y: Double, z: Double, face: Direction, texture: TextureAtlasSprite, u: Float, v: Float, colorRGB: Int, light: Int = 0x00F000F0) = {
+  protected def rawData(x: Double, y: Double, z: Double, face: Direction, texture: TextureAtlasSprite, u: Float, v: Float, colorRGB: Int, light: Int = 0) = {
     val vx = (face.getStepX * 127) & 0xFF
     val vy = (face.getStepY * 127) & 0xFF
     val vz = (face.getStepZ * 127) & 0xFF

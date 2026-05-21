@@ -9,7 +9,7 @@ import li.cil.oc.common.init.Blocks
 import li.cil.oc.common.init.Items
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.recipe.Recipes
-import li.cil.oc.common.tileentity.TileEntityTypes
+import li.cil.oc.common.blockentity.TileEntityTypes
 import li.cil.oc.integration.Mods
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.ThreadPoolFactory

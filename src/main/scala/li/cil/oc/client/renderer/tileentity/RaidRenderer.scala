@@ -6,7 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.math.Axis
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
-import li.cil.oc.common.tileentity.Raid
+import li.cil.oc.common.blockentity.Raid
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.texture.TextureAtlasSprite

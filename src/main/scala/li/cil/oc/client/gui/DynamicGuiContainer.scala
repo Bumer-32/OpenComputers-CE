@@ -1,19 +1,22 @@
 package li.cil.oc.client.gui
 
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import com.mojang.blaze3d.vertex.Tesselator
+import com.mojang.blaze3d.vertex.VertexFormat
 import li.cil.oc.client.Textures
 import li.cil.oc.common
-import li.cil.oc.common.menu.ComponentSlot
 import li.cil.oc.common.menu.AbstractMenu
+import li.cil.oc.common.menu.ComponentSlot
 import li.cil.oc.integration.util.ItemSearch
 import li.cil.oc.util.RenderState
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.renderer.GameRenderer
+import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.{AbstractContainerMenu, Slot}
-import net.minecraft.network.chat.Component
 
 abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv: Inventory, title: Component)
   extends CustomGuiContainer(container, inv, title) {
@@ -25,83 +28,78 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
     inventoryLabelY = imageHeight - 96 + 2
   }
 
-  // 1.20.1: PoseStack → GuiGraphics に統一
-  protected def drawSecondaryForegroundLayer(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {}
+  // 1.20.1: PoseStack → GuiGraphics
+  protected def drawSecondaryForegroundLayer(graphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {}
 
-  override protected def renderLabels(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {
-    super.renderLabels(guiGraphics, mouseX, mouseY)
+  override protected def renderLabels(graphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {
+    super.renderLabels(graphics, mouseX, mouseY)
     RenderState.pushAttrib()
-
-    drawSecondaryForegroundLayer(guiGraphics, mouseX, mouseY)
-
+    drawSecondaryForegroundLayer(graphics, mouseX, mouseY)
     for (slot <- 0 until menu.slots.size()) {
-      drawSlotHighlight(guiGraphics, menu.getSlot(slot))
+      drawSlotHighlight(graphics, menu.getSlot(slot))
     }
-
     RenderState.popAttrib()
   }
 
-  protected def drawSecondaryBackgroundLayer(guiGraphics: GuiGraphics): Unit = {}
+  protected def drawSecondaryBackgroundLayer(graphics: GuiGraphics): Unit = {}
 
-  override protected def renderBg(guiGraphics: GuiGraphics, dt: Float, mouseX: Int, mouseY: Int): Unit = {
+  override protected def renderBg(graphics: GuiGraphics, dt: Float, mouseX: Int, mouseY: Int): Unit = {
     RenderSystem.setShaderColor(1, 1, 1, 1)
-    guiGraphics.blit(Textures.GUI.Background, leftPos, topPos, 0, 0, imageWidth, imageHeight)
-    drawSecondaryBackgroundLayer(guiGraphics)
-
+    // 1.20.1: Textures.bind + blit → graphics.blit
+    graphics.blit(Textures.GUI.Background, leftPos, topPos, 0, 0, imageWidth, imageHeight)
+    drawSecondaryBackgroundLayer(graphics)
     RenderState.makeItBlend()
     RenderSystem.setShader(() => GameRenderer.getPositionColorShader)
-
-    drawInventorySlots(guiGraphics)
+    drawInventorySlots(graphics)
   }
 
-  protected def drawInventorySlots(guiGraphics: GuiGraphics): Unit = {
-    val stack = guiGraphics.pose()
+  protected def drawInventorySlots(graphics: GuiGraphics): Unit = {
+    val stack = graphics.pose()
     stack.pushPose()
     stack.translate(leftPos, topPos, 0)
     RenderSystem.disableDepthTest()
     RenderSystem.setShader(() => GameRenderer.getPositionTexShader)
     for (slot <- 0 until menu.slots.size()) {
-      drawSlotInventory(guiGraphics, menu.getSlot(slot))
+      drawSlotInventory(graphics, menu.getSlot(slot))
     }
     RenderSystem.enableDepthTest()
     stack.popPose()
     RenderState.makeItBlend()
   }
 
-  override def render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, dt: Float): Unit = {
+  override def render(graphics: GuiGraphics, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     hoveredStackNEI = ItemSearch.hoveredStack(this, mouseX, mouseY)
-    super.render(guiGraphics, mouseX, mouseY, dt)
+    super.render(graphics, mouseX, mouseY, dt)
   }
 
-  protected def drawSlotInventory(guiGraphics: GuiGraphics, slot: Slot): Unit = {
+  protected def drawSlotInventory(graphics: GuiGraphics, slot: Slot): Unit = {
     RenderSystem.enableBlend()
     slot match {
       case component: ComponentSlot if component.slot == common.Slot.None || component.tier == common.Tier.None =>
         if (!slot.hasItem && slot.x >= 0 && slot.y >= 0 && component.tierIcon != null) {
-          drawDisabledSlot(guiGraphics, component)
+          drawDisabledSlot(graphics, component)
         }
       case _ =>
-        guiGraphics.pose().pushPose()
-        guiGraphics.pose().translate(0, 0, 1)
+        graphics.pose().pushPose()
+        graphics.pose().translate(0, 0, 1)
         if (!isInPlayerInventory(slot)) {
-          drawSlotBackground(guiGraphics, slot.x - 1, slot.y - 1)
+          drawSlotBackground(graphics, slot.x - 1, slot.y - 1)
         }
         slot match {
           case component: ComponentSlot if !slot.hasItem =>
-            if (component.tierIcon != null) {
-              guiGraphics.blit(component.tierIcon, slot.x, slot.y, 0, 0, 16, 16, 16, 16)
-            }
-            if (component.hasBackground) {
-              guiGraphics.blit(component.getBackgroundLocation, slot.x, slot.y, 0, 0, 16, 16, 16, 16)
-            }
+            if (component.tierIcon != null)
+              // 1.20.1: GuiComponent.blit → graphics.blit
+              graphics.blit(component.tierIcon, slot.x, slot.y, 0, 0, 16, 16, 16, 16)
+            if (component.hasBackground)
+              graphics.blit(component.getBackgroundLocation, slot.x, slot.y, 0, 0, 16, 16, 16, 16)
           case _ =>
         }
-        guiGraphics.pose().popPose()
+        graphics.pose().popPose()
     }
     RenderSystem.disableBlend()
   }
 
-  protected def drawSlotHighlight(guiGraphics: GuiGraphics, slot: Slot): Unit = {
+  protected def drawSlotHighlight(graphics: GuiGraphics, slot: Slot): Unit = {
     if (minecraft.player.containerMenu.getCarried.isEmpty) slot match {
       case component: ComponentSlot if component.slot == common.Slot.None || component.tier == common.Tier.None => // Ignore.
       case _ =>
@@ -118,13 +116,11 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
           }
         }
         if (drawHighlight) {
-          guiGraphics.pose().pushPose()
-          guiGraphics.pose().translate(0, 0, 100)
-          guiGraphics.fillGradient(
-            slot.x, slot.y,
-            slot.x + 16, slot.y + 16,
-            0x80FFFFFF, 0x80FFFFFF)
-          guiGraphics.pose().popPose()
+          graphics.pose().pushPose()
+          graphics.pose().translate(0, 0, 100)
+          // 1.20.1: fillGradient はインスタンスメソッドではなく graphics のメソッド
+          graphics.fillGradient(slot.x, slot.y, slot.x + 16, slot.y + 16, 0x80FFFFFF, 0x80FFFFFF)
+          graphics.pose().popPose()
         }
     }
   }
@@ -134,14 +130,15 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
     case _ => false
   }
 
-  protected def drawDisabledSlot(guiGraphics: GuiGraphics, slot: ComponentSlot): Unit = {
+  protected def drawDisabledSlot(graphics: GuiGraphics, slot: ComponentSlot): Unit = {
     RenderSystem.setShaderColor(1, 1, 1, 1)
-    guiGraphics.blit(slot.tierIcon, slot.x, slot.y, 0, 0, 16, 16, 16, 16)
+    graphics.blit(slot.tierIcon, slot.x, slot.y, 0, 0, 16, 16, 16, 16)
   }
 
-  protected def drawSlotBackground(guiGraphics: GuiGraphics, x: Int, y: Int): Unit = {
+  protected def drawSlotBackground(graphics: GuiGraphics, x: Int, y: Int): Unit = {
     RenderSystem.setShaderColor(1, 1, 1, 1)
-    guiGraphics.blit(Textures.GUI.Slot, x, y, 0, 0, 18, 18)
+    // 1.18.2: Tesselator で直接描画 → 1.20.1: graphics.blit に統一
+    graphics.blit(Textures.GUI.Slot, x, y, 0, 0, 18, 18)
   }
 
   private def isInPlayerInventory(slot: Slot): Boolean = container match {

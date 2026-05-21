@@ -1,24 +1,21 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.systems.RenderSystem
-import li.cil.oc.Localization
-import li.cil.oc.api
+import com.mojang.blaze3d.platform.InputConstants
+import li.cil.oc.{Localization, api}
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.markdown.Document
-import li.cil.oc.client.renderer.markdown.segment.InteractiveSegment
-import li.cil.oc.client.renderer.markdown.segment.Segment
+import li.cil.oc.client.renderer.markdown.segment.{InteractiveSegment, Segment}
 import li.cil.oc.client.{Manual => ManualAPI}
-import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.{GuiGraphics, screens}
+import net.minecraft.client.KeyMapping
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
+import net.minecraft.client.gui.screens
+import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
 
 import scala.jdk.CollectionConverters._
-import net.minecraft.client.KeyMapping
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.platform.InputConstants
-import net.minecraft.network.chat.Component
 
+// 1.20.1: TextComponent.EMPTY → Component.empty()
 class Manual extends screens.Screen(Component.empty()) with traits.Window {
   final val documentMaxWidth = 230
   final val documentMaxHeight = 176
@@ -90,43 +87,47 @@ class Manual extends screens.Screen(Component.empty()) with traits.Window {
     for ((tab, i) <- ManualAPI.tabs.zipWithIndex if i < maxTabsPerSide) {
       val x = leftPos + tabPosX
       val y = topPos + tabPosY + i * (tabHeight - 1)
-      addRenderableWidget(new ImageButton(x, y, tabWidth, tabHeight, new Button.OnPress {
-        override def onPress(b: Button) = api.Manual.navigate(tab.path)
-      }, Textures.GUI.ManualTab))
+      addRenderableWidget(new ImageButton(x, y, tabWidth, tabHeight, (_: Button) =>
+        api.Manual.navigate(tab.path), Textures.GUI.ManualTab))
     }
 
-    scrollButton = new ImageButton(leftPos + scrollPosX, topPos + scrollPosY, 6, 13, new Button.OnPress {
-      override def onPress(b: Button) = ()
-    }, Textures.GUI.ButtonScroll)
+    scrollButton = new ImageButton(leftPos + scrollPosX, topPos + scrollPosY, 6, 13, (_: Button) => (),
+      Textures.GUI.ButtonScroll)
     addRenderableWidget(scrollButton)
 
     refreshPage()
   }
 
+  // 1.20.1: render(PoseStack, ...) → render(GuiGraphics, ...)
   override def render(graphics: GuiGraphics, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     super.render(graphics, mouseX, mouseY, dt)
 
     scrollButton.active = canScroll
     scrollButton.hoverOverride = isScrolling
 
-    val stack = graphics.pose
+    // 1.20.1: PoseStack は graphics.pose() で取得
+    val stack = graphics.pose()
     for ((tab, i) <- ManualAPI.tabs.zipWithIndex if i < maxTabsPerSide) {
       val button = renderables.get(i).asInstanceOf[ImageButton]
       stack.pushPose()
       stack.translate(button.x + 5, button.y + 5, 0)
+      // 1.20.1: tab.renderer.render(stack) → tab.renderer.render(graphics)
       tab.renderer.render(graphics)
       stack.popPose()
     }
 
     currentSegment = Document.render(graphics, document, leftPos + 8, topPos + 8, documentMaxWidth, documentMaxHeight, offset, font, mouseX, mouseY)
-    def localizeAndWrap(text: String): java.util.List[Component] = {
-      Localization.localizeImmediately(text).linesIterator.map(Component.literal).toList.asInstanceOf[List[Component]].asJava
-    }
+
+    def localizeAndWrap(text: String): java.util.List[Component] =
+      Localization.localizeImmediately(text).linesIterator.map(Component.literal).toList
+        .asInstanceOf[List[Component]].asJava
 
     if (!isScrolling) currentSegment match {
       case Some(segment) =>
         segment.tooltip match {
-          case Some(text) if text.nonEmpty => graphics.renderComponentTooltip(font, localizeAndWrap(text), mouseX, mouseY)
+          case Some(text) if text.nonEmpty =>
+            // 1.20.1: renderComponentTooltip はスタック引数なし
+            graphics.renderComponentTooltip(font, localizeAndWrap(text), mouseX, mouseY)
           case _ =>
         }
       case _ =>
@@ -134,9 +135,8 @@ class Manual extends screens.Screen(Component.empty()) with traits.Window {
 
     if (!isScrolling) for ((tab, i) <- ManualAPI.tabs.zipWithIndex if i < maxTabsPerSide) {
       val button = renderables.get(i).asInstanceOf[ImageButton]
-      if (mouseX > button.x && mouseX < button.x + tabWidth && mouseY > button.y && mouseY < button.y + tabHeight) tab.tooltip.foreach(text => {
-        graphics.renderComponentTooltip(font, localizeAndWrap(text), mouseX, mouseY)
-      })
+      if (mouseX > button.x && mouseX < button.x + tabWidth && mouseY > button.y && mouseY < button.y + tabHeight)
+        tab.tooltip.foreach(text => graphics.renderComponentTooltip(font, localizeAndWrap(text), mouseX, mouseY))
     }
 
     if (canScroll && (isCoordinateOverScrollBar(mouseX - leftPos, mouseY - topPos) || isScrolling)) {
@@ -165,14 +165,14 @@ class Manual extends screens.Screen(Component.empty()) with traits.Window {
   }
 
   override def mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean = {
-    val (mcx, mcy) = (mouseX.asInstanceOf[Int] - leftPos, mouseY.asInstanceOf[Int] - topPos)
+    val (mcx, mcy) = (mouseX.toInt - leftPos, mouseY.toInt - topPos)
     if (canScroll && button == GLFW.GLFW_MOUSE_BUTTON_LEFT && isCoordinateOverScrollBar(mcx, mcy)) {
       isScrolling = true
       scrollMouse(mouseY)
       return true
     }
     if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT && isCoordinateOverContent(mcx, mcy)) {
-      if (currentSegment.exists(_.onMouseClick(mouseX.asInstanceOf[Int], mouseY.asInstanceOf[Int]))) {
+      if (currentSegment.exists(_.onMouseClick(mouseX.toInt, mouseY.toInt))) {
         return true
       }
     }
@@ -204,9 +204,8 @@ class Manual extends screens.Screen(Component.empty()) with traits.Window {
     super.mouseReleased(mouseX, mouseY, button)
   }
 
-  private def scrollMouse(mouseY: Double): Unit = {
+  private def scrollMouse(mouseY: Double): Unit =
     scrollTo(math.round((mouseY - topPos - scrollPosY - 6.5) * maxOffset / (scrollHeight - 13.0)).toInt)
-  }
 
   private def scrollUp() = scrollTo(offset - Document.lineHeight(font) * 3)
 
@@ -215,12 +214,10 @@ class Manual extends screens.Screen(Component.empty()) with traits.Window {
   private def scrollTo(row: Int): Unit = {
     ManualAPI.history.top.offset = math.max(0, math.min(maxOffset, row))
     val yMin = topPos + scrollPosY
-    if (maxOffset > 0) {
+    if (maxOffset > 0)
       scrollButton.y = yMin + (scrollHeight - 13) * offset / maxOffset
-    }
-    else {
+    else
       scrollButton.y = yMin
-    }
   }
 
   private def isCoordinateOverContent(x: Int, y: Int) =

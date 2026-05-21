@@ -23,7 +23,7 @@ object DroneModel extends SmartBlockModelBase {
 
   override def getQuads(state: BlockState, side: Direction, rand: RandomSource): util.List[BakedQuad] = {
     val faces = mutable.ArrayBuffer.empty[BakedQuad]
-    faces ++= Boxes.flatMap(box => bakeQuads(box, Array.fill(6)(droneTexture), None).toSeq)
+    faces ++= Boxes.flatMap(box => bakeQuads(box, Array.fill(6)(droneTexture), 0).toSeq)
     faces.asJava
   }
 

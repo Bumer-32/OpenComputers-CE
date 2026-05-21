@@ -5,7 +5,7 @@ import java.util.Collections
 
 import li.cil.oc.client.Textures
 import li.cil.oc.common.block.property.PropertyCableConnection
-import li.cil.oc.common.tileentity
+import li.cil.oc.common.blockentity
 import li.cil.oc.util.Color
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.ItemColorizer
@@ -29,7 +29,7 @@ import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
 object CableModel extends SmartBlockModelBase {
-  val CABLE_PROPERTY = new ModelProperty[tileentity.Cable]()
+  val CABLE_PROPERTY = new ModelProperty[blockentity.Cable]()
 
   override def getOverrides: ItemOverrides = ItemOverride
 

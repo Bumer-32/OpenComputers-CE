@@ -5,7 +5,7 @@ import li.cil.oc.api
 import li.cil.oc.api.driver.EnvironmentProvider
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
-import li.cil.oc.common.inventory.DatabaseInventory
+import li.cil.oc.common.container.DatabaseInventory
 import li.cil.oc.common.item
 import li.cil.oc.server.component
 import net.minecraft.world.entity.player.Player

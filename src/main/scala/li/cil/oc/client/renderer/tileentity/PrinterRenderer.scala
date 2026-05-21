@@ -3,7 +3,7 @@ package li.cil.oc.client.renderer.tileentity
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import li.cil.oc.client.Textures
-import li.cil.oc.common.tileentity.Printer
+import li.cil.oc.common.blockentity.Printer
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource

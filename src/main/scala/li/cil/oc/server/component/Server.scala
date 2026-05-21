@@ -23,8 +23,8 @@ import li.cil.oc.common.InventorySlots
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.common.menu.MenuTypes
-import li.cil.oc.common.inventory.ComponentInventory
-import li.cil.oc.common.inventory.ServerInventory
+import li.cil.oc.common.container.ComponentInventory
+import li.cil.oc.common.container.ServerInventory
 import li.cil.oc.common.item
 import li.cil.oc.server.network.Connector
 import li.cil.oc.util.BlockPosition

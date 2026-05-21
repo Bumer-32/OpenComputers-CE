@@ -5,7 +5,7 @@ import java.util
 import li.cil.oc.OpenComputers
 import li.cil.oc.client.KeyBindings
 import li.cil.oc.common.menu.MenuTypes
-import li.cil.oc.common.inventory.ServerInventory
+import li.cil.oc.common.container.ServerInventory
 import li.cil.oc.util.Tooltip
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties

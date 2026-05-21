@@ -2,7 +2,7 @@ package li.cil.oc.common.template
 
 import li.cil.oc.Constants
 import li.cil.oc.api
-import li.cil.oc.common.inventory.ServerInventory
+import li.cil.oc.common.container.ServerInventory
 import li.cil.oc.util.ItemUtils
 import net.minecraft.world.item.ItemStack
 

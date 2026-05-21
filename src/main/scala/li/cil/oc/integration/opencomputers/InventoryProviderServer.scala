@@ -1,7 +1,7 @@
 package li.cil.oc.integration.opencomputers
 
 import li.cil.oc.api.driver.InventoryProvider
-import li.cil.oc.common.inventory.ServerInventory
+import li.cil.oc.common.container.ServerInventory
 import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack

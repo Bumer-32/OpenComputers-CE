@@ -8,7 +8,7 @@ import li.cil.oc.Settings
 import li.cil.oc.client.KeyBindings
 import li.cil.oc.client.Textures
 import li.cil.oc.common.item.data.PrintData
-import li.cil.oc.common.tileentity
+import li.cil.oc.common.blockentity
 import li.cil.oc.util.Color
 import li.cil.oc.util.ExtendedAABB
 import li.cil.oc.util.ExtendedAABB._
@@ -33,7 +33,7 @@ import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 object PrintModel extends SmartBlockModelBase {
-  val PRINT_PROPERTY = new ModelProperty[tileentity.Print]()
+  val PRINT_PROPERTY = new ModelProperty[blockentity.Print]()
 
   override def getOverrides: ItemOverrides = ItemOverride
 

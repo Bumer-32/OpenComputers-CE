@@ -64,7 +64,7 @@ object RobotModel extends SmartBlockModelBase {
           (z - 0.5f) * 1.4f + 0.5f,
           Direction.UP, robotTexture,
           robotTexture.getU(u * 16), robotTexture.getV(v * 16),
-          White)
+          0)
       }.toArray
     }
 

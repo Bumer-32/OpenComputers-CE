@@ -2,7 +2,7 @@ package li.cil.oc.common.item
 
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
-import li.cil.oc.common.inventory.DatabaseInventory
+import li.cil.oc.common.container.DatabaseInventory
 import li.cil.oc.common.menu.MenuTypes
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraft.world.item.Item.Properties

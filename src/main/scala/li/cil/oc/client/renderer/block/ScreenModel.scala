@@ -7,7 +7,7 @@ import li.cil.oc.api
 import li.cil.oc.client.Textures
 import li.cil.oc.common.Tier
 import li.cil.oc.common.block.Screen
-import li.cil.oc.common.tileentity
+import li.cil.oc.common.blockentity
 import li.cil.oc.util.Color
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.multiplayer.ClientLevel
@@ -25,7 +25,7 @@ import scala.collection.JavaConverters.seqAsJavaList
 import scala.collection.convert.ImplicitConversionsToJava._
 
 object ScreenModel extends SmartBlockModelBase {
-  val SCREEN_PROPERTY = new ModelProperty[tileentity.Screen]()
+  val SCREEN_PROPERTY = new ModelProperty[blockentity.Screen]()
 
   override def getOverrides: ItemOverrides = ItemOverride
 

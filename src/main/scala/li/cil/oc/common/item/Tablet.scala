@@ -26,7 +26,7 @@ import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.common.menu
 import li.cil.oc.common.menu.MenuTypes
-import li.cil.oc.common.inventory.ComponentInventory
+import li.cil.oc.common.container.ComponentInventory
 import li.cil.oc.common.item.data.TabletData
 import li.cil.oc.integration.opencomputers.DriverScreen
 import li.cil.oc.server.component
