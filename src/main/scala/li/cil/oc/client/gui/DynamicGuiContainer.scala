@@ -10,7 +10,6 @@ import li.cil.oc.util.RenderState
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
 import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.{AbstractContainerMenu, Slot}
@@ -43,8 +42,6 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
     RenderSystem.setShaderColor(1, 1, 1, 1)
     graphics.blit(Textures.GUI.Background, leftPos, topPos, 0, 0, imageWidth, imageHeight)
     drawSecondaryBackgroundLayer(graphics)
-    RenderState.makeItBlend()
-    RenderSystem.setShader(() => GameRenderer.getPositionColorShader)
     drawInventorySlots(graphics)
   }
 
@@ -53,13 +50,14 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
     stack.pushPose()
     stack.translate(leftPos, topPos, 0)
     RenderSystem.disableDepthTest()
-    RenderSystem.setShader(() => GameRenderer.getPositionTexShader)
+    RenderSystem.enableBlend()
+    RenderSystem.defaultBlendFunc()
     for (slot <- 0 until menu.slots.size()) {
       drawSlotInventory(graphics, menu.getSlot(slot))
     }
+    RenderSystem.disableBlend()
     RenderSystem.enableDepthTest()
     stack.popPose()
-    RenderState.makeItBlend()
   }
 
   override def render(graphics: GuiGraphics, mouseX: Int, mouseY: Int, dt: Float): Unit = {
@@ -68,7 +66,6 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
   }
 
   protected def drawSlotInventory(graphics: GuiGraphics, slot: Slot): Unit = {
-    RenderSystem.enableBlend()
     slot match {
       case component: ComponentSlot if component.slot == common.Slot.None || component.tier == common.Tier.None =>
         if (!slot.hasItem && slot.x >= 0 && slot.y >= 0 && component.tierIcon != null) {
@@ -90,7 +87,6 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
         }
         graphics.pose().popPose()
     }
-    RenderSystem.disableBlend()
   }
 
   protected def drawSlotHighlight(graphics: GuiGraphics, slot: Slot): Unit = {
@@ -110,10 +106,10 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
           }
         }
         if (drawHighlight) {
-          RenderSystem.enableBlend()
-          RenderSystem.defaultBlendFunc()
+          graphics.pose().pushPose()
+          graphics.pose().translate(0, 0, 100)
           graphics.fillGradient(slot.x, slot.y, slot.x + 16, slot.y + 16, 0x80FFFFFF, 0x80FFFFFF)
-          RenderSystem.disableBlend()
+          graphics.pose().popPose()
         }
     }
   }
