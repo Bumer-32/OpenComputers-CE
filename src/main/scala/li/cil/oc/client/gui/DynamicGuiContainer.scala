@@ -126,7 +126,7 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
 
   protected def drawSlotBackground(graphics: GuiGraphics, x: Int, y: Int): Unit = {
     RenderSystem.setShaderColor(1, 1, 1, 1)
-    graphics.blit(Textures.GUI.Slot, x, y, 0, 0, 18, 18)
+    graphics.blit(Textures.GUI.Slot, x, y, 0, 0, 18, 18, 18, 18)
   }
 
   private def isInPlayerInventory(slot: Slot): Boolean = container match {

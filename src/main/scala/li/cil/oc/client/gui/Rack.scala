@@ -71,7 +71,6 @@ class Rack(state: menu.Rack, playerInventory: Inventory, name: Component)
 
   var relayButton: ImageButton = _
 
-  // bus -> mountable -> connectable
   var wireButtons = Array.fill(inventoryContainer.otherInventory.getContainerSize)(Array.fill(4)(Array.fill(5)(null: ImageButton)))
 
   def sideName(side: Direction) = side match {
@@ -90,7 +89,6 @@ class Rack(state: menu.Rack, playerInventory: Inventory, name: Component)
       ClientPacketSender.sendRackMountableMapping(inventoryContainer, mountable, connectable, Option(busToSide(bus)))
   }
 
-  // 1.20.1: render(GuiGraphics, ...)
   override def render(graphics: GuiGraphics, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     for (bus <- 0 until 5) {
       for (mountable <- 0 until inventoryContainer.otherInventory.getContainerSize) {
@@ -103,7 +101,6 @@ class Rack(state: menu.Rack, playerInventory: Inventory, name: Component)
     val relayMessage =
       if (inventoryContainer.isRelayEnabled) Localization.Rack.RelayEnabled
       else Localization.Rack.RelayDisabled
-    // 1.20.1: new TextComponent(...) → Component.literal(...)
     relayButton.setMessage(Component.literal(relayMessage))
     super.render(graphics, mouseX, mouseY, dt)
   }
@@ -115,7 +112,6 @@ class Rack(state: menu.Rack, playerInventory: Inventory, name: Component)
       leftPos + 101, topPos + 96, 65, 18,
       (_: Button) => ClientPacketSender.sendRackRelayState(inventoryContainer, !inventoryContainer.isRelayEnabled),
       Textures.GUI.ButtonRelay,
-      // 1.20.1: new TextComponent(...) → Component.literal(...)
       Component.literal(Localization.Rack.RelayDisabled),
       textIndent = 18)
     addRenderableWidget(relayButton)
@@ -146,14 +142,12 @@ class Rack(state: menu.Rack, playerInventory: Inventory, name: Component)
     }
   }
 
-  // 1.20.1: drawSecondaryForegroundLayer(GuiGraphics, ...)
   override def drawSecondaryForegroundLayer(graphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {
     super.drawSecondaryForegroundLayer(graphics, mouseX, mouseY)
     RenderState.pushAttrib()
 
     RenderSystem.setShaderColor(1, 1, 1, 1)
     RenderState.makeItBlend()
-    // 1.20.1: RenderSystem.setShaderTexture はdrawRect内で設定するので省略可だが互換性のため残す
     RenderSystem.setShaderTexture(0, Textures.GUI.Rack)
 
     if (inventoryContainer.isRelayEnabled) {
@@ -224,13 +218,11 @@ class Rack(state: menu.Rack, playerInventory: Inventory, name: Component)
     for (bus <- 0 until 5) {
       val x = 122
       val y = 20 + bus * 11
-      // 1.20.1: font.draw(stack, ...) → graphics.drawString(font, ...)
-      graphics.drawString(font, Localization.localizeImmediately(sideName(busToSide(bus))), x, y, 0x404040)
+      graphics.drawString(font, Localization.localizeImmediately(sideName(busToSide(bus))), x, y, 0x404040, false)
     }
 
     if (mouseX >= leftPos + 122 && mouseY >= topPos + 20 && mouseX < leftPos + 158 && mouseY < topPos + 20 + 5 * 11) {
       val tooltip = new java.util.ArrayList[Component]
-      // 1.20.1: copiedDrawHoveringText(String) → graphics.renderComponentTooltip(Component)
       tooltip.addAll(Localization.Rack.OrientationTooltip.linesIterator.map(Component.literal).toList.asJava)
       graphics.renderComponentTooltip(font, tooltip, mouseX - leftPos, mouseY - topPos)
     }
@@ -246,12 +238,9 @@ class Rack(state: menu.Rack, playerInventory: Inventory, name: Component)
 
   override def drawSecondaryBackgroundLayer(graphics: GuiGraphics): Unit = {
     RenderSystem.setShaderColor(1, 1, 1, 1)
-    // 1.20.1: RenderSystem.setShaderTexture + blit → graphics.blit
     graphics.blit(Textures.GUI.Rack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
   }
 
-  // 1.18.2: u/v を正規化して Tesselator で描画
-  // 1.20.1: graphics.blit(ResourceLocation, x, y, u, v, w, h, texW, texH) で統一
   private def drawRect(graphics: GuiGraphics, x: Int, y: Int, w: Int, h: Int, u: Int, v: Int): Unit =
     graphics.blit(Textures.GUI.Rack, x, y, u, v, w, h, 256, 256)
 }
