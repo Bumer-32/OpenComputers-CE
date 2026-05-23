@@ -27,10 +27,7 @@ object HologramRenderer extends BlockEntityRendererProvider[Hologram] {
   // Registered on MinecraftForge.EVENT_BUS in ClientProxy for tick-driven cleanup.
   private val cache = CacheBuilder.newBuilder()
     .expireAfterAccess(5, TimeUnit.SECONDS)
-    .removalListener(new RemovalListener[Hologram, VertexBuffer] {
-      override def onRemoval(n: RemovalNotification[Hologram, VertexBuffer]): Unit =
-        n.getValue.close()
-    })
+    .removalListener((n: RemovalNotification[Hologram, VertexBuffer]) => n.getValue.close())
     .asInstanceOf[CacheBuilder[Hologram, VertexBuffer]]
     .build[Hologram, VertexBuffer]()
 
@@ -98,16 +95,10 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
       case _ =>
     }
 
-    stack.mulPose(new Quaternionf().rotationAxis(
-      hologram.rotationAngle * (Math.PI / 180.0).toFloat,
-      hologram.rotationX, hologram.rotationY, hologram.rotationZ
-    ))
+    applyRotation(stack, hologram.rotationAngle, hologram.rotationX, hologram.rotationY, hologram.rotationZ)
     val animAngle = hologram.rotationSpeed *
       (hologram.getLevel.getGameTime % (360 * 20 - 1) + partialTick) / 20f
-    stack.mulPose(new Quaternionf().rotationAxis(
-      animAngle * (Math.PI / 180.0).toFloat,
-      hologram.rotationSpeedX, hologram.rotationSpeedY, hologram.rotationSpeedZ
-    ))
+    applyRotation(stack, animAngle, hologram.rotationSpeedX, hologram.rotationSpeedY, hologram.rotationSpeedZ)
 
     stack.scale(1.001f, 1.001f, 1.001f)
     stack.translate(
@@ -148,6 +139,8 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
       val projection = RenderSystem.getProjectionMatrix
       val shader     = GameRenderer.getPositionColorShader
 
+      RenderSystem.disableCull()
+
       // Two-pass rendering (mirrors 1.12.2):
       //   Pass 1 — depth pre-pass: write only to the depth buffer to find the
       //            frontmost voxel fragment along each ray.
@@ -168,6 +161,7 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
 
       RenderSystem.depthFunc(515) // GL_LEQUAL (default)
       RenderSystem.depthMask(true)
+      RenderSystem.enableCull()
     }
 
     stack.popPose()
@@ -177,6 +171,15 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
 
     RenderState.checkError(getClass.getName + ".render: leaving")
+  }
+
+  private def applyRotation(stack: PoseStack, degrees: Float, x: Float, y: Float, z: Float): Unit = {
+    if (degrees != 0 && x * x + y * y + z * z > 1e-6f) {
+      stack.mulPose(new Quaternionf().rotationAxis(
+        degrees * (Math.PI / 180.0).toFloat,
+        x, y, z
+      ))
+    }
   }
 
   private def rebuildVBO(hologram: Hologram, vbo: VertexBuffer): Unit = {
@@ -246,6 +249,12 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
       }
     }
 
-    vbo.upload(builder.end())
+    vbo.bind()
+    try {
+      vbo.upload(builder.end())
+    }
+    finally {
+      VertexBuffer.unbind()
+    }
   }
 }
