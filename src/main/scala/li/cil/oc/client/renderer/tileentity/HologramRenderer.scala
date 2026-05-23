@@ -22,7 +22,12 @@ object HologramRenderer extends BlockEntityRendererProvider[Hologram] {
 }
 
 class HologramRenderer extends BlockEntityRenderer[Hologram] {
+
   private val random = new Random()
+
+  // ------------------------------------------------------------------
+  // Custom hologram render type for Forge 1.20.1
+  // ------------------------------------------------------------------
 
   override def render(
                        hologram: Hologram,
@@ -70,11 +75,19 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
         else 1f
         )
 
-    // Alpha is passed directly into vertex color; setShaderColor is not used by POSITION_COLOR shader.
+    RenderSystem.setShaderColor(1f, 1f, 1f, alpha)
 
     stack.pushPose()
 
+    // --------------------------------------------------------------
+    // Position
+    // --------------------------------------------------------------
+
     stack.translate(0.5, 0.5, 0.5)
+
+    // --------------------------------------------------------------
+    // Rotation (block facing)
+    // --------------------------------------------------------------
 
     hologram.yaw match {
       case Direction.WEST =>
@@ -99,6 +112,10 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
       case _ =>
     }
 
+    // --------------------------------------------------------------
+    // Static rotation
+    // --------------------------------------------------------------
+
     val quat1 = new Quaternionf().rotationAxis(
       hologram.rotationAngle * (Math.PI.toFloat / 180f),
       hologram.rotationX,
@@ -107,6 +124,10 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
     )
 
     stack.mulPose(quat1)
+
+    // --------------------------------------------------------------
+    // Animated rotation
+    // --------------------------------------------------------------
 
     val currentAngle =
       hologram.rotationSpeed *
@@ -124,13 +145,25 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
 
     stack.mulPose(quat2)
 
+    // --------------------------------------------------------------
+    // Slight scale to avoid z-fighting
+    // --------------------------------------------------------------
+
     stack.scale(1.001f, 1.001f, 1.001f)
+
+    // --------------------------------------------------------------
+    // Translation
+    // --------------------------------------------------------------
 
     stack.translate(
       (hologram.translation.x * hologram.width / 16.0 - 1.5) * hologram.scale,
       hologram.translation.y * hologram.height / 16.0 * hologram.scale,
       (hologram.translation.z * hologram.width / 16.0 - 1.5) * hologram.scale
     )
+
+    // --------------------------------------------------------------
+    // Flicker effect
+    // --------------------------------------------------------------
 
     if (
       Settings.get.hologramFlickerFrequency > 0 &&
@@ -152,6 +185,10 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
       )
     }
 
+    // --------------------------------------------------------------
+    // Final scaling
+    // --------------------------------------------------------------
+
     RenderState.mirrorScale(
       stack,
       hologram.scale.toFloat / 16f,
@@ -165,10 +202,9 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
 
     val matrix = stack.last().pose()
 
-    renderHologramGeometry(hologram, vb, matrix, alpha)
+    renderHologramGeometry(hologram, vb, matrix, (alpha * 255).toInt)
 
-    // Custom RenderTypes are not flushed automatically by BufferSource.endBatch();
-    // we must flush explicitly after writing all vertices.
+    // Custom RenderTypes are not auto-flushed by BufferSource; must flush explicitly.
     buffer match {
       case bs: MultiBufferSource.BufferSource => bs.endBatch(RenderTypes.HOLOGRAM)
       case _ =>
@@ -186,7 +222,7 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
                                       hologram: Hologram,
                                       vb: VertexConsumer,
                                       matrix: Matrix4f,
-                                      alpha: Float
+                                      alphaInt: Int
                                     ): Unit = {
 
     def value(x: Int, y: Int, z: Int): Int =
@@ -215,7 +251,7 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
             ): Unit = {
 
       vb.vertex(matrix, x, y, z)
-        .color(r, g, b, (alpha * 255).toInt)
+        .color(r, g, b, alphaInt)
         .endVertex()
     }
 
@@ -233,12 +269,20 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
       val g = (c >> 8) & 0xFF
       val b = c & 0xFF
 
+      // ------------------------------------------------------------
+      // Front
+      // ------------------------------------------------------------
+
       if (!solid(x, y, z + 1)) {
         quad(x + 1, y + 1, z + 1, r, g, b)
         quad(x,     y + 1, z + 1, r, g, b)
         quad(x,     y,     z + 1, r, g, b)
         quad(x + 1, y,     z + 1, r, g, b)
       }
+
+      // ------------------------------------------------------------
+      // Back
+      // ------------------------------------------------------------
 
       if (!solid(x, y, z - 1)) {
         quad(x + 1, y,     z, r, g, b)
@@ -247,12 +291,20 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
         quad(x + 1, y + 1, z, r, g, b)
       }
 
+      // ------------------------------------------------------------
+      // Right
+      // ------------------------------------------------------------
+
       if (!solid(x + 1, y, z)) {
         quad(x + 1, y + 1, z + 1, r, g, b)
         quad(x + 1, y,     z + 1, r, g, b)
         quad(x + 1, y,     z,     r, g, b)
         quad(x + 1, y + 1, z,     r, g, b)
       }
+
+      // ------------------------------------------------------------
+      // Left
+      // ------------------------------------------------------------
 
       if (!solid(x - 1, y, z)) {
         quad(x, y,     z + 1, r, g, b)
@@ -261,12 +313,20 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
         quad(x, y,     z,     r, g, b)
       }
 
+      // ------------------------------------------------------------
+      // Top
+      // ------------------------------------------------------------
+
       if (!solid(x, y + 1, z)) {
         quad(x + 1, y + 1, z,     r, g, b)
         quad(x,     y + 1, z,     r, g, b)
         quad(x,     y + 1, z + 1, r, g, b)
         quad(x + 1, y + 1, z + 1, r, g, b)
       }
+
+      // ------------------------------------------------------------
+      // Bottom
+      // ------------------------------------------------------------
 
       if (!solid(x, y - 1, z)) {
         quad(x + 1, y, z + 1, r, g, b)
