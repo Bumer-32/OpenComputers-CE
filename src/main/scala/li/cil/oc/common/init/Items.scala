@@ -38,7 +38,7 @@ object Items extends ItemAPI {
   val ITEMS: DeferredRegister[Item] =
     DeferredRegister.create(ForgeRegistries.ITEMS, Settings.resourceDomain)
 
-  val descriptors = mutable.Map.empty[String, ItemInfo]
+  val descriptors = mutable.LinkedHashMap.empty[String, ItemInfo]
 
   val names = mutable.Map.empty[Any, String]
 
@@ -537,40 +537,31 @@ object Items extends ItemAPI {
     registerItem(new item.Present(defaultProps), Constants.ItemName.Present)
   }
 
-  // アイテムフォームを持たない、またはクリエイティブタブに表示しないブロック名のセット。
-  // 1.18.2 では Item.Properties().tab(CreativeTab) の有無で自動的に除外されていたが、
-  // 1.20.1 では BuildCreativeModeTabContentsEvent で明示的に管理する必要がある。
-  private val creativeTabExcluded: Set[String] = Set(
-    Constants.BlockName.Microcontroller, // 組み立て済みマイコン（configuredで追加）
-    Constants.BlockName.Print,           // 印刷物（動的生成のため除外）
-    Constants.BlockName.Robot            // 組み立て済みロボット（configuredで追加）
-    // RobotAfterimage は registerBlockOnly → item = null → isEmpty でスキップされる
-  )
-
   def decorateCreativeTab(event: net.minecraftforge.event.BuildCreativeModeTabContentsEvent, hasRedstoneCardT2: Boolean): Unit = {
+    import Constants.{BlockName => B, ItemName => I}
+    val excluded = Set(B.Microcontroller, B.Print, B.Robot)
+
+    def accept(id: String, info: ItemInfo): Unit = {
+      if (id != B.PowerConverter || !Settings.get.ignorePower) {
+        val stack = info.createItemStack(1)
+        if (!stack.isEmpty) event.accept(stack)
+      }
+    }
+
+    // Block items first, then regular items — mirrors 1.16.5 registry order.
+    // Items registered at mod-load time enter descriptors before blocks (which are
+    // registered lazily during the BLOCKS event), so we partition explicitly.
+    for ((id, info) <- descriptors if info.block != null && !excluded.contains(id) && id != I.RedstoneCardTier2)
+      accept(id, info)
+    for ((id, info) <- descriptors if info.block == null && !excluded.contains(id) && id != I.RedstoneCardTier2)
+      accept(id, info)
+
     event.accept(Items.createConfiguredDrone())
     event.accept(Items.createConfiguredMicrocontroller())
     event.accept(Items.createConfiguredRobot())
     event.accept(Items.createConfiguredTablet())
-
     Loot.disksForClient.foreach(event.accept)
-
-    for ((id, info) <- descriptors) {
-      if (!creativeTabExcluded.contains(id) && id != Constants.ItemName.RedstoneCardTier2) {
-        val stack = info.createItemStack(1)
-        if (!stack.isEmpty) {
-          if (id == Constants.BlockName.PowerConverter && Settings.get.ignorePower) {
-            // skip
-          } else {
-            event.accept(stack)
-          }
-        }
-      }
-    }
-
-    val sortedItems = ArrayBuffer.from(registeredItems)
-    sortedItems.sortBy(_.getHoverName.getString)
-    sortedItems.foreach(event.accept)
+    registeredItems.foreach(event.accept)
 
     if (hasRedstoneCardT2) {
       descriptors.get(Constants.ItemName.RedstoneCardTier2).foreach { info =>

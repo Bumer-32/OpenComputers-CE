@@ -26,21 +26,17 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
                   val textIndent: Int = -1,
                   val textureWidth: Int = -1,
                   val textureHeight: Int = -1)
-// 1.20.1: Button コンストラクタに narration supplier が必要
   extends Button(xPos, yPos, w, h, text, handler, _ => Component.empty()) {
 
   var toggled = false
   var hoverOverride = false
 
-  // 1.20.1: renderButton → renderWidget
   override def renderWidget(graphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTicks: Float): Unit = {
     if (visible) {
       if (image != null) {
         RenderSystem.setShaderTexture(0, image)
       }
       RenderSystem.setShaderColor(1, 1, 1, 1)
-      // 1.20.1: isHovered はフィールドではなく isHovered() メソッド経由で更新される
-      // → mouseX/Y 判定は super が行うため手動代入不要
       val isHov = hoverOverride || (isHovered && active)
 
       val x0 = x.toFloat
@@ -68,7 +64,6 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
           (u0, u1, v0, v1)
         }
 
-        // 1.20.1: getBlitOffset → getBlitOffset() (same API)
         val z = 0
         RenderSystem.setShader(() => GameRenderer.getPositionTexShader)
         RenderSystem.enableBlend()
@@ -83,7 +78,6 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
         t.end()
         RenderSystem.disableBlend()
       } else {
-        // image=null のボタン（Rackの wireButtons 等）: 半透明白でホバーインジケータのみ表示
         val alpha = if (isHov) 0.4f else 0.0f
         if (alpha > 0f) {
           val z = 0
@@ -100,14 +94,13 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
         }
       }
 
-      if (!getMessage.getString.isEmpty) {
+      if (getMessage.getString.nonEmpty) {
         val color =
           if (!active) textDisabledColor
           else if (isHov) textHoverColor
           else textColor
         val font = Minecraft.getInstance.font
         if (textIndent >= 0)
-          // 1.20.1: GuiComponent.drawString → graphics.drawString
           graphics.drawString(font, getMessage, textIndent + x, y + (height - 8) / 2, color)
         else
           graphics.drawCenteredString(font, getMessage, x + width / 2, y + (height - 8) / 2, color)

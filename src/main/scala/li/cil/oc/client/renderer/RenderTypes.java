@@ -28,13 +28,14 @@ public class RenderTypes extends RenderType {
                     .setTextureState(ROBOT_CHASSIS_TEXTURE)
                     .setTransparencyState(LIGHTNING_TRANSPARENCY)
                     .createCompositeState(true));
-    
+
     public static final RenderType HOLOGRAM = create(OpenComputers.ID() + ":hologram",
             DefaultVertexFormat.POSITION_COLOR,
             VertexFormat.Mode.QUADS,
-            256, 
-            false, 
-            true,
+            // 48*48*48 voxels * 6 faces * 4 verts * ~8 bytes = ~25 MB worst case; 1<<22 is a safe upper bound.
+            1 << 22,
+            false,
+            false,
             RenderType.CompositeState.builder()
                     .setShaderState(POSITION_COLOR_SHADER)
                     .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
@@ -42,6 +43,7 @@ public class RenderTypes extends RenderType {
                     .setCullState(NO_CULL)
                     .setWriteMaskState(COLOR_WRITE)
                     .createCompositeState(false));
+
 
     private static RenderType createUpgrade(String name, ResourceLocation texture) {
         return create(OpenComputers.ID() + ":upgrade_" + name,

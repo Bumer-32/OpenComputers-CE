@@ -4,6 +4,7 @@ import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.LuaTask;
 import dan200.computercraft.api.lua.ObjectArguments;
 import dan200.computercraft.api.peripheral.IComputerAccess;
@@ -29,6 +30,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -36,13 +39,10 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
     private static Set<Class<?>> blacklist;
 
     private boolean isBlacklisted(final Object o) {
-        // Check for our interface first, as that has priority.
         if (o instanceof BlacklistedPeripheral) {
             return ((BlacklistedPeripheral) o).isPeripheralBlacklisted();
         }
 
-        // Delayed initialization of the resolved classes to allow registering
-        // additional entries via IMC.
         if (blacklist == null) {
             blacklist = new HashSet<>();
             for (String name : Settings.get().peripheralBlacklist()) {
@@ -52,10 +52,13 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
                 }
             }
         }
+
         for (Class<?> clazz : blacklist) {
-            if (clazz.isInstance(o))
+            if (clazz.isInstance(o)) {
                 return true;
+            }
         }
+
         return false;
     }
 
@@ -75,29 +78,29 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
     private IPeripheral findPeripheral(final Level world, final BlockPos pos, final Direction side) {
         try {
             if (PERIPHERAL_CAP == null) return null;
+
             final BlockEntity be = world.getBlockEntity(pos);
             if (be == null) return null;
+
             final IPeripheral p = be.getCapability(PERIPHERAL_CAP, side).orElse(null);
+
             if (!isBlacklisted(p)) {
                 return p;
             }
         } catch (Exception e) {
             OpenComputers.log().warn("Error accessing ComputerCraft peripheral @ ({}, {}, {}).", pos.getX(), pos.getY(), pos.getZ(), e);
         }
+
         return null;
     }
 
     @Override
     public boolean worksWith(final Level world, final BlockPos pos, final Direction side) {
         final BlockEntity tileEntity = world.getBlockEntity(pos);
+
         return tileEntity != null
-                // This ensures we don't get duplicate components, in case the
-                // tile entity is natively compatible with OpenComputers.
                 && !li.cil.oc.api.network.Environment.class.isAssignableFrom(tileEntity.getClass())
-                // The black list is used to avoid peripherals that are known
-                // to be incompatible with OpenComputers when used directly.
                 && !isBlacklisted(tileEntity)
-                // Actual check if it's a peripheral.
                 && findPeripheral(world, pos, side) != null;
     }
 
@@ -110,14 +113,26 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
         protected final IPeripheral peripheral;
         protected final String[] methodNames;
         protected final Map<String, FakeComputerAccess> accesses = new HashMap<>();
+        protected final Map<String, Method> reflectedMethods = new HashMap<>();
 
         public Environment(final IPeripheral peripheral) {
             this.peripheral = peripheral;
+
             if (peripheral instanceof IDynamicPeripheral dynamic) {
                 methodNames = dynamic.getMethodNames();
             } else {
-                methodNames = new String[0];
+                final List<String> names = new ArrayList<>();
+
+                for (Method method : peripheral.getClass().getMethods()) {
+                    if (method.isAnnotationPresent(LuaFunction.class)) {
+                        reflectedMethods.put(method.getName(), method);
+                        names.add(method.getName());
+                    }
+                }
+
+                methodNames = names.toArray(new String[0]);
             }
+
             setNode(Network.newNode(this, Visibility.Network).create());
         }
 
@@ -128,37 +143,169 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
 
         @Override
         public Object[] invoke(final String name, final Context context, final Arguments args) throws Exception {
-            if (!(peripheral instanceof IDynamicPeripheral dynamic)) throw new NoSuchMethodException();
-
-            final String[] names = dynamic.getMethodNames();
-            int index = -1;
-            for (int i = 0; i < names.length; i++) {
-                if (names[i].equals(name)) {
-                    index = i;
-                    break;
-                }
-            }
-            if (index == -1) throw new NoSuchMethodException();
-
             final FakeComputerAccess access;
+
             if (accesses.containsKey(context.node().address())) {
                 access = accesses.get(context.node().address());
             } else {
-                // The calling context is not visible to us, meaning we never got
-                // an onConnect for it. Create a temporary access.
                 access = new FakeComputerAccess(this, context);
             }
 
             final Object[] argArray = CallableHelper.convertArguments(args);
-            return dynamic.callMethod(access, UnsupportedLuaContext.instance(), index, new ObjectArguments(argArray)).getResult();
+
+            if (peripheral instanceof IDynamicPeripheral dynamic) {
+                final String[] names = dynamic.getMethodNames();
+
+                int index = -1;
+
+                for (int i = 0; i < names.length; i++) {
+                    if (names[i].equals(name)) {
+                        index = i;
+                        break;
+                    }
+                }
+
+                if (index == -1) {
+                    throw new NoSuchMethodException();
+                }
+
+                return dynamic.callMethod(
+                        access,
+                        UnsupportedLuaContext.instance(),
+                        index,
+                        new ObjectArguments(argArray)
+                ).getResult();
+            }
+
+            final Method method = reflectedMethods.get(name);
+
+            if (method == null) {
+                throw new NoSuchMethodException();
+            }
+
+            final Object[] invokeArgs = buildInvokeArguments(method, argArray);
+
+            final Object result = method.invoke(peripheral, invokeArgs);
+
+            return wrapResult(result);
+        }
+
+        private Object[] buildInvokeArguments(final Method method, final Object[] args) {
+            final Class<?>[] parameterTypes = method.getParameterTypes();
+            final Object[] invokeArgs = new Object[parameterTypes.length];
+
+            int argIndex = 0;
+
+            for (int i = 0; i < parameterTypes.length; i++) {
+                final Class<?> type = parameterTypes[i];
+
+                if (type == IComputerAccess.class) {
+                    invokeArgs[i] = null;
+                } else if (type == ILuaContext.class) {
+                    invokeArgs[i] = UnsupportedLuaContext.instance();
+                } else if (type == ObjectArguments.class) {
+                    invokeArgs[i] = new ObjectArguments(args);
+                } else {
+                    invokeArgs[i] = argIndex < args.length ? coerce(args[argIndex], type) : defaultValue(type);
+                    argIndex++;
+                }
+            }
+
+            return invokeArgs;
+        }
+
+        private Object coerce(final Object value, final Class<?> type) {
+            if (value == null) {
+                return defaultValue(type);
+            }
+
+            if (type.isInstance(value)) {
+                return value;
+            }
+
+            if (type == int.class || type == Integer.class) {
+                return ((Number) value).intValue();
+            }
+
+            if (type == long.class || type == Long.class) {
+                return ((Number) value).longValue();
+            }
+
+            if (type == double.class || type == Double.class) {
+                return ((Number) value).doubleValue();
+            }
+
+            if (type == float.class || type == Float.class) {
+                return ((Number) value).floatValue();
+            }
+
+            if (type == short.class || type == Short.class) {
+                return ((Number) value).shortValue();
+            }
+
+            if (type == byte.class || type == Byte.class) {
+                return ((Number) value).byteValue();
+            }
+
+            if (type == boolean.class || type == Boolean.class) {
+                return value;
+            }
+
+            if (type == String.class) {
+                return String.valueOf(value);
+            }
+
+            return value;
+        }
+
+        private Object defaultValue(final Class<?> type) {
+            if (!type.isPrimitive()) {
+                return null;
+            }
+
+            if (type == boolean.class) {
+                return false;
+            }
+
+            if (type == char.class) {
+                return '\0';
+            }
+
+            return 0;
+        }
+
+        private Object[] wrapResult(final Object result) {
+            if (result == null) {
+                return new Object[0];
+            }
+
+            if (result instanceof Object[] objects) {
+                return objects;
+            }
+
+            if (result.getClass().isArray()) {
+                final int len = Array.getLength(result);
+                final Object[] out = new Object[len];
+
+                for (int i = 0; i < len; i++) {
+                    out[i] = Array.get(result, i);
+                }
+
+                return out;
+            }
+
+            return new Object[]{result};
         }
 
         @Override
         public void onConnect(final Node node) {
             super.onConnect(node);
+
             if (node.host() instanceof Context && !accesses.containsKey(node.address())) {
                 final FakeComputerAccess access = new FakeComputerAccess(this, (Context) node.host());
+
                 accesses.put(node.address(), access);
+
                 peripheral.attach(access);
             }
         }
@@ -166,8 +313,10 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
         @Override
         public void onDisconnect(final Node node) {
             super.onDisconnect(node);
+
             if (node.host() instanceof Context) {
                 final FakeComputerAccess access = accesses.remove(node.address());
+
                 if (access != null) {
                     peripheral.detach(access);
                 }
@@ -176,6 +325,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
                     peripheral.detach(access);
                     access.close();
                 }
+
                 accesses.clear();
             }
         }
@@ -187,12 +337,9 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
 
         @Override
         public int priority() {
-            return -1; // Lower than 'real' OC components
+            return -1;
         }
 
-        /**
-         * Map interaction with the computer to our format as good as we can.
-         */
         public static class FakeComputerAccess implements IComputerAccess {
             protected final Environment owner;
             protected final Context context;
@@ -207,6 +354,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
                 for (ManagedEnvironment fileSystem : fileSystems.values()) {
                     fileSystem.node().remove();
                 }
+
                 fileSystems.clear();
             }
 
@@ -215,6 +363,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
                 if (fileSystems.containsKey(desiredLocation)) {
                     return null;
                 }
+
                 return mount(desiredLocation, FileSystem.asManagedEnvironment(DriverComputerCraftMedia.fromComputerCraft(mount)));
             }
 
@@ -223,6 +372,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
                 if (fileSystems.containsKey(desiredLocation)) {
                     return null;
                 }
+
                 return mount(desiredLocation, FileSystem.asManagedEnvironment(DriverComputerCraftMedia.fromComputerCraft(mount), driveName));
             }
 
@@ -231,6 +381,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
                 if (fileSystems.containsKey(desiredLocation)) {
                     return null;
                 }
+
                 return mount(desiredLocation, FileSystem.asManagedEnvironment(DriverComputerCraftMedia.fromComputerCraft(mount)));
             }
 
@@ -239,18 +390,22 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
                 if (fileSystems.containsKey(desiredLocation)) {
                     return null;
                 }
+
                 return mount(desiredLocation, FileSystem.asManagedEnvironment(DriverComputerCraftMedia.fromComputerCraft(mount), driveName));
             }
 
             private String mount(final String path, final ManagedEnvironment fileSystem) {
-                fileSystems.put(path, fileSystem); // TODO: This is per peripheral/Environment. It would be far better with per computer
+                fileSystems.put(path, fileSystem);
+
                 context.node().connect(fileSystem.node());
+
                 return path;
             }
 
             @Override
             public void unmount(final String location) {
                 final ManagedEnvironment fileSystem = fileSystems.remove(location);
+
                 if (fileSystem != null) {
                     fileSystem.node().remove();
                 }
@@ -302,14 +457,11 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
             }
         }
 
-        /**
-         * Since we abstract away anything language specific, we cannot support the
-         * Lua context specific operations ComputerCraft provides.
-         */
         public static final class UnsupportedLuaContext implements ILuaContext {
             private static final UnsupportedLuaContext Instance = new UnsupportedLuaContext();
 
-            private UnsupportedLuaContext() {}
+            private UnsupportedLuaContext() {
+            }
 
             public static UnsupportedLuaContext instance() {
                 return Instance;
