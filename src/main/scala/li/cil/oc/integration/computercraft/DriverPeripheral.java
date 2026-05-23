@@ -2,11 +2,7 @@ package li.cil.oc.integration.computercraft;
 
 import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.filesystem.WritableMount;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.api.lua.LuaTask;
-import dan200.computercraft.api.lua.ObjectArguments;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -253,6 +249,12 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
 
             if (type == String.class) {
                 return String.valueOf(value);
+            }
+
+            if (type.getName().contains("Coerced")) {
+                if (String.valueOf(value) != null) {
+                    return new Coerced<>(String.valueOf(value));
+                }
             }
 
             return value;
