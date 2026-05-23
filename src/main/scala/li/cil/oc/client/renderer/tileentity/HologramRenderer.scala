@@ -139,6 +139,7 @@ class HologramRenderer extends BlockEntityRenderer[Hologram] {
       val projection = RenderSystem.getProjectionMatrix
       val shader     = GameRenderer.getPositionColorShader
 
+      RenderSystem.enableDepthTest()
       RenderSystem.disableCull()
 
       // Two-pass rendering (mirrors 1.12.2):
