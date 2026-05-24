@@ -19,7 +19,7 @@ object PotionProvider extends ScalaProvider("c29e4eec-5a46-479a-9b3d-ad0f06da784
 
   def filterPotions[T](list: Iterable[T]) = {
     list.map {
-      case name: String => Option(ForgeRegistries.MOB_EFFECTS.getValue(ResourceLocation.withDefaultNamespace(name)))
+      case name: String => Option(ForgeRegistries.MOB_EFFECTS.getValue(ResourceLocation.tryParse(name)))
       case loc: ResourceLocation => Option(ForgeRegistries.MOB_EFFECTS.getValue(loc))
       case id: java.lang.Number => Option(MobEffect.byId(id.intValue()))
       case _ => None
@@ -49,7 +49,7 @@ object PotionProvider extends ScalaProvider("c29e4eec-5a46-479a-9b3d-ad0f06da784
 
   override def readBehaviorFromNBT(player: Player, nbt: CompoundTag) = {
     val potionId = nbt.getString("potionId")
-    new PotionBehavior(ForgeRegistries.MOB_EFFECTS.getValue(ResourceLocation.withDefaultNamespace(potionId)), player)
+    new PotionBehavior(ForgeRegistries.MOB_EFFECTS.getValue(ResourceLocation.tryParse(potionId)), player)
   }
 
   class PotionBehavior(val effect: MobEffect, player: Player) extends AbstractBehavior(player) {

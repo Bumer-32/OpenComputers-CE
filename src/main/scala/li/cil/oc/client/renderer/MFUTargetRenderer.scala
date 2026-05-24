@@ -31,7 +31,7 @@ object MFUTargetRenderer {
       case stack: ItemStack if api.Items.get(stack) == mfu && stack.hasTag =>
         val data = stack.getTag
         if (data.contains(Settings.namespace + "coord", Tag.TAG_INT_ARRAY)) {
-          val dimension = ResourceLocation.withDefaultNamespace(data.getString(Settings.namespace + "dimension"))
+          val dimension = ResourceLocation.tryParse(data.getString(Settings.namespace + "dimension"))
           if (!player.level.dimension.location.equals(dimension)) return
           val Array(x, y, z, side) = data.getIntArray(Settings.namespace + "coord")
           if (player.distanceToSqr(x, y, z) > 64 * 64) return

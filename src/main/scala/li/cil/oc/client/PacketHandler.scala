@@ -206,7 +206,7 @@ object PacketHandler extends CommonPacketHandler {
         MinecraftForge.EVENT_BUS.post(new FileSystemAccessEvent.Client(sound, t, data))
       case _ => // Invalid packet.
     }
-    else world(p.player, ResourceLocation.withDefaultNamespace(p.readUTF())) match {
+    else world(p.player, ResourceLocation.tryParse(p.readUTF())) match {
       case Some(world) =>
         val x = p.readDouble()
         val y = p.readDouble()
@@ -223,7 +223,7 @@ object PacketHandler extends CommonPacketHandler {
         MinecraftForge.EVENT_BUS.post(new NetworkActivityEvent.Client(t, data))
       case _ => // Invalid packet.
     }
-    else world(p.player, ResourceLocation.withDefaultNamespace(p.readUTF())) match {
+    else world(p.player, ResourceLocation.tryParse(p.readUTF())) match {
       case Some(world) =>
         val x = p.readDouble()
         val y = p.readDouble()
@@ -404,7 +404,7 @@ object PacketHandler extends CommonPacketHandler {
     }
 
   def onParticleEffect(p: PacketParser): Unit = {
-    world(p.player, ResourceLocation.withDefaultNamespace(p.readUTF())) match {
+    world(p.player, ResourceLocation.tryParse(p.readUTF())) match {
       case Some(world) =>
         val x = p.readInt()
         val y = p.readInt()
@@ -573,7 +573,7 @@ object PacketHandler extends CommonPacketHandler {
   }
 
   def onRobotMove(p: PacketParser): AnyVal = {
-    val dimension = ResourceLocation.withDefaultNamespace(p.readUTF())
+    val dimension = ResourceLocation.tryParse(p.readUTF())
     val x = p.readInt()
     val y = p.readInt()
     val z = p.readInt()

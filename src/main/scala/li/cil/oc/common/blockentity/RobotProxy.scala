@@ -169,6 +169,7 @@ class RobotProxy(pos: BlockPos, state: BlockState, val robot: Robot)
     val firstProxy = robot.proxy == null
     robot.proxy = this
     robot.setLevel(getLevel)
+    robot.worldPosition = getBlockPos
     if (firstProxy) {
       robot.clearRemoved()
     }

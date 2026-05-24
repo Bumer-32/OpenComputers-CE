@@ -246,7 +246,10 @@ class Robot(pos: BlockPos, state: BlockState)
       // In some cases (though I couldn't quite figure out which one) setBlock
       // will return true, even though the block was not created / adjusted.
       val created = getLevel.setBlock(newPosition, getLevel.getBlockState(oldPosition), 1) &&
-        getLevel.getBlockEntity(newPosition) == proxy
+        (getLevel.getBlockEntity(newPosition) match {
+          case newProxy: RobotProxy => newProxy.robot == this
+          case _ => false
+        })
       if (created) {
         assert(getBlockPos == newPosition)
         getLevel.setBlock(oldPosition, Blocks.AIR.defaultBlockState, 1)

@@ -34,7 +34,7 @@ object DriverUpgradeMF extends Item with HostAware {
       if (stack.hasTag) {
         stack.getTag.getIntArray(Settings.namespace + "coord") match {
           case Array(x, y, z, side) =>
-            val dimension = ResourceLocation.withDefaultNamespace(stack.getTag.getString(Settings.namespace + "dimension"))
+            val dimension = ResourceLocation.tryParse(stack.getTag.getString(Settings.namespace + "dimension"))
             ServerLifecycleHooks.getCurrentServer.getLevel(ResourceKey.create(Registries.DIMENSION, dimension)) match {
               case world: ServerLevel => return new component.UpgradeMF(host, BlockPosition(x, y, z, world), Direction.from3DDataValue(side))
               case _ => // Invalid dimension ID
