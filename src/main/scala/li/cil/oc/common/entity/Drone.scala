@@ -98,6 +98,7 @@ class Drone(selfType: EntityType[Drone], level: Level) extends Entity(selfType, 
   var angularVelocity = 0f
   var nextAngularVelocityChange = 0
   var lastEnergyUpdate = 0
+  private var droppedAsItem = false
 
   // Logic stuff, components, machine and such.
   val info = new DroneData()
@@ -505,7 +506,7 @@ class Drone(selfType: EntityType[Drone], level: Level) extends Entity(selfType, 
     if (player.isCrouching) {
       if (Wrench.isWrench(player.getItemInHand(InteractionHand.MAIN_HAND))) {
         if(!getEnvironmentLevel.isClientSide) {
-          checkBelowWorld()
+          dropAsItemAndDiscard()
         }
       }
       else if (!getEnvironmentLevel.isClientSide && !machine.isRunning) {
@@ -572,8 +573,9 @@ class Drone(selfType: EntityType[Drone], level: Level) extends Entity(selfType, 
     }
   }
 
-  override def checkBelowWorld(): Unit = {
-    if (!getEnvironmentLevel.isClientSide) {
+  private def dropAsItemAndDiscard(): Unit = {
+    if (!getEnvironmentLevel.isClientSide && !droppedAsItem) {
+      droppedAsItem = true
       val stack = api.Items.get(Constants.ItemName.Drone).createItemStack(1)
       info.storedEnergy = control.node.localBuffer.toInt
       info.saveData(stack)
@@ -581,8 +583,17 @@ class Drone(selfType: EntityType[Drone], level: Level) extends Entity(selfType, 
       entity.setPickUpDelay(15)
       getEnvironmentLevel.addFreshEntity(entity)
       InventoryUtils.dropAllSlots(BlockPosition(this: Entity), mainInventory)
+      remove(Entity.RemovalReason.DISCARDED)
     }
-    super.checkBelowWorld()  // superはkill()を呼ぶので最後に
+  }
+
+  override def checkBelowWorld(): Unit = {
+    if (getY < getEnvironmentLevel.getMinBuildHeight - 64) {
+      dropAsItemAndDiscard()
+    }
+    else {
+      super.checkBelowWorld()
+    }
   }
 
   override def getName: Component = Localization.localizeLater("entity.oc.Drone.name")

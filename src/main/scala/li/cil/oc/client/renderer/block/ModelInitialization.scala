@@ -119,7 +119,7 @@ object ModelInitialization {
     registry.put(NetSplitterItemLocation, NetSplitterModel)
     registry.put(PrintBlockLocation, PrintModel)
     registry.put(PrintItemLocation, PrintModel)
-    registry.put(RobotBlockLocation, RobotModel)
+    registry.put(RobotBlockLocation, NullModel)
     registry.put(RobotItemLocation, RobotModel)
     registry.put(RobotAfterimageBlockLocation, NullModel)
 
