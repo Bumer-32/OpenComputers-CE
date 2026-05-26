@@ -4,6 +4,7 @@ import java.nio.Buffer
 import java.nio.ByteBuffer
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
+import li.cil.oc.client.PacketHandler
 import net.minecraft.client.Minecraft
 import net.minecraft.core.BlockPos
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -37,7 +38,25 @@ object Audio {
   private def volume = Minecraft.getInstance.options.getSoundSourceVolume(SoundSource.BLOCKS)
 
   private var disableAudio = false
+  
+  def play(x: Float, y: Float, z: Float, pcm: Array[Byte], gain: Float): Unit = {
+    if (pcm == null || pcm.isEmpty) return
 
+    val mc = Minecraft.getInstance
+    if (mc.getSoundManager == null || mc.getSoundManager.soundEngine == null) return
+
+    mc.getSoundManager.soundEngine.executor.execute(() => {
+      try {
+        sources.synchronized {
+          sources += new Source(x, y, z, ByteBuffer.wrap(pcm), gain)
+        }
+      } catch {
+        case e: OpenALException =>
+          if (e.errorCode == AL10.AL_OUT_OF_MEMORY) disableAudio = true
+      }
+    })
+  }
+  
   def play(x: Float, y: Float, z: Float, frequencyInHz: Int, durationInMilliseconds: Int): Unit = {
     play(x, y, z, ".", frequencyInHz, durationInMilliseconds)
   }
@@ -128,6 +147,7 @@ object Audio {
         })
       }
     }
+    PacketHandler.update()
   }
 
   private class Source(val x: Float, y: Float, z: Float, val data: ByteBuffer, val gain: Float) {
@@ -181,7 +201,9 @@ object Audio {
   }
 
   // Having the error code in an accessible way is really cool, you know.
-  class OpenALException(val errorCode: Int) extends RuntimeException
+  class OpenALException(val errorCode: Int) extends RuntimeException {
+    override def getMessage: String = errorCode.toString
+  }
 
   // Custom implementation of Util.checkALError() that uses our custom exception.
   def checkALError(): Unit = {

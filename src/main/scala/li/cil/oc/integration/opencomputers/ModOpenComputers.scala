@@ -115,6 +115,7 @@ object ModOpenComputers extends ModProxy {
     api.Driver.add(ConverterLinkedCard)
 
     api.Driver.add(DriverAPU)
+    api.Driver.add(DriverAudioCard)
     api.Driver.add(DriverComponentBus)
     api.Driver.add(DriverCPU)
     api.Driver.add(DriverDataCard)
@@ -169,6 +170,7 @@ object ModOpenComputers extends ModProxy {
     api.Driver.add(DriverUpgradeMF)
 
     api.Driver.add(DriverAPU.Provider)
+    api.Driver.add(DriverAudioCard.Provider)
     api.Driver.add(DriverDataCard.Provider)
     api.Driver.add(DriverDebugCard.Provider)
     api.Driver.add(DriverEEPROM.Provider)

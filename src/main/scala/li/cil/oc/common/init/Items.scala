@@ -464,6 +464,9 @@ object Items extends ItemAPI {
     // 1.5.15
     registerItem(new item.DataCard(defaultProps.rarity(Rarity.UNCOMMON), Tier.Two), Constants.ItemName.DataCardTier2)
     registerItem(new item.DataCard(defaultProps.rarity(Rarity.RARE), Tier.Three), Constants.ItemName.DataCardTier3)
+    
+    // 1.9.0
+    registerItem(new item.AudioCard(defaultProps), Constants.ItemName.AudioCardTier1)
   }
 
   // Upgrade components.

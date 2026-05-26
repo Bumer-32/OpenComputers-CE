@@ -506,6 +506,12 @@ class Settings(val config: Config) {
 
   // >= 1.8.8
   val httpUserAgent = config.getString("internet.httpUserAgent")
+
+  // >= 1.9.0
+  val audioCardChunkSize: Int = config.getInt("audio.chunkSize") max 0 // 2048
+  val audioCardBufferLimit: Int = config.getInt("audio.bufferLimit") max 0 // 8 MiB (8 * 1024 * 1024)
+  val audioCardSampleRate: Int = config.getInt("audio.sampleRate") min 48000 max 0 // 48000
+  val audioCardFormat: Int = config.getInt("audio.format") // 1
 }
 
 object Settings {
@@ -531,7 +537,7 @@ object Settings {
   def get: Settings = settings
 
   def load(file: File) = {
-    import scala.compat.Platform.EOL
+    val EOL = System.lineSeparator()
     // typesafe config's internal method for loading the reference.conf file
     // seems to fail on some systems (as does their parseResource method), so
     // we'll have to load the default config manually. This was reported on the

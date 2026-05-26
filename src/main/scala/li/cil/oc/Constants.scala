@@ -55,6 +55,7 @@ object Constants {
     final val APUTier1 = "apu1"
     final val APUTier2 = "apu2"
     final val ArrowKeys = "arrowkeys"
+    final val AudioCardTier1 = "audiocard1"
     final val BatteryUpgradeTier1 = "batteryupgrade1"
     final val BatteryUpgradeTier2 = "batteryupgrade2"
     final val BatteryUpgradeTier3 = "batteryupgrade3"
