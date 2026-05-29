@@ -45,6 +45,7 @@ object ModelInitialization {
                                        getLocation:    ItemStack => ModelResourceLocation,
                                        bakeAdditional: ModelEvent.RegisterAdditional => Unit
                                      )
+
   private val dynamicItems    = mutable.ArrayBuffer.empty[(Item, DynamicItemModel)]
   private val modelRemappings = mutable.Map.empty[ModelResourceLocation, ModelResourceLocation]
 
@@ -57,9 +58,10 @@ object ModelInitialization {
     registerBlockRemapping(Constants.BlockName.RobotAfterimage,   RobotAfterimageBlockLocation, null)
 
     registerDroneModel()
-    registerFloppyModel()
     registerTabletModel()
     registerTerminalModel()
+
+    registerItemColors()
   }
 
   // Called from ClientProxy for each item that previously used registerModel(ItemLike, String).
@@ -75,35 +77,21 @@ object ModelInitialization {
     }
   }
 
-  private def registerFloppyModel(): Unit = {
-    def dyeLoc(dye: DyeColor) =
-      loc(Constants.ItemName.Floppy + "_" + dye.getName, "inventory")
-    withItem(Constants.ItemName.Floppy) { item =>
-      dynamicItems += item -> DynamicItemModel(
-        stack => {
-          val idx =
-            if (stack.hasTag && stack.getTag.contains(Settings.namespace + "color"))
-              stack.getTag.getInt(Settings.namespace + "color")
-            else DyeColor.GRAY.getId
-          dyeLoc(DyeColor.byId(idx max 0 min 15))
-        },
-        event => DyeColor.values().foreach(dye => event.register(dyeLoc(dye)))
-      )
-    }
-  }
-
   private def registerTabletModel(): Unit = {
     def tabletLoc(running: Option[Boolean]) = loc(
       Constants.ItemName.Tablet + (running match {
         case Some(true)  => "_on"
         case Some(false) => "_off"
         case _           => ""
-      }), "inventory")
+      }),
+      "inventory"
+    )
+
     withItem(Constants.ItemName.Tablet) { item =>
       dynamicItems += item -> DynamicItemModel(
         stack => tabletLoc(Tablet.Client.getWeak(stack) match {
           case Some(t: TabletWrapper) => Some(t.data.isRunning)
-          case _                     => None
+          case _                      => None
         }),
         event => Seq(None, Some(true), Some(false)).foreach(s => event.register(tabletLoc(s)))
       )
@@ -113,10 +101,39 @@ object ModelInitialization {
   private def registerTerminalModel(): Unit = {
     def termLoc(hasServer: Boolean) =
       loc(Constants.ItemName.Terminal + (if (hasServer) "_on" else "_off"), "inventory")
+
     withItem(Constants.ItemName.Terminal) { item =>
       dynamicItems += item -> DynamicItemModel(
         stack => termLoc(stack.hasTag && stack.getTag.contains(Settings.namespace + "server")),
         event => Seq(true, false).foreach(s => event.register(termLoc(s)))
+      )
+    }
+  }
+
+  // ── Item colors ────────────────────────────────────────────────────────────
+
+  private def registerItemColors(): Unit = {
+    withItem(Constants.ItemName.Floppy) { item =>
+      Minecraft.getInstance.getItemColors.register(
+        (stack: ItemStack, tintIndex: Int) => {
+          if (tintIndex == 1) {
+            val color =
+              if (stack.hasTag && stack.getTag.contains(Settings.namespace + "color"))
+                stack.getTag.getInt(Settings.namespace + "color")
+              else
+                DyeColor.GRAY.getId
+
+            val rgb = DyeColor.byId(color max 0 min 15).getTextureDiffuseColors
+
+            val r = (rgb(0) * 255.0f).toInt
+            val g = (rgb(1) * 255.0f).toInt
+            val b = (rgb(2) * 255.0f).toInt
+
+            (r << 16) | (g << 8) | b
+          }
+          else 0xFFFFFF
+        },
+        item
       )
     }
   }
@@ -141,6 +158,7 @@ object ModelInitialization {
         shaper.register(stack.getItem, itemLocation)
       }
     }
+
     if (blockLocation != null) {
       val block = descriptor.block()
       if (block != null)
@@ -152,11 +170,14 @@ object ModelInitialization {
 
   private def stateToModelLocation(state: BlockState): ModelResourceLocation = {
     import scala.jdk.CollectionConverters._
+
     val blockKey = BuiltInRegistries.BLOCK.getKey(state.getBlock)
+
     val variant = state.getValues.entrySet().asScala.toSeq
       .sortBy(_.getKey.getName)
       .map(e => s"${e.getKey.getName}=${ModelInitializationHelper.getPropertyName(e.getKey, e.getValue)}")
       .mkString(",")
+
     new ModelResourceLocation(blockKey, if (variant.isEmpty) "normal" else variant)
   }
 
@@ -181,21 +202,40 @@ object ModelInitialization {
     registry.put(RobotAfterimageBlockLocation, NullModel)
 
     for ((item, model) <- dynamicItems) {
-      val originalLocation = new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(item), "inventory")
+      val originalLocation =
+        new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(item), "inventory")
+
       registry.get(originalLocation) match {
         case original: BakedModel =>
           val overrides = new ItemOverrides {
-            override def resolve(base: BakedModel, stack: ItemStack, world: ClientLevel, holder: LivingEntity, seed: Int): BakedModel =
+            override def resolve(
+                                  base: BakedModel,
+                                  stack: ItemStack,
+                                  world: ClientLevel,
+                                  holder: LivingEntity,
+                                  seed: Int
+                                ): BakedModel =
               registry.get(model.getLocation(stack)) match {
                 case null => original
                 case m    => m
               }
           }
+
           val fake = new SmartBlockModelBase {
-            override def getQuads(state: BlockState, dir: Direction, rand: RandomSource): java.util.List[net.minecraft.client.renderer.block.model.BakedQuad] =
+            override def getQuads(
+                                   state: BlockState,
+                                   dir: Direction,
+                                   rand: RandomSource
+                                 ): java.util.List[net.minecraft.client.renderer.block.model.BakedQuad] =
               original.getQuads(state, dir, rand)
 
-            override def getQuads(state: BlockState, dir: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): java.util.List[net.minecraft.client.renderer.block.model.BakedQuad] =
+            override def getQuads(
+                                   state: BlockState,
+                                   dir: Direction,
+                                   rand: RandomSource,
+                                   data: ModelData,
+                                   renderType: RenderType
+                                 ): java.util.List[net.minecraft.client.renderer.block.model.BakedQuad] =
               original.getQuads(state, dir, rand, data, renderType)
 
             override def useAmbientOcclusion() = original.useAmbientOcclusion
@@ -203,12 +243,17 @@ object ModelInitialization {
             override def usesBlockLight()      = original.usesBlockLight
             override def isCustomRenderer()    = original.isCustomRenderer
 
-            @Deprecated override def getParticleIcon() = original.getParticleIcon
-            @Deprecated override def getTransforms()   = original.getTransforms
+            @Deprecated
+            override def getParticleIcon() = original.getParticleIcon
+
+            @Deprecated
+            override def getTransforms() = original.getTransforms
 
             override def getOverrides() = overrides
           }
+
           registry.put(originalLocation, fake)
+
         case _ =>
       }
     }
@@ -219,14 +264,18 @@ object ModelInitialization {
       Constants.BlockName.ScreenTier3 -> (_ => ScreenModel),
       Constants.BlockName.Rack        -> (parent => new ServerRackModel(parent))
     )
+
     registry.keySet.toArray.foreach {
       case location: ModelResourceLocation =>
         for ((name, model) <- modelOverrides) {
           val pattern = s"^${Settings.resourceDomain}:$name#.*"
-          if (location.toString.matches(pattern)) registry.put(location, model(registry.get(location)))
+          if (location.toString.matches(pattern))
+            registry.put(location, model(registry.get(location)))
         }
+
       case _ =>
     }
+
     for ((real, virtual) <- modelRemappings)
       registry.put(real, registry.get(virtual))
   }

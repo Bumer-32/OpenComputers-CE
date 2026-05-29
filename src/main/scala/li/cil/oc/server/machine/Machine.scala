@@ -26,6 +26,7 @@ import li.cil.oc.api.network.Node
 import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
+import li.cil.oc.client.ClientUtil
 import li.cil.oc.common.EventHandler
 import li.cil.oc.common.SaveHandler
 import li.cil.oc.common.Slot
@@ -991,11 +992,12 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
   private def isGamePaused: Boolean = {
     val server = ServerLifecycleHooks.getCurrentServer
 
-    if (server != null && !server.isDedicatedServer) {
-      DistExecutor.safeCallWhenOn(Dist.CLIENT, () => () => net.minecraft.client.Minecraft.getInstance().isPaused)
-    } else {
-      false
-    }
+    server != null &&
+      !server.isDedicatedServer &&
+      DistExecutor.unsafeCallWhenOn(
+        Dist.CLIENT,
+        () => () => ClientUtil.isPaused
+      )
   }
 
   // This is a really high level lock that we only use for saving and loading.

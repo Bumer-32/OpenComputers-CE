@@ -52,7 +52,7 @@ object ExtendedRecipe {
   private lazy val tablet = api.Items.get(Constants.ItemName.Tablet)
   private lazy val print = api.Items.get(Constants.BlockName.Print)
   private val beaconBlocks = ItemTags.create(ResourceLocation.fromNamespaceAndPath("forge", "beacon_base_blocks"))
-
+  
   def patchRecipe[R <: Recipe[_]](recipe: R): R = {
     val resultStack = recipe.getResultItem(null)
     val resultItemName = api.Items.get(resultStack)
