@@ -177,6 +177,7 @@ object Constants {
 
     final val DefaultVendor = "MightyPirates GmbH & Co. KG"
     final val Scummtech = "Scummtech, Inc."
+    final val ViridiaComputronics = "Viridia Computronics, Co., Ltd."
 
   }
 

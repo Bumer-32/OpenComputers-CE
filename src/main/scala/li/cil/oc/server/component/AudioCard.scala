@@ -51,8 +51,8 @@ class AudioCard(private val host: EnvironmentHost) extends AbstractManagedEnviro
   private final lazy val deviceInfo = Map(
     DeviceAttribute.Class -> DeviceClass.Multimedia,
     DeviceAttribute.Description -> "Audio Streaming Interface",
-    DeviceAttribute.Vendor -> Constants.DeviceInfo.DefaultVendor,
-    DeviceAttribute.Product -> "PCM Audio Card"
+    DeviceAttribute.Vendor -> Constants.DeviceInfo.ViridiaComputronics,
+    DeviceAttribute.Product -> "WaveBlaster Zero"
   )
 
   override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
