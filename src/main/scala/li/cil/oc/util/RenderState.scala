@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import net.minecraft.util.Mth
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import org.joml.{Matrix3f, Matrix4f}
 import org.lwjgl.opengl._
 
@@ -16,6 +17,7 @@ import org.lwjgl.opengl._
 // bugs where textures were not bound correctly or state was not updated
 // because the state manager thought it already was in the state to change to,
 // so I frankly don't care if this is less performant anymore).
+@OnlyIn(Dist.CLIENT)
 object RenderState {
   def getErrorString(errorCode: Int): String = errorCode match {
     case GL11.GL_NO_ERROR => "No error"

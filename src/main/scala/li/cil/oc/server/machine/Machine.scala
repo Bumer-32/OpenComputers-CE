@@ -2,7 +2,6 @@ package li.cil.oc.server.machine
 
 import java.util
 import java.util.concurrent.TimeUnit
-
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api.Driver
@@ -38,7 +37,6 @@ import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ResultWrapper
 import li.cil.oc.util.ResultWrapper.result
 import li.cil.oc.util.ThreadPoolFactory
-import net.minecraft.client.Minecraft
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt._
@@ -57,6 +55,8 @@ import net.minecraft.nbt.DoubleTag
 import net.minecraft.nbt.ByteArrayTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.client.server.IntegratedServer
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.fml.DistExecutor
 
 class Machine(val host: MachineHost) extends AbstractManagedEnvironment with machine.Machine with Runnable with DeviceInfo {
   override val node: ComponentConnector = Network.newNode(this, Visibility.Network).
@@ -988,10 +988,15 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     result
   }
 
-  private def isGamePaused =  ServerLifecycleHooks.getCurrentServer != null && !ServerLifecycleHooks.getCurrentServer.isDedicatedServer && (ServerLifecycleHooks.getCurrentServer match {
-    case integrated: IntegratedServer => Minecraft.getInstance.isPaused
-    case _ => false
-  })
+  private def isGamePaused: Boolean = {
+    val server = ServerLifecycleHooks.getCurrentServer
+
+    if (server != null && !server.isDedicatedServer) {
+      DistExecutor.safeCallWhenOn(Dist.CLIENT, () => () => net.minecraft.client.Minecraft.getInstance().isPaused)
+    } else {
+      false
+    }
+  }
 
   // This is a really high level lock that we only use for saving and loading.
   override def run(): Unit = Machine.this.synchronized {

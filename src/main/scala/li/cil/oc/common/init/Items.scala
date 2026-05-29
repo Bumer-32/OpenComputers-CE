@@ -28,6 +28,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Rarity
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.ItemLike
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent
 import net.minecraftforge.eventbus.api.{EventPriority, IEventBus}
 import net.minecraftforge.registries.{DeferredRegister, ForgeRegistries, RegisterEvent, RegistryObject}
 
@@ -540,7 +541,7 @@ object Items extends ItemAPI {
     registerItem(new item.Present(defaultProps), Constants.ItemName.Present)
   }
 
-  def decorateCreativeTab(event: net.minecraftforge.event.BuildCreativeModeTabContentsEvent, hasRedstoneCardT2: Boolean): Unit = {
+  def decorateCreativeTab(event: BuildCreativeModeTabContentsEvent, hasRedstoneCardT2: Boolean): Unit = {
     import Constants.{BlockName => B, ItemName => I}
     val excluded = Set(B.Microcontroller, B.Print, B.Robot)
 
