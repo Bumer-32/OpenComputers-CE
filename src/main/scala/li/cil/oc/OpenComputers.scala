@@ -20,7 +20,7 @@ import net.minecraftforge.forgespi.Environment
 import net.minecraftforge.fml.InterModComms
 import net.minecraftforge.fml.ModContainer
 import net.minecraftforge.fml.ModLoadingContext
-import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent
+import net.minecraftforge.fml.event.lifecycle.{FMLCommonSetupEvent, InterModProcessEvent}
 import net.minecraftforge.fml.loading.FMLPaths
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -89,5 +89,10 @@ class OpenComputers {
     e.enqueueWork((() => {
       InterModComms.getMessages(OpenComputers.ID).sequential.iterator.foreach(IMC.handleMessage)
     }): Runnable)
+  }
+
+  @SubscribeEvent
+  def onCommonSetup(e: FMLCommonSetupEvent): Unit = {
+    OpenComputers.proxy.init(e)
   }
 }
