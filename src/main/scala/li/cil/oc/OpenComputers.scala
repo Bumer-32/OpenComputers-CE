@@ -39,7 +39,7 @@ object OpenComputers {
 
   final val McVersion = "1.20.1-forge"
 
-  final val Version = "1.9.0-alpha-nightly"
+  final val Version = "1.9.0-beta"
 
   final val log: Logger = LogManager.getLogger(Name)
 
