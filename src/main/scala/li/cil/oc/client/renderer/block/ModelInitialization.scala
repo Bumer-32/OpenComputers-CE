@@ -200,6 +200,7 @@ object ModelInitialization {
     registry.put(RobotBlockLocation,           NullModel)
     registry.put(RobotItemLocation,            RobotModel)
     registry.put(RobotAfterimageBlockLocation, NullModel)
+    registry.put(loc(Constants.ItemName.Drone, "inventory"), DroneModel)
 
     for ((item, model) <- dynamicItems) {
       val originalLocation =

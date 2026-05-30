@@ -826,11 +826,6 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
       onHostChanged()
       close()
     }
-
-    println(s"[OC-Debug] Machine loaded. Component count in NBT: ${components.size}")
-    components.foreach { case (addr, name) =>
-      println(s"[OC-Debug] - Component in list: $name ($addr)")
-    }
   })
 
   override def saveData(nbt: CompoundTag): Unit = Machine.this.synchronized(state.synchronized {
