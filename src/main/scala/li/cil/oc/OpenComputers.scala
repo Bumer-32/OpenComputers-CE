@@ -28,8 +28,6 @@ import org.apache.logging.log4j.Logger
 import scala.collection.convert.ImplicitConversionsToScala._
 import net.minecraftforge.network.simple.SimpleChannel
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.item.Item
 import net.minecraftforge.fml.common.Mod
 
 object OpenComputers {
@@ -39,7 +37,7 @@ object OpenComputers {
 
   final val McVersion = "1.20.1-forge"
 
-  final val Version = "1.9.0-alpha-nightly"
+  final val Version = "1.9.0-beta"
 
   final val log: Logger = LogManager.getLogger(Name)
 
