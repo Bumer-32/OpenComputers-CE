@@ -181,6 +181,12 @@ public final class TileEntityTypes {
                             Items.get(Constants.BlockName$.MODULE$.Waypoint()).block())
                     .build(null));
 
+    public static final RegistryObject<BlockEntityType<Speaker>> SPEAKER =
+            BLOCK_ENTITY_TYPES.register("speaker", () -> BlockEntityType.Builder
+                    .of((pos, state) -> new Speaker(pos, state),
+                            Items.get(Constants.BlockName$.MODULE$.Speaker()).block())
+                    .build(null));
+
     public static void init(IEventBus bus) {
         BLOCK_ENTITY_TYPES.register(bus);
     }

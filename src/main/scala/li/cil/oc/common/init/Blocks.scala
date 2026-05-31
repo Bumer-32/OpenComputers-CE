@@ -5,6 +5,7 @@ import li.cil.oc.CreativeTab
 import li.cil.oc.Settings
 import li.cil.oc.common.Tier
 import li.cil.oc.common.block._
+import li.cil.oc.common.block.Speaker
 import net.minecraft.world.item.Rarity
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.Block
@@ -48,6 +49,7 @@ object Blocks {
     BLOCKS.register(Constants.BlockName.ScreenTier3,       () => Items.registerBlock(new Screen(defaultProps, Tier.Three), Constants.BlockName.ScreenTier3, defaultItemProps.rarity(Rarity.RARE)))
     BLOCKS.register(Constants.BlockName.ScreenTier2,       () => Items.registerBlock(new Screen(defaultProps, Tier.Two), Constants.BlockName.ScreenTier2, defaultItemProps.rarity(Rarity.UNCOMMON)))
     BLOCKS.register(Constants.BlockName.Rack,              () => Items.registerBlock(new Rack(defaultProps), Constants.BlockName.Rack, defaultItemProps))
+    BLOCKS.register(Constants.BlockName.Speaker,         () => Items.registerBlock(new Speaker(defaultProps), Constants.BlockName.Speaker, defaultItemProps))
     BLOCKS.register(Constants.BlockName.Waypoint,          () => Items.registerBlock(new Waypoint(defaultProps), Constants.BlockName.Waypoint, defaultItemProps))
 
     BLOCKS.register(Constants.BlockName.CaseCreative,      () => Items.registerBlock(new Case(defaultProps, Tier.Four), Constants.BlockName.CaseCreative, defaultItemProps.rarity(Rarity.EPIC)))

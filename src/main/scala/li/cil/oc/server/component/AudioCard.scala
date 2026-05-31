@@ -27,33 +27,56 @@ class AudioCard(private val host: EnvironmentHost) extends AbstractManagedEnviro
     .withConnector()
     .create()
 
-  private val owners = mutable.Map.empty[String, mutable.Set[Int]]
+  private val owners   = mutable.Map.empty[String, mutable.Set[Int]]
   private val sessions = mutable.Map.empty[Int, AudioCardSession]
   private var nextHandle = 1
 
-  private def chunkSize: Int = math.max(1, Settings.get.audioCardChunkSize)
-  private def bufferLimit: Int = math.max(chunkSize, Settings.get.audioCardBufferLimit)
-  private def defaultSampleRate: Int = Settings.get.audioCardSampleRate
+  private def chunkSize: Int       = math.max(1, Settings.get.audioCardChunkSize)
+  private def bufferLimit: Int     = math.max(chunkSize, Settings.get.audioCardBufferLimit)
+  private def defaultSampleRate    = Settings.get.audioCardSampleRate
 
   private def hostPos: BlockPosition = BlockPosition(host)
 
   private def nextId(): Int = synchronized {
-    val id = nextHandle
-    nextHandle += 1
-    id
+    val id = nextHandle; nextHandle += 1; id
   }
 
   private def session(handle: Int): AudioCardSession =
     sessions.getOrElse(handle, throw new IllegalArgumentException("invalid handle"))
 
   private final lazy val deviceInfo = Map(
-    DeviceAttribute.Class -> DeviceClass.Multimedia,
+    DeviceAttribute.Class       -> DeviceClass.Multimedia,
     DeviceAttribute.Description -> "Audio Streaming Interface",
-    DeviceAttribute.Vendor -> Constants.DeviceInfo.ViridiaComputronics,
-    DeviceAttribute.Product -> "WaveBlaster Zero"
+    DeviceAttribute.Vendor      -> Constants.DeviceInfo.ViridiaComputronics,
+    DeviceAttribute.Product     -> "WaveBlaster Zero"
   )
 
   override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
+
+  private def signalStart(handle: Int): Unit =
+    node.sendToReachable("computer.signal", "audio_playback_start",
+      node.address, Int.box(handle))
+
+  private def signalStop(handle: Int): Unit =
+    node.sendToReachable("computer.signal", "audio_playback_stop",
+      node.address, Int.box(handle))
+
+  private def signalError(handle: Int, errorCode: String): Unit =
+    node.sendToReachable("computer.signal", "audio_playback_error",
+      node.address, Int.box(handle), errorCode)
+
+
+  private val playingHandles = mutable.Set.empty[Int]
+
+  override def update(): Unit = synchronized {
+    val finished = playingHandles.filter { handle =>
+      sessions.get(handle).forall(s => !s.isPlayingNow)
+    }
+    finished.foreach { handle =>
+      playingHandles -= handle
+      signalStop(handle)
+    }
+  }
 
   // ----------------------------------------------------------------------- //
 
@@ -70,10 +93,10 @@ class AudioCard(private val host: EnvironmentHost) extends AbstractManagedEnviro
     if (owners.get(context.node.address).fold(false)(_.size >= Settings.get.maxHandles)) {
       throw new IOException("too many open handles")
     }
-    val channel = args.optInteger(0, 0)
+    val channel    = args.optInteger(0, 0)
     val sampleRate = args.optInteger(1, defaultSampleRate)
-    val mode = args.optString(2, "mono8")
-    val handle = nextId()
+    val mode       = args.optString(2, "mono8")
+    val handle     = nextId()
 
     sessions(handle) = new AudioCardSession(handle, channel, sampleRate, mode)
     owners.getOrElseUpdate(context.node.address, mutable.Set.empty[Int]) += handle
@@ -84,30 +107,77 @@ class AudioCard(private val host: EnvironmentHost) extends AbstractManagedEnviro
   @Callback(direct = true, doc = "function(handle:userdata, pcm:string):boolean -- append raw PCM bytes to the handle buffer.")
   def send(context: Context, args: Arguments): Array[AnyRef] = synchronized {
     val handle = checkHandle(args, 0)
-    val data = args.checkByteArray(1)
+    val data   = args.checkByteArray(1)
     checkOwner(context.node.address, handle)
 
     val s = session(handle)
     if (s.isPlayingNow) return result(null, "already playing")
-    if (s.closed) return result(null, "handle closed")
+    if (s.closed)       return result(null, "handle closed")
     if (s.size + data.length > bufferLimit) return result(null, "buffer full")
 
     s.append(data)
     result(true)
   }
 
-  @Callback(direct = true, doc = "function(handle:userdata):boolean -- flush buffer to clients and start playback.")
+  @Callback(direct = true, doc = """function(handle:userdata[, speakers:table]):boolean -- flush buffer and start playback.
+  speakers: array of speaker component addresses.
+  If nil or empty, all connected speakers on the matching channel are used.
+  Returns false (without playing) when no speaker is connected on the channel.
+  Fires audio_playback_start on success, or audio_playback_error on failure.""")
   def play(context: Context, args: Arguments): Array[AnyRef] = synchronized {
     val handle = checkHandle(args, 0)
     checkOwner(context.node.address, handle)
     val s = session(handle)
 
-    if (s.closed) return result(null, "handle closed")
-    if (s.size == 0) return result(null, "buffer empty")
+    if (s.closed) {
+      signalError(handle, "handle_closed")
+      return result(false)
+    }
+    if (s.size == 0) {
+      signalError(handle, "buffer_empty")
+      return result(false)
+    }
+
+    val requestedAddresses: Set[String] =
+      if (args.count > 1 && args.isTable(1)) {
+        val table   = args.checkTable(1)
+        val builder = Set.newBuilder[String]
+        table.keySet.forEach {
+          case k if table.get(k).isInstanceOf[String] => builder += table.get(k).asInstanceOf[String]
+          case _ =>
+        }
+        builder.result()
+      } else Set.empty[String]
+
+    val speakerPositions: Seq[BlockPosition] = {
+      val network = node.network
+      if (network == null) Seq.empty
+      else {
+        val speakers = network.nodes.asScala
+          .flatMap(n => Option(n.host))
+          .collect { case sc: SpeakerComponent => (sc.node.address, sc) }
+
+        val filtered =
+          if (requestedAddresses.isEmpty) speakers
+          else speakers.filter { case (addr, _) => requestedAddresses.contains(addr) }
+
+        filtered
+          .filter  { case (_, sc) => sc.channel == s.channel }
+          .map     { case (_, sc) => BlockPosition(sc.host) }
+          .toSeq
+      }
+    }
+
+    if (speakerPositions.isEmpty) {
+      signalError(handle, "no_speaker")
+      return result(false)
+    }
 
     s.startPlayback()
+    playingHandles += handle
 
-    PacketSender.sendAudioStart(host, handle, s.channel, s.sampleRate, s.channels, s.format, s.loop, hostPos)
+    PacketSender.sendAudioStart(host, handle, s.channel, s.sampleRate,
+      s.channels, s.format, s.loop, hostPos, speakerPositions)
 
     val pcm = s.pcm
     var off = 0
@@ -118,6 +188,7 @@ class AudioCard(private val host: EnvironmentHost) extends AbstractManagedEnviro
     }
 
     PacketSender.sendAudioPlay(host, handle)
+    signalStart(handle)
     result(true)
   }
 
@@ -152,15 +223,17 @@ class AudioCard(private val host: EnvironmentHost) extends AbstractManagedEnviro
     val s = session(handle)
     if (s.closed) return result(null, "handle closed")
 
+    val wasPlaying = playingHandles.remove(handle)
     s.stopPlayback()
     PacketSender.sendAudioStop(host, handle)
+    if (wasPlaying) signalStop(handle)
     result(true)
   }
 
   @Callback(direct = true, doc = "function(handle:userdata, loop:boolean):boolean -- set loop mode.")
   def setLoop(context: Context, args: Arguments): Array[AnyRef] = synchronized {
     val handle = checkHandle(args, 0)
-    val loop = args.checkBoolean(1)
+    val loop   = args.checkBoolean(1)
     checkOwner(context.node.address, handle)
     val s = session(handle)
     if (s.closed) return result(null, "handle closed")
@@ -212,6 +285,7 @@ class AudioCard(private val host: EnvironmentHost) extends AbstractManagedEnviro
       case Some(s) =>
         owners.get(owner) match {
           case Some(set) if set.remove(handle) =>
+            playingHandles -= handle
             PacketSender.sendAudioClose(host, handle)
             s.closed = true
             sessions.remove(handle)
@@ -233,6 +307,7 @@ class AudioCard(private val host: EnvironmentHost) extends AbstractManagedEnviro
       owners.get(message.source.address) match {
         case Some(set) =>
           set.foreach { handle =>
+            playingHandles -= handle
             PacketSender.sendAudioClose(host, handle)
             sessions.get(handle).foreach(_.closed = true)
             sessions.remove(handle)
@@ -243,15 +318,25 @@ class AudioCard(private val host: EnvironmentHost) extends AbstractManagedEnviro
     }
   }
 
+  override def onConnect(node: Node): Unit = {
+    super.onConnect(node)
+    if (node == this.node) {
+      li.cil.oc.common.EventHandler.registerAudioCard(this)
+    }
+  }
+
   override def onDisconnect(node: Node): Unit = synchronized {
     super.onDisconnect(node)
     if (node == this.node) {
+      li.cil.oc.common.EventHandler.unregisterAudioCard(this)
       sessions.keys.foreach(handle => PacketSender.sendAudioClose(host, handle))
       sessions.clear()
       owners.clear()
+      playingHandles.clear()
     }
     else if (owners.contains(node.address)) {
       for (handle <- owners(node.address)) {
+        playingHandles -= handle
         PacketSender.sendAudioClose(host, handle)
         sessions.get(handle).foreach(_.closed = true)
         sessions.remove(handle)
