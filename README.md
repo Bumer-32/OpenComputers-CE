@@ -18,7 +18,7 @@ A few useful links:
 You can find experimental builds [on the build server][github-actions]. Expect these to be generally more unstable than builds marked as releases. Use these **at your own risk**, but - when using the latest one - please *do* report bugs you encounter using them. Thanks!
 
 ## License / Use in Modpacks
-This mod is [licensed under the **MIT license**](https://github.com/akki697222/OpenComputers-CE/blob/master-MC1.20/LICENSE). All **assets are public domain**, unless otherwise stated; all are free to be distributed as long as the license / source credits are kept. This means you can use this mod in any mod pack **as you please**. I'd be happy to hear about you using it, though, just out of curiosity.
+This mod is [licensed under the **MIT license**](https://github.com/akki697222/OpenComputers-CE/blob/dev-MC1.20/LICENSE). All **assets are public domain**, unless otherwise stated; all are free to be distributed as long as the license / source credits are kept. This means you can use this mod in any mod pack **as you please**. I'd be happy to hear about you using it, though, just out of curiosity.
 
 ## Contributing
 ### Assets and Localizations
@@ -95,22 +95,22 @@ In the case you wish to use Eclipse rather than IntelliJ IDEA, the process is mo
 
 
 
-[api]: https://github.com/akki697222/OpenComputers-CE/tree/master-MC1.20/src/main/java/li/cil/oc/api
+[api]: https://github.com/akki697222/OpenComputers-CE/tree/dev-MC1.20/src/main/java/li/cil/oc/api
 [code conventions]: https://ocdoc.cil.li/lua_conventions
 [dev-jar]: https://ci.cil.li/view/OpenComputers/job/OpenComputers-MC1.7.10/
 [forums]: https://oc.cil.li/
 [github-actions]: https://github.com/akki697222/OpenComputers/actions
 [irc]: http://webchat.esper.net/?channels=#oc
 [issues]: https://github.com/akki697222/OpenComputers-CE/issues?state=open
-[localizations]: https://github.com/akki697222/OpenComputers-CE/tree/master-MC1.20/src/main/resources/assets/opencomputers/lang
-[loot]: https://github.com/akki697222/OpenComputers-CE/tree/master-MC1.20/src/main/resources/assets/opencomputers/loot
-[manpages]: https://github.com/akki697222/OpenComputers-CE/tree/master-MC1.20/src/main/resources/assets/opencomputers/loot/OpenOS/usr/man
-[manual]: https://github.com/akki697222/OpenComputers-CE/tree/master-MC1.20/src/main/resources/assets/opencomputers/doc
+[localizations]: https://github.com/akki697222/OpenComputers-CE/tree/dev-MC1.20/src/main/resources/assets/opencomputers/lang
+[loot]: https://github.com/akki697222/OpenComputers-CE/tree/dev-MC1.20/src/main/resources/assets/opencomputers/loot
+[manpages]: https://github.com/akki697222/OpenComputers-CE/tree/dev-MC1.20/src/main/resources/assets/opencomputers/loot/OpenOS/usr/man
+[manual]: https://github.com/akki697222/OpenComputers-CE/tree/dev-MC1.20/src/main/resources/assets/opencomputers/doc
 [mcf]: http://www.minecraftforum.net/topic/2201440-opencomputers-v122/
-[pack.mcmeta]: https://github.com/akki697222/OpenComputers-CE/blob/master-MC1.20/src/main/resources/pack.mcmeta
+[pack.mcmeta]: https://github.com/akki697222/OpenComputers-CE/blob/dev-MC1.20/src/main/resources/pack.mcmeta
 [releases]: https://github.com/akki697222/OpenComputers-CE/releases
-[robot names]: https://github.com/akki697222/OpenComputers-CE/blob/master-MC1.20/src/main/resources/assets/opencomputers/robot.names
+[robot names]: https://github.com/akki697222/OpenComputers-CE/blob/dev-MC1.20/src/main/resources/assets/opencomputers/robot.names
 [wiki]: https://ocdoc.cil.li/
-[integration]: https://github.com/akki697222/OpenComputers-CE/tree/master-MC1.20/src/main/scala/li/cil/oc/integration
-[ingame manual]: https://github.com/akki697222/OpenComputers-CE/tree/master-MC1.20/src/main/resources/assets/opencomputers/doc
+[integration]: https://github.com/akki697222/OpenComputers-CE/tree/dev-MC1.20/src/main/scala/li/cil/oc/integration
+[ingame manual]: https://github.com/akki697222/OpenComputers-CE/tree/dev-MC1.20/src/main/resources/assets/opencomputers/doc
 [idea_1.7.10]: https://ocdoc.cil.li/tutorial:debug_1.7.10
