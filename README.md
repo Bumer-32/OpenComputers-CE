@@ -2,8 +2,8 @@
 
 > [!IMPORTANT]
 > This is a Community Edition of OpenComputers. Not a official Project.
-> 
-> Thanks to the original author Sangar, Vexatos, payonel, magik6k, Lord Joda, and all GitHub contributors.
+
+Thanks to the original author Sangar, Vexatos, payonel, magik6k, Lord Joda, and all GitHub contributors.
 
 OpenComputers is a Minecraft mod that adds programmable computers and robots to the game. The built-in computer implementation uses Lua 5.2 and is fully persistent. This means programs will continue running across reloads. For more information, please [see the wiki][wiki]. Feel invited to visit the [community forums][forums] or drop by in the [IRC channel #oc on esper.net][irc].
 
