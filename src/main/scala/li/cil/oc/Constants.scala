@@ -40,7 +40,6 @@ object Constants {
     final val ScreenTier3 = "screen3"
     final val Rack = "rack"
     final val Transposer = "transposer"
-    final val Speaker = "speaker"
     final val Waypoint = "waypoint"
 
     def Case(tier: Int): String = ItemUtils.caseNameWithTierSuffix("case", tier)

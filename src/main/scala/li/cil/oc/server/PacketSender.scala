@@ -31,7 +31,7 @@ import net.minecraft.world.level.Level
 import net.minecraft.sounds.SoundSource
 
 object PacketSender {
-  def sendAudioStart(host: EnvironmentHost, sessionId: Int, channel: Int, sampleRate: Int, channels: Int, format: Int, loop: Boolean, pos: BlockPosition, speakerPositions: Seq[BlockPosition] = Seq.empty): Unit = {
+  def sendAudioStart(host: EnvironmentHost, sessionId: Int, channel: Int, sampleRate: Int, channels: Int, format: Int, loop: Boolean, pos: BlockPosition): Unit = {
     val pb = new SimplePacketBuilder(PacketType.AudioStart)
     pb.writeInt(sessionId)
     pb.writeInt(channel)
@@ -40,11 +40,6 @@ object PacketSender {
     pb.writeInt(format)
     pb.writeBoolean(loop)
     pb.writeBlockPosCoords(pos)
-    // Speaker positions: count + (x,y,z)*count
-    pb.writeInt(speakerPositions.size)
-    for (sp <- speakerPositions) {
-      pb.writeBlockPosCoords(sp)
-    }
     pb.sendToPlayersNearHost(host, Option(Settings.get.maxNetworkClientSoundPacketDistance))
   }
 

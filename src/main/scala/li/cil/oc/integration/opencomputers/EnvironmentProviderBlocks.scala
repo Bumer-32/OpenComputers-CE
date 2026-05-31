@@ -27,7 +27,6 @@ object EnvironmentProviderBlocks extends EnvironmentProvider {
       else if (isOneOf(block.getBlock, Constants.BlockName.HologramTier1, Constants.BlockName.HologramTier2)) classOf[blockentity.Hologram]
       else if (isOneOf(block.getBlock, Constants.BlockName.Printer)) classOf[blockentity.Printer]
       else if (isOneOf(block.getBlock, Constants.BlockName.Relay)) classOf[blockentity.Relay]
-      else if (isOneOf(block.getBlock, Constants.BlockName.Speaker)) classOf[blockentity.Speaker]
       else if (isOneOf(block.getBlock, Constants.BlockName.Redstone)) if (BundledRedstone.isAvailable) classOf[component.Redstone.Bundled] else classOf[component.Redstone.Vanilla]
       else if (isOneOf(block.getBlock, Constants.BlockName.ScreenTier1)) classOf[common.component.TextBuffer]: Class[_ <: Environment]
       else if (isOneOf(block.getBlock, Constants.BlockName.ScreenTier2, Constants.BlockName.ScreenTier3)) classOf[common.component.Screen]

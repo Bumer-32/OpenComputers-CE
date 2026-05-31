@@ -137,11 +137,8 @@ object PacketHandler extends CommonPacketHandler {
     val format = p.readInt()
     val loop = p.readBoolean()
     val pos = p.readBlockPosCoords()
-    // Read speaker positions sent from server
-    val speakerCount = p.readInt()
-    val speakerPositions = (0 until speakerCount).map(_ => p.readBlockPosCoords()).toSeq
 
-    val s = new AudioSession(handle, channel, sampleRate, channels, format, pos, speakerPositions)
+    val s = new AudioSession(handle, channel, sampleRate, channels, format, pos)
     s.loop = loop
     audioSessions.synchronized {
       audioSessions(handle) = s

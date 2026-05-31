@@ -1,6 +1,5 @@
 package li.cil.oc.common
 
-import li.cil.oc.server.component.AudioCard
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.chunk.{ChunkAccess, LevelChunk}
@@ -79,15 +78,6 @@ object EventHandler {
   private val pendingClient = mutable.Buffer.empty[() => Unit]
 
   private val runningRobots = mutable.Set.empty[Robot]
-
-  // AudioCard instances currently loaded (for playback-end tick polling)
-  private val audioCards = mutable.Set.empty[AudioCard]
-
-  def registerAudioCard(card: AudioCard): Unit =
-    audioCards.synchronized { audioCards += card }
-
-  def unregisterAudioCard(card: AudioCard): Unit =
-    audioCards.synchronized { audioCards -= card }
 
   private val keyboards = java.util.Collections.newSetFromMap[Keyboard](new java.util.WeakHashMap[Keyboard, java.lang.Boolean])
 
@@ -217,9 +207,6 @@ object EventHandler {
       else if (robot.getEnvironmentLevel != null) robot.machine.update()
     })
     runningRobots --= invalid
-
-    // Poll AudioCard sessions for playback completion
-    audioCards.synchronized { audioCards.toSeq }.foreach(_.update())
   }
   else if (e.phase == TickEvent.Phase.END) {
     // Clean up machines *after* a tick, to allow stuff to be saved, first.

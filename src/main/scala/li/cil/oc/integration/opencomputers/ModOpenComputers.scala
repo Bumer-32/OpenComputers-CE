@@ -141,7 +141,6 @@ object ModOpenComputers extends ModProxy {
     api.Driver.add(DriverGeolyzer)
     api.Driver.add(DriverMotionSensor)
     api.Driver.add(DriverScreen)
-    api.Driver.add(DriverSpeaker)
     api.Driver.add(DriverTransposer)
 
     api.Driver.add(DriverDiskDriveMountable)
@@ -186,7 +185,6 @@ object ModOpenComputers extends ModProxy {
     api.Driver.add(DriverGeolyzer.Provider)
     api.Driver.add(DriverMotionSensor.Provider)
     api.Driver.add(DriverScreen.Provider)
-    api.Driver.add(DriverSpeaker.Provider)
     api.Driver.add(DriverTransposer.Provider)
 
     api.Driver.add(DriverUpgradeChunkloader.Provider)
