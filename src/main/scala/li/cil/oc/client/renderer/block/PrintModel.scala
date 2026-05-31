@@ -3,7 +3,7 @@ package li.cil.oc.client.renderer.block
 import java.util
 import java.util.Collections
 
-import com.mojang.serialization.Dynamic
+import com.google.common.base.Strings
 import li.cil.oc.Settings
 import li.cil.oc.client.KeyBindings
 import li.cil.oc.client.Textures
@@ -19,11 +19,6 @@ import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.client.renderer.block.model.ItemOverrides
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
-import net.minecraft.SharedConstants
-import net.minecraft.nbt.NbtOps
-import net.minecraft.nbt.StringTag
-import net.minecraft.util.datafix.DataFixers
-import net.minecraft.util.datafix.fixes.References
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.ItemStack
@@ -33,14 +28,48 @@ import net.minecraft.util.RandomSource
 import net.minecraft.client.renderer.RenderType
 import net.minecraftforge.client.model.data.{ModelData, ModelProperty}
 
+import scala.collection.JavaConverters.bufferAsJavaList
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
+import scala.io.Source
+import scala.util.{Try, Using}
 
 object PrintModel extends SmartBlockModelBase {
   val PRINT_PROPERTY = new ModelProperty[blockentity.Print]()
 
   private val VanillaNamespace = "minecraft"
-  private val LegacyBlockDataVersion = 1343 // Minecraft 1.12.2.
+
+  private val DefaultFluidTints: Map[String, Int] = Map(
+    "water"         -> 0x3F76E4,
+    "water_still"   -> 0x3F76E4,
+    "water_flow"    -> 0x3F76E4,
+    "water_overlay" -> 0x3F76E4,
+  )
+
+  private def defaultTintFor(name: String): Option[Int] = {
+    val bare = name.trim
+      .replaceFirst("^minecraft:", "")
+      .replaceFirst("^blocks?/", "")
+    DefaultFluidTints.get(bare)
+  }
+
+  private lazy val blockNameMigration: Map[String, String] = {
+    val path = "/assets/" + Settings.resourceDomain + "/block_name_migration.csv"
+    val result = Try {
+      Using.resource(getClass.getResourceAsStream(path)) { stream =>
+        Source.fromInputStream(stream, "UTF-8")
+          .getLines()
+          .filterNot(l => l.isBlank || l.startsWith("#"))
+          .map(_.split(",", 2))
+          .collect { case Array(from, to) => from.trim -> to.trim }
+          .toMap
+      }
+    }
+    result.getOrElse {
+      li.cil.oc.OpenComputers.log.warn(s"[OpenComputers] Failed to load block_name_migration.csv from $path")
+      Map.empty
+    }
+  }
 
   override def getOverrides: ItemOverrides = ItemOverride
 
@@ -48,10 +77,11 @@ object PrintModel extends SmartBlockModelBase {
     Option(data.get(PRINT_PROPERTY)) match {
       case Some(t) =>
         val faces = mutable.ArrayBuffer.empty[BakedQuad]
-        for (shape <- t.shapes) {
+        for (shape <- t.shapes if !Strings.isNullOrEmpty(shape.texture)) {
           val bounds  = shape.bounds.rotateTowards(t.facing)
           val texture = resolveTexture(shape.texture)
-          faces ++= bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), shape.tint.getOrElse(White))
+          val tint    = shape.tint.orElse(defaultTintFor(shape.texture)).getOrElse(White)
+          faces ++= bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), tint)
         }
         faces.asJava
       case _ => super.getQuads(state, side, rand)
@@ -73,27 +103,13 @@ object PrintModel extends SmartBlockModelBase {
       ResourceLocation.fromNamespaceAndPath(loc.getNamespace, path)
     }
 
-    def migrateVanilla(loc: ResourceLocation): ResourceLocation = {
+    def migrate(loc: ResourceLocation): ResourceLocation = {
       val normalized = normalize(loc)
       if (normalized.getNamespace == VanillaNamespace) {
-        val path = normalized.getPath.stripPrefix("block/")
-        val legacyId = ResourceLocation.fromNamespaceAndPath(VanillaNamespace, path).toString
-
-        val fixer = DataFixers.getDataFixer
-        val currentVersion = SharedConstants.getCurrentVersion.getDataVersion.getVersion
-        val dynamic = new Dynamic(NbtOps.INSTANCE, StringTag.valueOf(legacyId))
-
-        val updatedDynamic = fixer.update(References.BLOCK_NAME, dynamic, LegacyBlockDataVersion, currentVersion)
-        val updatedId = updatedDynamic.asString().result().orElse(legacyId)
-
-        Option(ResourceLocation.tryParse(updatedId)) match {
-          case Some(r) =>
-            val newPath = r.getPath.stripPrefix("block/")
-            ResourceLocation.fromNamespaceAndPath(r.getNamespace, "block/" + newPath)
-          case None => normalized
-        }
-      }
-      else normalized
+        val bare = normalized.getPath.stripPrefix("block/")
+        val mapped = blockNameMigration.getOrElse(bare, bare)
+        ResourceLocation.fromNamespaceAndPath(VanillaNamespace, "block/" + mapped)
+      } else normalized
     }
 
     val trimmed = Option(name).map(_.trim).getOrElse("")
@@ -101,8 +117,8 @@ object PrintModel extends SmartBlockModelBase {
 
     if (trimmed.isEmpty) return Textures.getSprite(fallback)
 
-    Option(ResourceLocation.tryParse(trimmed)).map(migrateVanilla).flatMap(tryGet)
-      .orElse(tryGet(migrateVanilla(ResourceLocation.withDefaultNamespace("block/" + trimmed.stripPrefix("blocks/")))))
+    Option(ResourceLocation.tryParse(trimmed)).map(migrate).flatMap(tryGet)
+      .orElse(tryGet(migrate(ResourceLocation.withDefaultNamespace("block/" + trimmed.stripPrefix("blocks/")))))
       .orElse(tryGet(ResourceLocation.fromNamespaceAndPath(Settings.resourceDomain, "block/" + trimmed.stripPrefix("blocks/"))))
       .orElse(tryGet(fallback))
       .getOrElse(Textures.getSprite(MissingTextureAtlasSprite.getLocation))
@@ -119,14 +135,15 @@ object PrintModel extends SmartBlockModelBase {
       for (shape <- shapes) {
         val bounds  = shape.bounds
         val texture = resolveTexture(shape.texture)
-        faces ++= bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), shape.tint.getOrElse(White))
+        val tint    = shape.tint.orElse(defaultTintFor(shape.texture)).getOrElse(White)
+        faces ++= bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), tint)
       }
       if (shapes.isEmpty) {
         val bounds  = ExtendedAABB.unitBounds
         val texture = resolveTexture(Settings.resourceDomain + ":block/white")
         faces ++= bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), Color.rgbValues(DyeColor.LIME))
       }
-      faces.asJava
+      bufferAsJavaList(faces)
     }
   }
 

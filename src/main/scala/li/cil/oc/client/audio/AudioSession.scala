@@ -49,7 +49,7 @@ class AudioSession(
 
     mc.getSoundManager.soundEngine.executor.execute(() => {
       try {
-        AL10.alGetError() 
+        AL10.alGetError()
 
         alBuffer = AL10.alGenBuffers()
         Audio.checkALError()
@@ -58,9 +58,7 @@ class AudioSession(
         dataBuffer.put(pcmData)
         dataBuffer.flip()
 
-        val alFormat = if (channels == 2) AL10.AL_FORMAT_STEREO16 else AL10.AL_FORMAT_MONO16
-
-        AL10.alBufferData(alBuffer, alFormat, dataBuffer, sampleRate)
+        AL10.alBufferData(alBuffer, format, dataBuffer, sampleRate)
         Audio.checkALError()
 
         alSource = AL10.alGenSources()

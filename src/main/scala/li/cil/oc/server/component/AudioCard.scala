@@ -34,8 +34,6 @@ class AudioCard(private val host: EnvironmentHost) extends AbstractManagedEnviro
   private def chunkSize: Int = math.max(1, Settings.get.audioCardChunkSize)
   private def bufferLimit: Int = math.max(chunkSize, Settings.get.audioCardBufferLimit)
   private def defaultSampleRate: Int = Settings.get.audioCardSampleRate
-  private def channels: Int = 2
-  private def format: Int = Settings.get.audioCardFormat
 
   private def hostPos: BlockPosition = BlockPosition(host)
 
@@ -59,16 +57,25 @@ class AudioCard(private val host: EnvironmentHost) extends AbstractManagedEnviro
 
   // ----------------------------------------------------------------------- //
 
-  @Callback(direct = true, doc = "function([channel:number, sampleRate:number]):userdata -- open an audio buffer handle.")
+  @Callback(direct = true, doc = """function([channel:number, sampleRate:number, mode:string]):userdata -- open an audio buffer handle.
+  - channel: output channel index (default: 0)
+  - sampleRate: samples per second (default: server config value)
+  - mode: PCM format string (default: "mono8")
+      "mono8"    -- mono,   8-bit unsigned  (DFPWM output)
+      "mono16"   -- mono,   16-bit signed little-endian
+      "stereo8"  -- stereo, 8-bit unsigned
+      "stereo16" -- stereo, 16-bit signed little-endian (WAV stereo)
+  """)
   def open(context: Context, args: Arguments): Array[AnyRef] = synchronized {
     if (owners.get(context.node.address).fold(false)(_.size >= Settings.get.maxHandles)) {
       throw new IOException("too many open handles")
     }
     val channel = args.optInteger(0, 0)
     val sampleRate = args.optInteger(1, defaultSampleRate)
+    val mode = args.optString(2, "mono8")
     val handle = nextId()
 
-    sessions(handle) = new AudioCardSession(handle, channel, sampleRate, channels, format)
+    sessions(handle) = new AudioCardSession(handle, channel, sampleRate, mode)
     owners.getOrElseUpdate(context.node.address, mutable.Set.empty[Int]) += handle
 
     result(new AudioHandleValue(node.address, handle))
@@ -254,7 +261,7 @@ class AudioCard(private val host: EnvironmentHost) extends AbstractManagedEnviro
   }
 
   // ----------------------------------------------------------------------- //
-  
+
   override def loadData(nbt: CompoundTag): Unit = {
     super.loadData(nbt)
     nbt.getList("owners", Tag.TAG_COMPOUND).forEach {
