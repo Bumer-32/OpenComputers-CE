@@ -444,6 +444,9 @@ object Items extends ItemAPI {
     // 1.6
     registerItem(new item.TerminalServer(defaultProps.stacksTo(1)), Constants.ItemName.TerminalServer)
     registerItem(new item.DiskDriveMountable(defaultProps.stacksTo(1)), Constants.ItemName.DiskDriveMountable)
+    
+    // 1.9
+    registerItem(new item.CreativeMemory(defaultProps.rarity(Rarity.EPIC)), Constants.ItemName.RAMCreative)
   }
 
   // Card components.

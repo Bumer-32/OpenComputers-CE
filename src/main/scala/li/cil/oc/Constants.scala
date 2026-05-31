@@ -137,6 +137,7 @@ object Constants {
     final val RAMTier4 = "ram4"
     final val RAMTier5 = "ram5"
     final val RAMTier6 = "ram6"
+    final val RAMCreative = "ramcreative"
     final val RawCircuitBoard = "rawcircuitboard"
     final val RedstoneCardTier1 = "redstonecard1"
     final val RedstoneCardTier2 = "redstonecard2"
