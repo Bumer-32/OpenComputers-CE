@@ -1,7 +1,7 @@
 ![Welcome to OpenComputers](assets/misc/banner.png)
 
 > [!IMPORTANT]
-> This is a Community Edition of OpenComputers. Not a official Project.
+> This is a Community Edition and fork of OpenComputers. Not a official Project.
 
 Thanks to the original author Sangar, Vexatos, payonel, magik6k, Lord Joda, and all GitHub contributors.
 
