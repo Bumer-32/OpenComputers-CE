@@ -45,6 +45,18 @@ object TextBufferRenderCache {
     RenderState.checkError(getClass.getName + ".render: leaving")
   }
 
+  def renderImmediate(stack: PoseStack, renderBuffer: MultiBufferSource, buffer: TextBufferRenderData): Unit = {
+    RenderState.checkError(getClass.getName + ".renderImmediate: entering")
+
+    for (line <- buffer.data.buffer) {
+      renderer.generateChars(line)
+    }
+
+    renderer.drawBuffer(stack, renderBuffer, buffer.data, buffer.viewport._1, buffer.viewport._2)
+
+    RenderState.checkError(getClass.getName + ".renderImmediate: leaving")
+  }
+
   // ----------------------------------------------------------------------- //
   // ITickHandler
   // ----------------------------------------------------------------------- //

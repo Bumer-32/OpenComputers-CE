@@ -3,7 +3,7 @@ package li.cil.oc.client.renderer.block
 import java.util
 import java.util.Collections
 
-import com.google.common.base.Strings
+import com.mojang.serialization.Dynamic
 import li.cil.oc.Settings
 import li.cil.oc.client.KeyBindings
 import li.cil.oc.client.Textures
@@ -19,6 +19,11 @@ import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.client.renderer.block.model.ItemOverrides
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
+import net.minecraft.SharedConstants
+import net.minecraft.nbt.NbtOps
+import net.minecraft.nbt.StringTag
+import net.minecraft.util.datafix.DataFixers
+import net.minecraft.util.datafix.fixes.References
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.ItemStack
@@ -28,12 +33,14 @@ import net.minecraft.util.RandomSource
 import net.minecraft.client.renderer.RenderType
 import net.minecraftforge.client.model.data.{ModelData, ModelProperty}
 
-import scala.collection.JavaConverters.bufferAsJavaList
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 object PrintModel extends SmartBlockModelBase {
   val PRINT_PROPERTY = new ModelProperty[blockentity.Print]()
+
+  private val VanillaNamespace = "minecraft"
+  private val LegacyBlockDataVersion = 1343 // Minecraft 1.12.2.
 
   override def getOverrides: ItemOverrides = ItemOverride
 
@@ -41,7 +48,7 @@ object PrintModel extends SmartBlockModelBase {
     Option(data.get(PRINT_PROPERTY)) match {
       case Some(t) =>
         val faces = mutable.ArrayBuffer.empty[BakedQuad]
-        for (shape <- t.shapes if !Strings.isNullOrEmpty(shape.texture)) {
+        for (shape <- t.shapes) {
           val bounds  = shape.bounds.rotateTowards(t.facing)
           val texture = resolveTexture(shape.texture)
           faces ++= bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), shape.tint.getOrElse(White))
@@ -59,9 +66,45 @@ object PrintModel extends SmartBlockModelBase {
       if (!isMissing(s)) Some(s) else None
     }
 
-    Option(ResourceLocation.tryParse(name)).flatMap(tryGet)
-      .orElse(tryGet(ResourceLocation.withDefaultNamespace("block/" + name)))
-      .orElse(tryGet(ResourceLocation.fromNamespaceAndPath(Settings.resourceDomain, "block/" + name)))
+    def normalize(loc: ResourceLocation): ResourceLocation = {
+      val path =
+        if (loc.getPath.startsWith("blocks/")) "block/" + loc.getPath.stripPrefix("blocks/")
+        else loc.getPath
+      ResourceLocation.fromNamespaceAndPath(loc.getNamespace, path)
+    }
+
+    def migrateVanilla(loc: ResourceLocation): ResourceLocation = {
+      val normalized = normalize(loc)
+      if (normalized.getNamespace == VanillaNamespace) {
+        val path = normalized.getPath.stripPrefix("block/")
+        val legacyId = ResourceLocation.fromNamespaceAndPath(VanillaNamespace, path).toString
+
+        val fixer = DataFixers.getDataFixer
+        val currentVersion = SharedConstants.getCurrentVersion.getDataVersion.getVersion
+        val dynamic = new Dynamic(NbtOps.INSTANCE, StringTag.valueOf(legacyId))
+
+        val updatedDynamic = fixer.update(References.BLOCK_NAME, dynamic, LegacyBlockDataVersion, currentVersion)
+        val updatedId = updatedDynamic.asString().result().orElse(legacyId)
+
+        Option(ResourceLocation.tryParse(updatedId)) match {
+          case Some(r) =>
+            val newPath = r.getPath.stripPrefix("block/")
+            ResourceLocation.fromNamespaceAndPath(r.getNamespace, "block/" + newPath)
+          case None => normalized
+        }
+      }
+      else normalized
+    }
+
+    val trimmed = Option(name).map(_.trim).getOrElse("")
+    val fallback = ResourceLocation.fromNamespaceAndPath(Settings.resourceDomain, "block/white")
+
+    if (trimmed.isEmpty) return Textures.getSprite(fallback)
+
+    Option(ResourceLocation.tryParse(trimmed)).map(migrateVanilla).flatMap(tryGet)
+      .orElse(tryGet(migrateVanilla(ResourceLocation.withDefaultNamespace("block/" + trimmed.stripPrefix("blocks/")))))
+      .orElse(tryGet(ResourceLocation.fromNamespaceAndPath(Settings.resourceDomain, "block/" + trimmed.stripPrefix("blocks/"))))
+      .orElse(tryGet(fallback))
       .getOrElse(Textures.getSprite(MissingTextureAtlasSprite.getLocation))
   }
 
@@ -83,7 +126,7 @@ object PrintModel extends SmartBlockModelBase {
         val texture = resolveTexture(Settings.resourceDomain + ":block/white")
         faces ++= bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), Color.rgbValues(DyeColor.LIME))
       }
-      bufferAsJavaList(faces)
+      faces.asJava
     }
   }
 

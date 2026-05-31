@@ -46,6 +46,7 @@ import net.minecraftforge.server.ServerLifecycleHooks
 import scala.collection.JavaConverters.mapAsJavaMap
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
@@ -333,6 +334,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
       case arg: java.lang.String => arg
       case arg: Array[Byte] => arg
       case arg: CompoundTag => arg
+      case arg: java.util.HashMap[AnyRef, AnyRef] => arg.asScala
       case arg =>
         OpenComputers.log.warn("Trying to push signal with an unsupported argument of type " + arg.getClass.getName)
         null

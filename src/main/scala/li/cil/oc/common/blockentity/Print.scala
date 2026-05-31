@@ -8,6 +8,7 @@ import li.cil.oc.api
 import li.cil.oc.common.block.{Print => PrintBlock}
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.blockentity.traits.RedstoneChangedEventArgs
+import li.cil.oc.client.renderer.block.PrintModel
 import li.cil.oc.util.ExtendedAABB
 import li.cil.oc.util.ExtendedAABB._
 import li.cil.oc.util.ExtendedNBT._
@@ -28,6 +29,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.ticks.ScheduledTick
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.client.model.data.ModelData
 import net.minecraftforge.client.model.data.ModelProperty
 
 import scala.collection.Iterable
@@ -51,6 +53,12 @@ class Print(pos: BlockPos, blockState: BlockState, val canToggle: Option[() => B
   def shape = if (state) shapeOn else shapeOff
   def noclip = if (state) data.noclipOn else data.noclipOff
   def shapes = if (state) data.stateOn else data.stateOff
+
+  @OnlyIn(Dist.CLIENT)
+  override def getModelData: ModelData =
+    ModelData.builder()
+      .`with`(PrintModel.PRINT_PROPERTY, this)
+      .build()
 
   def activate(): Boolean = {
     if (data.hasActiveState) {

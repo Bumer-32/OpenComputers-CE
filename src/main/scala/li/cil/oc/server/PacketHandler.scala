@@ -154,7 +154,7 @@ object PacketHandler extends CommonPacketHandler {
       case player: ServerPlayer => player.containerMenu match {
         case drone: menu.Drone if drone.containerId == containerId => {
           drone.otherInventory match {
-            case droneInv: DroneInventory => trySetComputerPower(droneInv.drone.machine, power, player)
+            case droneInv: DroneInventory => trySetDronePower(droneInv.drone, power, player)
             case _ => logForgedPacket(player)
           }
         }
@@ -176,6 +176,22 @@ object PacketHandler extends CommonPacketHandler {
         }
       }
       else computer.stop()
+    }
+  }
+
+  private def trySetDronePower(drone: Drone, value: Boolean, player: ServerPlayer): Unit = {
+    val computer = drone.machine
+    if (computer.canInteract(player.getName.getString)) {
+      if (value) {
+        if (!computer.isPaused) {
+          drone.start()
+          computer.lastError match {
+            case message if message != null => player.sendSystemMessage(Localization.Analyzer.LastError(message))
+            case _ =>
+          }
+        }
+      }
+      else drone.stop()
     }
   }
 

@@ -21,9 +21,11 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.phys.Vec3
 import net.minecraft.util.RandomSource
 import net.minecraft.client.renderer.RenderType
+import net.minecraftforge.client.event.TextureStitchEvent
 import net.minecraftforge.client.model.data.{ModelData, ModelProperty}
+import net.minecraftforge.eventbus.api.SubscribeEvent
 
-import scala.collection.JavaConverters.bufferAsJavaList
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 object NetSplitterModel extends SmartBlockModelBase {
@@ -37,7 +39,7 @@ object NetSplitterModel extends SmartBlockModelBase {
         val faces = mutable.ArrayBuffer.empty[BakedQuad]
         faces ++= BaseModel
         addSideQuads(faces, Direction.values().map(t.isSideOpen))
-        bufferAsJavaList(faces)
+        faces.asJava
       case _ => super.getQuads(state, side, rand)
     }
 
@@ -78,6 +80,11 @@ object NetSplitterModel extends SmartBlockModelBase {
     if (atlas.location().equals(InventoryMenu.BLOCK_ATLAS)) BaseModel = GenerateBaseModel(atlas)
   }
 
+  @SubscribeEvent
+  def onTextureStitchPost(event: TextureStitchEvent.Post): Unit = {
+    initBaseModel(event.getAtlas)
+  }
+
   protected def addSideQuads(faces: mutable.ArrayBuffer[BakedQuad], openSides: Array[Boolean]): Unit = {
     val down  = openSides(Direction.DOWN.ordinal())
     faces ++= bakeQuads(makeBox(new Vec3(5/16f, if (down) 0/16f else 2/16f, 5/16f),   new Vec3(11/16f, 5/16f, 11/16f)),  splitterTexture(None), None)
@@ -98,7 +105,7 @@ object NetSplitterModel extends SmartBlockModelBase {
       val faces = mutable.ArrayBuffer.empty[BakedQuad]
       faces ++= BaseModel
       addSideQuads(faces, Direction.values().map(_ => false))
-      bufferAsJavaList(faces)
+      faces.asJava
     }
   }
 

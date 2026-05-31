@@ -8,6 +8,7 @@ import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.api.network.{Node, Visibility}
 import li.cil.oc.common.EventHandler
 import li.cil.oc.common.blockentity.traits.RedstoneChangedEventArgs
+import li.cil.oc.client.renderer.block.NetSplitterModel
 import li.cil.oc.server.PacketSender
 import li.cil.oc.util.RotationHelper
 import net.minecraft.sounds.SoundEvents
@@ -19,6 +20,7 @@ import net.minecraft.sounds.SoundSource
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.client.model.data.ModelData
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
@@ -46,6 +48,12 @@ class NetSplitter(pos: BlockPos, state: BlockState)
 
   override def isSideOpen(side: Direction): Boolean = if (isInverted) !super.isSideOpen(side) else super.isSideOpen(side)
 
+  @OnlyIn(Dist.CLIENT)
+  override def getModelData: ModelData =
+    ModelData.builder()
+      .`with`(NetSplitterModel.NET_SPLITTER_PROPERTY, this)
+      .build()
+
   override def setSideOpen(side: Direction, value: Boolean): Unit = {
     val previous = isSideOpen(side)
     super.setSideOpen(side, value)
@@ -58,6 +66,7 @@ class NetSplitter(pos: BlockPos, state: BlockState)
         getLevel.updateNeighborsAt(getBlockPos, getBlockState.getBlock)
       }
       else {
+        requestModelDataUpdate()
         getLevel.sendBlockUpdated(getBlockPos, getLevel.getBlockState(getBlockPos), getLevel.getBlockState(getBlockPos), 3)
       }
     }
@@ -91,6 +100,7 @@ class NetSplitter(pos: BlockPos, state: BlockState)
         getLevel.playSound(null, getBlockPos, SoundEvents.PISTON_CONTRACT, SoundSource.BLOCKS, 0.5f, getLevel.random.nextFloat() * 0.25f + 0.7f)
       }
       else {
+        requestModelDataUpdate()
         getLevel.sendBlockUpdated(getBlockPos, getLevel.getBlockState(getBlockPos), getLevel.getBlockState(getBlockPos), 3)
       }
     }
@@ -115,6 +125,7 @@ class NetSplitter(pos: BlockPos, state: BlockState)
   def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     isInverted = nbt.getBoolean(IsInvertedTag)
+    requestModelDataUpdate()
   }
 
   override def saveForClient(nbt: CompoundTag): Unit = {

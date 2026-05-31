@@ -8,6 +8,7 @@ import li.cil.oc.api
 import li.cil.oc.api.detail.ItemInfo
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
+import li.cil.oc.common.component.{TextBuffer => ComponentTextBuffer}
 import li.cil.oc.common.blockentity.Screen
 import li.cil.oc.integration.util.Wrench
 import li.cil.oc.util.RenderState
@@ -170,7 +171,10 @@ class ScreenRenderer extends TileEntityRenderer[Screen] {
 
     RenderState.checkError(getClass.getName + ".draw: setup")
 
-    screen.buffer.renderText(stack)
+    screen.buffer match {
+      case textBuffer: ComponentTextBuffer => textBuffer.renderText(stack, buffer)
+      case _ => screen.buffer.renderText(stack)
+    }
 
     RenderState.checkError(getClass.getName + ".draw: text")
   }
