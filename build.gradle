@@ -67,7 +67,7 @@ minecraft {
 
         data {
             workingDirectory project.file('run-data')
-            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            args '--mod', mod_id, '--all', '--output', file('src/data/resources/'), '--existing', file('src/main/resources/')
         }
     }
 }
@@ -78,7 +78,11 @@ mixin {
     //config "${mod_id}.mixins.json"
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+sourceSets.main.scala { srcDir 'src/data/scala' }
+sourceSets.main.resources {
+    srcDir 'src/data/resources'
+    exclude '.cache/**'
+}
 
 configurations {
     embedded

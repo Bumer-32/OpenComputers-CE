@@ -18,6 +18,7 @@
 # Debugging
 /eclipse
 /run
+/run-data
 
 # Windows...
 **/Thumbs.db
@@ -37,3 +38,4 @@
 /.bloop
 /.scalafmt.conf
 /font
+/src/data/resources/.cache

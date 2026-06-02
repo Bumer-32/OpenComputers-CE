@@ -74,6 +74,7 @@ class OpenComputers {
   EntityTypes.ENTITY_TYPES.register(modBus)
   MenuTypes.MENU_TYPES.register(modBus)
   modBus.register(classOf[Capabilities])
+  modBus.register(li.cil.oc.data.DataGenerators)
   modBus.register(CreativeTab)
   OpenComputers.instance = Some(this)
   MinecraftForge.EVENT_BUS.register(OpenComputers.proxy)
