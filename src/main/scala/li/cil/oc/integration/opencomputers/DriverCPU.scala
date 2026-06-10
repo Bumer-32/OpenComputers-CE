@@ -65,5 +65,5 @@ abstract class DriverCPU extends Item with api.driver.item.MutableProcessor with
     data.putString(Settings.namespace + "archName", api.Machine.getArchitectureName(architecture))
   }
 
-  override def getCallBudget(stack: ItemStack): Double = Settings.get.callBudgets(tier(stack) max Tier.One min Tier.Three)
+  override def getCallBudget(stack: ItemStack): Double = Settings.get.callBudgets(tier(stack) max Tier.One min Tier.Four)
 }

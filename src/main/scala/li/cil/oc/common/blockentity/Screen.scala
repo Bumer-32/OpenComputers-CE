@@ -306,7 +306,7 @@ class Screen(pos: BlockPos, state: BlockState, var tier: Int) extends BlockEntit
   private final val InvertTouchModeTag = Settings.namespace + "invertTouchMode"
 
   override def loadForServer(nbt: CompoundTag): Unit = {
-    tier = nbt.getByte(TierTag) max 0 min 2
+    tier = nbt.getByte(TierTag) max 0 min 3
     setColor(Color.rgbValues(Color.byTier(tier)))
     super.loadForServer(nbt)
     hadRedstoneInput = nbt.getBoolean(HadRedstoneInputTag)
@@ -322,7 +322,7 @@ class Screen(pos: BlockPos, state: BlockState, var tier: Int) extends BlockEntit
 
   @OnlyIn(Dist.CLIENT) override
   def loadForClient(nbt: CompoundTag): Unit = {
-    tier = nbt.getByte(TierTag) max 0 min 2
+    tier = nbt.getByte(TierTag) max 0 min 3
     super.loadForClient(nbt)
     requestModelDataUpdate()
     invertTouchMode = nbt.getBoolean(InvertTouchModeTag)

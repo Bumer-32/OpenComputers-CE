@@ -35,5 +35,5 @@ object DriverMemory extends Item with api.driver.item.Memory with api.driver.ite
       case _ => Tier.One
     }
 
-  override def getCallBudget(stack: ItemStack): Double = Settings.get.callBudgets(tier(stack) max Tier.One min Tier.Three)
+  override def getCallBudget(stack: ItemStack): Double = Settings.get.callBudgets(tier(stack) max Tier.One min Tier.Four)
 }

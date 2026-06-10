@@ -44,7 +44,10 @@ class Case(pos: BlockPos, state: BlockState, var tier: Int)
   var lastFileSystemAccess = 0L
   var lastNetworkActivity = 0L
 
-  setColor(Color.rgbValues(Color.byTier(tier)))
+  setColor(
+    if (tier == 3) 0x4B3F41
+    else Color.rgbValues(Color.byTier(tier))
+  )
 
   private final lazy val deviceInfo = Map(
     DeviceAttribute.Class -> DeviceClass.System,

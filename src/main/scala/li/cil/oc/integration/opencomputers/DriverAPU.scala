@@ -22,6 +22,7 @@ object DriverAPU extends DriverCPU with HostAware {
       case Tier.One => new component.APU(Tier.One)
       case Tier.Two => new component.APU(Tier.Two)
       case Tier.Three => new component.APU(Tier.Three)
+      case Tier.Four => new component.APU(Tier.Four)
       case _ => null
     }
 

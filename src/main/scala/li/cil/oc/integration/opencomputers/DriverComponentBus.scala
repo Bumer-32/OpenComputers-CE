@@ -24,7 +24,7 @@ object DriverComponentBus extends Item with Processor {
   // Clamp item tier because the creative bus needs to fit into tier 3 slots.
   override def tier(stack: ItemStack) =
     stack.getItem match {
-      case bus: item.ComponentBus => bus.tier min Tier.Three
+      case bus: item.ComponentBus => bus.tier min Tier.Four
       case _ => Tier.One
     }
 

@@ -247,6 +247,10 @@ afterEvaluate {
                     classifier = 'api'
                     extension = "jar"
                 }
+                artifact(tasks.named("apiSourcesJar")) {
+                    classifier = 'sources'
+                    extension = "jar"
+                }
             }
         }
     }
@@ -306,6 +310,12 @@ tasks.register('apiJar', Jar) {
     archiveClassifier = 'api'
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from sourceSets.main.output
+    include 'li/cil/oc/api/**'
+}
+
+tasks.register('apiSourcesJar', Jar) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allJava
     include 'li/cil/oc/api/**'
 }
 

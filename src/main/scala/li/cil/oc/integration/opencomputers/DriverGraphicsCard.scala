@@ -23,13 +23,16 @@ object DriverGraphicsCard extends Item with HostAware {
       case Tier.One => new component.GraphicsCard(Tier.One)
       case Tier.Two => new component.GraphicsCard(Tier.Two)
       case Tier.Three => new component.GraphicsCard(Tier.Three)
+      case Tier.Four => new component.GraphicsCard(Tier.Four)
       case _ => null
     }
 
   override def slot(stack: ItemStack) = Slot.Card
 
   override def tier(stack: ItemStack) = {
-    if (isOneOf(stack, api.Items.get(Constants.ItemName.GraphicsCardTier3))) {
+    if (isOneOf(stack, api.Items.get(Constants.ItemName.GraphicsCardTier4))) {
+      Tier.Four
+    } else if (isOneOf(stack, api.Items.get(Constants.ItemName.GraphicsCardTier3))) {
       Tier.Three
     } else if (isOneOf(stack, api.Items.get(Constants.ItemName.GraphicsCardTier2))) {
       Tier.Two
