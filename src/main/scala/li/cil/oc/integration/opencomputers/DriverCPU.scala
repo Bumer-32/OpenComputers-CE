@@ -21,7 +21,8 @@ abstract class DriverCPU extends Item with api.driver.item.MutableProcessor with
   override def worksWith(stack: ItemStack) = isOneOf(stack,
     api.Items.get(Constants.ItemName.CPUTier1),
     api.Items.get(Constants.ItemName.CPUTier2),
-    api.Items.get(Constants.ItemName.CPUTier3))
+    api.Items.get(Constants.ItemName.CPUTier3),
+    api.Items.get(Constants.ItemName.CPUTier4))
 
   override def createEnvironment(stack: ItemStack, host: api.network.EnvironmentHost): api.network.ManagedEnvironment = new component.CPU(tier(stack))
 
