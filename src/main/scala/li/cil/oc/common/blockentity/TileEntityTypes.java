@@ -3,7 +3,10 @@ package li.cil.oc.common.blockentity;
 import li.cil.oc.OpenComputers;
 import li.cil.oc.Constants;
 import li.cil.oc.api.Items;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -49,7 +52,8 @@ public final class TileEntityTypes {
                             Items.get(Constants.BlockName$.MODULE$.CaseCreative()).block(),
                             Items.get(Constants.BlockName$.MODULE$.CaseTier1()).block(),
                             Items.get(Constants.BlockName$.MODULE$.CaseTier2()).block(),
-                            Items.get(Constants.BlockName$.MODULE$.CaseTier3()).block())
+                            Items.get(Constants.BlockName$.MODULE$.CaseTier3()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.CaseTier4()).block())
                     .build(null));
 
     public static final RegistryObject<BlockEntityType<Charger>> CHARGER =
@@ -80,7 +84,8 @@ public final class TileEntityTypes {
             BLOCK_ENTITY_TYPES.register("hologram", () -> BlockEntityType.Builder
                     .of((pos, state) -> new Hologram(pos, state),
                             Items.get(Constants.BlockName$.MODULE$.HologramTier1()).block(),
-                            Items.get(Constants.BlockName$.MODULE$.HologramTier2()).block())
+                            Items.get(Constants.BlockName$.MODULE$.HologramTier2()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.HologramTier3()).block())
                     .build(null));
 
     public static final RegistryObject<BlockEntityType<Keyboard>> KEYBOARD =
@@ -163,10 +168,20 @@ public final class TileEntityTypes {
 
     public static final RegistryObject<BlockEntityType<Screen>> SCREEN =
             BLOCK_ENTITY_TYPES.register("screen", () -> BlockEntityType.Builder
-                    .of((pos, state) -> new Screen(pos, state),
+                    .of(TileEntityTypes::createScreen,
                             Items.get(Constants.BlockName$.MODULE$.ScreenTier1()).block(),
                             Items.get(Constants.BlockName$.MODULE$.ScreenTier2()).block(),
-                            Items.get(Constants.BlockName$.MODULE$.ScreenTier3()).block())
+                            Items.get(Constants.BlockName$.MODULE$.ScreenTier3()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.ScreenTier4()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.FlatScreenBackTier1()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.FlatScreenBackTier2()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.FlatScreenBackTier3()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.FlatScreenFrontTier1()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.FlatScreenFrontTier2()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.FlatScreenFrontTier3()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.HoloScreenTier1()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.HoloScreenTier2()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.HoloScreenTier3()).block())
                     .build(null));
 
     public static final RegistryObject<BlockEntityType<Transposer>> TRANSPOSER =
@@ -183,6 +198,17 @@ public final class TileEntityTypes {
 
     public static void init(IEventBus bus) {
         BLOCK_ENTITY_TYPES.register(bus);
+    }
+
+    private static Screen createScreen(BlockPos pos, BlockState state) {
+        Block block = state.getBlock();
+        if (block instanceof li.cil.oc.common.block.HoloScreen holoScreen) {
+            return new HoloScreen(pos, state, holoScreen.tier());
+        }
+        if (block instanceof li.cil.oc.common.block.Screen screen) {
+            return new Screen(pos, state, screen.tier());
+        }
+        return new Screen(pos, state);
     }
 
     private TileEntityTypes() {
