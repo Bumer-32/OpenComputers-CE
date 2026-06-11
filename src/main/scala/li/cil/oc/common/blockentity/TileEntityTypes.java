@@ -49,7 +49,8 @@ public final class TileEntityTypes {
                             Items.get(Constants.BlockName$.MODULE$.CaseCreative()).block(),
                             Items.get(Constants.BlockName$.MODULE$.CaseTier1()).block(),
                             Items.get(Constants.BlockName$.MODULE$.CaseTier2()).block(),
-                            Items.get(Constants.BlockName$.MODULE$.CaseTier3()).block())
+                            Items.get(Constants.BlockName$.MODULE$.CaseTier3()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.CaseTier4()).block())
                     .build(null));
 
     public static final RegistryObject<BlockEntityType<Charger>> CHARGER =
@@ -166,7 +167,8 @@ public final class TileEntityTypes {
                     .of((pos, state) -> new Screen(pos, state),
                             Items.get(Constants.BlockName$.MODULE$.ScreenTier1()).block(),
                             Items.get(Constants.BlockName$.MODULE$.ScreenTier2()).block(),
-                            Items.get(Constants.BlockName$.MODULE$.ScreenTier3()).block())
+                            Items.get(Constants.BlockName$.MODULE$.ScreenTier3()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.ScreenTier4()).block())
                     .build(null));
 
     public static final RegistryObject<BlockEntityType<Transposer>> TRANSPOSER =

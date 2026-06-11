@@ -15,7 +15,8 @@ object DriverGraphicsCard extends Item with HostAware {
   override def worksWith(stack: ItemStack) = isOneOf(stack,
     api.Items.get(Constants.ItemName.GraphicsCardTier1),
     api.Items.get(Constants.ItemName.GraphicsCardTier2),
-    api.Items.get(Constants.ItemName.GraphicsCardTier3))
+    api.Items.get(Constants.ItemName.GraphicsCardTier3),
+    api.Items.get(Constants.ItemName.GraphicsCardTier4))
 
   override def createEnvironment(stack: ItemStack, host: EnvironmentHost) =
     if (host.getEnvironmentLevel != null && host.getEnvironmentLevel.isClientSide) null

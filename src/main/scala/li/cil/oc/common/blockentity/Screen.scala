@@ -10,6 +10,7 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.Color
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.client.renderer.block.ScreenModel
+import li.cil.oc.common.Tier
 import net.minecraft.client.Minecraft
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.CompoundTag
@@ -306,7 +307,7 @@ class Screen(pos: BlockPos, state: BlockState, var tier: Int) extends BlockEntit
   private final val InvertTouchModeTag = Settings.namespace + "invertTouchMode"
 
   override def loadForServer(nbt: CompoundTag): Unit = {
-    tier = nbt.getByte(TierTag) max 0 min 3
+    tier = nbt.getByte(TierTag) max 0 min Tier.Four
     setColor(Color.rgbValues(Color.byTier(tier)))
     super.loadForServer(nbt)
     hadRedstoneInput = nbt.getBoolean(HadRedstoneInputTag)
@@ -320,14 +321,15 @@ class Screen(pos: BlockPos, state: BlockState, var tier: Int) extends BlockEntit
     nbt.putBoolean(InvertTouchModeTag, invertTouchMode)
   }
 
-  @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundTag): Unit = {
-    tier = nbt.getByte(TierTag) max 0 min 3
+  @OnlyIn(Dist.CLIENT) 
+  override def loadForClient(nbt: CompoundTag): Unit = {
+    tier = nbt.getByte(TierTag) max 0 min Tier.Four
     super.loadForClient(nbt)
     requestModelDataUpdate()
     invertTouchMode = nbt.getBoolean(InvertTouchModeTag)
   }
 
+  @OnlyIn(Dist.CLIENT)
   override def saveForClient(nbt: CompoundTag): Unit = {
     nbt.putByte(TierTag, tier.toByte)
     super.saveForClient(nbt)
