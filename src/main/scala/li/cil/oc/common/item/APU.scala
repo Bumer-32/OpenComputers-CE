@@ -12,6 +12,8 @@ class APU(props: Properties, val tier: Int) extends Item(props) with IForgeItem 
   @Deprecated
   override def getDescriptionId = super.getDescriptionId + tier
 
+  override protected def tierFromDriver(stack: ItemStack) = cpuTier
+
   override def cpuTier = math.min(Tier.Four, tier + 1)
 
   override def gpuTier = math.min(Tier.Four, tier)
