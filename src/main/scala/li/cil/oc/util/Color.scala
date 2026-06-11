@@ -38,7 +38,15 @@ object Color {
 
   val byTag: Map[TagKey[Item], DyeColor] = DyeColor.values().map(col => (getDyeTag(col), col)).toMap
 
-  val byTier = Array(DyeColor.LIGHT_GRAY, DyeColor.YELLOW, DyeColor.CYAN, DyeColor.GRAY/* Fallback for Tier 4 Color */, DyeColor.MAGENTA)
+  private val tierRgbValues = Array(
+    rgbValues(DyeColor.LIGHT_GRAY),
+    rgbValues(DyeColor.YELLOW),
+    rgbValues(DyeColor.CYAN),
+    0x9A7D7D,
+    rgbValues(DyeColor.MAGENTA)
+  )
+
+  def byTier(tier: Int): Int = tierRgbValues(tier max 0 min (tierRgbValues.length - 1))
 
   def findDye(stack: ItemStack): Option[TagKey[Item]] = {
     if (stack.isEmpty) None

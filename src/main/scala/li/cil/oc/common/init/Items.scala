@@ -204,7 +204,7 @@ object Items extends ItemAPI {
     val data = new DroneData()
 
     data.name = "Crecopter"
-    data.tier = Tier.Four
+    data.tier = Tier.Five
     data.storedEnergy = Settings.get.bufferDrone.toInt
     data.components = Array(
       safeGetStack(Constants.ItemName.InventoryUpgrade),
@@ -228,7 +228,7 @@ object Items extends ItemAPI {
   def createConfiguredMicrocontroller(): ItemStack = {
     val data = new MicrocontrollerData()
 
-    data.tier = Tier.Four
+    data.tier = Tier.Five
     data.storedEnergy = Settings.get.bufferMicrocontroller.toInt
     data.components = Array(
       safeGetStack(Constants.ItemName.SignUpgrade),
@@ -249,7 +249,7 @@ object Items extends ItemAPI {
     val data = new RobotData()
 
     data.name = "Creatix"
-    data.tier = Tier.Four
+    data.tier = Tier.Five
     data.robotEnergy = Settings.get.bufferRobot.toInt
     data.totalEnergy = data.robotEnergy
     data.components = Array(
@@ -294,7 +294,7 @@ object Items extends ItemAPI {
   def createConfiguredTablet(): ItemStack = {
     val data = new TabletData()
 
-    data.tier = Tier.Four
+    data.tier = Tier.Five
     data.energy = Settings.get.bufferTablet
     data.maxEnergy = data.energy
     data.items = Array(
@@ -522,7 +522,7 @@ object Items extends ItemAPI {
 
     // 1.7.2
     registerItem(new item.WirelessNetworkCard(defaultProps, Tier.One), Constants.ItemName.WirelessNetworkCardTier1)
-    registerItem(new item.ComponentBus(defaultProps.rarity(Rarity.EPIC), Tier.Four), Constants.ItemName.ComponentBusCreative)
+    registerItem(new item.ComponentBus(defaultProps.rarity(Rarity.EPIC), Tier.Five), Constants.ItemName.ComponentBusCreative)
 
     // 1.8
     registerItem(new item.UpgradeStickyPiston(defaultProps), Constants.ItemName.StickyPistonUpgrade)

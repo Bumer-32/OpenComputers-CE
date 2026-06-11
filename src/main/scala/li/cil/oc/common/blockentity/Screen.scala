@@ -72,7 +72,7 @@ class Screen(pos: BlockPos, state: BlockState, var tier: Int) extends BlockEntit
 
   private val lastWalked = mutable.WeakHashMap.empty[Entity, (Int, Int)]
 
-  setColor(Color.rgbValues(Color.byTier(tier)))
+  setColor(Color.byTier(tier))
 
   @OnlyIn(Dist.CLIENT)
   override def canConnect(side: Direction) = side != facing
@@ -308,7 +308,7 @@ class Screen(pos: BlockPos, state: BlockState, var tier: Int) extends BlockEntit
 
   override def loadForServer(nbt: CompoundTag): Unit = {
     tier = nbt.getByte(TierTag) max 0 min Tier.Four
-    setColor(Color.rgbValues(Color.byTier(tier)))
+    setColor(Color.byTier(tier))
     super.loadForServer(nbt)
     hadRedstoneInput = nbt.getBoolean(HadRedstoneInputTag)
     invertTouchMode = nbt.getBoolean(InvertTouchModeTag)
