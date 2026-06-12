@@ -17,6 +17,7 @@ public final class GuiTypes {
             MenuScreens.register(MenuTypes.DATABASE.get(), Database::new);
             MenuScreens.register(MenuTypes.DISASSEMBLER.get(), Disassembler::new);
             MenuScreens.register(MenuTypes.DISK_DRIVE.get(), DiskDrive::new);
+            MenuScreens.register(MenuTypes.HOLO_SCREEN.get(), HoloScreen::new);
             MenuScreens.register(MenuTypes.DRONE.get(), Drone::new);
             MenuScreens.register(MenuTypes.PRINTER.get(), Printer::new);
             MenuScreens.register(MenuTypes.RACK.get(), Rack::new);

@@ -63,6 +63,7 @@ private[oc] class Proxy extends CommonProxy {
       MinecraftForge.EVENT_BUS.register(WirelessNetworkDebugRenderer)
       MinecraftForge.EVENT_BUS.register(Audio)
       MinecraftForge.EVENT_BUS.register(HologramRenderer)
+      MinecraftForge.EVENT_BUS.register(ScreenRenderer)
     }): Runnable)
 
     RenderSystem.recordRenderCall(() => MinecraftForge.EVENT_BUS.register(TextBufferRenderCache))
