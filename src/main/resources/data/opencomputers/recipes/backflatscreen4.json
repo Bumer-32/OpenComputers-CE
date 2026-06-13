@@ -10,7 +10,7 @@
       "tag": "forge:obsidian"
     },
     "g": {
-      "tag": "forge:dusts/glowstone"
+      "item": "minecraft:glowstone"
     },
     "c": {
       "tag": "opencomputers:circuitchip4"

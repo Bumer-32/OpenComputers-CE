@@ -11,6 +11,7 @@ import li.cil.oc.api.fs.FileSystem
 import li.cil.oc.common
 import li.cil.oc.common.{EventHandler, Loot, Tier, item}
 import li.cil.oc.common.block.SimpleBlock
+import li.cil.oc.common.item.NetheriteSilicon
 import li.cil.oc.common.item.data.DroneData
 import li.cil.oc.common.item.data.HoverBootsData
 import li.cil.oc.common.item.data.MicrocontrollerData
@@ -399,6 +400,7 @@ object Items extends ItemAPI {
     registerItem(new item.Chamelium(defaultProps), Constants.ItemName.Chamelium)
 
     registerItem(new item.DiamondChip(defaultProps), Constants.ItemName.DiamondChip)
+    registerItem(new NetheriteSilicon(defaultProps), Constants.ItemName.NetheriteSilicon)
   }
 
   // All kinds of tools.

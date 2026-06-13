@@ -327,6 +327,7 @@
     "oc:tooltip.holoscreen": "With an empty hand, §lSneak/Shift+RCLICK§r§7 sides to adjust size\nUse dyes to color background",
     "oc:tooltip.hologram0": "A volumetric display that can be controlled by computers to display arbitrary voxel structures.\nResolution: §f48x32x48§7\nMaximum scale: §f3x§7\nColor depth: §fMonochrome§7",
     "oc:tooltip.hologram1": "A volumetric display that can be controlled by computers to display arbitrary voxel structures.\nResolution: §f48x32x48§7\nMaximum scale: §f4x§7\nColor depth: §fTricolor§7",
+    "oc:tooltip.hologram2": "A volumetric display that can be controlled by computers to display arbitrary voxel structures.\nResolution: §f48x32x48§7\nMaximum scale: §f4x§7\nColor depth: §fTricolor§7",
     "oc:tooltip.linkedcard": "These are crafted in pairs, and can only communicate with their partner card. However, they can communicate across any distance, and even across dimensions. The energy required to send a message is fairly high, though.",
     "oc:tooltip.linkedcard_channel": "§8Channel: %s§7",
     "oc:tooltip.manual": "All the information you could possibly need about OpenComputers. And more. For the unbelievably low price of... §oplease press R to continue§7.",

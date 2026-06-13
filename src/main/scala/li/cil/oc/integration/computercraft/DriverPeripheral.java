@@ -72,20 +72,17 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
     private static final Capability<IPeripheral> PERIPHERAL_CAP = getPeripheralCapability();
 
     private IPeripheral findPeripheral(final Level world, final BlockPos pos, final Direction side) {
-        try {
-            if (PERIPHERAL_CAP == null) return null;
+        final BlockEntity be = world.getBlockEntity(pos);
+        if (be == null) return null;
 
-            final BlockEntity be = world.getBlockEntity(pos);
-            if (be == null) return null;
-
+        if (PERIPHERAL_CAP != null) {
             final IPeripheral p = be.getCapability(PERIPHERAL_CAP, side).orElse(null);
-
-            if (!isBlacklisted(p)) {
-                return p;
-            }
-        } catch (Exception e) {
-            OpenComputers.log().warn("Error accessing ComputerCraft peripheral @ ({}, {}, {}).", pos.getX(), pos.getY(), pos.getZ(), e);
+            if (!isBlacklisted(p)) return p;
         }
+
+        final IPeripheral p2 = be.getCapability(
+                PeripheralProvider.CAPABILITY_PERIPHERAL(), side).orElse(null);
+        if (!isBlacklisted(p2)) return p2;
 
         return null;
     }
