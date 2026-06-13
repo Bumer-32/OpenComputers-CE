@@ -176,12 +176,15 @@ public final class TileEntityTypes {
                             Items.get(Constants.BlockName$.MODULE$.FlatScreenBackTier1()).block(),
                             Items.get(Constants.BlockName$.MODULE$.FlatScreenBackTier2()).block(),
                             Items.get(Constants.BlockName$.MODULE$.FlatScreenBackTier3()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.FlatScreenBackTier4()).block(),
                             Items.get(Constants.BlockName$.MODULE$.FlatScreenFrontTier1()).block(),
                             Items.get(Constants.BlockName$.MODULE$.FlatScreenFrontTier2()).block(),
                             Items.get(Constants.BlockName$.MODULE$.FlatScreenFrontTier3()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.FlatScreenFrontTier4()).block(),
                             Items.get(Constants.BlockName$.MODULE$.HoloScreenTier1()).block(),
                             Items.get(Constants.BlockName$.MODULE$.HoloScreenTier2()).block(),
-                            Items.get(Constants.BlockName$.MODULE$.HoloScreenTier3()).block())
+                            Items.get(Constants.BlockName$.MODULE$.HoloScreenTier3()).block(),
+                            Items.get(Constants.BlockName$.MODULE$.HoloScreenTier4()).block())
                     .build(null));
 
     public static final RegistryObject<BlockEntityType<Transposer>> TRANSPOSER =

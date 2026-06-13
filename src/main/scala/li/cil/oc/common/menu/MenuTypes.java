@@ -50,6 +50,10 @@ public final class MenuTypes {
             MENU_TYPES.register("disk_drive", () -> IForgeMenuType.create(
                     (id, plr, buff) -> new DiskDrive(id, plr, new SimpleContainer(1))));
 
+    public static final RegistryObject<MenuType<HoloScreen>> HOLO_SCREEN =
+            MENU_TYPES.register("holo_screen", () -> IForgeMenuType.create(
+                    (id, plr, buff) -> new HoloScreen(id, plr, new SimpleContainer(1))));
+
     public static final RegistryObject<MenuType<Drone>> DRONE =
             MENU_TYPES.register("drone", () -> IForgeMenuType.create((id, plr, buff) -> {
                 int invSize = buff.readVarInt();
@@ -137,6 +141,10 @@ public final class MenuTypes {
 
     public static void openDiskDriveGui(ServerPlayer player, li.cil.oc.common.container.DiskDriveMountableInventory diskDrive) {
         NetworkHooks.openScreen(player, diskDrive);
+    }
+
+    public static void openHoloScreenGui(ServerPlayer player, li.cil.oc.common.blockentity.HoloScreen screen) {
+        NetworkHooks.openScreen(player, screen);
     }
 
     public static void openDroneGui(ServerPlayer player, li.cil.oc.common.entity.Drone drone) {
