@@ -484,7 +484,6 @@ class Robot(pos: BlockPos, state: BlockState)
     }
   }
 
-  @OnlyIn(Dist.CLIENT)
   override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     loadData(nbt)

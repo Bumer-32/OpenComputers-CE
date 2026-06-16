@@ -172,7 +172,6 @@ trait ComponentInventory extends Environment with Inventory with container.Compo
     saveData(nbt)
   }
 
-  @OnlyIn(Dist.CLIENT)
   override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     loadData(nbt)

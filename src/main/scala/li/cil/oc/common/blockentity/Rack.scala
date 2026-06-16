@@ -452,8 +452,7 @@ class Rack(pos: BlockPos, state: BlockState)
       toNbt(buses.map(side => side.fold(-1)(_.ordinal())))))
   }
 
-  @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundTag): Unit = {
+  override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     requestModelDataUpdate()
 

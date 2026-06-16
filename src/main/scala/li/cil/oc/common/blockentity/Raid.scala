@@ -161,8 +161,7 @@ class Raid(pos: BlockPos, state: BlockState)
     label.saveData(nbt)
   }
 
-  @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundTag): Unit = {
+  override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     nbt.getByteArray(PresenceTag).
       map(_ != 0).

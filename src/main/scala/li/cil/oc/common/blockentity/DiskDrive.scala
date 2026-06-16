@@ -145,8 +145,7 @@ class DiskDrive(pos: BlockPos, state: BlockState)
 
   private final val DiskTag = Settings.namespace + "disk"
 
-  @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundTag): Unit = {
+  override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     if (nbt.contains(DiskTag)) {
       setItem(0, ItemStack.of(nbt.getCompound(DiskTag)))

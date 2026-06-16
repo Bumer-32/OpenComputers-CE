@@ -239,8 +239,7 @@ class Microcontroller(pos: BlockPos, state: BlockState)
     nbt.setNewCompoundTag(SnooperTag, snooperNode.saveData)
   }
 
-  @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundTag): Unit = {
+  override def loadForClient(nbt: CompoundTag): Unit = {
     info.loadData(nbt.getCompound(InfoTag))
     super.loadForClient(nbt)
   }
