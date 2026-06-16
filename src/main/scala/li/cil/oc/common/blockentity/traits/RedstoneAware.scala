@@ -152,7 +152,6 @@ trait RedstoneAware extends RotationAware {
     nbt.putIntArray(Settings.namespace + "rs.output", _output)
   }
 
-  @OnlyIn(Dist.CLIENT)
   override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     _isOutputEnabled = nbt.getBoolean("isOutputEnabled")

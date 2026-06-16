@@ -201,7 +201,6 @@ class Charger(pos: BlockPos, state: BlockState)
     nbt.putBoolean(InvertSignalTag, invertSignal)
   }
 
-  @OnlyIn(Dist.CLIENT)
   override def loadForClient(nbt: CompoundNBT): Unit = {
     super.loadForClient(nbt)
     chargeSpeed = nbt.getDouble(ChargeSpeedTag)

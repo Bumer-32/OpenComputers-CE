@@ -159,7 +159,6 @@ class Print(pos: BlockPos, blockState: BlockState, val canToggle: Option[() => B
     nbt.putBoolean(StateTag, state)
   }
 
-  @OnlyIn(Dist.CLIENT)
   override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     data.loadData(nbt.getCompound(DataTag))

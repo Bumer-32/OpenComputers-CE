@@ -75,7 +75,6 @@ trait BaseBlockEntity extends net.minecraft.world.level.block.entity.BlockEntity
     super.saveAdditional(nbt)
   }
 
-  @OnlyIn(Dist.CLIENT)
   def loadForClient(nbt: CompoundTag): Unit = {}
 
   def saveForClient(nbt: CompoundTag): Unit = {

@@ -52,7 +52,6 @@ trait RotatableBaseBlock extends Rotatable {
     nbt.putInt(YawTag, yaw.ordinal)
   }
 
-  @OnlyIn(Dist.CLIENT)
   override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     pitch = Direction.from3DDataValue(nbt.getInt(PitchTag))

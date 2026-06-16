@@ -520,7 +520,6 @@ class Hologram(pos: BlockPos, state: BlockState, var tier: Int)
     nbt.putFloat(RotationSpeedZTag, rotationSpeedZ)
   }
 
-  @OnlyIn(Dist.CLIENT)
   override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     nbt.getIntArray(VolumeTag).copyToArray(volume)

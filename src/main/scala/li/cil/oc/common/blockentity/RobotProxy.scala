@@ -203,7 +203,6 @@ class RobotProxy(pos: BlockPos, state: BlockState, val robot: Robot)
 
   override def loadData(nbt: CompoundTag): Unit = robot.loadData(nbt)
 
-  @OnlyIn(Dist.CLIENT)
   override def loadForClient(nbt: CompoundTag): Unit = robot.loadForClient(nbt)
 
   override def saveForClient(nbt: CompoundTag): Unit = robot.saveForClient(nbt)

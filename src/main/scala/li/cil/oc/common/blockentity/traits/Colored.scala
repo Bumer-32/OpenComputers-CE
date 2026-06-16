@@ -49,7 +49,6 @@ trait Colored extends BaseBlockEntity with internal.Colored {
     nbt.putInt(RenderColorTag, _color)
   }
 
-  @OnlyIn(Dist.CLIENT)
   override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     if (nbt.contains(RenderColorTag)) {

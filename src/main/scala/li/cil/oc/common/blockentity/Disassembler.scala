@@ -174,7 +174,6 @@ class Disassembler(pos: BlockPos, state: BlockState)
     nbt.putDouble(TotalTag, totalRequiredEnergy)
   }
 
-  @OnlyIn(Dist.CLIENT)
   override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     isActive = nbt.getBoolean(IsActiveTag)

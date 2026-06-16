@@ -170,7 +170,6 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
     }
   }
 
-  @OnlyIn(Dist.CLIENT)
   override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     hasErrored = nbt.getBoolean(HasErroredTag)

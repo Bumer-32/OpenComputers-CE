@@ -79,9 +79,8 @@ class Waypoint(pos: BlockPos, state: BlockState)
     super.saveForServer(nbt)
     nbt.putString(LabelTag, label)
   }
-
-  @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundTag): Unit = {
+  
+  override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     label = nbt.getString(LabelTag)
   }

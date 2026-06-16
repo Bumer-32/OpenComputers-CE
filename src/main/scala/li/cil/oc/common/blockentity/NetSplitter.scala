@@ -121,8 +121,7 @@ class NetSplitter(pos: BlockPos, state: BlockState)
     nbt.putBoolean(IsInvertedTag, isInverted)
   }
 
-  @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundTag): Unit = {
+  override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     isInverted = nbt.getBoolean(IsInvertedTag)
     requestModelDataUpdate()

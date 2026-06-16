@@ -38,7 +38,6 @@ trait OpenSides extends BaseBlockEntity {
     nbt.putByte(Settings.namespace + "openSides", compressSides)
   }
 
-  @OnlyIn(Dist.CLIENT)
   override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     openSides = uncompressSides(nbt.getByte(Settings.namespace + "openSides"))

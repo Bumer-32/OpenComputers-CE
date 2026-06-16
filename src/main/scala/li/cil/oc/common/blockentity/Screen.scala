@@ -321,7 +321,6 @@ class Screen(pos: BlockPos, state: BlockState, var tier: Int) extends BlockEntit
     nbt.putBoolean(InvertTouchModeTag, invertTouchMode)
   }
 
-  @OnlyIn(Dist.CLIENT) 
   override def loadForClient(nbt: CompoundTag): Unit = {
     tier = nbt.getByte(TierTag) max 0 min Tier.Four
     super.loadForClient(nbt)
@@ -329,7 +328,6 @@ class Screen(pos: BlockPos, state: BlockState, var tier: Int) extends BlockEntit
     invertTouchMode = nbt.getBoolean(InvertTouchModeTag)
   }
 
-  @OnlyIn(Dist.CLIENT)
   override def saveForClient(nbt: CompoundTag): Unit = {
     nbt.putByte(TierTag, tier.toByte)
     super.saveForClient(nbt)
