@@ -35,7 +35,7 @@ import scala.collection.JavaConverters.asJavaIterable
 import scala.collection.convert.ImplicitConversionsToJava._
 
 class Microcontroller(pos: BlockPos, state: BlockState)
-  extends BlockEntity(TileEntityTypes.MICROCONTROLLER.get(), pos, state) with traits.PowerAcceptor with traits.Hub with traits.Computer with WorldlyContainer with internal.Microcontroller with DeviceInfo {
+  extends BlockEntity(BlockEntityTypes.MICROCONTROLLER.get(), pos, state) with traits.PowerAcceptor with traits.Hub with traits.Computer with WorldlyContainer with internal.Microcontroller with DeviceInfo {
   val info = new MicrocontrollerData()
 
   override def node = null

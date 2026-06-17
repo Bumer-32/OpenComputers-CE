@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.entity.{BlockEntityType => TileEntityType
 import net.minecraft.world.level.block.state.BlockState
 
 class Geolyzer(pos: BlockPos, state: BlockState) 
-  extends TileEntity(TileEntityTypes.GEOLYZER.get(), pos, state) with traits.Environment {
+  extends TileEntity(BlockEntityTypes.GEOLYZER.get(), pos, state) with traits.Environment {
   val geolyzer = new component.Geolyzer(this)
 
   def node = geolyzer.node

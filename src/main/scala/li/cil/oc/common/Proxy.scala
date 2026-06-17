@@ -3,12 +3,12 @@ package li.cil.oc.common
 import java.util.function.Supplier
 import com.google.common.base.Strings
 import li.cil.oc._
+import li.cil.oc.common.blockentity.BlockEntityTypes
 import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.entity.EntityTypes
 import li.cil.oc.common.init.{Blocks, Items}
 import li.cil.oc.common.item.RedstoneCard
-import li.cil.oc.common.blockentity.TileEntityTypes
 import li.cil.oc.common.recipe.Recipes
 import li.cil.oc.integration.Mods
 import li.cil.oc.integration.opencomputers.ModOpenComputers

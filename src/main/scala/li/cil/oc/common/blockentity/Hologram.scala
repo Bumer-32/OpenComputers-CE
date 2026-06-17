@@ -27,7 +27,7 @@ import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
 class Hologram(pos: BlockPos, state: BlockState, var tier: Int) 
-  extends BlockEntity(TileEntityTypes.HOLOGRAM.get(), pos, state) with traits.Environment with SidedEnvironment with Analyzable with traits.RotatableBaseBlock with traits.Tickable with DeviceInfo {
+  extends BlockEntity(BlockEntityTypes.HOLOGRAM.get(), pos, state) with traits.Environment with SidedEnvironment with Analyzable with traits.RotatableBaseBlock with traits.Tickable with DeviceInfo {
   def this(pos: BlockPos, state: BlockState) = this(pos, state, 0)
 
   val node = api.Network.newNode(this, Visibility.Network).

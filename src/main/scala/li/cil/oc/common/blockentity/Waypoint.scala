@@ -19,7 +19,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
 
 class Waypoint(pos: BlockPos, state: BlockState)
-  extends BlockEntity(TileEntityTypes.WAYPOINT.get(), pos, state) with traits.Environment with traits.Rotatable with traits.RedstoneAware with traits.Tickable {
+  extends BlockEntity(BlockEntityTypes.WAYPOINT.get(), pos, state) with traits.Environment with traits.Rotatable with traits.RedstoneAware with traits.Tickable {
   val node = api.Network.newNode(this, Visibility.Network).
     withComponent("waypoint").
     create()

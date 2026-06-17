@@ -43,13 +43,13 @@ object EventHandlerMinecraftForge {
 
   val ProviderEnergy: ResourceLocation = ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, "forgeenergy")
 
-  class Provider(tile: PowerAcceptor) extends ICapabilityProvider {
+  class Provider(be: PowerAcceptor) extends ICapabilityProvider {
 
     private val providers = Direction.values.map(side => LazyOptional.of(new NonNullSupplier[EnergyStorageImpl] {
-      override def get = new EnergyStorageImpl(tile, side)
+      override def get = new EnergyStorageImpl(be, side)
     }))
     private val nullProvider = LazyOptional.of(new NonNullSupplier[EnergyStorageImpl] {
-      override def get = new EnergyStorageImpl(tile, null)
+      override def get = new EnergyStorageImpl(be, null)
     })
 
     def invalidate(): Unit = {
@@ -63,16 +63,16 @@ object EventHandlerMinecraftForge {
       } else LazyOptional.empty[T]
     }
 
-    class EnergyStorageImpl(val tile: PowerAcceptor, val side: Direction) extends IEnergyStorage {
+    class EnergyStorageImpl(val be: PowerAcceptor, val side: Direction) extends IEnergyStorage {
 
-      override def getEnergyStored: Int = Power.toRF(tile.globalBuffer(side))
+      override def getEnergyStored: Int = Power.toRF(be.globalBuffer(side))
 
-      override def getMaxEnergyStored: Int = Power.toRF(tile.globalBufferSize(side))
+      override def getMaxEnergyStored: Int = Power.toRF(be.globalBufferSize(side))
 
-      override def canReceive: Boolean = tile.canConnectPower(side)
+      override def canReceive: Boolean = be.canConnectPower(side)
 
       override def receiveEnergy(maxReceive: Int, simulate: Boolean): Int = {
-        Power.toRF(tile.tryChangeBuffer(side, Power.fromRF(maxReceive), !simulate))
+        Power.toRF(be.tryChangeBuffer(side, Power.fromRF(maxReceive), !simulate))
       }
 
       override def canExtract: Boolean = false

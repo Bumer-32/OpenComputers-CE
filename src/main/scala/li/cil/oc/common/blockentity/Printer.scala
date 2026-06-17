@@ -35,7 +35,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import scala.collection.convert.ImplicitConversionsToJava._
 
 class Printer(pos: BlockPos, state: BlockState) 
-  extends BlockEntity(TileEntityTypes.PRINTER.get(), pos, state) with traits.Environment with traits.Inventory with traits.Rotatable
+  extends BlockEntity(BlockEntityTypes.PRINTER.get(), pos, state) with traits.Environment with traits.Inventory with traits.Rotatable
   with SidedEnvironment with traits.StateAware with traits.Tickable with WorldlyContainer with DeviceInfo with MenuProvider {
 
   val node: ComponentConnector = api.Network.newNode(this, Visibility.Network).

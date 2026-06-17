@@ -36,7 +36,7 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 class Disassembler(pos: BlockPos, state: BlockState) 
-  extends BlockEntity(TileEntityTypes.DISASSEMBLER.get(), pos, state) with traits.Environment with traits.PowerAcceptor
+  extends BlockEntity(BlockEntityTypes.DISASSEMBLER.get(), pos, state) with traits.Environment with traits.PowerAcceptor
   with traits.Inventory with traits.StateAware with traits.PlayerInputAware with traits.Tickable with DeviceInfo with MenuProvider {
 
   val node: Connector = api.Network.newNode(this, Visibility.None).

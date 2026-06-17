@@ -32,7 +32,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import scala.collection.convert.ImplicitConversionsToJava._
 
 class Case(pos: BlockPos, state: BlockState, var tier: Int)
-  extends BlockEntity(TileEntityTypes.CASE.get(), pos, state) with traits.PowerAcceptor with traits.Computer with traits.Colored with internal.Case with DeviceInfo with MenuProvider {
+  extends BlockEntity(BlockEntityTypes.CASE.get(), pos, state) with traits.PowerAcceptor with traits.Computer with traits.Colored with internal.Case with DeviceInfo with MenuProvider {
   def this(pos: BlockPos, state: BlockState) = {
     this(pos, state, 0)
     // If no tier was defined when constructing this case, then we don't yet know the inventory size

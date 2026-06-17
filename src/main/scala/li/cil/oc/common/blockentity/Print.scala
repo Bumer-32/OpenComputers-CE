@@ -36,7 +36,7 @@ import scala.collection.Iterable
 import scala.collection.convert.ImplicitConversionsToJava._
 
 class Print(pos: BlockPos, blockState: BlockState, val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int => Unit], val onStateChange: Option[() => Unit])
-  extends BlockEntity(TileEntityTypes.PRINT.get(), pos, blockState) with traits.BaseBlockEntity with traits.RedstoneAware with traits.RotatableBaseBlock {
+  extends BlockEntity(BlockEntityTypes.PRINT.get(), pos, blockState) with traits.BaseBlockEntity with traits.RedstoneAware with traits.RotatableBaseBlock {
 
   def this(pos: BlockPos, blockState: BlockState) = this(pos, blockState, None, None, None)
   def this(pos: BlockPos, blockState: BlockState, canToggle: () => Boolean, scheduleUpdate: Int => Unit, onStateChange: () => Unit) =

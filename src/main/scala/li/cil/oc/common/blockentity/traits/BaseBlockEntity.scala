@@ -52,7 +52,7 @@ trait BaseBlockEntity extends net.minecraft.world.level.block.entity.BlockEntity
   override def onChunkUnloaded(): Unit = {
     super.onChunkUnloaded()
     try dispose() catch {
-      case t: Throwable => OpenComputers.log.error("Failed properly disposing a tile entity, things may leak and or break.", t)
+      case t: Throwable => OpenComputers.log.error("Failed properly disposing a block entity, things may leak and or break.", t)
     }
   }
 
@@ -116,7 +116,7 @@ trait BaseBlockEntity extends net.minecraft.world.level.block.entity.BlockEntity
     SaveHandler.savingForClients = true
     try {
       try saveForClient(nbt) catch {
-        case e: Throwable => OpenComputers.log.warn("There was a problem writing a TileEntity description packet. Please report this if you see it!", e)
+        case e: Throwable => OpenComputers.log.warn("There was a problem writing a BlockEntity description packet. Please report this if you see it!", e)
       }
     } finally {
       SaveHandler.savingForClients = false
@@ -127,7 +127,7 @@ trait BaseBlockEntity extends net.minecraft.world.level.block.entity.BlockEntity
 
   override def onDataPacket(manager: Connection, packet: ClientboundBlockEntityDataPacket): Unit = {
     try loadForClient(packet.getTag) catch {
-      case e: Throwable => OpenComputers.log.warn("There was a problem reading a TileEntity description packet. Please report this if you see it!", e)
+      case e: Throwable => OpenComputers.log.warn("There was a problem reading a BlockEntity description packet. Please report this if you see it!", e)
     }
   }
   

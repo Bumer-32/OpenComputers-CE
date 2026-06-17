@@ -30,7 +30,7 @@ object RackMountableRenderHandler {
   lazy val TerminalServer = api.Items.get(Constants.ItemName.TerminalServer)
 
   @SubscribeEvent
-  def onRackMountableRendering(e: RackMountableRenderEvent.TileEntity): Unit = {
+  def onRackMountableRendering(e: RackMountableRenderEvent.BlockEntity): Unit = {
     if (e.data != null && DiskDriveMountable == api.Items.get(e.rack.getItem(e.mountable))) {
       // Disk drive.
 
@@ -90,7 +90,7 @@ object RackMountableRenderHandler {
     }
   }
 
-  private def renderOverlayFromAtlas(e: RackMountableRenderEvent.TileEntity, texture: ResourceLocation, u0: Float = 0, u1: Float = 1): Unit = {
+  private def renderOverlayFromAtlas(e: RackMountableRenderEvent.BlockEntity, texture: ResourceLocation, u0: Float = 0, u1: Float = 1): Unit = {
     val matrix = e.stack.last.pose
     val r = e.typeBuffer.getBuffer(RenderTypes.BLOCK_OVERLAY)
     val icon = Textures.getSprite(texture)

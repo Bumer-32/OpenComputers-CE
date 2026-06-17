@@ -25,7 +25,7 @@ import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import scala.collection.mutable
 
 class Relay(pos: BlockPos, state: BlockState) 
-  extends BlockEntity(TileEntityTypes.RELAY.get(), pos, state) with traits.Hub with traits.ComponentInventory
+  extends BlockEntity(BlockEntityTypes.RELAY.get(), pos, state) with traits.Hub with traits.ComponentInventory
   with traits.PowerAcceptor with Analyzable with WirelessEndpoint with QuantumNetwork.QuantumNode with MenuProvider {
 
   lazy final val WirelessNetworkCardTier1: ItemInfo = api.Items.get(Constants.ItemName.WirelessNetworkCardTier1)

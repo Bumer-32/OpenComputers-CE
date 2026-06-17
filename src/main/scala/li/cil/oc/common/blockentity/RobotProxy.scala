@@ -35,7 +35,7 @@ import net.minecraft.world.entity
 import net.minecraft.network.chat.{Component => MCComponent}
 
 class RobotProxy(pos: BlockPos, state: BlockState, val robot: Robot)
-  extends BlockEntity(TileEntityTypes.ROBOT.get(), pos, state)
+  extends BlockEntity(BlockEntityTypes.ROBOT.get(), pos, state)
   with traits.Computer with traits.PowerInformation with traits.RotatableBaseBlock with WorldlyContainer with IFluidHandler with internal.Robot {
 
   def this(pos: BlockPos, state: BlockState) = this(pos, state, new Robot(pos, state))

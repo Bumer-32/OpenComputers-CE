@@ -3,13 +3,13 @@ package li.cil.oc
 import java.nio.file.Paths
 import li.cil.oc.common.IMC
 import li.cil.oc.common.Proxy
+import li.cil.oc.common.blockentity.BlockEntityTypes
 import li.cil.oc.common.capabilities.Capabilities
 import li.cil.oc.common.entity.EntityTypes
 import li.cil.oc.common.init.Blocks
 import li.cil.oc.common.init.Items
 import li.cil.oc.common.menu.MenuTypes
 import li.cil.oc.common.recipe.Recipes
-import li.cil.oc.common.blockentity.TileEntityTypes
 import li.cil.oc.integration.Mods
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.ThreadPoolFactory
@@ -68,7 +68,7 @@ class OpenComputers {
   Items.init(modBus)
   Blocks.init(modBus)
   CreativeTab.CREATIVE_TABS.register(modBus)
-  TileEntityTypes.init(modBus)
+  BlockEntityTypes.init(modBus)
   Recipes.init(modBus)
   LootFunctions.init(modBus)
   EntityTypes.ENTITY_TYPES.register(modBus)

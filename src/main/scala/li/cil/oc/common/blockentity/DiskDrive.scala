@@ -37,7 +37,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import scala.collection.convert.ImplicitConversionsToJava._
 
 class DiskDrive(pos: BlockPos, state: BlockState) 
-  extends BlockEntity(TileEntityTypes.DISK_DRIVE.get(), pos, state) with traits.Environment
+  extends BlockEntity(BlockEntityTypes.DISK_DRIVE.get(), pos, state) with traits.Environment
   with traits.ComponentInventory with traits.Rotatable with Analyzable with DeviceInfo with MenuProvider {
 
   // Used on client side to check whether to render disk activity indicators.

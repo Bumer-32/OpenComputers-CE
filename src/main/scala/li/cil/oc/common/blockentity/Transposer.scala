@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockState
 
 class Transposer(pos: BlockPos, state: BlockState) 
-  extends BlockEntity(TileEntityTypes.TRANSPOSER.get(), pos, state) with traits.Environment {
+  extends BlockEntity(BlockEntityTypes.TRANSPOSER.get(), pos, state) with traits.Environment {
   val transposer = new component.Transposer.Block(this)
 
   def node = transposer.node
