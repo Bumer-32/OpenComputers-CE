@@ -11,7 +11,7 @@ import li.cil.oc.api.fs.FileSystem
 import li.cil.oc.common
 import li.cil.oc.common.{EventHandler, Loot, Tier, item}
 import li.cil.oc.common.block.SimpleBlock
-import li.cil.oc.common.item.NetheriteSilicon
+import li.cil.oc.common.item.{CapacitorMountable, NetheriteSilicon}
 import li.cil.oc.common.item.data.DroneData
 import li.cil.oc.common.item.data.HoverBootsData
 import li.cil.oc.common.item.data.MicrocontrollerData
@@ -457,6 +457,7 @@ object Items extends ItemAPI {
     
     // 1.9
     registerItem(new item.CreativeMemory(defaultProps.rarity(Rarity.EPIC)), Constants.ItemName.RAMCreative)
+    registerItem(new item.CapacitorMountable(defaultProps.stacksTo(1)), Constants.ItemName.CapacitorMountable)
   }
 
   // Card components.

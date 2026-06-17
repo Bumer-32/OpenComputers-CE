@@ -13,7 +13,7 @@ import net.minecraft.nbt.Tag;
 public abstract class AbstractManagedEnvironment implements ManagedEnvironment {
     public static final String NODE_TAG = "node";
 
-    // Should be initialized using setNode(api.Network.newNode()). See TileEntityEnvironment.
+    // Should be initialized using setNode(api.Network.newNode()). See BlockEntityEnvironment.
     private Node _node;
 
     @Override

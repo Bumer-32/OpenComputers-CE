@@ -8,7 +8,5 @@ object ModCreate extends ModProxy {
 
   override def initialize(): Unit = {
     Driver.add(DriverCreativeMotor)
-    Driver.add(DriverDisplayLink)
-    Driver.add(DriverFrogport)
   }
 }
