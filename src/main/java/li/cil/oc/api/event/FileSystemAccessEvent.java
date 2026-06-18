@@ -7,6 +7,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
+import javax.annotation.Nullable;
+
 /**
  * Events for handling file system access and representing it on the client.
  * <br>
@@ -74,9 +76,10 @@ public class FileSystemAccessEvent extends Event {
 
     /**
      * The name of the sound effect to play for the file system.
+     * If sound is null, returns empty string
      */
     public String getSound() {
-        return sound;
+        return sound != null ? sound : "";
     }
 
     /**

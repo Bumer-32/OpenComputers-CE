@@ -6,6 +6,7 @@ import li.cil.oc.api.internal.Rack
 import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.api.network.{Component, ComponentConnector, Visibility}
 import li.cil.oc.api.prefab.ComponentConnectableRackMountableEnvironment
+import li.cil.oc.util.ExtendedNBT.toNbt
 import net.minecraft.nbt.CompoundTag
 
 import java.util
@@ -39,5 +40,10 @@ class CapacitorMountable(val rack: Rack) extends ComponentConnectableRackMountab
   
   protected def maxCapacity: Double = Settings.get.bufferCapacitor + Settings.get.bufferCapacitorAdjacencyBonus * 9
 
-  override def getData: CompoundTag = null
+  override def getData: CompoundTag = {
+    val nbt = new CompoundTag()
+    nbt.putDouble("capacity", node.localBufferSize())
+    nbt.putDouble("stored", node.localBuffer())
+    nbt
+  }
 }
